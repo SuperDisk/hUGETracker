@@ -1,0 +1,21 @@
+Additions to the emulator, from the first version that was released.  
+Names between brackets are games that first indicated the presence 
+of the corresponding bug in the emulator, or the person
+that spotted the bug.
+
+o - new function
+x - fixed bug
+
+
+Version 0.1
+-----------
+
+ o First release 
+
+Version 0.2
+-----------
+
+ o Sound emulation
+ o Realspeed fix
+ o Dib-Output
+ o Map-Viewer

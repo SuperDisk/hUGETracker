@@ -1,0 +1,401 @@
+object frmGameboy: TfrmGameboy
+  Left = 369
+  Top = 205
+  Width = 318
+  Height = 354
+  Caption = 'Gameboy'
+  Color = clBlack
+  DefaultMonitor = dmMainForm
+  Font.Charset = ANSI_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Arial'
+  Font.Style = []
+  Menu = MainMenu
+  Position = poScreenCenter
+  OnActivate = FormActivate
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
+  OnMouseDown = FormMouseDown
+  OnResize = FormResize
+  PixelsPerInch = 96
+  object StatusBar: TStatusBar
+    Left = 0
+    Top = 289
+    Width = 310
+    Height = 19
+    Panels = <    
+      item
+        Text = 'Memory'
+        Width = 80
+      end    
+      item
+        Text = 'Gameboy'
+        Width = 145
+      end    
+      item
+        Text = 'Company'
+        Width = 50
+      end>
+    SimplePanel = False
+  end
+  object MainMenu: TMainMenu
+    Left = 40
+    Top = 8
+    object File1: TMenuItem
+      Caption = '&File'
+      object Load1: TMenuItem
+        Caption = '&Load ...'
+        OnClick = FileOpenClick
+      end
+      object N3: TMenuItem
+        Caption = '-'
+        GroupIndex = 2
+      end
+      object Message1: TMenuItem
+        Caption = '&Message ...'
+        Enabled = False
+        GroupIndex = 2
+      end
+      object N4: TMenuItem
+        Caption = '-'
+        GroupIndex = 2
+      end
+      object Exit1: TMenuItem
+        Caption = 'E&xit'
+        GroupIndex = 2
+        OnClick = Exit1Click
+      end
+    end
+    object CPU1: TMenuItem
+      Caption = '&CPU'
+      object Reset2: TMenuItem
+        Caption = '&Reset '
+        OnClick = ResetClick
+      end
+      object Pause1: TMenuItem
+        Caption = '&Pause'
+        OnClick = Pause
+      end
+      object N2: TMenuItem
+        Caption = '-'
+      end
+      object LoadStat: TMenuItem
+        Caption = '&Load Stat'
+        GroupIndex = 2
+        OnClick = LoadStatClick
+      end
+      object SaveStat: TMenuItem
+        Caption = '&Save Stat'
+        GroupIndex = 2
+        OnClick = SaveStatClick
+      end
+      object N8: TMenuItem
+        Caption = '-'
+        GroupIndex = 2
+      end
+      object Debugger: TMenuItem
+        Caption = '&Debugger'
+        GroupIndex = 2
+        OnClick = DebuggerClick
+      end
+      object Dump1: TMenuItem
+        Caption = '&Dump'
+        Enabled = False
+        GroupIndex = 2
+        object MemoryMap1: TMenuItem
+          Caption = '&MemoryMap'
+        end
+        object RamBank1: TMenuItem
+          Caption = '&RamBank'
+        end
+        object ChrData1: TMenuItem
+          Caption = '&Chr Data'
+        end
+        object N1: TMenuItem
+          Caption = '-'
+        end
+        object CGBVRAM1: TMenuItem
+          Caption = 'CGB &VRAM'
+        end
+        object CGBWRAM1: TMenuItem
+          Caption = 'CGB &WRAM'
+        end
+        object CGBCRAM1: TMenuItem
+          Caption = 'CGB &CRAM'
+        end
+        object N9: TMenuItem
+          Caption = '-'
+        end
+        object SGBVRAM1: TMenuItem
+          Caption = 'SGB &VRAM'
+        end
+        object sgbtiledata1: TMenuItem
+          Caption = 'SGB Chr Data'
+        end
+      end
+    end
+    object Option3: TMenuItem
+      Caption = '&Option'
+      object AutoWait: TMenuItem
+        Caption = 'Auto &Wait'
+        OnClick = AutoWaitClick
+      end
+      object FrameSkip1: TMenuItem
+        Caption = '&Frame Skip'
+        object N01: TMenuItem
+          Caption = '&0'
+          Checked = True
+          GroupIndex = 16
+          OnClick = FrameClick
+        end
+        object N11: TMenuItem
+          Tag = 1
+          Caption = '&1'
+          GroupIndex = 16
+          OnClick = FrameClick
+        end
+        object N21: TMenuItem
+          Tag = 2
+          Caption = '&2'
+          GroupIndex = 16
+          OnClick = FrameClick
+        end
+        object N31: TMenuItem
+          Tag = 3
+          Caption = '&3'
+          GroupIndex = 16
+          OnClick = FrameClick
+        end
+        object N41: TMenuItem
+          Tag = 4
+          Caption = '&4'
+          GroupIndex = 16
+          OnClick = FrameClick
+        end
+        object N51: TMenuItem
+          Tag = 5
+          Caption = '&5'
+          GroupIndex = 16
+          OnClick = FrameClick
+        end
+      end
+      object Priority: TMenuItem
+        Caption = '&Priority'
+        object priority1: TMenuItem
+          Caption = 'Idle'
+          OnClick = setPriority
+        end
+        object priority2: TMenuItem
+          Tag = 1
+          Caption = 'Normal'
+          OnClick = setPriority
+        end
+        object priority3: TMenuItem
+          Tag = 2
+          Caption = 'High'
+          OnClick = setPriority
+        end
+        object N14: TMenuItem
+          Caption = '-'
+        end
+        object priority4: TMenuItem
+          Tag = 3
+          Caption = 'RealTime'
+          OnClick = setPriority
+        end
+      end
+      object N12: TMenuItem
+        Caption = '-'
+      end
+      object Video1: TMenuItem
+        Caption = '&Video'
+        object Outputmode1: TMenuItem
+          Caption = '&Output'
+          object mnuDirectdraw: TMenuItem
+            Caption = '&Directdraw'
+            OnClick = mnuOutputClick
+          end
+          object mnuDib: TMenuItem
+            Caption = 'D&ib'
+            Checked = True
+            OnClick = mnuOutputClick
+          end
+        end
+        object N5: TMenuItem
+          Caption = '-'
+        end
+        object x11: TMenuItem
+          Caption = 'x&1 window'
+          GroupIndex = 2
+          OnClick = setResolution
+        end
+        object x21: TMenuItem
+          Tag = 1
+          Caption = 'x&2'
+          GroupIndex = 2
+          OnClick = setResolution
+        end
+        object x31: TMenuItem
+          Tag = 2
+          Caption = 'x&3'
+          GroupIndex = 2
+          OnClick = setResolution
+        end
+        object x41: TMenuItem
+          Tag = 3
+          Caption = 'x&4'
+          GroupIndex = 2
+          OnClick = setResolution
+        end
+        object N7: TMenuItem
+          Caption = '-'
+          GroupIndex = 2
+          Visible = False
+        end
+        object full1: TMenuItem
+          Tag = 80
+          Caption = '320x240 full screen'
+          GroupIndex = 2
+          Visible = False
+          OnClick = setResolution
+        end
+        object fullscreen1: TMenuItem
+          Tag = 81
+          Caption = '400x300'
+          GroupIndex = 2
+          Visible = False
+          OnClick = setResolution
+        end
+        object full2: TMenuItem
+          Tag = 82
+          Caption = '512x384'
+          GroupIndex = 2
+          Visible = False
+          OnClick = setResolution
+        end
+        object full3: TMenuItem
+          Tag = 83
+          Caption = '640x400'
+          GroupIndex = 2
+          Visible = False
+          OnClick = setResolution
+        end
+        object full4: TMenuItem
+          Tag = 84
+          Caption = '640x480'
+          GroupIndex = 2
+          Visible = False
+          OnClick = setResolution
+        end
+      end
+      object Sound1: TMenuItem
+        Caption = '&Sound'
+        object Off: TMenuItem
+          Caption = '&Off'
+          OnClick = SetSound
+        end
+        object N6: TMenuItem
+          Caption = '-'
+        end
+        object Ch1: TMenuItem
+          Caption = 'Ch&1'
+          Checked = True
+          OnClick = SetAudioChannel
+        end
+        object Ch2: TMenuItem
+          Tag = 1
+          Caption = 'Ch&2'
+          Checked = True
+          OnClick = SetAudioChannel
+        end
+        object Ch3: TMenuItem
+          Tag = 2
+          Caption = 'Ch&3'
+          Checked = True
+          OnClick = SetAudioChannel
+        end
+        object Ch4: TMenuItem
+          Tag = 3
+          Caption = 'Ch&4'
+          Checked = True
+          OnClick = SetAudioChannel
+        end
+      end
+      object Net1: TMenuItem
+        Caption = '&Net'
+        Enabled = False
+      end
+      object N15: TMenuItem
+        Caption = '-'
+      end
+      object SerialIF1: TMenuItem
+        Caption = 'Serial I/F'
+        Enabled = False
+        object serial1: TMenuItem
+          Caption = 'None'
+        end
+        object serial2: TMenuItem
+          Tag = 1
+          Caption = 'Pocket Printer'
+        end
+        object serial3: TMenuItem
+          Tag = 2
+          Caption = 'Gameboy ...'
+          Visible = False
+        end
+      end
+      object Palette1: TMenuItem
+        Caption = '&Palette'
+        Enabled = False
+        object preset11: TMenuItem
+          Caption = 'preset1'
+          Checked = True
+          GroupIndex = 10
+        end
+        object preset21: TMenuItem
+          Tag = 1
+          Caption = 'preset2'
+          GroupIndex = 10
+        end
+        object preset31: TMenuItem
+          Tag = 2
+          Caption = 'preset3'
+          GroupIndex = 10
+        end
+        object preset41: TMenuItem
+          Tag = 3
+          Caption = 'preset4'
+          GroupIndex = 10
+        end
+        object preset51: TMenuItem
+          Tag = 4
+          Caption = 'preset5'
+          GroupIndex = 10
+        end
+      end
+      object N10: TMenuItem
+        Caption = '-'
+      end
+      object Setting1: TMenuItem
+        Caption = '&Setting ...'
+        Enabled = False
+      end
+    end
+  end
+  object OpenDialog: TAgOpenDialog
+    ShowPlacesBar = True
+  end
+  object SaveDialog: TAgSaveDialog
+    ShowPlacesBar = True
+  end
+  object Timer: TTimer
+    Enabled = False
+    Interval = 17
+    OnTimer = TimerTimer
+    Left = 40
+    Top = 40
+  end
+end

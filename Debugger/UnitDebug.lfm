@@ -1,0 +1,17 @@
+object frmDebug: TfrmDebug
+  Left = 286
+  Top = 173
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
+  Caption = 'Debugger'
+  ClientHeight = 391
+  ClientWidth = 531
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  ShowHint = True
+  PixelsPerInch = 96
+end

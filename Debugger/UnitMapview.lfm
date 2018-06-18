@@ -1,0 +1,194 @@
+object frmMapview: TfrmMapview
+  Left = 214
+  Top = 202
+  BorderStyle = bsToolWindow
+  Caption = 'Map View'
+  ClientHeight = 360
+  ClientWidth = 501
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'MS Sans Serif'
+  Font.Style = []
+  PixelsPerInch = 96
+  object Shape1: TShape
+    Left = 341
+    Top = 168
+    Width = 33
+    Height = 25
+  end
+  object Shape2: TShape
+    Left = 381
+    Top = 168
+    Width = 33
+    Height = 25
+  end
+  object Shape3: TShape
+    Left = 421
+    Top = 168
+    Width = 33
+    Height = 25
+  end
+  object Shape4: TShape
+    Left = 461
+    Top = 168
+    Width = 33
+    Height = 25
+  end
+  object Address: TLabel
+    Left = 344
+    Top = 280
+    Width = 69
+    Height = 13
+    Caption = 'Tile address = '
+  end
+  object R0: TLabel
+    Left = 344
+    Top = 200
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object G0: TLabel
+    Left = 344
+    Top = 216
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object R1: TLabel
+    Left = 384
+    Top = 200
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object G1: TLabel
+    Left = 384
+    Top = 216
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object R2: TLabel
+    Left = 424
+    Top = 200
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object G2: TLabel
+    Left = 424
+    Top = 216
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object R3: TLabel
+    Left = 464
+    Top = 200
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object G3: TLabel
+    Left = 464
+    Top = 216
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object Number: TLabel
+    Left = 344
+    Top = 264
+    Width = 64
+    Height = 13
+    Caption = 'Tile number ='
+  end
+  object HFlip: TLabel
+    Left = 344
+    Top = 296
+    Width = 44
+    Height = 13
+    Caption = 'HFlip=No'
+  end
+  object VFlip: TLabel
+    Left = 408
+    Top = 296
+    Width = 43
+    Height = 13
+    Caption = 'VFlip=No'
+  end
+  object B3: TLabel
+    Left = 464
+    Top = 232
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object B2: TLabel
+    Left = 424
+    Top = 232
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object B1: TLabel
+    Left = 384
+    Top = 232
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object B0: TLabel
+    Left = 344
+    Top = 232
+    Width = 26
+    Height = 13
+    Caption = 'R=31'
+  end
+  object ZoomView: TGroupBox
+    Left = 344
+    Top = 8
+    Width = 145
+    Height = 153
+    Caption = 'Zoom View'
+    TabOrder = 0
+    object PaintBox2: TPaintBox
+      Left = 6
+      Top = 2
+      Width = 128
+      Height = 128
+    end
+  end
+  object TabControl1: TTabControl
+    Left = 8
+    Top = 8
+    Width = 321
+    Height = 345
+    TabOrder = 1
+    Tabs.Strings = (
+      '$9800'
+      '$9C00'
+    )
+    TabIndex = 0
+    OnChange = TabControl1Change
+    object Map: TGroupBox
+      Left = 8
+      Top = 24
+      Width = 305
+      Height = 313
+      Caption = 'Map'
+      TabOrder = 0
+      object PaintBox1: TPaintBox
+        Left = 6
+        Top = 2
+        Width = 288
+        Height = 288
+        OnMouseMove = PaintBox1MouseMove
+        OnPaint = PaintBox1Paint
+      end
+    end
+  end
+end

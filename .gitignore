@@ -1,0 +1,6 @@
+AutomaticConversion.log
+backup
+ConverterBackup
+**/backup
+lib
+*.exe
