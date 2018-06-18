@@ -1,18 +1,19 @@
 object frmGameboy: TfrmGameboy
-  Left = 369
-  Top = 205
-  Width = 318
+  Left = 387
   Height = 354
+  Top = 232
+  Width = 318
   Caption = 'Gameboy'
+  ClientHeight = 320
+  ClientWidth = 318
   Color = clBlack
   DefaultMonitor = dmMainForm
-  Font.Charset = ANSI_CHARSET
+  DesignTimePPI = 168
+  Font.CharSet = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Arial'
-  Font.Style = []
   Menu = MainMenu
-  Position = poScreenCenter
   OnActivate = FormActivate
   OnClose = FormClose
   OnCreate = FormCreate
@@ -20,12 +21,13 @@ object frmGameboy: TfrmGameboy
   OnKeyUp = FormKeyUp
   OnMouseDown = FormMouseDown
   OnResize = FormResize
-  PixelsPerInch = 96
+  Position = poScreenCenter
+  LCLVersion = '1.8.4.0'
   object StatusBar: TStatusBar
     Left = 0
-    Top = 289
-    Width = 310
-    Height = 19
+    Height = 43
+    Top = 277
+    Width = 318
     Panels = <    
       item
         Text = 'Memory'
@@ -42,8 +44,8 @@ object frmGameboy: TfrmGameboy
     SimplePanel = False
   end
   object MainMenu: TMainMenu
-    Left = 40
-    Top = 8
+    left = 40
+    top = 8
     object File1: TMenuItem
       Caption = '&File'
       object Load1: TMenuItem
@@ -385,17 +387,15 @@ object frmGameboy: TfrmGameboy
       end
     end
   end
-  object OpenDialog: TAgOpenDialog
-    ShowPlacesBar = True
+  object OpenDialog: TOpenDialog
   end
-  object SaveDialog: TAgSaveDialog
-    ShowPlacesBar = True
+  object SaveDialog: TSaveDialog
   end
   object Timer: TTimer
     Enabled = False
     Interval = 17
     OnTimer = TimerTimer
-    Left = 40
-    Top = 40
+    left = 40
+    top = 40
   end
 end

@@ -17,7 +17,7 @@ uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   ddraw_out,dib_out,DirectDraw,vars,z80cpu,
   gfx,mainloop,machine, debugger,sound,
-  StdCtrls, ExtCtrls,ComCtrls, Menus, AgOpenDialog;
+  StdCtrls, ExtCtrls,ComCtrls, Menus;
 
 
 type
@@ -96,9 +96,9 @@ type
     N10: TMenuItem;
     Setting1: TMenuItem;
     StatusBar: TStatusBar;
-    OpenDialog: TAgOpenDialog;
+    OpenDialog: TOpenDialog;
     Debugger: TMenuItem;
-    SaveDialog: TAgSaveDialog;
+    SaveDialog: TSaveDialog;
     Timer: TTimer;
     N5: TMenuItem;
     Outputmode1: TMenuItem;

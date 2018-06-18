@@ -344,7 +344,6 @@ var cf:file;
     i,c1:Byte;
     S:String;
 begin
- name := 'mario.gb';
  assignfile(cf,name);reset(cf,1);
  blockread(cf,m_rom,$180);
  closefile(cf);
