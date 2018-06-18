@@ -4,7 +4,7 @@
     <PathDelim Value="\"/>
     <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="26">
+    <Units Count="27">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -18,9 +18,7 @@
         <Filename Value="UnitMain.pas"/>
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="4"/>
-        <CursorPos X="37" Y="20"/>
+        <CursorPos X="49" Y="8"/>
         <UsageCount Value="21"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -116,9 +114,10 @@
       <Unit11>
         <Filename Value="Global\vars.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="334"/>
-        <CursorPos X="6" Y="346"/>
+        <TopLine Value="319"/>
+        <CursorPos X="26" Y="77"/>
         <UsageCount Value="21"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -193,6 +192,7 @@
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
         <EditorIndex Value="-1"/>
+        <CursorPos X="12" Y="4"/>
         <UsageCount Value="21"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit21>
@@ -218,44 +218,30 @@
         <ComponentName Value="frmGameboy"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit24>
       <Unit25>
         <Filename Value="C:\lazarus\lcl\include\control.inc"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="3881"/>
         <CursorPos Y="3898"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit25>
+      <Unit26>
+        <Filename Value="..\..\UGE\UnitMain.lfm"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="LFM"/>
+      </Unit26>
     </Units>
-    <JumpHistory Count="6" HistoryIndex="5">
+    <JumpHistory Count="1">
       <Position1>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="266" Column="69" TopLine="251"/>
-      </Position1>
-      <Position2>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="99" Column="28" TopLine="83"/>
-      </Position2>
-      <Position3>
         <Filename Value="Global\vars.pas"/>
-        <Caret Line="346" Column="6" TopLine="334"/>
-      </Position3>
-      <Position4>
-        <Filename Value="UnitMain.lfm"/>
-        <Caret Line="390" Column="33" TopLine="366"/>
-      </Position4>
-      <Position5>
-        <Filename Value="C:\lazarus\lcl\include\control.inc"/>
-        <Caret Line="3884" Column="44" TopLine="3882"/>
-      </Position5>
-      <Position6>
-        <Filename Value="UnitMain.lfm"/>
-      </Position6>
+        <Caret Line="90" Column="22" TopLine="73"/>
+      </Position1>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

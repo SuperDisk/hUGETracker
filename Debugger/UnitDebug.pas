@@ -18,6 +18,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   debugger, StdCtrls, ComCtrls, Menus;
+
 type
   TfrmDebug = class(TForm)
   private

@@ -3,7 +3,8 @@ program GBEmu;
 {$MODE Delphi}
 
 uses
-  Forms, Interfaces,
+  Forms,
+  Interfaces,
   UnitMain in 'UnitMain.pas' {frmGameboy},
   debugger in 'Debugger\debugger.pas',
   directdraw in 'Directx\directdraw.pas',
