@@ -1,7 +1,7 @@
 object frmGameboy: TfrmGameboy
-  Left = 387
+  Left = 2719
   Height = 354
-  Top = 232
+  Top = 151
   Width = 318
   Caption = 'Gameboy'
   ClientHeight = 320
@@ -41,6 +41,7 @@ object frmGameboy: TfrmGameboy
         Text = 'Company'
         Width = 50
       end>
+    ParentColor = False
     SimplePanel = False
   end
   object MainMenu: TMainMenu

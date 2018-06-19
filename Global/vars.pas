@@ -12,7 +12,7 @@ uses Windows, DirectDraw;
 const
   thr_f: integer = 1;
   cart: pointer = nil; // Cartdridge
-  isddraw: boolean = False; // DirectDraw;
+  isddraw: boolean = True; // DirectDraw;
 
 var
   bdrop, dirname, dirload: string;

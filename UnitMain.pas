@@ -260,40 +260,63 @@ begin
   timervar := 0;
 end;
 
+const
+  CyclesPerFrame : Integer = 70224;
+  TimePerFrame: Double = 1.0 / 60.0;
 
 procedure TfrmGameboy.Emulation(var Msg: TMessage);
 var
   Count: DWord;
   i: byte;
-  wasteTime: byte;
   idx: integer;
+  li: Large_Integer;
+  tickFreq, cycles: Integer;
+  frameStart, frameEnd: Integer;
+  frameElapsedInSec: Double;
 begin
   idx := 0;
-  wasteTime := 0;
-
   lastTime := 0;
   Count := 0;
   i := 0;
 
+  cycles := 0;
+
+  QueryPerformanceFrequency(@li);
+  tickFreq := li.QuadPart;
+  QueryPerformanceCounter(@li);
+  frameStart := li.QuadPart;
+
   repeat
+    application.ProcessMessages;
+
     // Pause
     if f_stopped then
       while f_stopped do
         application.ProcessMessages;
 
-    z80_decode;
+    while (cycles < CyclesPerFrame) do
+          cycles += z80_decode;
 
-    if Count = 0 then
-      application.ProcessMessages;
-    Count := (Count + 1) mod 10000;
+    cycles -= CyclesPerFrame;
 
-    if screen_updated > 0 then // onpaint :)
-    begin
-      screen_updated := 0;
-      if i = 0 then
-        RealSpeedEmulation;
-      i := (i + 1) mod 31;
+    while True do begin
+      QueryPerformanceCounter(@li);
+      frameEnd := li.QuadPart;
+
+      frameElapsedInSec := (frameEnd - frameStart) / tickFreq;
+      if frameElapsedInSec > TimePerFrame then
+         Break;
     end;
+
+    frameStart := frameEnd;
+
+    //if screen_updated > 0 then // onpaint :)
+    //begin
+    //  screen_updated := 0;
+    //  if i = 0 then
+    //    RealSpeedEmulation;
+    //  i := (i + 1) mod 31;
+    //end;
   until application.Terminated;
 end;
 

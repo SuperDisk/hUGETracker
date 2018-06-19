@@ -18,7 +18,7 @@ uses Windows;
 function main_loop(a: DWord): DWORD;
 procedure setzewindow(h_wnd: HWND);
 
-procedure z80_decode; pascal;
+function z80_decode : Byte; pascal;
 procedure z80_reset;
 
 var
@@ -291,9 +291,9 @@ end;
 const
   cycles_per_hblank = 451;
 
-procedure z80_decode;
+function z80_decode : Byte;
 var
-  Count: byte;
+  Count: Byte;
 begin
   if (gbr_ime) and (m_iram[$ff0f] and 31 > 0) then
     IFlags; // Start Interupt
@@ -412,6 +412,7 @@ begin
     end;
   end;
 
+  Result := Count;
 end;
 
 procedure z80_reset;

@@ -40,7 +40,9 @@
       <Unit1>
         <Filename Value="UnitMain.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmGameboy"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
       </Unit1>
       <Unit2>
         <Filename Value="Debugger\debugger.pas"/>
@@ -55,15 +57,15 @@
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="GPU\ddraw_out.pas"/>
+        <Filename Value="Gpu\ddraw_out.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="GPU\dib_out.pas"/>
+        <Filename Value="Gpu\dib_out.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit6>
       <Unit7>
-        <Filename Value="GPU\gfx.pas"/>
+        <Filename Value="Gpu\gfx.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit7>
       <Unit8>
@@ -71,8 +73,9 @@
         <IsPartOfProject Value="True"/>
       </Unit8>
       <Unit9>
-        <Filename Value="CPU\z80cpu.pas"/>
+        <Filename Value="Cpu\z80cpu.pas"/>
         <IsPartOfProject Value="True"/>
+        <UnitName Value="Z80CPU"/>
       </Unit9>
       <Unit10>
         <Filename Value="Sound\sound.pas"/>
