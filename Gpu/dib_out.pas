@@ -46,7 +46,7 @@ begin
     begin
       bisize := sizeof(bmiheader);
       biwidth := 160;
-      biheight := 144;
+      biheight := -144;
       biplanes := 1;{4}
       bibitcount := bits;
       bicompression := BI_RGB;

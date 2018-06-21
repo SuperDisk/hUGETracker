@@ -15,6 +15,7 @@
       <Title Value="GBEmu"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
+      <Icon Value="0"/>
     </General>
     <BuildModes Count="1">
       <Item1 Name="Default" Default="True"/>
@@ -137,13 +138,13 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="Debugger;Directx;GPU;CPU;Sound;Global;Components"/>
+      <IncludeFiles Value="Debugger;Directx;GPU;CPU;Sound;Global;Components;$(ProjOutDir)"/>
       <OtherUnitFiles Value="Debugger;Directx;GPU;CPU;Sound;Global;Components"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
-        <SyntaxMode Value="delphi"/>
+        <SyntaxMode Value="Delphi"/>
       </SyntaxOptions>
     </Parsing>
     <Linking>

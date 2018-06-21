@@ -20,9 +20,8 @@
         <ComponentName Value="frmGameboy"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="286"/>
-        <CursorPos X="28" Y="311"/>
+        <TopLine Value="309"/>
+        <CursorPos X="40" Y="313"/>
         <UsageCount Value="27"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -69,9 +68,10 @@
       <Unit6>
         <Filename Value="Gpu\dib_out.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="94"/>
-        <CursorPos Y="94"/>
+        <TopLine Value="37"/>
+        <CursorPos X="21" Y="51"/>
         <UsageCount Value="27"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
