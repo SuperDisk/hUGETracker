@@ -6,7 +6,7 @@
  |
  | http://www.tu-ilmenau.de/~hackbart
  +----------------------------------------------------------------------------+}
-{ $define dsound}
+
 unit sound;
 
 {$MODE Delphi}
@@ -150,11 +150,9 @@ var
     cnt: integer;
   end;
 
-  winHandle: hwnd;
-
 implementation
 
-uses DirectSound, vars;
+uses vars;
 
 const
   dev: HWAVEOUT = 0;
@@ -170,7 +168,8 @@ var
   ready: integer;
   bufPos, bufCycles, bufLVal, bufRVal: integer;
   WH: PWAVEHDR;
-//CallBack:TFNDrvCallBack;
+
+  MyFile: file of Byte;
 
 procedure WaveCallback(hdrvr: HDRVR; uMsg: UINT; dwUser: DWORD; dw1, dw2: DWORD); stdcall;
 var
@@ -203,28 +202,10 @@ begin
 end;
 
 var
-  lpDS: IDIRECTSOUND;
-  lpBuf: IDIRECTSOUNDBUFFER;
-  lpDSNot: IDIRECTSOUNDNOTIFY;
   sndEv: array[0..1] of THANDLE;
   buf: array[0..2047] of byte;
   bufIndx: word = 0;
   playing, left: integer;
-
-
-{$ifdef dsound}
-procedure CreateSoundBuffer; forward;
-
-procedure EnableDirectSound;
-var
-  res: integer;
-begin
-  res := DirectSoundCreate(nil, lpDS, nil);
-  res := lpDS.SetCooperativeLevel(winHandle, DSSCL_NORMAL);
-  CreateSoundBuffer;
-end;
-
-{$endif}
 
 procedure EnableSound;
 var
@@ -245,11 +226,6 @@ begin
   bufCycles := 0;
   bufLVal := 0;
   bufRVal := 0;
-
- {$ifdef dsound}
-  EnableDirectSound;
-  exit;
-{$endif}
 
   outFormatex.wFormatTag := WAVE_FORMAT_PCM;
   outFormatex.wBitsPerSample := 8;
@@ -290,104 +266,17 @@ begin
   soundEnable := False;
 end;
 
-{$ifdef dsound}
-procedure CreateSoundBuffer;
-var
-  d: TDSBUFFERDESC;
-  wf: TWAVEFORMATEX;
-  ptr: pointer;
-  res: integer;
-  n: DWord;
-  pn: array[0..1] of TDSBPOSITIONNOTIFY;
-begin
-  wf.wFormatTag := WAVE_FORMAT_PCM;
-  wf.nChannels := 2;
-  wf.nSamplesPerSec := 22050;
-  wf.nAvgBytesPerSec := 22050 * 2;
-  wf.nBlockAlign := 2;
-  wf.wBitsPerSample := 8;
-  wf.cbSize := 0;
-
-  zeromemory(@d, sizeof(d));
-  d.dwSize := sizeof(d);
-  d.dwFlags := DSBCAPS_CTRLPOSITIONNOTIFY or DSBCAPS_GLOBALFOCUS;
-  d.dwBufferBytes := 4096;
-  d.lpwfxFormat := @wf;
-  lpDS.CreateSoundBuffer(d, lpBuf, nil);
-  lpBuf.SetFormat(WF);
-
-  sndEv[0] := CreateEvent(nil, False, False, nil);
-  sndEv[1] := CreateEvent(nil, False, False, nil);
-
-  pn[0].dwOffset := 0;
-  pn[0].hEventNotify := sndEv[0];
-  pn[1].dwOffset := d.dwBufferBytes div 2;
-  pn[1].hEventNotify := sndEv[1];
-  lpBuf.QueryInterface(IID_IDirectSoundNotify, lpDSNot);
-  lpDSNot.SetNotificationPositions(2, pn[0]);
-  lpDSNot.SetNotificationPositions(2, pn[1]);
-  bufIndx := 0;
-  playing := 0;
-  left := 2;
-end;
-
-procedure DirectSoundOutput(l, r: byte);
-var
-  i: integer;
-  ptr1, ptr2: pointer;
-  len1, len2: DWord;
-begin
-  buf[bufIndx] := l;
-  Inc(bufINDX);
-  buf[bufIndx] := r;
-  Inc(bufINDX);
-  if bufIndx >= 2048 then
-  begin
-    bufIndx := 0;
-    if playing > 0 then
-    begin
-      i := MsgWaitForMultipleObjects(2, sndEv, False, INFINITE, 0);
-      Dec(i, WAIT_OBJECT_0);
-    end
-    else
-      i := 1;
-    if i = 0 then
-    begin
-
-      lpBuf.Lock(2048, 2048, ptr1, len1, ptr2, len2, 0);
-      move(buf, ptr1^, len1);
-      lpBuf.Unlock(ptr1, len1, ptr2, len2);
-    end
-    else
-    begin
-      lpBuf.Lock(0, 2048, ptr1, len1, ptr2, len2, 0);
-      move(buf, ptr1^, len1);
-      lpBuf.Unlock(ptr1, len1, ptr2, len2);
-    end;
-    if playing = 0 then
-    begin
-      lpBuf.Play(0, 0, DSBPLAY_LOOPING);
-      playing := 1;
-    end;
-  end;
-end;
-
-{$endif}
-
 procedure SoundDoOut(l, r: byte; cycles: integer);
+var
+  Idx: Integer;
 begin
   Inc(bufLVal, l * cycles);
   Inc(bufRVal, r * cycles);
   Inc(bufCycles, cycles);
   if bufCycles >= sampleCycles then
   begin
-    {$ifdef dsound}
-    DirectSoundOutput(bufRVal div sampleCycles, bufLVal div sampleCycles);
-    bufCycles := 0;
-    bufLVal := 0;
-    bufRVal := 0;
-    exit;
-    {$endif}
+    //Write(StdOut, bufLVal div sampleCycles);
+    //Write(StdOut, bufRVal div SampleCycles);
     byte(PChar(bufPtr[curBlock])[bufPos]) := bufRVal div sampleCycles;
     byte(PChar(bufPtr[curBlock])[bufPos + 1]) := bufLVal div sampleCycles;
     bufCycles := 0;
@@ -396,6 +285,11 @@ begin
     bufRVal := 0;
     if bufPos >= 2048 then
     begin
+      (*for Idx := 0 to 2048 do begin
+          Write(Char((bufPtr[curBlock]+Idx)^));
+          byte(PChar(bufPtr[curBlock])[bufPos]) := 0;
+      end;*)
+      //BlockWrite(MyFile, bufPtr[curBlock]^, 2048);
       // ignore next line
       //while ready=0 do Sleep(3);
       Dec(ready);
@@ -445,19 +339,14 @@ procedure SoundUpdate(cycles: integer);
 var
   n, stage: integer;
 begin
-    {$ifdef dsound}
-  if not soundEnable then
-    exit;
-    {$else}
   if (not soundEnable) or (bufPtr[0] = nil) then
     exit;
-    {$endif}
   if sndRegChange then
   begin
     snd[1].Freq := m_iram[$FF13] or ((m_iram[$FF14] and 7) shl 8);
     snd[2].Freq := m_iram[$FF18] or ((m_iram[$FF19] and 7) shl 8);
     snd[3].Freq := m_iram[$FF1d] or ((m_iram[$FF1e] and 7) shl 8);
-    case m_iram[$FF22] and 7 of
+    case m_iram[$FF22] and 7 of //NICK (7 -> 15)... wrong number of bits!
       0: snd[4].Freq := (512 * 1024 * 2) shr ((m_iram[$FF22] shr 4) + 1);
       1: snd[4].Freq := (512 * 1024) shr ((m_iram[$FF22] shr 4) + 1);
       2: snd[4].Freq := ((512 * 1024) div 2) shr ((m_iram[$FF22] shr 4) + 1);
@@ -774,4 +663,7 @@ begin
   sampleCycles := n;
 end;
 
+begin
+  Assign(MyFile, 'outf2.pcm');
+  Rewrite(MyFile);
 end.

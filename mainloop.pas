@@ -18,7 +18,7 @@ uses Windows;
 function main_loop(a: DWord): DWORD;
 procedure setzewindow(h_wnd: HWND);
 
-function z80_decode : Byte; pascal;
+function z80_decode: byte; pascal;
 procedure z80_reset;
 
 var
@@ -291,9 +291,9 @@ end;
 const
   cycles_per_hblank = 451;
 
-function z80_decode : Byte;
+function z80_decode: byte;
 var
-  Count: Byte;
+  Count: byte;
 begin
   if (gbr_ime) and (m_iram[$ff0f] and 31 > 0) then
     IFlags; // Start Interupt
@@ -315,7 +315,8 @@ begin
   end;
 
   asm
-           CLC end; // Set the Carry-Flag to zero
+     CLC
+  end; // Set the Carry-Flag to zero
   Count := z80[code];
   SoundUpdate(Count * (3 - gb_speed));
   cnumber := Count div gb_speed;
