@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ddraw_out, dib_out, lcl_out, DirectDraw, vars, z80cpu,
+  lcl_out, DirectDraw, vars, z80cpu,
   gfx, mainloop, machine, debugger, sound,
   StdCtrls, ExtCtrls, ComCtrls, Menus;
 
@@ -103,10 +103,6 @@ type
     Debugger: TMenuItem;
     SaveDialog: TSaveDialog;
     Timer: TTimer;
-    N5: TMenuItem;
-    Outputmode1: TMenuItem;
-    mnuDirectdraw: TMenuItem;
-    mnuDib: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FileOpenClick(Sender: TObject);
@@ -131,7 +127,6 @@ type
     procedure SetSound(Sender: TObject);
     procedure TimerTimer(Sender: TObject);
     procedure SetAudioChannel(Sender: TObject);
-    procedure mnuOutputClick(Sender: TObject);
   private
     { Private-Deklarationen}
     fullwindow: boolean;
@@ -184,22 +179,8 @@ begin
   randomize;
   Height := 144 * 2;
   Width := 160 * 2;
-  statbottom := statusbar.Height;
 
-  start_dib(Handle, 32); //initialize DIB
-  mnuDirectdraw.Enabled := (start_dx(Handle) = 0); // is Directdraw?
-  isddraw := mnuDirectdraw.Enabled;
-
-  if mnuDirectdraw.Enabled then
-  begin
-    mnuDirectDraw.Checked := True;
-    mnuDib.Checked := False;
-  end
-  else
-  begin
-    mnuDirectDraw.Checked := False;
-    mnuDib.Checked := True;
-  end;
+  StartLCL;
 
   make_pix;
   SetPriority(priority2); // normal Priority
@@ -380,7 +361,6 @@ begin
   n41.Checked := False;
   n51.Checked := False;
 
-  frameskip := tmenuitem(Sender).tag + 1;
   tmenuitem(Sender).Checked := True;
 end;
 
@@ -473,14 +453,12 @@ begin
   begin
     Menu := nil;
     statusbar.Hide;
-    Statbottom := 0;
     RemoveCaption;
   end
   else
   begin
     Menu := mainmenu;
     statusbar.Show;
-    StatBottom := statusbar.Height;
     ShowCaption;
   end;
 end;
@@ -506,14 +484,9 @@ begin
 end;
 
 procedure TfrmGameboy.FormResize(Sender: TObject);
-var
-  oldskip: byte;
 begin
   if f_stopped then
     exit;
-  oldskip := frameskip;
-  frameskip := 1;
-  frameskip := oldskip;
   statusbar.Panels[0].Text := IntToStr(Height) + ':' + IntToStr(Width);
 end;
 
@@ -572,13 +545,6 @@ begin
   snd[2].ChannelOFF := not CH2.Checked;
   snd[3].ChannelOFF := not CH3.Checked;
   snd[4].ChannelOFF := not CH4.Checked;
-end;
-
-procedure TfrmGameboy.mnuOutputClick(Sender: TObject);
-begin
-  isddraw := (Sender = mnuDirectDraw);
-  mnuDirectdraw.Checked := isddraw;
-  mnuDib.Checked := not isddraw;
 end;
 
 end.

@@ -1,7 +1,7 @@
 object frmGameboy: TfrmGameboy
-  Left = 2633
+  Left = 1416
   Height = 354
-  Top = 313
+  Top = 550
   Width = 318
   Caption = 'Gameboy'
   ClientHeight = 320
@@ -222,21 +222,6 @@ object frmGameboy: TfrmGameboy
       end
       object Video1: TMenuItem
         Caption = '&Video'
-        object Outputmode1: TMenuItem
-          Caption = '&Output'
-          object mnuDirectdraw: TMenuItem
-            Caption = '&Directdraw'
-            OnClick = mnuOutputClick
-          end
-          object mnuDib: TMenuItem
-            Caption = 'D&ib'
-            Checked = True
-            OnClick = mnuOutputClick
-          end
-        end
-        object N5: TMenuItem
-          Caption = '-'
-        end
         object x11: TMenuItem
           Caption = 'x&1 window'
           GroupIndex = 2

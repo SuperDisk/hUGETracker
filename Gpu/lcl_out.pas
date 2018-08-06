@@ -8,6 +8,7 @@ uses
   Graphics, BGRABitmap;
 
 procedure UpdateCanvas(Width, Height: Integer; Canvas: TCanvas);
+procedure StartLCL;
 
 implementation
 
@@ -18,6 +19,27 @@ uses
 
 var
   bmp: TBGRABitmap;
+
+procedure StartLCL;
+begin
+  frames := 0;
+
+  dx_r := $FF0000;
+  dx_g := $00FF00;
+  dx_b := $0000FF;
+
+  //TODO: Move these somewhere better.
+  dx_bits := 4;
+  dx_pitch := 640;
+  cmov := 160;
+
+  dx_sr := finde(dx_r);
+  dx_sg := finde(dx_g);
+  dx_sb := finde(dx_b);
+  dx_r := zaehle(dx_r);
+  dx_g := zaehle(dx_g);
+  dx_b := zaehle(dx_b);
+end;
 
 //TODO: Screen tearing issues-- probably double buffer related
 procedure UpdateCanvas(Width, Height: Integer; Canvas: TCanvas);
