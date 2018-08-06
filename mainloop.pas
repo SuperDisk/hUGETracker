@@ -13,26 +13,31 @@ unit mainloop;
 
 interface
 
-uses Windows;
+uses Windows, ExtCtrls;
 
 function main_loop(a: DWord): DWORD;
 procedure setzewindow(h_wnd: HWND);
+procedure SetPaintBox(pb: TPaintBox);
 
 function z80_decode: byte; pascal;
 procedure z80_reset;
 
 var
   window: Hwnd; // is the DirectDraw window
+  PaintBox: TPaintBox;
 
 implementation
 
-uses vars, gfx, machine, z80cpu,
-  ddraw_out, dib_out,
-  sound;
+uses vars, gfx, machine, z80cpu, sound;
 
 procedure setzewindow(h_wnd: HWND);
 begin
   window := h_wnd;
+end;
+
+procedure SetPaintBox(pb: TPaintBox);
+begin
+  PaintBox := pb;
 end;
 
 procedure TimerControl;
@@ -222,10 +227,11 @@ begin
         begin
           make_line_finish(143);
           if (m_iram[$ff40] and 128) > 0 then
-            if not isddraw then
+             PaintBox.Invalidate;
+            (*if not isddraw then
               UpdateDIB(Window)
             else
-              UpdateDDraw(window);
+              UpdateDDraw(window);*)
           vbi_count := vbi_latency;
         end;
         make_line_count := -1;

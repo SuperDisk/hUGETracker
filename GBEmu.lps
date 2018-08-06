@@ -4,14 +4,14 @@
     <PathDelim Value="\"/>
     <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="30">
+    <Units Count="32">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="2"/>
         <CursorPos X="14" Y="7"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
@@ -20,10 +20,13 @@
         <ComponentName Value="frmGameboy"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="309"/>
-        <CursorPos X="40" Y="313"/>
-        <UsageCount Value="53"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="500"/>
+        <CursorPos X="3" Y="514"/>
+        <UsageCount Value="56"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit1>
       <Unit2>
@@ -32,7 +35,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="1374"/>
         <CursorPos X="22" Y="1374"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
@@ -42,7 +45,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
@@ -52,25 +55,25 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
         <Filename Value="Gpu\ddraw_out.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="210"/>
-        <CursorPos X="7" Y="227"/>
-        <UsageCount Value="53"/>
+        <EditorIndex Value="4"/>
+        <CursorPos X="13" Y="21"/>
+        <UsageCount Value="56"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
         <Filename Value="Gpu\dib_out.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="41"/>
-        <CursorPos X="8" Y="44"/>
-        <UsageCount Value="53"/>
+        <EditorIndex Value="3"/>
+        <CursorPos X="14" Y="13"/>
+        <UsageCount Value="56"/>
+        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
@@ -79,7 +82,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="332"/>
         <CursorPos Y="332"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
@@ -88,7 +91,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="284"/>
         <CursorPos X="10" Y="297"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
@@ -98,25 +101,25 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="7"/>
         <CursorPos X="15" Y="17"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
         <Filename Value="Sound\sound.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <CursorPos Y="9"/>
-        <UsageCount Value="53"/>
+        <TopLine Value="19"/>
+        <CursorPos X="32" Y="22"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
         <Filename Value="Global\vars.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="74"/>
         <CursorPos X="3" Y="98"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
@@ -124,9 +127,9 @@
         <Filename Value="mainloop.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="311"/>
-        <CursorPos X="22" Y="320"/>
-        <UsageCount Value="53"/>
+        <TopLine Value="12"/>
+        <CursorPos X="34" Y="31"/>
+        <UsageCount Value="56"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
@@ -136,56 +139,56 @@
         <HasResources Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="21"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit13>
       <Unit14>
         <Filename Value="DirectX\Direct3DRM.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit14>
       <Unit15>
         <Filename Value="DirectX\DirectInput.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
         <Filename Value="DirectX\DirectMusic.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
         <Filename Value="DirectX\DirectPlay.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
         <Filename Value="DirectX\DirectSetup.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit18>
       <Unit19>
         <Filename Value="DirectX\DirectSound.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit19>
       <Unit20>
         <Filename Value="DirectX\Direct3D.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit20>
       <Unit21>
@@ -195,12 +198,11 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="372"/>
         <CursorPos X="33" Y="405"/>
-        <UsageCount Value="53"/>
+        <UsageCount Value="56"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit21>
       <Unit22>
         <Filename Value="Components\AgOpenDialog.pas"/>
-        <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="154"/>
         <CursorPos X="21" Y="182"/>
@@ -260,127 +262,144 @@
         <CursorPos X="10" Y="745"/>
         <UsageCount Value="7"/>
       </Unit29>
+      <Unit30>
+        <Filename Value="Gpu\lcl_out.pas"/>
+        <EditorIndex Value="5"/>
+        <CursorPos X="4" Y="19"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="..\..\bgracontrols-5.0\bgracontrols-5.0\bcbutton.pas"/>
+        <UnitName Value="BCButton"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="713"/>
+        <CursorPos X="34" Y="728"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit31>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="247" Column="15" TopLine="223"/>
+        <Filename Value="Gpu\lcl_out.pas"/>
+        <Caret Line="36" Column="12" TopLine="21"/>
       </Position1>
       <Position2>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="153" Column="7" TopLine="135"/>
+        <Filename Value="Gpu\lcl_out.pas"/>
+        <Caret Line="46" Column="38" TopLine="21"/>
       </Position2>
       <Position3>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="159" Column="5" TopLine="141"/>
+        <Filename Value="Gpu\lcl_out.pas"/>
+        <Caret Line="45" Column="28" TopLine="21"/>
       </Position3>
       <Position4>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="267" TopLine="258"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="408" Column="5" TopLine="390"/>
       </Position4>
       <Position5>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="274" Column="50" TopLine="257"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="214" Column="40" TopLine="199"/>
       </Position5>
       <Position6>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="169" Column="31" TopLine="152"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="227" TopLine="218"/>
       </Position6>
       <Position7>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="226" Column="3" TopLine="210"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="143" Column="24" TopLine="132"/>
       </Position7>
       <Position8>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="270" Column="7" TopLine="252"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="210" Column="25" TopLine="188"/>
       </Position8>
       <Position9>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="316" Column="5" TopLine="299"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="212" Column="40" TopLine="188"/>
       </Position9>
       <Position10>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="545" Column="21" TopLine="529"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="252" Column="9" TopLine="246"/>
       </Position10>
       <Position11>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="568" Column="21" TopLine="551"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="394" Column="51" TopLine="384"/>
       </Position11>
       <Position12>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="545" Column="21" TopLine="528"/>
+        <Filename Value="Gpu\lcl_out.pas"/>
+        <Caret Line="10" Column="47"/>
       </Position12>
       <Position13>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="568" Column="21" TopLine="551"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="206" TopLine="191"/>
       </Position13>
       <Position14>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="545" Column="21" TopLine="528"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="389" Column="15" TopLine="362"/>
       </Position14>
       <Position15>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="647" Column="12" TopLine="622"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="505" Column="20" TopLine="478"/>
       </Position15>
       <Position16>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="309" Column="11" TopLine="283"/>
+        <Filename Value="mainloop.pas"/>
+        <Caret Line="31" Column="34" TopLine="12"/>
       </Position16>
       <Position17>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="314" Column="8" TopLine="283"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="18" Column="3" TopLine="5"/>
       </Position17>
       <Position18>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="315" Column="7" TopLine="283"/>
+        <Filename Value="Gpu\ddraw_out.pas"/>
+        <Caret Line="221" Column="23" TopLine="210"/>
       </Position18>
       <Position19>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="271" Column="9" TopLine="267"/>
+        <Filename Value="Gpu\ddraw_out.pas"/>
+        <Caret Line="21" Column="13"/>
       </Position19>
       <Position20>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="286" Column="24" TopLine="269"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="190" Column="38" TopLine="174"/>
       </Position20>
       <Position21>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="289" Column="44" TopLine="272"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="384" Column="3" TopLine="367"/>
       </Position21>
       <Position22>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="290" Column="47" TopLine="273"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="476" Column="7" TopLine="460"/>
       </Position22>
       <Position23>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="249" Column="17" TopLine="232"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="483" Column="7" TopLine="467"/>
       </Position23>
       <Position24>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="291" Column="11" TopLine="278"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="18" Column="3" TopLine="2"/>
       </Position24>
       <Position25>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="70" Column="13" TopLine="55"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="190" Column="5" TopLine="175"/>
       </Position25>
       <Position26>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="629" Column="13" TopLine="599"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="383" Column="5" TopLine="367"/>
       </Position26>
       <Position27>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="352" Column="43" TopLine="332"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="476" Column="7" TopLine="460"/>
       </Position27>
       <Position28>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="348" Column="47" TopLine="338"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="483" Column="7" TopLine="467"/>
       </Position28>
       <Position29>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="349" Column="37" TopLine="326"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="516" Column="5" TopLine="498"/>
       </Position29>
       <Position30>
-        <Filename Value="Sound\sound.pas"/>
-        <Caret Line="10" Column="12"/>
+        <Filename Value="UnitMain.pas"/>
+        <Caret Line="515" Column="5" TopLine="499"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>

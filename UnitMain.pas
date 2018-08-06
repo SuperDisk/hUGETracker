@@ -15,11 +15,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ddraw_out, dib_out, DirectDraw, vars, z80cpu,
+  ddraw_out, dib_out, lcl_out, DirectDraw, vars, z80cpu,
   gfx, mainloop, machine, debugger, sound,
   StdCtrls, ExtCtrls, ComCtrls, Menus;
 
 type
+
+  { TfrmGameboy }
+
   TfrmGameboy = class(TForm)
     MainMenu: TMainMenu;
     File1: TMenuItem;
@@ -29,6 +32,7 @@ type
     N4: TMenuItem;
     Exit1: TMenuItem;
     CPU1: TMenuItem;
+    PaintBox1: TPaintBox;
     Reset2: TMenuItem;
     Pause1: TMenuItem;
     N2: TMenuItem;
@@ -112,6 +116,7 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FrameClick(Sender: TObject);
+    procedure PaintBox1Paint(Sender: TObject);
     procedure Pause(Sender: TObject);
     procedure ResetClick(Sender: TObject);
     procedure setPriority(Sender: TObject);
@@ -139,8 +144,6 @@ type
   public
     { Public-Deklarationen}
     timervar: byte;
-    procedure RealSpeedEmulation;
-    procedure _RealSpeedEmulation;
   end;
 
 var
@@ -220,46 +223,6 @@ begin
   application.terminate;
 end;
 
-procedure TFrmGameboy.RealSpeedEmulation;
-var
-  li: Large_Integer;
-  time, curTime: dword;
-  curTimer: DWord;
-begin
-  if AutoWait.Checked then
-  begin
-    if lastTime = 0 then
-    begin
-      QueryPerformanceCounter(li.quadpart);
-      lastTime := li.LowPart;
-    end;
-    QueryPerformanceCounter(li.quadpart);
-    curTime := li.LowPart;
-    time := curTime - lastTime;
-    if time < perfFreq then
-    begin
-      while time < perfFreq do
-      begin
-        Sleep(10);
-        QueryPerformanceCounter(li.quadpart);
-        curTime := li.LowPart;
-        time := curTime - lastTime;
-      end;
-      Inc(lastTime, perfFreq);
-    end
-    else
-      lastTime := curTime;
-  end;
-end;
-
-procedure TFrmGameboy._RealSpeedEmulation;
-begin
-  if AutoWait.Checked then
-    while timervar = 0 do
-      application.ProcessMessages;
-  timervar := 0;
-end;
-
 const
   CyclesPerFrame : Integer = 70224;
   TimePerFrame: Double = 1.0 / 60.0;
@@ -295,7 +258,7 @@ begin
         application.ProcessMessages;
 
     while (cycles < CyclesPerFrame) do
-          cycles += z80_decode;
+      cycles += z80_decode;
 
     cycles -= CyclesPerFrame;
 
@@ -309,14 +272,6 @@ begin
     end;
 
     frameStart := frameEnd;
-
-    //if screen_updated > 0 then // onpaint :)
-    //begin
-    //  screen_updated := 0;
-    //  if i = 0 then
-    //    RealSpeedEmulation;
-    //  i := (i + 1) mod 31;
-    //end;
   until application.Terminated;
 end;
 
@@ -372,6 +327,9 @@ begin
   f_stopped := True;
   gb_speed := 1;
   setzewindow(handle);
+
+  frmGameboy.DoubleBuffered := True;
+  SetPaintBox(PaintBox1);
   postmessage(handle, wm_user, 0, 0);
 end;
 
@@ -424,11 +382,11 @@ begin
 
   frameskip := tmenuitem(Sender).tag + 1;
   tmenuitem(Sender).Checked := True;
+end;
 
-  if not isddraw then
-    UpdateDIB(Window)
-  else
-    UpdateDDraw(window);
+procedure TfrmGameboy.PaintBox1Paint(Sender: TObject);
+begin
+  UpdateCanvas(PaintBox1.Width, PaintBox1.Height, PaintBox1.Canvas);
 end;
 
 procedure TfrmGameboy.Pause(Sender: TObject);
@@ -555,10 +513,6 @@ begin
     exit;
   oldskip := frameskip;
   frameskip := 1;
-  if not isddraw then
-    UpdateDIB(Handle)
-  else
-    UpdateDDraw(Handle);
   frameskip := oldskip;
   statusbar.Panels[0].Text := IntToStr(Height) + ':' + IntToStr(Width);
 end;

@@ -1,12 +1,12 @@
 object frmGameboy: TfrmGameboy
-  Left = 2719
+  Left = 2633
   Height = 354
-  Top = 151
+  Top = 313
   Width = 318
   Caption = 'Gameboy'
   ClientHeight = 320
   ClientWidth = 318
-  Color = clBlack
+  Color = clYellow
   DefaultMonitor = dmMainForm
   DesignTimePPI = 168
   Font.CharSet = ANSI_CHARSET
@@ -44,9 +44,16 @@ object frmGameboy: TfrmGameboy
     ParentColor = False
     SimplePanel = False
   end
+  object PaintBox1: TPaintBox
+    Left = 0
+    Height = 277
+    Top = 0
+    Width = 318
+    Align = alClient
+    OnPaint = PaintBox1Paint
+  end
   object MainMenu: TMainMenu
-    left = 40
-    top = 8
+    left = 56
     object File1: TMenuItem
       Caption = '&File'
       object Load1: TMenuItem
@@ -396,7 +403,6 @@ object frmGameboy: TfrmGameboy
     Enabled = False
     Interval = 17
     OnTimer = TimerTimer
-    left = 40
-    top = 40
+    left = 112
   end
 end

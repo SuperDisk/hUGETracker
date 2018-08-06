@@ -28,12 +28,15 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="LCL"/>
+        <PackageName Value="BGRABitmapPack"/>
       </Item1>
+      <Item2>
+        <PackageName Value="LCL"/>
+      </Item2>
     </RequiredPackages>
-    <Units Count="23">
+    <Units Count="22">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -128,10 +131,6 @@
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
       </Unit21>
-      <Unit22>
-        <Filename Value="Components\AgOpenDialog.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit22>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -139,7 +138,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="Debugger;Directx;GPU;CPU;Sound;Global;Components;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Debugger;Directx;GPU;CPU;Sound;Global;Components"/>
+      <OtherUnitFiles Value="Debugger;Directx;GPU;CPU;Sound;Global"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
