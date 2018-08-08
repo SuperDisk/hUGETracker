@@ -11,7 +11,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="2"/>
         <CursorPos X="14" Y="7"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit0>
       <Unit1>
@@ -21,10 +21,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="519"/>
-        <CursorPos X="5" Y="549"/>
-        <UsageCount Value="57"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="334"/>
+        <CursorPos X="26" Y="362"/>
+        <UsageCount Value="61"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -35,7 +35,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="1374"/>
         <CursorPos X="22" Y="1374"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit2>
       <Unit3>
@@ -45,7 +45,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit3>
       <Unit4>
@@ -55,7 +55,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit4>
       <Unit5>
@@ -63,7 +63,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="13" Y="21"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit5>
       <Unit6>
@@ -72,7 +72,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="78"/>
         <CursorPos X="17" Y="92"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit6>
       <Unit7>
@@ -81,7 +81,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="332"/>
         <CursorPos Y="332"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit7>
       <Unit8>
@@ -90,7 +90,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="284"/>
         <CursorPos X="10" Y="297"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit8>
       <Unit9>
@@ -98,36 +98,36 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Z80CPU"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="7"/>
-        <CursorPos X="15" Y="17"/>
-        <UsageCount Value="57"/>
+        <TopLine Value="3329"/>
+        <CursorPos X="7" Y="5932"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit9>
       <Unit10>
         <Filename Value="Sound\sound.pas"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="19"/>
-        <CursorPos X="32" Y="22"/>
-        <UsageCount Value="57"/>
+        <CursorPos X="8" Y="238"/>
+        <UsageCount Value="61"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit10>
       <Unit11>
         <Filename Value="Global\vars.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="74"/>
-        <CursorPos X="3" Y="98"/>
-        <UsageCount Value="57"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="144"/>
+        <CursorPos X="20" Y="660"/>
+        <UsageCount Value="61"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit11>
       <Unit12>
         <Filename Value="mainloop.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
-        <CursorPos X="15" Y="29"/>
-        <UsageCount Value="57"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="215"/>
+        <CursorPos X="28" Y="231"/>
+        <UsageCount Value="61"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit12>
@@ -137,56 +137,57 @@
         <HasResources Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos Y="21"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit13>
       <Unit14>
         <Filename Value="DirectX\Direct3DRM.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit14>
       <Unit15>
         <Filename Value="DirectX\DirectInput.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit15>
       <Unit16>
         <Filename Value="DirectX\DirectMusic.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="57"/>
+        <CursorPos X="3" Y="15"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit16>
       <Unit17>
         <Filename Value="DirectX\DirectPlay.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit17>
       <Unit18>
         <Filename Value="DirectX\DirectSetup.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit18>
       <Unit19>
         <Filename Value="DirectX\DirectSound.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit19>
       <Unit20>
         <Filename Value="DirectX\Direct3D.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit20>
       <Unit21>
@@ -196,7 +197,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="372"/>
         <CursorPos X="33" Y="405"/>
-        <UsageCount Value="57"/>
+        <UsageCount Value="61"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit21>
       <Unit22>
@@ -262,144 +263,90 @@
       </Unit29>
       <Unit30>
         <Filename Value="Gpu\lcl_out.pas"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="16"/>
         <CursorPos Y="22"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit30>
       <Unit31>
         <Filename Value="..\..\bgracontrols-5.0\bgracontrols-5.0\bcbutton.pas"/>
         <UnitName Value="BCButton"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="713"/>
         <CursorPos X="12" Y="720"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit31>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="17" HistoryIndex="16">
       <Position1>
         <Filename Value="mainloop.pas"/>
-        <Caret Line="31" Column="34" TopLine="12"/>
+        <Caret Line="20" Column="38"/>
       </Position1>
       <Position2>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="18" Column="3" TopLine="5"/>
+        <Caret Line="371" TopLine="357"/>
       </Position2>
       <Position3>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="190" Column="38" TopLine="174"/>
+        <Caret Line="193" Column="40" TopLine="169"/>
       </Position3>
       <Position4>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="384" Column="3" TopLine="367"/>
+        <Filename Value="mainloop.pas"/>
+        <Caret Line="231" Column="28" TopLine="215"/>
       </Position4>
       <Position5>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="476" Column="7" TopLine="460"/>
+        <Filename Value="Global\vars.pas"/>
+        <Caret Line="40" Column="16" TopLine="439"/>
       </Position5>
       <Position6>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="483" Column="7" TopLine="467"/>
+        <Caret Line="244" Column="17" TopLine="231"/>
       </Position6>
       <Position7>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="18" Column="3" TopLine="2"/>
+        <Caret Line="18" Column="22" TopLine="2"/>
       </Position7>
       <Position8>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="190" Column="5" TopLine="175"/>
+        <Caret Line="291" Column="3" TopLine="277"/>
       </Position8>
       <Position9>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="383" Column="5" TopLine="367"/>
+        <Caret Line="18" Column="11"/>
       </Position9>
       <Position10>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="476" Column="7" TopLine="460"/>
+        <Caret Line="291" Column="13" TopLine="265"/>
       </Position10>
       <Position11>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="483" Column="7" TopLine="467"/>
+        <Caret Line="340" Column="18" TopLine="325"/>
       </Position11>
       <Position12>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="516" Column="5" TopLine="498"/>
+        <Caret Line="292" Column="28" TopLine="313"/>
       </Position12>
       <Position13>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="515" Column="5" TopLine="499"/>
+        <Caret Line="346" Column="7" TopLine="326"/>
       </Position13>
       <Position14>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="514" Column="3" TopLine="500"/>
+        <Caret Line="291" TopLine="269"/>
       </Position14>
       <Position15>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="500" TopLine="487"/>
+        <Caret Line="344" Column="12" TopLine="325"/>
       </Position15>
       <Position16>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="190" Column="5" TopLine="173"/>
+        <Caret Line="551" Column="21" TopLine="524"/>
       </Position16>
       <Position17>
         <Filename Value="UnitMain.pas"/>
-        <Caret Line="18" Column="3"/>
+        <Caret Line="356" Column="37" TopLine="338"/>
       </Position17>
-      <Position18>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="187" Column="3" TopLine="171"/>
-      </Position18>
-      <Position19>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="186" Column="20" TopLine="171"/>
-      </Position19>
-      <Position20>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="188" Column="12" TopLine="189"/>
-      </Position20>
-      <Position21>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="209" Column="29" TopLine="193"/>
-      </Position21>
-      <Position22>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="379" TopLine="364"/>
-      </Position22>
-      <Position23>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="471" Column="20" TopLine="456"/>
-      </Position23>
-      <Position24>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="477" Column="20" TopLine="462"/>
-      </Position24>
-      <Position25>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="502" Column="51" TopLine="492"/>
-      </Position25>
-      <Position26>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="501" Column="51" TopLine="491"/>
-      </Position26>
-      <Position27>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="500" Column="51" TopLine="490"/>
-      </Position27>
-      <Position28>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="499" Column="51" TopLine="489"/>
-      </Position28>
-      <Position29>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="498" Column="51" TopLine="488"/>
-      </Position29>
-      <Position30>
-        <Filename Value="UnitMain.pas"/>
-        <Caret Line="184" Column="12" TopLine="178"/>
-      </Position30>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

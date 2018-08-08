@@ -227,11 +227,7 @@ begin
         begin
           make_line_finish(143);
           if (m_iram[$ff40] and 128) > 0 then
-             PaintBox.Invalidate;
-            (*if not isddraw then
-              UpdateDIB(Window)
-            else
-              UpdateDDraw(window);*)
+             PaintBox.Repaint;
           vbi_count := vbi_latency;
         end;
         make_line_count := -1;

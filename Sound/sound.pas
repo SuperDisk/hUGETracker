@@ -285,10 +285,10 @@ begin
     bufRVal := 0;
     if bufPos >= 2048 then
     begin
-      (*for Idx := 0 to 2048 do begin
+      for Idx := 0 to 2048 do begin
           Write(Char((bufPtr[curBlock]+Idx)^));
           byte(PChar(bufPtr[curBlock])[bufPos]) := 0;
-      end;*)
+      end;
       //BlockWrite(MyFile, bufPtr[curBlock]^, 2048);
       // ignore next line
       //while ready=0 do Sleep(3);

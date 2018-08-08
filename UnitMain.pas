@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  lcl_out, DirectDraw, vars, z80cpu,
+  lcl_out, vars, z80cpu,
   gfx, mainloop, machine, debugger, sound,
   StdCtrls, ExtCtrls, ComCtrls, Menus;
 
@@ -335,6 +335,26 @@ begin
     VK_DOWN: k_down := 0;
     VK_LEFT: k_left := 0;
     VK_RIGHT: k_right := 0;
+    VK_F1:
+    begin
+      ch1.Checked := not Ch1.Checked;
+      snd[1].ChannelOFF := not ch1.Checked;
+    end;
+    VK_F2:
+    begin
+      ch2.Checked := not Ch2.Checked;
+      snd[2].ChannelOFF := not ch2.Checked;
+    end;
+    VK_F3:
+    begin
+      ch3.Checked := not Ch3.Checked;
+      snd[3].ChannelOFF := not ch3.Checked;
+    end;
+    VK_F4:
+    begin
+      ch4.Checked := not Ch4.Checked;
+      snd[4].ChannelOFF := not ch4.Checked;
+    end;
   end;
 end;
 
