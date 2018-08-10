@@ -13,7 +13,7 @@ unit sound;
 
 interface
 
-uses Windows, mmsystem, bass;
+uses bass;
 
 (*
 
@@ -156,51 +156,16 @@ implementation
 uses vars;
 
 const
-  dev: HWAVEOUT = 0;
   curBlock: longint = 0;
   sampleCycles: longint = (8192 * 1024) div 22050;
 
 var
   cs: TRTLCriticalSection;
-  bufs: array[0..1] of THANDLE;
+  bufs: array[0..1] of Pointer;
   bufPtr: array[0..1] of pointer;
-  bufHdr: array[0..1] of THANDLE;
 
   ready: integer;
   bufPos, bufCycles, bufLVal, bufRVal: integer;
-  WH: PWAVEHDR;
-
-  MyFile: file of Byte;
-
-procedure WaveCallback(hdrvr: HDRVR; uMsg: UINT; dwUser: DWORD; dw1, dw2: DWORD); stdcall;
-var
-  wh: PWaveHDR;
-  hg: HGLOBAL;
-  res: int64;
-begin
-  if uMsg = WOM_DONE then
-  begin
-    EnterCriticalSection(cs);
-
-    wh := pointer(dw1);
-
-    waveOutUnprepareHeader(dev, wh, sizeof(WAVEHDR));
-
-    //Deallocate the buffer memory
-    hg := GlobalHandle(wh.lpData);
-    GlobalUnlock(hg);
-    GlobalFree(hg);
-
-    //Deallocate the header memory
-    hg := GlobalHandle(wh);
-    GlobalUnlock(hg);
-    GlobalFree(hg);
-
-    Inc(ready);
-
-    LeaveCriticalSection(cs);
-  end;
-end;
 
 var
   sndEv: array[0..1] of THANDLE;
@@ -210,17 +175,11 @@ var
 
 procedure EnableSound;
 var
-  outFormatex: TWAVEFORMATEX;
   p: pointer;
 begin
   if soundEnable then
     exit;
 
-  if waveOutGetNumDevs = 0 then
-  begin
-    //MessageBox(0,'No audio devices present','Error',MB_OK or MB_ICONSTOP);
-    exit;
-  end;
   soundEnable := True;
   ready := 3;
   bufPos := 0;
@@ -228,42 +187,15 @@ begin
   bufLVal := 0;
   bufRVal := 0;
 
-  outFormatex.wFormatTag := WAVE_FORMAT_PCM;
-  outFormatex.wBitsPerSample := 8;
-  outFormatex.nChannels := 2;
-  outFormatex.nSamplesPerSec := 22050;
-  outFormatex.nAvgBytesPerSec := 44100;
-  outFormatex.nBlockAlign := 2;
-  if waveOutOpen(@dev, WAVE_MAPPER, @outFormatex,
-    DWORD(addr(Wavecallback)), 0, CALLBACK_FUNCTION) <> MMSYSERR_NOERROR then
-  begin
-    //MessageBox(0,'Could not open audio device','Error',MB_OK or MB_ICONSTOP);
-    exit;
-  end;
-  waveOutReset(dev);
-  InitializeCriticalSection(cs);
-  bufs[curBlock] := GlobalAlloc(GMEM_MOVEABLE, 2048);
-  bufPtr[curBlock] := GlobalLock(bufs[curBlock]);
-  bufHdr[curBlock] := GlobalAlloc(GMEM_MOVEABLE or GMEM_ZEROINIT, sizeof(WAVEHDR));
-  wh := GlobalLock(bufHdr[curBlock]);
-  wh^.dwBufferLength := 2048;
-  wh^.lpData := bufPtr[curBlock];
+  bufs[curBlock] := GetMem(2048); //GlobalAlloc(GMEM_MOVEABLE, 2048);
+  bufPtr[curBlock] := bufs[curBlock]; //GlobalLock(bufs[curBlock]);
 end;
 
 procedure DisableSound;
 begin
   if not soundEnable then
     exit;
-  if dev > 0 then
-  begin
-    while ready < 2 do
-      Sleep(50);
-    waveOutReset(dev);      //reset the device
-    waveOutClose(dev);      //close the device
-    dev := 0;
-  end;
 
-  DeleteCriticalSection(cs);
   soundEnable := False;
 end;
 
@@ -284,23 +216,12 @@ begin
     bufRVal := 0;
     if bufPos >= 2048 then
     begin
-      //TODO: put data in push stream
       BASS_StreamPutData(PlayStream, bufPtr[curBlock], 2048);
-      {for Idx := 0 to 2048 do begin
-          Write(Char((bufPtr[curBlock]+Idx)^));
-          byte(PChar(bufPtr[curBlock])[bufPos]) := 0;
-      end;}
       Dec(ready);
-      waveOutPrepareHeader(dev, wh, sizeof(WAVEHDR));
-      waveOutWrite(dev, wh, sizeof(WAVEHDR));
+
       curBlock := (curBlock + 1) and 1;
-      bufs[curBlock] := GlobalAlloc(GMEM_MOVEABLE, 2048);
-      bufPtr[curBlock] := GlobalLock(bufs[curBlock]);
-      bufHdr[curBlock] :=
-        GlobalAlloc(GMEM_MOVEABLE or GMEM_ZEROINIT, sizeof(WAVEHDR));
-      wh := GlobalLock(bufHdr[curBlock]);
-      wh.dwBufferLength := 2048;
-      wh.lpData := bufPtr[curBlock];
+      bufs[curBlock] := GetMem(2048); //GlobalAlloc(GMEM_MOVEABLE, 2048);
+      bufPtr[curBlock] := bufs[curBlock]; //GlobalLock(bufs[curBlock]);
       bufPos := 0;
     end;
   end;
@@ -669,6 +590,7 @@ begin
     BASS_SAMPLE_8BITS,
     StreamProc(STREAMPROC_PUSH),
     nil);
+  BASS_ChannelPlay(PlayStream, True);
   //Assign(MyFile, 'outf2.pcm');
   //Rewrite(MyFile);
 end.
