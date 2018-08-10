@@ -13,7 +13,7 @@ unit sound;
 
 interface
 
-uses Windows, mmsystem;
+uses Windows, mmsystem, bass;
 
 (*
 
@@ -134,6 +134,7 @@ procedure SoundUpdate(cycles: integer);
 procedure SoundSetCycles(n: integer);
 
 var
+  playStream: HStream;
   soundEnable: boolean;
   sndRegChange: boolean;
   snd: array[1..4] of record
@@ -275,8 +276,6 @@ begin
   Inc(bufCycles, cycles);
   if bufCycles >= sampleCycles then
   begin
-    //Write(StdOut, bufLVal div sampleCycles);
-    //Write(StdOut, bufRVal div SampleCycles);
     byte(PChar(bufPtr[curBlock])[bufPos]) := bufRVal div sampleCycles;
     byte(PChar(bufPtr[curBlock])[bufPos + 1]) := bufLVal div sampleCycles;
     bufCycles := 0;
@@ -285,13 +284,12 @@ begin
     bufRVal := 0;
     if bufPos >= 2048 then
     begin
-      for Idx := 0 to 2048 do begin
+      //TODO: put data in push stream
+      BASS_StreamPutData(PlayStream, bufPtr[curBlock], 2048);
+      {for Idx := 0 to 2048 do begin
           Write(Char((bufPtr[curBlock]+Idx)^));
           byte(PChar(bufPtr[curBlock])[bufPos]) := 0;
-      end;
-      //BlockWrite(MyFile, bufPtr[curBlock]^, 2048);
-      // ignore next line
-      //while ready=0 do Sleep(3);
+      end;}
       Dec(ready);
       waveOutPrepareHeader(dev, wh, sizeof(WAVEHDR));
       waveOutWrite(dev, wh, sizeof(WAVEHDR));
@@ -664,6 +662,13 @@ begin
 end;
 
 begin
-  Assign(MyFile, 'outf2.pcm');
-  Rewrite(MyFile);
+  BASS_Init(-1, 22050, 0, 0, nil);
+  PlayStream := BASS_StreamCreate(
+    22050,
+    2,
+    BASS_SAMPLE_8BITS,
+    StreamProc(STREAMPROC_PUSH),
+    nil);
+  //Assign(MyFile, 'outf2.pcm');
+  //Rewrite(MyFile);
 end.

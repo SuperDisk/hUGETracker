@@ -4,3 +4,4 @@ ConverterBackup
 **/backup
 lib
 *.exe
+*.dll
