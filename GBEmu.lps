@@ -106,8 +106,8 @@
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
-        <TopLine Value="213"/>
-        <CursorPos X="72" Y="225"/>
+        <TopLine Value="148"/>
+        <CursorPos X="31" Y="164"/>
         <UsageCount Value="67"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
@@ -281,123 +281,123 @@
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="169" Column="16" TopLine="153"/>
+        <Caret Line="191" Column="24" TopLine="173"/>
       </Position1>
       <Position2>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="168" Column="48" TopLine="164"/>
+        <Caret Line="228" TopLine="201"/>
       </Position2>
       <Position3>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="177" Column="4" TopLine="167"/>
+        <Caret Line="230" Column="33" TopLine="202"/>
       </Position3>
       <Position4>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="161" Column="51" TopLine="152"/>
+        <Caret Line="165" Column="5" TopLine="153"/>
       </Position4>
       <Position5>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="179" TopLine="168"/>
+        <Caret Line="213" Column="93" TopLine="204"/>
       </Position5>
       <Position6>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="16" Column="6"/>
+        <Caret Line="216" Column="42" TopLine="196"/>
       </Position6>
       <Position7>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="183" Column="3" TopLine="166"/>
+        <Caret Line="211" Column="8" TopLine="199"/>
       </Position7>
       <Position8>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="185" Column="68" TopLine="167"/>
+        <Caret Line="216" Column="42" TopLine="201"/>
       </Position8>
       <Position9>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="165" Column="34" TopLine="157"/>
+        <Caret Line="214" Column="11" TopLine="199"/>
       </Position9>
       <Position10>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="189" Column="10" TopLine="171"/>
+        <Caret Line="205" Column="21" TopLine="197"/>
       </Position10>
       <Position11>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="570" Column="33" TopLine="558"/>
+        <Caret Line="297" Column="49" TopLine="276"/>
       </Position11>
       <Position12>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="16" Column="5" TopLine="26"/>
+        <Caret Line="286" TopLine="280"/>
       </Position12>
       <Position13>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="171" Column="32" TopLine="167"/>
+        <Caret Line="16" Column="6"/>
       </Position13>
       <Position14>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="198" TopLine="190"/>
+        <Caret Line="222" Column="7" TopLine="209"/>
       </Position14>
       <Position15>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="229" Column="73" TopLine="217"/>
+        <Caret Line="165" Column="34" TopLine="151"/>
       </Position15>
       <Position16>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="191" Column="24" TopLine="173"/>
+        <Caret Line="161" Column="4" TopLine="150"/>
       </Position16>
       <Position17>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="228" TopLine="201"/>
+        <Caret Line="181" Column="16" TopLine="157"/>
       </Position17>
       <Position18>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="230" Column="33" TopLine="202"/>
+        <Caret Line="210" Column="18" TopLine="194"/>
       </Position18>
       <Position19>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="165" Column="5" TopLine="153"/>
+        <Caret Line="209" Column="39" TopLine="192"/>
       </Position19>
       <Position20>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="213" Column="93" TopLine="204"/>
+        <Caret Line="240" Column="13" TopLine="157"/>
       </Position20>
       <Position21>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="216" Column="42" TopLine="196"/>
+        <Caret Line="571" Column="5" TopLine="33"/>
       </Position21>
       <Position22>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="211" Column="8" TopLine="199"/>
+        <Caret Line="203" Column="51" TopLine="212"/>
       </Position22>
       <Position23>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="216" Column="42" TopLine="201"/>
+        <Caret Line="377" Column="13" TopLine="360"/>
       </Position23>
       <Position24>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="214" Column="11" TopLine="199"/>
+        <Caret Line="169" Column="23" TopLine="155"/>
       </Position24>
       <Position25>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="205" Column="21" TopLine="197"/>
+        <Caret Line="352" Column="26" TopLine="335"/>
       </Position25>
       <Position26>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="297" Column="49" TopLine="276"/>
+        <Caret Line="353" Column="13" TopLine="337"/>
       </Position26>
       <Position27>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="286" TopLine="280"/>
+        <Caret Line="352" Column="26" TopLine="336"/>
       </Position27>
       <Position28>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="16" Column="6"/>
+        <Caret Line="374" Column="26" TopLine="358"/>
       </Position28>
       <Position29>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="222" Column="7" TopLine="209"/>
+        <Caret Line="375" Column="13" TopLine="359"/>
       </Position29>
       <Position30>
         <Filename Value="Sound\sound.pas"/>
-        <Caret Line="165" Column="34" TopLine="151"/>
+        <Caret Line="374" Column="26" TopLine="358"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>

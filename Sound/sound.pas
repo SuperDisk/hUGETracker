@@ -156,29 +156,26 @@ implementation
 uses vars;
 
 const
-  curBlock: longint = 0;
   sampleCycles: longint = (8192 * 1024) div 22050;
 
 var
-  cs: TRTLCriticalSection;
-  bufs: array[0..1] of Pointer;
-  bufPtr: array[0..1] of pointer;
-
   ready: integer;
   bufPos, bufCycles, bufLVal, bufRVal: integer;
-
-var
-  sndEv: array[0..1] of THANDLE;
   buf: array[0..2047] of byte;
-  bufIndx: word = 0;
-  playing, left: integer;
 
 procedure EnableSound;
-var
-  p: pointer;
 begin
   if soundEnable then
     exit;
+
+  BASS_Init(-1, 22050, 0, 0, nil);
+  PlayStream := BASS_StreamCreate(
+    22050,
+    2,
+    BASS_SAMPLE_8BITS,
+    StreamProc(STREAMPROC_PUSH),
+    nil);
+  BASS_ChannelPlay(PlayStream, True);
 
   soundEnable := True;
   ready := 3;
@@ -186,9 +183,6 @@ begin
   bufCycles := 0;
   bufLVal := 0;
   bufRVal := 0;
-
-  bufs[curBlock] := GetMem(2048); //GlobalAlloc(GMEM_MOVEABLE, 2048);
-  bufPtr[curBlock] := bufs[curBlock]; //GlobalLock(bufs[curBlock]);
 end;
 
 procedure DisableSound;
@@ -196,32 +190,28 @@ begin
   if not soundEnable then
     exit;
 
+  BASS_Free;
+
   soundEnable := False;
 end;
 
 procedure SoundDoOut(l, r: byte; cycles: integer);
-var
-  Idx: Integer;
 begin
   Inc(bufLVal, l * cycles);
   Inc(bufRVal, r * cycles);
   Inc(bufCycles, cycles);
   if bufCycles >= sampleCycles then
   begin
-    byte(PChar(bufPtr[curBlock])[bufPos]) := bufRVal div sampleCycles;
-    byte(PChar(bufPtr[curBlock])[bufPos + 1]) := bufLVal div sampleCycles;
+    buf[bufPos] := bufRVal div sampleCycles;
+    buf[bufPos + 1] := bufLVal div sampleCycles;
     bufCycles := 0;
     Inc(bufPos, 2);
     bufLVal := 0;
     bufRVal := 0;
     if bufPos >= 2048 then
     begin
-      BASS_StreamPutData(PlayStream, bufPtr[curBlock], 2048);
+      BASS_StreamPutData(PlayStream, @buf, 2048);
       Dec(ready);
-
-      curBlock := (curBlock + 1) and 1;
-      bufs[curBlock] := GetMem(2048); //GlobalAlloc(GMEM_MOVEABLE, 2048);
-      bufPtr[curBlock] := bufs[curBlock]; //GlobalLock(bufs[curBlock]);
       bufPos := 0;
     end;
   end;
@@ -258,7 +248,7 @@ procedure SoundUpdate(cycles: integer);
 var
   n, stage: integer;
 begin
-  if (not soundEnable) or (bufPtr[0] = nil) then
+  if (not soundEnable) then
     exit;
   if sndRegChange then
   begin
@@ -582,15 +572,4 @@ begin
   sampleCycles := n;
 end;
 
-begin
-  BASS_Init(-1, 22050, 0, 0, nil);
-  PlayStream := BASS_StreamCreate(
-    22050,
-    2,
-    BASS_SAMPLE_8BITS,
-    StreamProc(STREAMPROC_PUSH),
-    nil);
-  BASS_ChannelPlay(PlayStream, True);
-  //Assign(MyFile, 'outf2.pcm');
-  //Rewrite(MyFile);
 end.
