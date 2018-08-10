@@ -13,8 +13,6 @@ unit sound;
 
 interface
 
-uses bass;
-
 (*
 
 FF10 -- SNDREG10 [RW] Sweep [Sound Mode #1]
@@ -134,7 +132,6 @@ procedure SoundUpdate(cycles: integer);
 procedure SoundSetCycles(n: integer);
 
 var
-  playStream: HStream;
   soundEnable: boolean;
   sndRegChange: boolean;
   snd: array[1..4] of record
@@ -143,7 +140,7 @@ var
     // private:
     enable: boolean;
     Freq: integer;
-    Vol: byte;
+    Vol: shortint;
     Len: integer;
     swpCnt: byte;
     EnvCnt: byte;
@@ -153,12 +150,13 @@ var
 
 implementation
 
-uses vars;
+uses vars, bass;
 
 const
   sampleCycles: longint = (8192 * 1024) div 22050;
 
 var
+  playStream: HStream;
   ready: integer;
   bufPos, bufCycles, bufLVal, bufRVal: integer;
   buf: array[0..2047] of byte;
