@@ -5,3 +5,4 @@ ConverterBackup
 lib
 *.exe
 *.dll
+*.lps
