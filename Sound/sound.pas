@@ -9,7 +9,7 @@
 
 unit sound;
 
-{$MODE Delphi}
+{$mode objfpc} //For binary literals
 
 interface
 
@@ -161,6 +161,8 @@ var
   bufPos, bufCycles, bufLVal, bufRVal: integer;
   buf: array[0..2047] of byte;
 
+  myFile: file of byte;
+
 procedure EnableSound;
 begin
   if soundEnable then
@@ -208,6 +210,7 @@ begin
     bufRVal := 0;
     if bufPos >= 2048 then
     begin
+      BlockWrite(myFile, buf, 2048);
       BASS_StreamPutData(PlayStream, @buf, 2048);
       Dec(ready);
       bufPos := 0;
@@ -250,10 +253,10 @@ begin
     exit;
   if sndRegChange then
   begin
-    snd[1].Freq := m_iram[$FF13] or ((m_iram[$FF14] and 7) shl 8);
-    snd[2].Freq := m_iram[$FF18] or ((m_iram[$FF19] and 7) shl 8);
-    snd[3].Freq := m_iram[$FF1d] or ((m_iram[$FF1e] and 7) shl 8);
-    case m_iram[$FF22] and 7 of //NICK (7 -> 15)... wrong number of bits!
+    snd[1].Freq := m_iram[$FF13] or ((m_iram[$FF14] and %111) shl 8);
+    snd[2].Freq := m_iram[$FF18] or ((m_iram[$FF19] and %111) shl 8);
+    snd[3].Freq := m_iram[$FF1d] or ((m_iram[$FF1e] and %111) shl 8);
+    case m_iram[$FF22] and %111 of
       0: snd[4].Freq := (512 * 1024 * 2) shr ((m_iram[$FF22] shr 4) + 1);
       1: snd[4].Freq := (512 * 1024) shr ((m_iram[$FF22] shr 4) + 1);
       2: snd[4].Freq := ((512 * 1024) div 2) shr ((m_iram[$FF22] shr 4) + 1);
@@ -264,57 +267,57 @@ begin
       7: snd[4].Freq := ((512 * 1024) div 7) shr ((m_iram[$FF22] shr 4) + 1);
     end;
     snd[4].Freq := (8192 * 1024) div snd[4].Freq;
-    snd[3].Enable := m_iram[$FF1a] and $80 > 0;
+    snd[3].Enable := m_iram[$FF1a] and %10000000 > 0;
     snd[1].Vol := m_iram[$FF12] shr 4;
-    if m_iram[$FF14] and $80 > 0 then
+    if m_iram[$FF14] and %10000000 > 0 then
     begin
-      snd[1].Len := 64 - (m_iram[$FF11] and 63);
+      snd[1].Len := 64 - (m_iram[$FF11] and %111111);
       snd[1].Cnt := 0;
-      m_iram[$FF14] := m_iram[$FF14] and $7f;
+      m_iram[$FF14] := m_iram[$FF14] and %1111111;
       snd[1].Enable := True;
     end;
     snd[2].Vol := m_iram[$FF17] shr 4;
-    if m_iram[$FF19] and $80 > 0 then
+    if m_iram[$FF19] and %10000000 > 0 then
     begin
-      snd[2].Len := 64 - (m_iram[$FF16] and 63);
+      snd[2].Len := 64 - (m_iram[$FF16] and %111111);
       snd[2].Cnt := 0;
-      m_iram[$FF19] := m_iram[$FF19] and $7f;
+      m_iram[$FF19] := m_iram[$FF19] and %1111111;
       snd[2].Enable := True;
     end;
-    if m_iram[$FF1e] and $80 > 0 then
+    if m_iram[$FF1e] and %10000000 > 0 then
     begin
       snd[3].Len := (256 - byte(m_iram[$FF1b])) shl 7;
       snd[3].Cnt := 0;
-      m_iram[$FF1e] := m_iram[$FF1e] and $7f;
+      m_iram[$FF1e] := m_iram[$FF1e] and %1111111;
     end;
     snd[4].Vol := m_iram[$FF21] shr 4;
-    if m_iram[$FF23] and $80 > 0 then
+    if m_iram[$FF23] and %10000000 > 0 then
     begin
-      snd[4].Len := 64 - (m_iram[$FF20] and 63);
-      m_iram[$FF23] := m_iram[$FF23] and $7f;
+      snd[4].Len := 64 - (m_iram[$FF20] and %111111);
+      m_iram[$FF23] := m_iram[$FF23] and %1111111;
       snd[4].Enable := True;
     end;
     sndRegChange := False;
   end;
-  if (snd[1].Enable) and (m_iram[$FF10] and $70 > 0) then
+  if (snd[1].Enable) and (m_iram[$FF10] and %1110000 > 0) then
   begin
     Inc(swpClk, cycles);
     if swpClk >= (8192 * 1024 div 128) then
     begin
       Dec(swpClk, 8192 * 1024 div 128);
       Inc(snd[1].SwpCnt);
-      if snd[1].SwpCnt >= ((m_iram[$FF10] shr 4) and 7) then
+      if snd[1].SwpCnt >= ((m_iram[$FF10] shr 4) and %111) then
       begin
         snd[1].SwpCnt := 0;
-        if m_iram[$FF10] and 8 > 0 then
+        if m_iram[$FF10] and %1000 > 0 then
         begin
-          Dec(snd[1].Freq, snd[1].Freq shr (m_iram[$FF10] and 7));
+          Dec(snd[1].Freq, snd[1].Freq shr (m_iram[$FF10] and %111));
           if snd[1].Freq < 0 then
             snd[1].Freq := 0;
         end
         else
         begin
-          Inc(snd[1].Freq, snd[1].Freq shr (m_iram[$FF10] and 7));
+          Inc(snd[1].Freq, snd[1].Freq shr (m_iram[$FF10] and %111));
           if snd[1].Freq > 2047 then
           begin
             snd[1].Freq := 2047;
@@ -328,69 +331,69 @@ begin
   if envClk >= 8192 * 1024 div 64 then
   begin
     Dec(envClk, 8192 * 1024 div 64);
-    if (snd[1].Enable) and (m_iram[$FF12] and 7 > 0) then
+    if (snd[1].Enable) and (m_iram[$FF12] and %111 > 0) then
     begin
       Inc(snd[1].EnvCnt);
-      if snd[1].EnvCnt >= (m_iram[$FF12] and 7) then
+      if snd[1].EnvCnt >= (m_iram[$FF12] and %111) then
       begin
         snd[1].EnvCnt := 0;
-        if m_iram[$FF12] and 8 > 0 then
+        if m_iram[$FF12] and %1000 > 0 then
         begin
           Inc(snd[1].Vol);
           if (snd[1].Vol > $f) then
             snd[1].Vol := $f;
-          m_iram[$FF12] := (m_iram[$FF12] and $f) or (snd[1].Vol shl 4);
+          m_iram[$FF12] := (m_iram[$FF12] and %1111) or (snd[1].Vol shl 4);
         end
         else
         begin
           Dec(snd[1].Vol);
           if (snd[1].Vol < 0) then
             snd[1].Vol := 0;
-          m_iram[$FF12] := (m_iram[$FF12] and $f) or (snd[1].Vol shl 4);
+          m_iram[$FF12] := (m_iram[$FF12] and %1111) or (snd[1].Vol shl 4);
         end;
       end;
     end;
-    if (snd[2].Enable) and (m_iram[$FF17] and 7 > 0) then
+    if (snd[2].Enable) and (m_iram[$FF17] and %111 > 0) then
     begin
       Inc(snd[2].EnvCnt);
-      if snd[2].EnvCnt >= (m_iram[$FF17] and 7) then
+      if snd[2].EnvCnt >= (m_iram[$FF17] and %111) then
       begin
         snd[2].EnvCnt := 0;
-        if m_iram[$FF17] and 8 > 0 then
+        if m_iram[$FF17] and %1000 > 0 then
         begin
           Inc(snd[2].Vol);
           if (snd[2].Vol > $f) then
             snd[2].Vol := $f;
-          m_iram[$FF17] := (m_iram[$FF17] and $f) or (snd[2].Vol shl 4);
+          m_iram[$FF17] := (m_iram[$FF17] and %1111) or (snd[2].Vol shl 4);
         end
         else
         begin
           Dec(snd[2].Vol);
           if (snd[2].Vol < 0) then
             snd[2].Vol := 0;
-          m_iram[$FF17] := (m_iram[$FF17] and $f) or (snd[2].Vol shl 4);
+          m_iram[$FF17] := (m_iram[$FF17] and %1111) or (snd[2].Vol shl 4);
         end;
       end;
     end;
-    if (snd[4].Enable) and (m_iram[$FF21] and 7 > 0) then
+    if (snd[4].Enable) and (m_iram[$FF21] and %111 > 0) then
     begin
       Inc(snd[4].EnvCnt);
-      if snd[4].EnvCnt >= m_iram[$FF21] and 7 then
+      if snd[4].EnvCnt >= m_iram[$FF21] and %111 then
       begin
         snd[4].EnvCnt := 0;
-        if m_iram[$FF21] and 8 > 0 then
+        if m_iram[$FF21] and %1000 > 0 then
         begin
           Inc(snd[4].Vol);
           if snd[4].Vol > $f then
             snd[4].Vol := $f;
-          m_iram[$FF21] := (m_iram[$FF21] and $f) or (snd[4].Vol shl 4);
+          m_iram[$FF21] := (m_iram[$FF21] and %1111) or (snd[4].Vol shl 4);
         end
         else
         begin
           Dec(snd[4].Vol);
           if (snd[4].Vol < 0) then
             snd[4].Vol := 0;
-          m_iram[$FF21] := (m_iram[$FF21] and $f) or (snd[4].Vol shl 4);
+          m_iram[$FF21] := (m_iram[$FF21] and %1111) or (snd[4].Vol shl 4);
         end;
       end;
     end;
@@ -402,19 +405,19 @@ begin
     if snd[1].Enable then
     begin
       Dec(snd[1].Len);
-      if (snd[1].Len <= 0) and (m_iram[$FF14] and $40 > 0) then
+      if (snd[1].Len <= 0) and (m_iram[$FF14] and %1000000 > 0) then
         snd[1].Enable := False;
     end;
     if snd[2].Enable then
     begin
       Dec(snd[2].Len);
-      if (snd[2].Len <= 0) and (m_iram[$FF19] and $40 > 0) then
+      if (snd[2].Len <= 0) and (m_iram[$FF19] and %1000000 > 0) then
         snd[2].Enable := False;
     end;
     if snd[3].Enable then
     begin
       Dec(snd[3].Len);
-      if (snd[3].Len <= 0) and (m_iram[$FF1e] and $40 > 0) then
+      if (snd[3].Len <= 0) and (m_iram[$FF1e] and %1000000 > 0) then
       begin
         snd[3].Enable := False;
         m_iram[$ff1a] := m_iram[$ff1a] and $7f;
@@ -423,12 +426,12 @@ begin
     if snd[4].Enable then
     begin
       Dec(snd[4].Len);
-      if (snd[4].Len <= 0) and (m_iram[$FF23] and $40 > 0) then
+      if (snd[4].Len <= 0) and (m_iram[$FF23] and %1000000 > 0) then
         snd[4].Enable := False;
     end;
   end;
   m_iram[$FF13] := snd[1].Freq and $ff;
-  m_iram[$FF14] := (m_iram[$FF14] and $f8) or ((snd[1].Freq shr 8) and 7);
+  m_iram[$FF14] := (m_iram[$FF14] and $f8) or ((snd[1].Freq shr 8) and %111);
   Inc(freqClk, cycles);
   if freqClk >= 4 then
   begin
@@ -508,7 +511,7 @@ begin
         stage := 31;
       snd[3].Bit := m_iram[$FF30 + (stage shr 1)];
       if stage and 1 > 0 then
-        snd[3].Bit := snd[3].Bit and $f
+        snd[3].Bit := snd[3].Bit and %1111
       else
         snd[3].Bit := snd[2].Bit shr 4;
 
@@ -521,7 +524,7 @@ begin
     end;
     if m_iram[$FF25] and 4 > 0 then
       Inc(l, (snd[3].Bit shl 4) - $80);
-    if m_iram[$FF25] and $40 > 0 then
+    if m_iram[$FF25] and %1000000 > 0 then
       Inc(r, (snd[3].Bit shl 4) - $80);
   end;
   if not snd[4].channelOFF then
@@ -570,4 +573,7 @@ begin
   sampleCycles := n;
 end;
 
+begin
+  assign(myFile, 'snd_debug.pcm');
+  rewrite(myFile);
 end.

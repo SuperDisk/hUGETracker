@@ -279,7 +279,6 @@ begin
     z80_reset;
     f_stopped := False;
     gb_speed := 1;
-    setzewindow(handle);
     loadstat.Enabled := True;
     savestat.Enabled := True;
   end;
@@ -307,7 +306,6 @@ begin
   z80_reset;
   f_stopped := True;
   gb_speed := 1;
-  setzewindow(handle);
 
   frmGameboy.DoubleBuffered := True;
   SetPaintBox(PaintBox1);
