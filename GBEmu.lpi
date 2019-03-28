@@ -26,6 +26,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
+        <CommandLineParams Value="C:\Projects\GB-Stuff\sml.gb"/>
       </local>
     </RunParams>
     <RequiredPackages Count="2">
@@ -36,7 +37,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="22">
+    <Units Count="12">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -53,84 +54,44 @@
         <IsPartOfProject Value="True"/>
       </Unit2>
       <Unit3>
-        <Filename Value="Directx\directdraw.pas"/>
+        <Filename Value="Gpu\ddraw_out.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="DirectX\dxcommon.pas"/>
+        <Filename Value="Gpu\gfx.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="Gpu\ddraw_out.pas"/>
+        <Filename Value="CPU\machine.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
-        <Filename Value="Gpu\dib_out.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit6>
-      <Unit7>
-        <Filename Value="Gpu\gfx.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit7>
-      <Unit8>
-        <Filename Value="CPU\machine.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit8>
-      <Unit9>
         <Filename Value="Cpu\z80cpu.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Z80CPU"/>
-      </Unit9>
-      <Unit10>
+      </Unit6>
+      <Unit7>
         <Filename Value="Sound\sound.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit10>
-      <Unit11>
+      </Unit7>
+      <Unit8>
         <Filename Value="Global\vars.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit11>
-      <Unit12>
+      </Unit8>
+      <Unit9>
         <Filename Value="mainloop.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit12>
-      <Unit13>
+      </Unit9>
+      <Unit10>
         <Filename Value="Debugger\UnitDebug.pas"/>
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
-      </Unit13>
-      <Unit14>
-        <Filename Value="DirectX\Direct3DRM.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit14>
-      <Unit15>
-        <Filename Value="DirectX\DirectInput.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit15>
-      <Unit16>
-        <Filename Value="DirectX\DirectMusic.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit16>
-      <Unit17>
-        <Filename Value="DirectX\DirectPlay.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit17>
-      <Unit18>
-        <Filename Value="DirectX\DirectSetup.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit18>
-      <Unit19>
-        <Filename Value="DirectX\DirectSound.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit19>
-      <Unit20>
-        <Filename Value="DirectX\Direct3D.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit20>
-      <Unit21>
+      </Unit10>
+      <Unit11>
         <Filename Value="Debugger\UnitMapview.pas"/>
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
-      </Unit21>
+      </Unit11>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -138,7 +99,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="Debugger;Directx;GPU;CPU;Sound;Global;Components;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Debugger;Directx;GPU;CPU;Sound;Global"/>
+      <OtherUnitFiles Value="Debugger;GPU;CPU;Sound;Global"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

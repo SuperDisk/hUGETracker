@@ -13,27 +13,20 @@ unit mainloop;
 
 interface
 
-uses Windows, ExtCtrls;
+uses ExtCtrls;
 
 function main_loop(a: DWord): DWORD;
-procedure setzewindow(h_wnd: HWND);
 procedure SetPaintBox(pb: TPaintBox);
 
 function z80_decode: byte; pascal;
 procedure z80_reset;
 
 var
-  window: Hwnd; // is the DirectDraw window
   PaintBox: TPaintBox;
 
 implementation
 
 uses vars, gfx, machine, z80cpu, sound;
-
-procedure setzewindow(h_wnd: HWND);
-begin
-  window := h_wnd;
-end;
 
 procedure SetPaintBox(pb: TPaintBox);
 begin

@@ -133,6 +133,7 @@ type
     FDiff: integer; // Caption Height
     procedure Emulation(var msg: TMessage); message wm_user;
     procedure SetWindow;
+    procedure LoadRom(Rom: String);
 
     procedure ShowCaption;
     procedure RemoveCaption;
@@ -169,8 +170,6 @@ begin
 end;
 
 procedure TfrmGameboy.FormCreate(Sender: TObject);
-var
-  li: Large_Integer;
 begin
   loadstat.Enabled := False;
   savestat.Enabled := False;
@@ -188,10 +187,7 @@ begin
   if assigned(cart) then
     freemem(cart, cartsize);
   z80_reset;
-  // initialize PerfFreq
 
-  QueryPerformanceFrequency(li.quadpart);
-  perfFreq := li.LowPart div 32;// shr 5;
   SetAudioChannel(Self);
   enablesound;
 end;
@@ -243,17 +239,30 @@ begin
 
     cycles -= CyclesPerFrame;
 
-    while True do begin
+    repeat
       QueryPerformanceCounter(@li);
       frameEnd := li.QuadPart;
 
       frameElapsedInSec := (frameEnd - frameStart) / tickFreq;
-      if frameElapsedInSec > TimePerFrame then
-         Break;
-    end;
+    until frameElapsedInSec > TimePerFrame;
 
     frameStart := frameEnd;
   until application.Terminated;
+end;
+
+procedure TfrmGameboy.LoadRom(Rom: String);
+begin
+  f_stopped := True;
+  load(Rom);
+  statusbar.Panels[2].Text := getcompany;
+  statusbar.Panels[1].Text := speicher;
+  statusbar.panels[0].Text := romname;
+  z80_reset;
+  z80_reset;
+  f_stopped := False;
+  gb_speed := 1;
+  loadstat.Enabled := True;
+  savestat.Enabled := True;
 end;
 
 procedure TfrmGameboy.FileOpenClick(Sender: TObject);
@@ -267,22 +276,7 @@ begin
   opendialog.Filter :=
     'All Roms [*.gb;*.gbc;*.rom]|*.gb;*.gbc;*.rom|Gameboy [*.gb]|*.gb|Gameboy Color [*.gbc]|*.gbc|All Files [*.*]|*.*';
 
-  if opendialog.Execute then
-  begin
-    f_stopped := True;
-    load(opendialog.filename);
-    i := 0;
-    statusbar.Panels[2].Text := getcompany;
-    statusbar.Panels[1].Text := speicher;
-    statusbar.panels[0].Text := romname;
-    z80_reset;
-    z80_reset;
-    f_stopped := False;
-    gb_speed := 1;
-    setzewindow(handle);
-    loadstat.Enabled := True;
-    savestat.Enabled := True;
-  end;
+  if opendialog.Execute then LoadRom(opendialog.filename);
 end;
 
 procedure TfrmGameboy.KillClick(Sender: TObject);
@@ -307,11 +301,13 @@ begin
   z80_reset;
   f_stopped := True;
   gb_speed := 1;
-  setzewindow(handle);
 
   frmGameboy.DoubleBuffered := True;
   SetPaintBox(PaintBox1);
   postmessage(handle, wm_user, 0, 0);
+
+  if ParamCount >= 1 then
+    LoadRom(ParamStr(1));
 end;
 
 procedure TfrmGameboy.Exit1Click(Sender: TObject);

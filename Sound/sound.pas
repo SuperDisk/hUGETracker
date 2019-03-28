@@ -253,7 +253,7 @@ begin
     snd[1].Freq := m_iram[$FF13] or ((m_iram[$FF14] and 7) shl 8);
     snd[2].Freq := m_iram[$FF18] or ((m_iram[$FF19] and 7) shl 8);
     snd[3].Freq := m_iram[$FF1d] or ((m_iram[$FF1e] and 7) shl 8);
-    case m_iram[$FF22] and 7 of //NICK (7 -> 15)... wrong number of bits!
+    case m_iram[$FF22] and 7 of
       0: snd[4].Freq := (512 * 1024 * 2) shr ((m_iram[$FF22] shr 4) + 1);
       1: snd[4].Freq := (512 * 1024) shr ((m_iram[$FF22] shr 4) + 1);
       2: snd[4].Freq := ((512 * 1024) div 2) shr ((m_iram[$FF22] shr 4) + 1);
@@ -561,8 +561,7 @@ begin
 
   l := shortint(l shr 2) + 128;
   r := shortint(r shr 2) + 128;
-  if (l <> 170) and (r <> 170) then
-    SoundOutBits(l, r, cycles);
+  SoundOutBits(l, r, cycles)
 end;
 
 procedure SoundSetCycles(n: integer);

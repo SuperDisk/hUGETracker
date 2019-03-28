@@ -7,8 +7,6 @@ unit vars;
 
 interface
 
-uses Windows, DirectDraw;
-
 const
   thr_f: integer = 1;
   cart: pointer = nil; // Cartdridge
