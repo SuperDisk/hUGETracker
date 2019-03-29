@@ -9,7 +9,7 @@
 
 unit sound;
 
-{$MODE Delphi}
+{$MODE objfpc}
 
 interface
 
@@ -510,7 +510,7 @@ begin
       if stage and 1 > 0 then
         snd[3].Bit := snd[3].Bit and $f
       else
-        snd[3].Bit := snd[2].Bit shr 4;
+        snd[3].Bit := snd[3].Bit shr 4;
 
       case (m_iram[$FF1c] shr 5) and 3 of
         0: snd[3].Bit := 8;

@@ -7,7 +7,6 @@ uses
   Interfaces,
   UnitMain in 'UnitMain.pas' {frmGameboy},
   debugger in 'Debugger\debugger.pas',
-  ddraw_out in 'GPU\ddraw_out.pas',
   gfx in 'GPU\gfx.pas',
   machine in 'CPU\machine.pas',
   Z80CPU in 'CPU\z80cpu.pas',
