@@ -244,7 +244,7 @@ begin
       frameEnd := li.QuadPart;
 
       frameElapsedInSec := (frameEnd - frameStart) / tickFreq;
-    until frameElapsedInSec > TimePerFrame;
+    until (frameElapsedInSec > TimePerFrame) and (not SoundBufferTooFull);
 
     frameStart := frameEnd;
   until application.Terminated;

@@ -131,6 +131,8 @@ procedure DisableSound;
 procedure SoundUpdate(cycles: integer);
 procedure SoundSetCycles(n: integer);
 
+function SoundBufferTooFull: Boolean;
+
 var
   soundEnable: boolean;
   sndRegChange: boolean;
@@ -154,12 +156,19 @@ uses vars, bass;
 
 const
   sampleCycles: longint = (8192 * 1024) div 22050;
+  TooFullThreshold: DWORD = 5120; // (0.2s)
 
 var
   playStream: HStream;
-  ready: integer;
   bufPos, bufCycles, bufLVal, bufRVal: integer;
   buf: array[0..2047] of byte;
+
+// HACK: This is kind of a hack. We should probably figure out a way to
+// tie playback rate to the emulation function instead of this, but it works.
+function SoundBufferTooFull: Boolean;
+begin
+  Result := BASS_ChannelGetData(PlayStream, nil, BASS_DATA_AVAILABLE) > TooFullThreshold;
+end;
 
 procedure EnableSound;
 begin
@@ -176,8 +185,6 @@ begin
   BASS_ChannelPlay(PlayStream, True);
 
   soundEnable := True;
-  ready := 3;
-  bufPos := 0;
   bufCycles := 0;
   bufLVal := 0;
   bufRVal := 0;
@@ -209,7 +216,6 @@ begin
     if bufPos >= 2048 then
     begin
       BASS_StreamPutData(PlayStream, @buf, 2048);
-      Dec(ready);
       bufPos := 0;
     end;
   end;
@@ -548,16 +554,6 @@ begin
       else
         Dec(r, vol[snd[4].Vol]);
   end;
-
-    {l:=l shr 2;
-    if (shortint(l)<-128) then l:=-128;
-    if (shortint(l)>127) then l:=127;
-    inc(l,$80);
-
-    r:=r shr 2;
-    if (shortint(r)<-128) then r:=-128;
-    if (shortint(r)>127) then r:=127;
-    inc(r,$80);}
 
   l := shortint(l shr 2) + 128;
   r := shortint(r shr 2) + 128;
