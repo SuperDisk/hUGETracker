@@ -14,7 +14,7 @@ implementation
 
 uses
   BGRABitmapTypes,
-  vars, ddraw_out,
+  vars,
   classes;
 
 var
@@ -22,8 +22,6 @@ var
 
 procedure StartLCL;
 begin
-  frames := 0;
-
   dx_r := $FF0000;
   dx_g := $00FF00;
   dx_b := $0000FF;
@@ -50,9 +48,6 @@ var
   p: PBGRAPixel;
   Idx: Integer;
 begin
-  if skip_asm then
-    exit;
-
   p := bmp.Data;
 
   for Y := 144-1 downto 0 do
