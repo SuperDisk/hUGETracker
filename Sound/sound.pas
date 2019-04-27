@@ -155,16 +155,15 @@ implementation
 uses vars, bass;
 
 const
-  sampleCycles: longint = (8192 * 1024) div 22050;
-  TooFullThreshold: DWORD = 5120; // (0.2s)
+  VolumeDecreaseCoeff = 6; // It's really loud otherwise...
+  playbackFrequency = 44100;
+  sampleCycles: longint = (8192 * 1024) div playbackFrequency;
+  TooFullThreshold: DWORD = (playbackFrequency div 10)*sizeof(single); //0.1s
 
 var
   playStream: HStream;
-  bufPos, bufCycles, bufLVal, bufRVal: integer;
-  buf: array[0..2047] of byte;
+  bufCycles, bufLVal, bufRVal: integer;
 
-// HACK: This is kind of a hack. We should probably figure out a way to
-// tie playback rate to the emulation function instead of this, but it works.
 function SoundBufferTooFull: Boolean;
 begin
   Result := BASS_ChannelGetData(PlayStream, nil, BASS_DATA_AVAILABLE) > TooFullThreshold;
@@ -175,11 +174,11 @@ begin
   if soundEnable then
     exit;
 
-  BASS_Init(-1, 22050, 0, 0, nil);
+  BASS_Init(-1, playbackFrequency, 0, 0, nil);
   PlayStream := BASS_StreamCreate(
-    22050,
+    playbackFrequency,
     2,
-    BASS_SAMPLE_8BITS,
+    BASS_SAMPLE_FLOAT,
     StreamProc(STREAMPROC_PUSH),
     nil);
   BASS_ChannelPlay(PlayStream, True);
@@ -200,28 +199,25 @@ begin
   soundEnable := False;
 end;
 
-procedure SoundDoOut(l, r: byte; cycles: integer);
+procedure SoundDoOut(l, r: Integer; cycles: integer);
+var
+  buf: array[0..1] of Single;
 begin
   Inc(bufLVal, l * cycles);
   Inc(bufRVal, r * cycles);
   Inc(bufCycles, cycles);
   if bufCycles >= sampleCycles then
   begin
-    buf[bufPos] := bufRVal div sampleCycles;
-    buf[bufPos + 1] := bufLVal div sampleCycles;
+    buf[0] := ((bufRVal div sampleCycles) / 512.0)/VolumeDecreaseCoeff;
+    buf[1] := ((bufLVal div sampleCycles) / 512.0)/VolumeDecreaseCoeff;
     bufCycles := 0;
-    Inc(bufPos, 2);
     bufLVal := 0;
     bufRVal := 0;
-    if bufPos >= 2048 then
-    begin
-      BASS_StreamPutData(PlayStream, @buf, 2048);
-      bufPos := 0;
-    end;
+    BASS_StreamPutData(PlayStream, @buf, 8 {2 32-bit float samples});
   end;
 end;
 
-procedure SoundOutBits(l, r: byte; cycles: integer);
+procedure SoundOutBits(l, r: Integer; cycles: integer);
 var
   left: integer;
 begin
@@ -555,9 +551,10 @@ begin
         Dec(r, vol[snd[4].Vol]);
   end;
 
-  l := shortint(l shr 2) + 128;
-  r := shortint(r shr 2) + 128;
-  SoundOutBits(l, r, cycles)
+  SoundOutBits(l, r, cycles);
+
+  l := 0;
+  r := 0
 end;
 
 procedure SoundSetCycles(n: integer);

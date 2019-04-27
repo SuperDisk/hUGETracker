@@ -18,7 +18,7 @@ implementation
 
 uses vars, machine;
 
-// temporäre Variablen
+// temporary variables
 var
   b: Pair;
   cycle: byte;

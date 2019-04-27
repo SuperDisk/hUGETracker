@@ -26,7 +26,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="C:\Projects\GB-Stuff\gb-test-roms-master\gb-test-roms-master\cpu_instrs\cpu_instrs.gb"/>
+        <CommandLineParams Value="C:\Projects\GB-Stuff\sml.gb"/>
       </local>
     </RunParams>
     <RequiredPackages Count="2">
