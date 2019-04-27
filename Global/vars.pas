@@ -9,7 +9,7 @@ interface
 
 const
   thr_f: integer = 1;
-  cart: pointer = nil; // Cartdridge
+  cart: pointer = nil; // Cartridge
   isddraw: boolean = True; // DirectDraw;
 
 var
@@ -20,7 +20,7 @@ var
   th: integer;
   dw, dh, tid: DWORD;
 
-  // Grafik
+  // Graphics
   dx_buffer: array[0..(160 * 160 * 4 * 10) - 1] of byte;
 
 const

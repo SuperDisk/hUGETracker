@@ -16,7 +16,7 @@ var
 
 implementation
 
-uses vars, machine, Windows;
+uses vars, machine;
 
 // temporäre Variablen
 var
@@ -594,8 +594,6 @@ begin
            OR      AH,BL
            MOV     af.l,AH
   end;
-
-
 
   Result := 4;
 end;

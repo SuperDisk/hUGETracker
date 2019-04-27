@@ -15,8 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  lcl_out, vars, z80cpu,
-  gfx, mainloop, machine, debugger, sound,
+  lcl_out, vars, z80cpu, mainloop, machine, debugger, sound,
   StdCtrls, ExtCtrls, ComCtrls, Menus;
 
 type
@@ -147,7 +146,7 @@ var
 
 implementation
 
-uses UnitDebug, UnitMapview;
+uses UnitMapview;
 
 {$R *.lfm}
 
@@ -206,18 +205,12 @@ const
 
 procedure TfrmGameboy.Emulation(var Msg: TMessage);
 var
-  Count: DWord;
-  i: byte;
-  idx: integer;
   li: Large_Integer;
   tickFreq, cycles: Integer;
   frameStart, frameEnd: Integer;
   frameElapsedInSec: Double;
 begin
-  idx := 0;
   lastTime := 0;
-  Count := 0;
-  i := 0;
 
   cycles := 0;
 
@@ -266,9 +259,6 @@ begin
 end;
 
 procedure TfrmGameboy.FileOpenClick(Sender: TObject);
-var
-  i: integer;
-  s: string;
 begin
   loadstat.Enabled := False;
   savestat.Enabled := False;
@@ -400,7 +390,6 @@ procedure TfrmGameboy.setPriority(Sender: TObject);
 var
   ProcessID: DWORD;
   ProcessHandle: THandle;
-  ThreadHandle: THandle;
   Priority: integer;
 begin
 { HIGH_PRIORITY_CLASS,

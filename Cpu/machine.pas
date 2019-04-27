@@ -70,8 +70,8 @@ const
     (code: $1801; Name: 'Hudson Soft'));
 
 
-{+ Wichtig !! die beiden Speicherfunktionen müssen
-   unbedingt CDECL deklariert sein !!!              +}
+{+ Important!! the two memory functions must
+    be declared CDECL!!! +}
 
 function speekb(address: word): byte; cdecl;
 procedure spokeb(address: word; Data: byte); cdecl;
