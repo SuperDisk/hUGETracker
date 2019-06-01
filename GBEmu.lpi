@@ -26,7 +26,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="C:\Projects\GB-Stuff\sml.gb"/>
+        <CommandLineParams Value="C:\Projects\GB-Stuff\uge\driver.gb"/>
       </local>
     </RunParams>
     <RequiredPackages Count="2">
@@ -103,6 +103,16 @@
         <SyntaxMode Value="Delphi"/>
       </SyntaxOptions>
     </Parsing>
+    <CodeGeneration>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
+    </CodeGeneration>
+    <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf2Set"/>
+      </Debugging>
+    </Linking>
     <Other>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
     </Other>

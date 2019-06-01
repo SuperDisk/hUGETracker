@@ -3185,6 +3185,7 @@ end;
 
 function PFX_FD: byte;
 begin
+  Writeln('[DEBUG] 0xFD Called, A = ', af.h);
   Result := 0;
 end;
 

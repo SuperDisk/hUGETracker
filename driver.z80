@@ -1,0 +1,337 @@
+;; hUGETracker playback routine
+;; Written by SuperDisk 2019
+
+include "hardware.inc"
+include "constants.inc"
+include "debug_macros.inc"
+
+; Constants
+STACK_SIZE EQU $200
+SCREEN_WIDTH_TILES EQU 20
+CANVAS_WIDTH_TILES EQU 32
+SCREEN_HEIGHT_TILES EQU 18
+CANVAS_HEIGHT_TILES EQU 32
+
+; $0000 - $003F: RST handlers.
+
+SECTION "restarts", ROM0[$0000]
+ret
+REPT 7
+    nop
+ENDR
+; $0008
+ret
+REPT 7
+    nop
+ENDR
+; $0010
+ret
+REPT 7
+    nop
+ENDR
+; $0018
+ret
+REPT 7
+    nop
+ENDR
+; $0020
+ret
+REPT 7
+    nop
+ENDR
+; $0028
+ret
+REPT 7
+    nop
+ENDR
+; $0030
+ret
+REPT 7
+    nop
+ENDR
+; $0038
+ret
+REPT 7
+    nop
+ENDR
+
+; Interrupt addresses
+SECTION "Vblank interrupt", ROM0[$0040]
+    jp _dosound
+    reti
+
+SECTION "LCD controller status interrupt", ROM0[$0048]
+    reti
+
+SECTION "Timer overflow interrupt", ROM0[$0050]
+    jp _dosound
+    reti
+
+SECTION "Serial transfer completion interrupt", ROM0[$0058]
+    reti
+
+SECTION "P10-P13 signal low edge interrupt", ROM0[$0060]
+    jp _dosound
+
+; Reserved stack space
+SECTION "Stack", WRAM0[$d000 - STACK_SIZE]
+    ds STACK_SIZE
+
+
+; Control starts here, but there's more ROM header several bytes later, so the
+; only thing we can really do is immediately jump to after the header
+SECTION "init", ROM0[$0100]
+    nop
+    jp $0150
+
+SECTION "romname", ROM0[$0134]
+; $0134 - $013E: The title, in upper-case letters, followed by zeroes.
+DB "HUGE"
+DS 7 ; padding
+; $013F - $0142: The manufacturer code. Empty for now
+DS 4
+DS 1
+; $0144 - $0145: "New" Licensee Code, a two character name.
+DB "NF"
+
+SECTION "Shit", ROM0
+sequence:
+db A#5
+db A#4
+db F5
+db A#5
+db G#5
+db A#4
+db F5
+db G#5
+db G5
+db A#4
+db D#5
+db G5
+db G#5
+db A#4
+db F5
+db G#5
+db A#5
+db A#4
+db F5
+db A#5
+db G#5
+db A#4
+db F5
+db G#5
+db G5
+db A#4
+db D#5
+db G5
+db G#5
+db A#4
+db F5
+db G#5
+db A#5
+db A#4
+db F5
+db A#5
+db G#5
+db A#4
+db F5
+db G#5
+db G5
+db A#4
+db D#5
+db G5
+db G#5
+db A#4
+db F5
+db G#5
+db A#5
+db A#4
+db F5
+db A#5
+db G#5
+db A#4
+db F5
+db G#5
+db G5
+db A#4
+db D#5
+db G5
+db G#5
+db A#4
+db F5
+db G#5
+
+
+db F4
+db G#4
+db C5
+db F5
+db G#5
+db F5
+db C5
+db G#4
+db F4
+db G#4
+db C5
+db F5
+db G#5
+db F5
+db C5
+db G#4
+db F4
+db C5
+db D#5
+db G#5
+db C6
+db G#5
+db D#5
+db C5
+db G#4
+db C5
+db D#5
+db G#5
+db C6
+db G#5
+db D#5
+db C5
+db A#4
+db D5
+db F5
+db A#5
+db D6
+db A#5
+db F5
+db D5
+db A#4
+db D5
+db F5
+db A#5
+db D6
+db A#5
+db F5
+db D5
+db F4
+db C5
+db F5
+db C6
+db F6
+db C6
+db F5
+db C5
+db F4
+db C5
+db F5
+db C6
+db F6
+db C6
+db F5
+db C5
+
+SECTION "Ram Shit", WRAM0
+counter: ds 1
+tick: ds 1
+
+; Initialization and whatnot
+SECTION "main", ROM0[$0150]
+    di
+
+    ; Set LCD palette for grayscale mode; yes, it has a palette
+    ld a, %11100100
+    ld [$FF00+$47], a
+
+    ;; Fill with vertical bars
+    ld hl, $8000
+    ld bc, `01201201
+    REPT 8
+    ld a, b
+    ld [hl+], a
+    ld a, c
+    ld [hl+], a
+    ENDR
+
+    ; Enable sound globally
+    ld a, $80
+    ldh [rAUDENA], a
+    ; Enable channel 1 in stereo
+    ld a, $11
+    ldh [rAUDTERM], a
+    ; Set volume
+    ld a, $77
+    ldh [rAUDVOL], a
+
+    ;; enable the timer
+    ld a, TACF_START | TACF_4KHZ
+    ld [rTAC], a
+
+    ld a, IEF_VBLANK ; IEF_HILO | IEF_TIMER
+    ld [rIE], a
+    ei
+
+    jp _halt
+
+_dosound:
+    ld a, [tick]
+    cp 6
+    jp z, _continue
+    inc a
+    ld [tick], a
+    reti
+_continue:
+    ld a, 0
+    ld [tick], a
+
+    ld a, [counter]
+
+    ld h, 0
+    ld l, a
+    ld de, sequence
+    add hl, de
+    ld a, [hl]
+
+    ;; A now contains the note thing.. need to look it up in the table now
+
+    add a, a ;; double it to get index into hi/lo table
+
+    LD     H, 0
+    LD     L, A
+    LD     DE, note_table
+    ADD    HL, DE
+    LD     A, [HL]
+    INC    HL
+    LD     H, [HL]
+    LD     L, A
+
+    ; ld a, $1e
+    ; ldh [rAUD1SWEEP], a
+    ld a, %10111111 ; $10
+    ldh [rAUD1LEN], a
+    ld a, %11110000
+    ldh [rAUD1ENV], a
+
+    ld a, l
+    ldh [rAUD1LOW], a
+    ; ld a, %10000000
+    ld a, h
+    or %10000000
+    ldh [rAUD1HIGH], a
+
+    ld a, [counter]
+    inc a
+
+    cp 128
+    jp c, skip
+    ld a, 0
+skip:
+    ld [counter], a
+
+    reti
+
+_halt:
+    ; Do nothing, forever
+    halt
+    nop
+    jr _halt
+
+SECTION "Note Table", ROM0
+note_table:
+include "music.inc"

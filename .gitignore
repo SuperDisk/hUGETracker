@@ -6,3 +6,8 @@ lib
 *.exe
 *.dll
 *.lps
+*.gb
+*.obj
+*.sym
+*.lnk
+*.map
