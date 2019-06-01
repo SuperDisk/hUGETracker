@@ -1,13 +1,14 @@
 object frmGameboy: TfrmGameboy
-  Left = 1200
+  Left = 1519
   Height = 354
-  Top = 83
+  Top = 129
   Width = 318
   Caption = 'Gameboy'
-  ClientHeight = 334
+  ClientHeight = 324
   ClientWidth = 318
   Color = clYellow
   DefaultMonitor = dmMainForm
+  DesignTimePPI = 144
   Font.CharSet = ANSI_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
@@ -24,8 +25,8 @@ object frmGameboy: TfrmGameboy
   LCLVersion = '1.8.4.0'
   object StatusBar: TStatusBar
     Left = 0
-    Height = 23
-    Top = 311
+    Height = 36
+    Top = 288
     Width = 318
     Panels = <    
       item
@@ -45,7 +46,7 @@ object frmGameboy: TfrmGameboy
   end
   object PaintBox1: TPaintBox
     Left = 0
-    Height = 311
+    Height = 288
     Top = 0
     Width = 318
     Align = alClient
