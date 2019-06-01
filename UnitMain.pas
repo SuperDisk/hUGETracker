@@ -14,7 +14,7 @@ unit UnitMain;
 interface
 
 uses
-  Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   lcl_out, vars, z80cpu, mainloop, machine, debugger, sound,
   StdCtrls, ExtCtrls, ComCtrls, Menus;
 
@@ -130,15 +130,14 @@ type
     { Private-Deklarationen}
     fullwindow: boolean;
     FDiff: integer; // Caption Height
-    RomFile: String;
+    RomFileName: String;
 
-    procedure Emulation;
+    procedure Emulation(var msg: TMessage); message wm_user;
     procedure SetWindow;
     procedure LoadRom(Rom: String);
 
     procedure ShowCaption;
     procedure RemoveCaption;
-
   public
     { Public-Deklarationen}
     timervar: byte;
@@ -206,12 +205,17 @@ const
   CyclesPerFrame : Integer = 70224;
   TimePerFrame: Double = 1.0 / 60.0;
 
-procedure TfrmGameboy.Emulation;
+procedure TfrmGameboy.Emulation(var Msg: TMessage);
 var
   li: Large_Integer;
   tickFreq, cycles: Integer;
   frameStart, frameEnd: Integer;
   frameElapsedInSec: Double;
+function GetCounter: Integer;
+begin
+  QueryPerformanceCounter(@li);
+  Result := li.QuadPart
+end;
 begin
   lastTime := 0;
 
@@ -219,8 +223,7 @@ begin
 
   QueryPerformanceFrequency(@li);
   tickFreq := li.QuadPart;
-  QueryPerformanceCounter(@li);
-  frameStart := li.QuadPart;
+  FrameStart := GetCounter;
 
   repeat
     application.ProcessMessages;
@@ -230,10 +233,8 @@ begin
       while f_stopped do
         application.ProcessMessages;
 
-      frameEnd := 0;
-
-      QueryPerformanceCounter(@li);
-      frameStart := li.QuadPart;
+      FrameStart := GetCounter;
+      frameEnd := 0
     end;
 
     while (cycles < CyclesPerFrame) do
@@ -242,11 +243,9 @@ begin
     cycles -= CyclesPerFrame;
 
     repeat
-      QueryPerformanceCounter(@li);
-      frameEnd := li.QuadPart;
+      FrameEnd := GetCounter;
 
       frameElapsedInSec := (frameEnd - frameStart) / tickFreq;
-      sleep(1);
     until (frameElapsedInSec > TimePerFrame) and (not SoundBufferTooFull);
 
     frameStart := frameEnd;
@@ -255,6 +254,8 @@ end;
 
 procedure TfrmGameboy.LoadRom(Rom: String);
 begin
+  RomFileName := Rom;
+
   f_stopped := True;
   load(Rom);
   statusbar.Panels[2].Text := getcompany;
@@ -266,8 +267,6 @@ begin
   gb_speed := 1;
   loadstat.Enabled := True;
   savestat.Enabled := True;
-
-  RomFile := Rom;
 end;
 
 procedure TfrmGameboy.FileOpenClick(Sender: TObject);
@@ -306,12 +305,10 @@ begin
 
   frmGameboy.DoubleBuffered := True;
   SetPaintBox(PaintBox1);
+  postmessage(handle, wm_user, 0, 0);
 
-  //postmessage(handle, wm_user, 0, 0);
   if ParamCount >= 1 then
     LoadRom(ParamStr(1));
-
-  Emulation;
 end;
 
 procedure TfrmGameboy.Exit1Click(Sender: TObject);
@@ -331,6 +328,7 @@ begin
       f_stopped := not f_stopped;
       pause1.Checked := f_stopped;
     end;
+    Ord('R'): LoadRom(RomFileName);
     VK_UP: k_up := 0;
     VK_DOWN: k_down := 0;
     VK_LEFT: k_left := 0;
@@ -369,7 +367,6 @@ begin
     VK_DOWN: k_down := 1;
     VK_LEFT: k_left := 1;
     VK_RIGHT: k_right := 1;
-    Ord('R'): LoadRom(RomFile);
   end;
 end;
 
@@ -402,44 +399,43 @@ begin
 end;
 
 procedure TfrmGameboy.setPriority(Sender: TObject);
+var
+  ProcessID: DWORD;
+  ProcessHandle: THandle;
+  Priority: integer;
 begin
-//var
-//  ProcessID: DWORD;
-//  ProcessHandle: THandle;
-//  Priority: integer;
-//begin
-//{ HIGH_PRIORITY_CLASS,
-//  IDLE_PRIORITY_CLASS,
-//  NORMAL_PRIORITY_CLASS
-//  REALTIME_PRIORITY_CLASS}
-//{THREAD_PRIORITY_ABOVE_NORMAL,
-// THREAD_PRIORITY_BELOW_NORMAL,
-// THREAD_PRIORITY_HIGHEST,
-// THREAD_PRIORITY_IDLE,
-// THREAD_PRIORITY_LOWEST,
-// THREAD_PRIORITY_NORMAL,
-// THREAD_PRIORITY_TIME_CRITICAL}
-//
-//  priority1.Checked := False;
-//  priority2.Checked := False;
-//  priority3.Checked := False;
-//  priority4.Checked := False;
-//  tmenuitem(Sender).Checked := True;
-//
-//  if Sender = priority1 then
-//    priority := IDLE_PRIORITY_CLASS;
-//  if Sender = priority2 then
-//    priority := NORMAL_PRIORITY_CLASS;
-//  if Sender = priority3 then
-//    priority := HIGH_PRIORITY_CLASS;
-//  if Sender = priority4 then
-//    priority := REALTIME_PRIORITY_CLASS;
-//
-//  ProcessID := GetCurrentProcessID;
-//  ProcessHandle := OpenProcess(PROCESS_SET_INFORMATION, False, ProcessID);
-//  SetPriorityClass(ProcessHandle, Priority);
-//{ ThreadHandle := GetCurrentThread;
-//  SetThreadPriority(ThreadHandle, THREAD_PRIORITY_HIGHEST);}
+{ HIGH_PRIORITY_CLASS,
+  IDLE_PRIORITY_CLASS,
+  NORMAL_PRIORITY_CLASS
+  REALTIME_PRIORITY_CLASS}
+{THREAD_PRIORITY_ABOVE_NORMAL,
+ THREAD_PRIORITY_BELOW_NORMAL,
+ THREAD_PRIORITY_HIGHEST,
+ THREAD_PRIORITY_IDLE,
+ THREAD_PRIORITY_LOWEST,
+ THREAD_PRIORITY_NORMAL,
+ THREAD_PRIORITY_TIME_CRITICAL}
+
+  priority1.Checked := False;
+  priority2.Checked := False;
+  priority3.Checked := False;
+  priority4.Checked := False;
+  tmenuitem(Sender).Checked := True;
+
+  if Sender = priority1 then
+    priority := IDLE_PRIORITY_CLASS;
+  if Sender = priority2 then
+    priority := NORMAL_PRIORITY_CLASS;
+  if Sender = priority3 then
+    priority := HIGH_PRIORITY_CLASS;
+  if Sender = priority4 then
+    priority := REALTIME_PRIORITY_CLASS;
+
+  ProcessID := GetCurrentProcessID;
+  ProcessHandle := OpenProcess(PROCESS_SET_INFORMATION, False, ProcessID);
+  SetPriorityClass(ProcessHandle, Priority);
+{ ThreadHandle := GetCurrentThread;
+  SetThreadPriority(ThreadHandle, THREAD_PRIORITY_HIGHEST);}
 end;
 
 procedure TfrmGameboy.setResolution(Sender: TObject);

@@ -12,6 +12,12 @@ CANVAS_WIDTH_TILES EQU 32
 SCREEN_HEIGHT_TILES EQU 18
 CANVAS_HEIGHT_TILES EQU 32
 
+PATTERN_LENGTH EQU 64
+TICKS EQU 7
+
+;; Macros
+
+
 ; $0000 - $003F: RST handlers.
 
 SECTION "restarts", ROM0[$0000]
@@ -94,172 +100,78 @@ DS 1
 ; $0144 - $0145: "New" Licensee Code, a two character name.
 DB "NF"
 
-SECTION "Shit", ROM0
-sequence:
-db A#5
-db A#4
-db F5
-db A#5
-db G#5
-db A#4
-db F5
-db G#5
-db G5
-db A#4
-db D#5
-db G5
-db G#5
-db A#4
-db F5
-db G#5
-db A#5
-db A#4
-db F5
-db A#5
-db G#5
-db A#4
-db F5
-db G#5
-db G5
-db A#4
-db D#5
-db G5
-db G#5
-db A#4
-db F5
-db G#5
-db A#5
-db A#4
-db F5
-db A#5
-db G#5
-db A#4
-db F5
-db G#5
-db G5
-db A#4
-db D#5
-db G5
-db G#5
-db A#4
-db F5
-db G#5
-db A#5
-db A#4
-db F5
-db A#5
-db G#5
-db A#4
-db F5
-db G#5
-db G5
-db A#4
-db D#5
-db G5
-db G#5
-db A#4
-db F5
-db G#5
+SECTION "Song Data", ROM0
+order_cnt: db 8
+order1: dw unreal, lunawaves, lunawaves, unreal
+order2: dw lunawaves, unreal, unreal, lunawaves
+order3: dw lunawaves
+order4: dw
 
+lunawaves:
+include "lunawaves.inc"
+unreal:
+include "unreal.inc"
 
-db F4
-db G#4
-db C5
-db F5
-db G#5
-db F5
-db C5
-db G#4
-db F4
-db G#4
-db C5
-db F5
-db G#5
-db F5
-db C5
-db G#4
-db F4
-db C5
-db D#5
-db G#5
-db C6
-db G#5
-db D#5
-db C5
-db G#4
-db C5
-db D#5
-db G#5
-db C6
-db G#5
-db D#5
-db C5
-db A#4
-db D5
-db F5
-db A#5
-db D6
-db A#5
-db F5
-db D5
-db A#4
-db D5
-db F5
-db A#5
-db D6
-db A#5
-db F5
-db D5
-db F4
-db C5
-db F5
-db C6
-db F6
-db C6
-db F5
-db C5
-db F4
-db C5
-db F5
-db C6
-db F6
-db C6
-db F5
-db C5
+SECTION "Playback variables", WRAM0
+pattern1: dw
+pattern2: dw
+pattern3: dw
+pattern4: dw
 
-SECTION "Ram Shit", WRAM0
-counter: ds 1
+current_order: dw
+
+row: ds 1
 tick: ds 1
 
-; Initialization and whatnot
+; Initialization
 SECTION "main", ROM0[$0150]
-    di
+jp _init
 
-    ; Set LCD palette for grayscale mode; yes, it has a palette
-    ld a, %11100100
-    ld [$FF00+$47], a
-
-    ;; Fill with vertical bars
-    ld hl, $8000
-    ld bc, `01201201
-    REPT 8
+_paint_tile:
     ld a, b
     ld [hl+], a
     ld a, c
     ld [hl+], a
-    ENDR
+    ret
+
+_init:
+    ; Set LCD palette for grayscale mode; yes, it has a palette
+    ld a, %11100100
+    ld [$FF00+$47], a
+
+    ;; Fill with pattern
+    ld hl, $8000
+    ld bc, `10000000
+    call _paint_tile
+    ld bc, `01000000
+    call _paint_tile
+    ld bc, `00100000
+    call _paint_tile
+    ld bc, `00010000
+    call _paint_tile
+    ld bc, `00001000
+    call _paint_tile
+    ld bc, `00000100
+    call _paint_tile
+    ld bc, `00000010
+    call _paint_tile
+    ld bc, `00000001
+    call _paint_tile
 
     ; Enable sound globally
     ld a, $80
     ldh [rAUDENA], a
     ; Enable channel 1 in stereo
-    ld a, $11
+    ld a, $FF
     ldh [rAUDTERM], a
     ; Set volume
     ld a, $77
     ldh [rAUDVOL], a
 
-    ;; enable the timer
+    ld c, 0 ;; Current order index
+    call _refresh_patterns
+
+    ;; Enable the timer
     ld a, TACF_START | TACF_4KHZ
     ld [rTAC], a
 
@@ -269,26 +181,40 @@ SECTION "main", ROM0[$0150]
 
     jp _halt
 
-_dosound:
-    ld a, [tick]
-    cp 6
-    jp z, _continue
-    inc a
-    ld [tick], a
-    reti
-_continue:
-    ld a, 0
-    ld [tick], a
+_refresh_patterns:
+;; Loads pattern registers with pointers to correct pattern based on
+;; an order index
 
-    ld a, [counter]
+;; Call with c set to what order to load
+load_pattern: MACRO
+    ld hl, 0
+    ld l, c
+    ld de, \1
+    add hl, de
+
+    ld a, [hl+]
+    ld [\2], a
+    ld a, [hl+]
+    ld [\2+1], a
+ENDM
+    load_pattern order1, pattern1
+    load_pattern order2, pattern2
+    load_pattern order3, pattern3
+    load_pattern order4, pattern4
+    ret
+
+_lookup_note:
+;; Call with:
+;; Pattern pointer in DE
+
+;; Stores note value in H and L
+
+    ld a, [row]
 
     ld h, 0
     ld l, a
-    ld de, sequence
     add hl, de
     ld a, [hl]
-
-    ;; A now contains the note thing.. need to look it up in the table now
 
     add a, a ;; double it to get index into hi/lo table
 
@@ -300,29 +226,152 @@ _continue:
     INC    HL
     LD     H, [HL]
     LD     L, A
+    ret
 
-    ; ld a, $1e
-    ; ldh [rAUD1SWEEP], a
-    ld a, %10111111 ; $10
+_playnote1:
+;; Call with:
+;; Note value in H and L
+
+;; Play a note on channel 1 (square wave)
+
+    ld a, %11111111 ; $10
     ldh [rAUD1LEN], a
     ld a, %11110000
     ldh [rAUD1ENV], a
 
     ld a, l
     ldh [rAUD1LOW], a
-    ; ld a, %10000000
     ld a, h
     or %10000000
     ldh [rAUD1HIGH], a
+    ret
 
-    ld a, [counter]
+_playnote2:
+;; Call with:
+;; Note value in H and L
+
+;; Play a note on channel 2 (square wave)
+
+    ld a, %00111111 ; $10
+    ldh [rAUD2LEN], a
+    ld a, %11110000
+    ldh [rAUD2ENV], a
+
+    ld a, l
+    ldh [rAUD2LOW], a
+    ld a, h
+    or %10000000
+    ldh [rAUD2HIGH], a
+    ret
+
+_playnote3:
+;; Call with:
+;; Note value in H and L
+
+;; Play a note on channel 3 (waveform)
+
+    ; ld a, %10111111 ; $10
+    ; ldh [rAUD1LEN], a
+    ; ld a, %11110000
+    ; ldh [rAUD1ENV], a
+
+    ; ld a, l
+    ; ldh [rAUD1LOW], a
+    ; ld a, h
+    ; or %10000000
+    ; ldh [rAUD1HIGH], a
+    ret
+
+_playnote4:
+;; Call with:
+;; Note value in H and L
+
+;; Play a "note" on channel 4 (noise)
+
+    ; ld a, %10111111 ; $10
+    ; ldh [rAUD1LEN], a
+    ; ld a, %11110000
+    ; ldh [rAUD1ENV], a
+
+    ; ld a, l
+    ; ldh [rAUD1LOW], a
+    ; ld a, h
+    ; or %10000000
+    ; ldh [rAUD1HIGH], a
+    ret
+
+loadShort: MACRO
+    ld a, [\1]
+    ld \3, a
+    ld a, [\1 + 1]
+    ld \2, a
+ENDM
+
+_dosound:
+    ld a, [tick]
+    ld c, a
+    cp 0
+    jp nz, _process_tick
+
+    ;; We're on tick zero, so lookup and play the notes,
+    ;; then continue as usual
+
+    loadShort pattern1, d, e
+    call _lookup_note
+    call _playnote1
+
+    loadShort pattern2, d, e
+    call _lookup_note
+    call _playnote2
+
+    ; loadShort pattern3, d, e
+    ; call _lookup_note
+    ; call _playnote
+
+    ; loadShort pattern4, d, e
+    ; call _lookup_note
+    ; call _playnote
+
+_process_tick:
+    ld a, c
     inc a
 
-    cp 128
-    jp c, skip
+    cp TICKS ;;TODO: Change to a parameter somewhere
+    jp z, _newrow
+
+    ld [tick], a
+    reti
+
+_newrow:
+    ;; Reset tick to 0
     ld a, 0
-skip:
-    ld [counter], a
+    ld [tick], a
+
+    ;; Increment row.
+    ld a, [row]
+    inc a
+    cp PATTERN_LENGTH
+    jr nz, noreset
+    ;; Increment order and change loaded patterns
+    ld a, [order_cnt]
+    ld b, a
+    ld a, [current_order]
+    add a, 2
+    cp b
+    jp nz, update_current_order
+    ld a, 0
+update_current_order:
+    ld [current_order], a
+    ld c, a
+
+    call _refresh_patterns
+
+    ld a, 0
+    ld [row], a
+    reti
+
+noreset:
+    ld [row], a
 
     reti
 
