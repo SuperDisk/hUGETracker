@@ -1,7 +1,7 @@
 object frmGameboy: TfrmGameboy
-  Left = 3304
+  Left = 3306
   Height = 354
-  Top = 337
+  Top = 338
   Width = 318
   Caption = 'Gameboy'
   ClientHeight = 324

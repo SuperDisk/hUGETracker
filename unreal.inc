@@ -1,4 +1,12 @@
-;; unreal superhero
+note: MACRO ;; (note, instr, effect)
+    db \1
+    db ((\2 << 4) | (\3 >> 8))
+    db LOW(\3)
+ENDM
+
+; ;; unreal superhero
+    note F4, 01, $A01
+
 db F4
 db G#4
 db C5

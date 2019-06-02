@@ -104,8 +104,8 @@ SECTION "Song Data", ROM0
 order_cnt: db 8
 order1: dw unreal, lunawaves, lunawaves, unreal
 order2: dw lunawaves, unreal, unreal, lunawaves
-order3: dw lunawaves
-order4: dw
+order3: dw unreal, lunawaves, lunawaves, unreal
+order4: dw unreal, lunawaves, lunawaves, unreal
 
 lunawaves:
 include "lunawaves.inc"
@@ -158,6 +158,23 @@ _init:
     ld bc, `00000001
     call _paint_tile
 
+    ;; Load some wave data into _AUD3WAVERAM
+    ld hl, $150 ;; note_table
+_addr = _AUD3WAVERAM
+    REPT 16
+    ld a, [hl+]
+    ldh [_addr], a
+_addr = _addr + 1
+    ENDR
+
+    ;; Enable chanel 3
+    ; ld a, $80
+    ; ldh [rAUD3ENA], a
+    ; ld a, $ff
+    ; ldh [rAUD3LEN], a
+    ; ld a, $20
+    ; ldh [rAUD3LEVEL], a
+
     ; Enable sound globally
     ld a, $80
     ldh [rAUDENA], a
@@ -208,7 +225,6 @@ _lookup_note:
 ;; Pattern pointer in DE
 
 ;; Stores note value in H and L
-
     ld a, [row]
 
     ld h, 0
@@ -216,6 +232,15 @@ _lookup_note:
     add hl, de
     ld a, [hl]
 
+    cp LAST_NOTE
+    jp c, .note_exists
+
+    ;; Pop the return pointer off the stack and get the one the caller pushed
+    pop hl
+    ld hl, 0
+    ret
+
+.note_exists:
     add a, a ;; double it to get index into hi/lo table
 
     LD     H, 0
@@ -236,7 +261,7 @@ _playnote1:
 
     ld a, %11111111 ; $10
     ldh [rAUD1LEN], a
-    ld a, %11110000
+    ld a, %00110000
     ldh [rAUD1ENV], a
 
     ld a, l
@@ -269,17 +294,11 @@ _playnote3:
 ;; Note value in H and L
 
 ;; Play a note on channel 3 (waveform)
-
-    ; ld a, %10111111 ; $10
-    ; ldh [rAUD1LEN], a
-    ; ld a, %11110000
-    ; ldh [rAUD1ENV], a
-
-    ; ld a, l
-    ; ldh [rAUD1LOW], a
-    ; ld a, h
-    ; or %10000000
-    ; ldh [rAUD1HIGH], a
+    ld a, l
+    ldh [rAUD3LOW], a
+    ld a, h
+    or %10000000
+    ldh [rAUD3HIGH], a
     ret
 
 _playnote4:
@@ -288,16 +307,15 @@ _playnote4:
 
 ;; Play a "note" on channel 4 (noise)
 
-    ; ld a, %10111111 ; $10
-    ; ldh [rAUD1LEN], a
-    ; ld a, %11110000
-    ; ldh [rAUD1ENV], a
+    ld a, 1
+    ld [rAUD4LEN], a
+    ld a, %11110111
+    ldh [rAUD4ENV], a
+    ld a, l; %01000100
+    ldh [rAUD4POLY], a
+    ld a, %10000000
+    ldh [rAUD4GO], a
 
-    ; ld a, l
-    ; ldh [rAUD1LOW], a
-    ; ld a, h
-    ; or %10000000
-    ; ldh [rAUD1HIGH], a
     ret
 
 loadShort: MACRO
@@ -316,27 +334,42 @@ _dosound:
     ;; We're on tick zero, so lookup and play the notes,
     ;; then continue as usual
 
+    ;; For each call of _lookup_note we push an address to jump to,
+    ;; and the procedure will discard its normal return value if it needs to
+    ;; skip a note and use the new value instead.
+
+    ld hl, _after_note1
+    push hl
     loadShort pattern1, d, e
     call _lookup_note
     call _playnote1
 
-    loadShort pattern2, d, e
-    call _lookup_note
-    call _playnote2
+_after_note1:
+    ; ld hl, _after_note2
+    ; push hl
+    ; loadShort pattern2, d, e
+    ; call _lookup_note
+    ; call _playnote2
 
+_after_note2:
+    ; ld hl, _after_note3
+    ; push hl
     ; loadShort pattern3, d, e
     ; call _lookup_note
-    ; call _playnote
+    ; call _playnote3
 
+_after_note3:
+    ; ld hl, _process_tick
+    ; push hl
     ; loadShort pattern4, d, e
     ; call _lookup_note
-    ; call _playnote
+    ; call _playnote4
 
 _process_tick:
     ld a, c
     inc a
 
-    cp TICKS ;;TODO: Change to a parameter somewhere
+    cp TICKS
     jp z, _newrow
 
     ld [tick], a
@@ -352,6 +385,7 @@ _newrow:
     inc a
     cp PATTERN_LENGTH
     jr nz, noreset
+
     ;; Increment order and change loaded patterns
     ld a, [order_cnt]
     ld b, a
@@ -380,6 +414,10 @@ _halt:
     halt
     nop
     jr _halt
+
+SECTION "Wave stuff", ROM0
+test_wave:
+incbin "test_wave3.raw"
 
 SECTION "Note Table", ROM0
 note_table:
