@@ -63,21 +63,23 @@ ENDR
 
 ; Interrupt addresses
 SECTION "Vblank interrupt", ROM0[$0040]
-    jp _dosound
+    ; jp _dosound
     reti
 
 SECTION "LCD controller status interrupt", ROM0[$0048]
+    jp _dosound
     reti
 
 SECTION "Timer overflow interrupt", ROM0[$0050]
-    jp _dosound
+    ; jp _dosound
     reti
 
 SECTION "Serial transfer completion interrupt", ROM0[$0058]
     reti
 
 SECTION "P10-P13 signal low edge interrupt", ROM0[$0060]
-    jp _dosound
+    ; jp _dosound
+    reti
 
 ; Reserved stack space
 SECTION "Stack", WRAM0[$d000 - STACK_SIZE]
@@ -101,16 +103,28 @@ DS 1
 DB "NF"
 
 SECTION "Song Data", ROM0
-order_cnt: db 8
-order1: dw unreal, lunawaves, lunawaves, unreal
-order2: dw lunawaves, unreal, unreal, lunawaves
-order3: dw unreal, lunawaves, lunawaves, unreal
-order4: dw unreal, lunawaves, lunawaves, unreal
+;; order_cnt is the number of orders times 2
+order_cnt: db 2
+order1: dw unreal;, lunawaves, lunawaves, unreal
+order2: dw empty, unreal, unreal, lunawaves
+order3: dw empty, lunawaves, lunawaves, unreal
+order4: dw empty, lunawaves, lunawaves, unreal
 
 lunawaves:
 include "lunawaves.inc"
 unreal:
 include "unreal.inc"
+empty:
+rept 64
+    db 90, 0, 0
+endr
+drums:
+rept 16
+    db 44, 0, 0
+    db 90, 0, 0
+    db 90, 0, 0
+    db 90, 0, 0
+endr
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -158,7 +172,7 @@ _init:
     ld bc, `00000001
     call _paint_tile
 
-    ;; Load some wave data into _AUD3WAVERAM
+    ;; Load some wave data (or code) into _AUD3WAVERAM
     ld hl, $150 ;; note_table
 _addr = _AUD3WAVERAM
     REPT 16
@@ -192,7 +206,14 @@ _addr = _addr + 1
     ld a, TACF_START | TACF_4KHZ
     ld [rTAC], a
 
-    ld a, IEF_VBLANK ; IEF_HILO | IEF_TIMER
+    ;; Enable the HBlank interrupt on scanline 0
+    ld a, [rSTAT]
+    or a, STATF_LYC
+    ld [rSTAT], a
+    ld a, 0
+    ld [rLYC], a
+
+    ld a, IEF_VBLANK | IEF_LCDC ; IEF_HILO | IEF_TIMER
     ld [rIE], a
     ei
 
@@ -226,6 +247,10 @@ _lookup_note:
 
 ;; Stores note value in H and L
     ld a, [row]
+    ld h, a
+    ;; Multiply by 3 for the note value
+    add h
+    add h
 
     ld h, 0
     ld l, a
@@ -235,7 +260,7 @@ _lookup_note:
     cp LAST_NOTE
     jp c, .note_exists
 
-    ;; Pop the return pointer off the stack and get the one the caller pushed
+    ;; Pop the return pointer off the stack and get the one the caller pushed if it's a nonexistent note
     pop hl
     ld hl, 0
     ret
@@ -259,9 +284,12 @@ _playnote1:
 
 ;; Play a note on channel 1 (square wave)
 
+    ; ld a, %01111001
+    ; ld [rAUD1SWEEP], a
+
     ld a, %11111111 ; $10
     ldh [rAUD1LEN], a
-    ld a, %00110000
+    ld a, %11110000
     ldh [rAUD1ENV], a
 
     ld a, l
@@ -307,9 +335,9 @@ _playnote4:
 
 ;; Play a "note" on channel 4 (noise)
 
-    ld a, 1
+    ld a, %00011111
     ld [rAUD4LEN], a
-    ld a, %11110111
+    ld a, %11110001
     ldh [rAUD4ENV], a
     ld a, l; %01000100
     ldh [rAUD4POLY], a
@@ -327,7 +355,6 @@ ENDM
 
 _dosound:
     ld a, [tick]
-    ld c, a
     cp 0
     jp nz, _process_tick
 
@@ -342,31 +369,38 @@ _dosound:
     push hl
     loadShort pattern1, d, e
     call _lookup_note
+    pop de
     call _playnote1
 
 _after_note1:
-    ; ld hl, _after_note2
-    ; push hl
-    ; loadShort pattern2, d, e
-    ; call _lookup_note
-    ; call _playnote2
+    ld hl, _after_note2
+    push hl
+    loadShort pattern2, d, e
+    call _lookup_note
+    pop de
+    call _playnote2
 
 _after_note2:
-    ; ld hl, _after_note3
-    ; push hl
-    ; loadShort pattern3, d, e
-    ; call _lookup_note
-    ; call _playnote3
+    ld hl, _after_note3
+    push hl
+    loadShort pattern3, d, e
+    call _lookup_note
+    pop de
+    call _playnote3
 
 _after_note3:
-    ; ld hl, _process_tick
-    ; push hl
-    ; loadShort pattern4, d, e
-    ; call _lookup_note
-    ; call _playnote4
+    ld hl, _process_tick
+    push hl
+    loadShort pattern4, d, e
+    call _lookup_note
+    pop de
+    call _playnote4
 
 _process_tick:
-    ld a, c
+    ;; Process effect commands
+
+
+    ld a, [tick]
     inc a
 
     cp TICKS
