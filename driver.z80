@@ -63,7 +63,6 @@ ENDR
 
 ; Interrupt addresses
 SECTION "Vblank interrupt", ROM0[$0040]
-    ; jp _dosound
     reti
 
 SECTION "LCD controller status interrupt", ROM0[$0048]
@@ -71,14 +70,12 @@ SECTION "LCD controller status interrupt", ROM0[$0048]
     reti
 
 SECTION "Timer overflow interrupt", ROM0[$0050]
-    ; jp _dosound
     reti
 
 SECTION "Serial transfer completion interrupt", ROM0[$0058]
     reti
 
 SECTION "P10-P13 signal low edge interrupt", ROM0[$0060]
-    ; jp _dosound
     reti
 
 ; Reserved stack space
@@ -105,7 +102,7 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw unreal;, lunawaves, lunawaves, unreal
+order1: dw unreal ;; unreal;, lunawaves, lunawaves, unreal
 order2: dw empty, unreal, unreal, lunawaves
 order3: dw empty, lunawaves, lunawaves, unreal
 order4: dw empty, lunawaves, lunawaves, unreal
@@ -125,6 +122,11 @@ rept 16
     db 90, 0, 0
     db 90, 0, 0
 endr
+slideup:
+  dn C3, 00, $000
+rept 63
+    dn 90, 00, 332
+endr
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -133,6 +135,18 @@ pattern3: dw
 pattern4: dw
 
 current_order: dw
+
+channel_periods:
+channel_period1: dw
+channel_period2: dw
+channel_period3: dw
+channel_period4: dw
+
+toneporta_targets:
+toneporta_target1: dw
+toneporta_target2: dw
+toneporta_target3: dw
+toneporta_target4: dw
 
 row: ds 1
 tick: ds 1
@@ -213,7 +227,7 @@ _addr = _addr + 1
     ld a, 0
     ld [rLYC], a
 
-    ld a, IEF_VBLANK | IEF_LCDC ; IEF_HILO | IEF_TIMER
+    ld a, IEF_LCDC ; IEF_VBLANK;  | IEF_LCDC ; IEF_HILO | IEF_TIMER
     ld [rIE], a
     ei
 
@@ -254,15 +268,18 @@ _lookup_note:
 
     ld h, 0
     ld l, a
-    add hl, de
+    inc l
+    inc l
+    add hl, de ; HL now points at the 3rd byte of the note
+    ld a, [hl-]
+    ld c, a
+    ld a, [hl-]
+    ld b, a
+
     ld a, [hl]
 
     cp LAST_NOTE
     jp c, .note_exists
-
-    ;; Pop the return pointer off the stack and get the one the caller pushed if it's a nonexistent note
-    pop hl
-    ld hl, 0
     ret
 
 .note_exists:
@@ -272,31 +289,49 @@ _lookup_note:
     LD     L, A
     LD     DE, note_table
     ADD    HL, DE
-    LD     A, [HL]
-    INC    HL
+    LD     A, [HL+]
+    ;; INC    HL
     LD     H, [HL]
     LD     L, A
+
+    ccf ;; uh....?
     ret
 
 _playnote1:
 ;; Call with:
 ;; Note value in H and L
+;; instrument + effect code in B
 
 ;; Play a note on channel 1 (square wave)
 
+    ld a, b
+    and %00001111
+    cp $3
+    jp nz, .no_toneporta
+    ld a, h
+    ld [toneporta_target1], a
+    ld a, l
+    ld [toneporta_target1+1], a
+    ret
+
+.no_toneporta:
     ; ld a, %01111001
     ; ld [rAUD1SWEEP], a
 
-    ld a, %11111111 ; $10
+    ld a, %10111111 ; $10
     ldh [rAUD1LEN], a
     ld a, %11110000
     ldh [rAUD1ENV], a
 
     ld a, l
+    ld [channel_period1+1], a
     ldh [rAUD1LOW], a
+
     ld a, h
+    ld [channel_period1], a
     or %10000000
     ldh [rAUD1HIGH], a
+
     ret
 
 _playnote2:
@@ -346,6 +381,12 @@ _playnote4:
 
     ret
 
+cphl: MACRO
+    or a
+    sbc hl, \1
+    add hl, \1
+ENDM
+
 loadShort: MACRO
     ld a, [\1]
     ld \3, a
@@ -353,10 +394,143 @@ loadShort: MACRO
     ld \2, a
 ENDM
 
+_doeffect:
+;; Call with:
+;; B: instrument nibble + effect type nibble
+;; C: effect parameters
+;; E: channel
+
+;; free: A, D, H, L
+
+;; Strip the instrument bits off leaving only effect code
+    ld a, b
+    and %00001111
+    ld b, a
+
+    ;; Multiply by 3 to get offset into table
+    ld a, b
+    add a, b
+    add a, b
+
+    ld hl, .jump
+
+    add a, l
+    ld l, a
+    adc a, h
+    sub l
+    ld h, a
+
+    jp hl
+
+.jump:
+    ;; Jump table for effect
+    jp fx_no_op ;fx_arpeggio           ;0xy
+    jp fx_no_op ;fx_porta_up           ;1xy
+    jp fx_no_op ;fx_porta_down         ;2xy
+    jp fx_toneporta ;fx_no_op          ;3xy
+    jp fx_no_op ;fx_vibrato            ;4xy
+    jp fx_no_op ;fx_toneporta_volslide ;5xy
+    jp fx_no_op ;fx_vibrato_volslide   ;6xy
+    jp fx_no_op ;fx_tremolo            ;7xy
+    jp fx_no_op ;fx_set_pan            ;8xy
+    jp fx_no_op ;fx_set_duty           ;9xy
+    jp fx_no_op ;fx_vol_slide          ;Axy
+    jp fx_no_op ;fx_pos_jump           ;Bxy
+    jp fx_no_op ;fx_set_volume         ;Cxy
+    jp fx_no_op ;fx_pattern_break      ;Dxy
+    jp fx_no_op ;fx_note_cut           ;Exy
+    jp fx_no_op ;fx_set_speed          ;Fxy
+
+fx_no_op:
+    ret
+
+fx_toneporta:
+    ld b, e ;; so we have access to DE
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ; Do nothing on the noise channel
+    ; ld a, 4
+    ; cp e
+    ; ret z
+
+    ld a, [channel_period1+1]
+    ld l, a
+    ld a, [channel_period1]
+    ld h, a
+
+    ld a, [toneporta_target1+1]
+    ld e, a
+    ld a, [toneporta_target1]
+    ld d, a
+
+    ;; Comparing which direction to move the current value
+    ;; TODO: Optimize this!!!!
+
+    ;; Compare high byte
+    cp h
+    jp c, .subtract ; target is less than the current period
+    jp z, .high_byte_same
+    jp .add
+.high_byte_same:
+    ld a, e
+    cp l
+    jp c, .subtract ; the target is less than the current period
+    jp z, .done ; both nibbles are the same so no portamento
+.add:
+    ld b, 0
+    ; ld e, c
+
+    add hl, bc
+
+    ld a, d
+    cp h
+    jp c, .set_exact
+    ld a, e
+    cp l
+    jp c, .set_exact
+
+    jp .done
+
+.subtract:
+    ld a, l
+    sub c
+    ld l, a
+
+    ld a, h
+    sbc a, 0
+    ld h, a
+
+    ld a, d
+    cp h
+    jp nc, .set_exact
+    ld a, e
+    cp l
+    jp nc, .set_exact
+
+    jp .done
+
+.set_exact:
+    ld h, d
+    ld l, e
+.done:
+    ld a, l
+    ld [channel_period1+1], a
+    ldh [rAUD1LOW], a
+
+    ld a, h
+    ld [channel_period1], a
+    ldh [rAUD1HIGH], a
+
+.do_nothing:
+    ret
+
 _dosound:
     ld a, [tick]
     cp 0
-    jp nz, _process_tick
+    jp nz, .process_effects
 
     ;; We're on tick zero, so lookup and play the notes,
     ;; then continue as usual
@@ -365,41 +539,40 @@ _dosound:
     ;; and the procedure will discard its normal return value if it needs to
     ;; skip a note and use the new value instead.
 
-    ld hl, _after_note1
-    push hl
     loadShort pattern1, d, e
     call _lookup_note
-    pop de
+    jp nc, .after_note1
     call _playnote1
 
-_after_note1:
-    ld hl, _after_note2
-    push hl
+.after_note1:
     loadShort pattern2, d, e
     call _lookup_note
-    pop de
+    jp nc, .after_note2
     call _playnote2
 
-_after_note2:
-    ld hl, _after_note3
-    push hl
+.after_note2:
     loadShort pattern3, d, e
     call _lookup_note
-    pop de
+    jp nc, .after_note3
     call _playnote3
 
-_after_note3:
-    ld hl, _process_tick
-    push hl
+.after_note3:
     loadShort pattern4, d, e
     call _lookup_note
-    pop de
+    jp nc, .process_tick
     call _playnote4
 
-_process_tick:
-    ;; Process effect commands
+    jp .process_tick
+
+.process_effects:
+    ;; Only do effects if not on tick zero
+    loadShort pattern1, d, e
+    call _lookup_note
+    ld e, 1
+    call _doeffect
 
 
+.process_tick:
     ld a, [tick]
     inc a
 
