@@ -1,0 +1,30 @@
+   Note     instr    effect
+0000.0000-0000-0000.0000.0000
+
+Stuff to do:
+
+- Make tick stuff happen on ticks other than zero (and multiple times)
+- Get rid of popping and pushing HL
+
+If note value is greater than 71 then it's considered to be an empty note cell.
+
+00 is an empty instrument cell.
+
+000 is an empty effect cell.
+
+0 - Arpeggio
+1 - Slide up
+2 - Slide down
+3 - Toneporta
+4 - Vibrato
+5 - Toneporta + volslide
+6 - Vibrato + volslide
+7 - Tremolo
+8 - Set panning
+9 - Set duty cycle
+A - Volslide
+B - Position jump
+C - Set volume
+D - Pattern break
+E - Note cut
+F - Set speed

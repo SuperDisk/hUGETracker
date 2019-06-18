@@ -132,6 +132,7 @@ procedure SoundUpdate(cycles: integer);
 procedure SoundSetCycles(n: integer);
 
 function SoundBufferTooFull: Boolean;
+function SoundBufferSize: Integer;
 
 var
   soundEnable: boolean;
@@ -155,7 +156,7 @@ implementation
 uses vars, bass;
 
 const
-  VolumeDecreaseCoeff = 6; // It's really loud otherwise...
+  VolumeDecreaseCoeff = 1; // It's really loud otherwise...
   playbackFrequency = 44100;
   sampleCycles: longint = (8192 * 1024) div playbackFrequency;
   TooFullThreshold: DWORD = (playbackFrequency div 10)*sizeof(single); //0.1s
@@ -167,6 +168,11 @@ var
 function SoundBufferTooFull: Boolean;
 begin
   Result := BASS_ChannelGetData(PlayStream, nil, BASS_DATA_AVAILABLE) > TooFullThreshold;
+end;
+
+function SoundBufferSize: Integer;
+begin
+  Result := BASS_ChannelGetData(PlayStream, nil, BASS_DATA_AVAILABLE);
 end;
 
 procedure EnableSound;
