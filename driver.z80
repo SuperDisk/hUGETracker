@@ -122,8 +122,8 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw empty ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw arps ;; empty, unreal, unreal, lunawaves
+order1: dw unreal ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
+order2: dw unreal_arps ;; empty, unreal, unreal, lunawaves
 order3: dw empty, lunawaves, lunawaves, unreal
 order4: dw empty, lunawaves, lunawaves, unreal
 
@@ -131,6 +131,8 @@ lunawaves:
 include "lunawaves.inc"
 unreal:
 include "unreal.inc"
+unreal_arps:
+include "unreal_arps.inc"
 empty:
 rept 64
     db 90, 0, 0
@@ -416,7 +418,7 @@ _playnote1:
 ;; Play a note on channel 1 (square wave)
     strip_instrument
 
-    jp nz, .no_toneporta
+    jr nz, .no_toneporta
     ld a, h
     ld [toneporta_target1+1], a
     ld a, l
@@ -449,7 +451,7 @@ _playnote2:
 ;; Play a note on channel 2 (square wave)
     strip_instrument
 
-    jp nz, .no_toneporta
+    jr nz, .no_toneporta
     ld a, h
     ld [toneporta_target2+1], a
     ld a, l
@@ -479,7 +481,7 @@ _playnote3:
 ;; Play a note on channel 3 (waveform)
     strip_instrument
 
-    jp nz, .no_toneporta
+    jr nz, .no_toneporta
     ld a, h
     ld [toneporta_target2+1], a
     ld a, l
@@ -600,10 +602,9 @@ fx_arpeggio:
 
     ld a, [tick]
     dec a
-    ;; Multiply by 3 to get offset into table
-    ld e, a
-    add e
-    add e
+
+    ;; Multiply by 2 to get offset into table
+    add a
 
     ld d, [hl]
 
@@ -612,23 +613,18 @@ fx_arpeggio:
     jp hl
 
 .arp_options:
-    jp .set_arp1
-    jp .set_arp2
-    jp .reset_arp
-    jp .set_arp1
-    jp .set_arp2
-    jp .set_arp1
-    jp .set_arp2
-    jp .reset_arp
-    jp .set_arp1
-    jp .set_arp2
+    jr .set_arp1
+    jr .set_arp2
+    jr .reset_arp
+    jr .set_arp1
+    jr .set_arp2
 .reset_arp:
     ld a, d
-    jp .finish_skip_add
+    jr .finish_skip_add
 .set_arp2:
     ld a, c
     swap a
-    jp .finish_arp
+    jr .finish_arp
 .set_arp1:
     ld a, c
 .finish_arp:
@@ -720,14 +716,14 @@ fx_toneporta:
     ld a, h
 
     cp d
-    jp c, .subtract ; target is less than the current period
-    jp z, .high_byte_same
-    jp .add
+    jr c, .subtract ; target is less than the current period
+    jr z, .high_byte_same
+    jr .add
 .high_byte_same:
     ld a, l
     cp e
-    jp c, .subtract ; the target is less than the current period
-    jp z, .done ; both nibbles are the same so no portamento
+    jr c, .subtract ; the target is less than the current period
+    jr z, .done ; both nibbles are the same so no portamento
 .add:
     ld a, c
     add a, e
@@ -738,12 +734,12 @@ fx_toneporta:
 
     ld a, h
     cp d
-    jp c, .set_exact
+    jr c, .set_exact
     ld a, l
     cp e
-    jp c, .set_exact
+    jr c, .set_exact
 
-    jp .done
+    jr .done
 
 .subtract:
     ld a, e
@@ -756,12 +752,12 @@ fx_toneporta:
 
     ld a, h
     cp d
-    jp nc, .set_exact
+    jr nc, .set_exact
     ld a, l
     cp e
-    jp nc, .set_exact
+    jr nc, .set_exact
 
-    jp .done
+    jr .done
 
 .set_exact:
     ld d, h
@@ -777,7 +773,7 @@ fx_toneporta:
 _dosound:
     ld a, [tick]
     cp 0
-    jp nz, .process_effects
+    jr nz, .process_effects
 
     ;; We're on tick zero, so lookup and play the notes,
     ;; then return
@@ -788,19 +784,19 @@ _dosound:
 
     loadShort pattern1, d, e
     call _lookup_note
-    jp nc, .after_note1
+    jr nc, .after_note1
     call _playnote1
 
 .after_note1:
     loadShort pattern2, d, e
     call _lookup_note
-    jp nc, .after_note2
+    jr nc, .after_note2
     call _playnote2
 
 .after_note2:
     loadShort pattern3, d, e
     call _lookup_note
-    jp nc, .after_note3
+    jr nc, .after_note3
     call _playnote3
 
 .after_note3:
@@ -868,7 +864,7 @@ _newrow:
     ld a, [row]
     inc a
     cp PATTERN_LENGTH
-    jp nz, .noreset
+    jr nz, .noreset
 
     ;; Increment order and change loaded patterns
     ld a, [order_cnt]
@@ -876,7 +872,7 @@ _newrow:
     ld a, [current_order]
     add a, 2
     cp b
-    jp nz, .update_current_order
+    jr nz, .update_current_order
     ld a, 0
 .update_current_order:
     ld [current_order], a
@@ -897,7 +893,7 @@ _halt:
     ; Do nothing, forever
     halt
     nop
-    jp _halt
+    jr _halt
 
 SECTION "Wave stuff", ROM0
 
