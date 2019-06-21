@@ -5,6 +5,32 @@ include "hardware.inc"
 include "constants.inc"
 include "debug_macros.inc"
 
+add_a_to_r16: MACRO
+    add a, \2
+    ld \2, a
+    adc a, \1
+    sub \2
+    ld \1, a
+ENDM
+
+;; TODO: See if there's a way to shave off a byte.
+sub_from_r16: MACRO ;; (high, low, value)
+    ld a, \2
+    sub \3
+    ld \2, a
+    ld a, \1
+    sbc a, 0
+    ld \1, a
+ENDM
+
+add_a_to_hl: MACRO
+    add_a_to_r16 h, l
+ENDM
+
+add_a_to_de: MACRO
+    add_a_to_r16 d, e
+ENDM
+
 ; Constants
 STACK_SIZE EQU 20
 ;; Stack starts at $FFFE
@@ -97,7 +123,7 @@ SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
 order1: dw empty ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw unreal ;; empty, unreal, unreal, lunawaves
+order2: dw slideup ;; empty, unreal, unreal, lunawaves
 order3: dw empty, lunawaves, lunawaves, unreal
 order4: dw empty, lunawaves, lunawaves, unreal
 
@@ -117,9 +143,9 @@ rept 16
     db 90, 0, 0
 endr
 slideup:
-  dn C3, 00, $000
+  dn C4, 00, $000
 rept 63
-    dn 90, 00, 332
+    dn 90, 00, $101
 endr
 
 SECTION "Playback variables", WRAM0
@@ -130,15 +156,16 @@ pattern4: dw
 
 current_order: dw
 
-;; Reset to this once done screwing with channel values
-old_stack_pointer: dw
+;; Size of a channel in bytes
+CHANNEL_SIZE EQU 4
+;; Amount to be shifted in order to skip a channel.
+CHANNEL_SIZE_EXPONENT EQU 2
 
 channels:
 
 ;;;;;;;;;;;
 ;;Channel 1
 ;;;;;;;;;;;
-jumpback1: dw
 channel1:
 channel_period1: dw
 toneporta_target1: dw
@@ -146,7 +173,6 @@ toneporta_target1: dw
 ;;;;;;;;;;;
 ;;Channel 2
 ;;;;;;;;;;;
-jumpback2: dw
 channel2:
 channel_period2: dw
 toneporta_target2: dw
@@ -154,7 +180,6 @@ toneporta_target2: dw
 ;;;;;;;;;;;
 ;;Channel 3
 ;;;;;;;;;;;
-jumpback3: dw
 channel3:
 channel_period3: dw
 toneporta_target3: dw
@@ -162,7 +187,6 @@ toneporta_target3: dw
 ;;;;;;;;;;;
 ;;Channel 4
 ;;;;;;;;;;;
-jumpback4: dw
 channel4:
 channel_period4: dw
 toneporta_target4: dw
@@ -231,18 +255,6 @@ _addr = _addr + 1
     ; Set volume
     ld a, $77
     ldh [rAUDVOL], a
-
-    ;; Setup jumpback addresses for the stack hack
-load_jumpbacks: MACRO
-    ld a, LOW(\2)
-    ld [\1], a
-    ld a, HIGH(\2)
-    ld [\1+1], a
-ENDM
-    load_jumpbacks jumpback1, after_effect1
-    load_jumpbacks jumpback2, after_effect2
-    load_jumpbacks jumpback3, after_effect3
-    load_jumpbacks jumpback4, after_effect4
 
     ld c, 0 ;; Current order index
     call _refresh_patterns
@@ -337,8 +349,7 @@ ENDM
 _update_channel:
 ;; Call with:
 ;; Channel in B
-;; Note tone in HL
-;; Volume in D
+;; Note tone in DE
 
 ;; TODO: Turn this into a jump table? Or find some other way to optimize
     ld a, b
@@ -353,15 +364,15 @@ _update_channel:
     jp z, _update_channel4
 
 _update_channel1:
-    ld a, l
+    ld a, e
     ldh [rAUD1LOW], a
-    ld a, h
+    ld a, d
     ldh [rAUD1HIGH], a
     ret
 _update_channel2:
-    ld a, l
+    ld a, e
     ldh [rAUD2LOW], a
-    ld a, h
+    ld a, d
     ldh [rAUD2HIGH], a
     ret
 _update_channel3:
@@ -477,11 +488,11 @@ _playnote4:
 
     ret
 
-cphl: MACRO
-    or a
-    sbc hl, \1
-    add hl, \1
-ENDM
+; cphl: MACRO
+;     or a
+;     sbc hl, \1
+;     add hl, \1
+; ENDM
 
 loadShort: MACRO
     ld a, [\1]
@@ -523,9 +534,9 @@ _doeffect:
 .jump:
     ;; Jump table for effect
     jp fx_no_op ;fx_arpeggio           ;0xy
-    jp fx_no_op ;fx_porta_up           ;1xy
-    jp fx_no_op ;fx_porta_down         ;2xy
-    jp fx_toneporta ;fx_no_op          ;3xy
+    jp fx_porta_up                     ;1xy
+    jp fx_porta_down                   ;2xy
+    jp fx_toneporta                    ;3xy
     jp fx_no_op ;fx_vibrato            ;4xy
     jp fx_no_op ;fx_toneporta_volslide ;5xy
     jp fx_no_op ;fx_vibrato_volslide   ;6xy
@@ -539,12 +550,68 @@ _doeffect:
     jp fx_no_op ;fx_note_cut           ;Exy
     jp fx_no_op ;fx_set_speed          ;Fxy
 
-fx_no_op:
-    dec sp
-    dec sp
-    dec sp
-    dec sp
+setup_channel_pointer:
+    ;; Call with:
+    ;; Channel value in B
+    ;; Returns value in HL
+
+    ld a, b
+    REPT CHANNEL_SIZE_EXPONENT
+        sla a
+    ENDR
+    ld hl, channels
+    add_a_to_hl
     ret
+
+fx_no_op:
+    ret
+
+fx_porta_up:
+    ld b, e ;; so we have access to DE
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    call setup_channel_pointer
+
+    ld a, [hl+]
+    ld e, a
+    ld d, [hl]
+
+    ld a, c
+    add_a_to_de
+
+    ld a, d
+    ld [hl-], a
+    ld [hl], e
+
+    jp _update_channel
+
+;; TODO: Maybe merge with fx_porta_up, since they're so similar? Would need
+;; to find a way to compare against effect code.
+fx_porta_down:
+    ld b, e ;; so we have access to DE
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    call setup_channel_pointer
+
+    ld a, [hl+]
+    ld e, a
+    ld d, [hl]
+
+    ld a, c
+    sub_from_r16 d, e, c
+
+    ld a, d
+    ld [hl-], a
+    ld [hl], e
+
+    jp _update_channel
+
 
 fx_toneporta:
     ld b, e ;; so we have access to DE
@@ -553,87 +620,80 @@ fx_toneporta:
 
     ;; free registers: A, D, E, H, L
 
-    pop hl ; Load channel_period
-    pop de ; Load toneporta_target
+    ;; TOOD: Optimize. This usage of the stack isn't great but IMO it's
+    ;; better than using the stack hack which forces all effects to screw with
+    ;; pushing and popping. Most effects won't need to do this.
 
-    ; ld a, [channel_period2]
-    ; ld l, a
-    ; ld a, [channel_period2+1]
-    ; ld h, a
+    call setup_channel_pointer
+    push hl
 
-    ; ld a, [toneporta_target2]
-    ; ld e, a
-    ; ld a, [toneporta_target2+1]
-    ; ld d, a
+    ld a, [hl+]
+    ld e, a
+    ld a, [hl+]
+    ld d, a
+
+    ld a, [hl+]
+    ld h, [hl]
+    ld l, a
 
     ;; Comparing which direction to move the current value
     ;; TODO: Optimize this!!!!
 
     ;; Compare high byte
-    ld a, d
-    cp h
+    ld a, h
+
+    cp d
     jp c, .subtract ; target is less than the current period
     jp z, .high_byte_same
     jp .add
 .high_byte_same:
-    ld a, e
-    cp l
+    ld a, l
+    cp e
     jp c, .subtract ; the target is less than the current period
     jp z, .done ; both nibbles are the same so no portamento
 .add:
     ld a, c
-    add a, l
-    ld l, a
-    adc a, h
-    sub l
-    ld h, a
+    add a, e
+    ld e, a
+    adc a, d
+    sub e
+    ld d, a
 
-    ld a, d
-    cp h
+    ld a, h
+    cp d
     jp c, .set_exact
-    ld a, e
-    cp l
+    ld a, l
+    cp e
     jp c, .set_exact
 
     jp .done
 
 .subtract:
-    ld a, l
+    ld a, e
     sub c
-    ld l, a
-
-    ld a, h
-    sbc a, 0
-    ld h, a
+    ld e, a
 
     ld a, d
-    cp h
+    sbc a, 0
+    ld d, a
+
+    ld a, h
+    cp d
     jp nc, .set_exact
-    ld a, e
-    cp l
+    ld a, l
+    cp e
     jp nc, .set_exact
 
     jp .done
 
 .set_exact:
-    ld h, d
-    ld l, e
+    ld d, h
+    ld e, l
 .done:
-    push de
-
-    ; ;; Write new channel period
-    push hl
-
-    dec sp
-    dec sp
-    dec sp
-    dec sp
-
-    ; ld a, l
-    ; ld [channel_period2], a
-
-    ; ld a, h
-    ; ld [channel_period2+1], a
+    pop hl
+    ld a, e
+    ld [hl+], a
+    ld [hl], d
 
     jp _update_channel
 
@@ -675,43 +735,26 @@ _dosound:
     jp process_tick
 
 .process_effects:
-
-restore_stack_pointer: MACRO
-    ld hl, old_stack_pointer+1
-    ld a, [hl-]
-    ld l, [hl]
-    ld h, a
-    ld sp, hl
-ENDM
-
     ;; Only do effects if not on tick zero
-    ld [old_stack_pointer], sp
 
     loadShort pattern1, d, e
     call _lookup_note
     ld e, 0
-    ld sp, channel1
-    jp _doeffect
+    call _doeffect
 
 after_effect1:
-    restore_stack_pointer
-
     loadShort pattern2, d, e
     call _lookup_note
     ld e, 1
-    ld sp, channel2
-    jp _doeffect
+    call _doeffect
 
 after_effect2:
-    restore_stack_pointer
-
     ; loadShort pattern3, d, e
     ; call _lookup_note
     ; ld e, 2
     ; call _doeffect
 
 after_effect3:
-
     ; loadShort pattern4, d, e
     ; call _lookup_note
     ; ld e, 3
