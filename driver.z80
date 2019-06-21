@@ -123,7 +123,7 @@ SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
 order1: dw empty ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw slideup ;; empty, unreal, unreal, lunawaves
+order2: dw arps ;; empty, unreal, unreal, lunawaves
 order3: dw empty, lunawaves, lunawaves, unreal
 order4: dw empty, lunawaves, lunawaves, unreal
 
@@ -147,6 +147,18 @@ slideup:
 rept 63
     dn 90, 00, $101
 endr
+arps:
+rept 64
+    dn C5, 00, $047
+endr
+updown:
+    dn C4, 00, $105
+rept 31
+    dn 90, 00, $105
+endr
+rept 32
+    dn 90, 00, $205
+endr
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -157,9 +169,9 @@ pattern4: dw
 current_order: dw
 
 ;; Size of a channel in bytes
-CHANNEL_SIZE EQU 4
+CHANNEL_SIZE EQU 8
 ;; Amount to be shifted in order to skip a channel.
-CHANNEL_SIZE_EXPONENT EQU 2
+CHANNEL_SIZE_EXPONENT EQU 3
 
 channels:
 
@@ -169,6 +181,8 @@ channels:
 channel1:
 channel_period1: dw
 toneporta_target1: dw
+channel_note1: db
+ds 3 ;; Just padding at the moment but may contain more stuff later
 
 ;;;;;;;;;;;
 ;;Channel 2
@@ -176,6 +190,8 @@ toneporta_target1: dw
 channel2:
 channel_period2: dw
 toneporta_target2: dw
+channel_note2: db
+ds 3
 
 ;;;;;;;;;;;
 ;;Channel 3
@@ -183,6 +199,8 @@ toneporta_target2: dw
 channel3:
 channel_period3: dw
 toneporta_target3: dw
+channel_note3: db
+ds 3
 
 ;;;;;;;;;;;
 ;;Channel 4
@@ -190,6 +208,8 @@ toneporta_target3: dw
 channel4:
 channel_period4: dw
 toneporta_target4: dw
+channel_note4: db
+ds 3
 
 row: ds 1
 tick: ds 1
@@ -302,7 +322,7 @@ _lookup_note:
 ;; Call with:
 ;; Pattern pointer in DE
 
-;; Stores note value in H and L
+;; Stores note period value in HL
     ld a, [row]
     ld h, a
     ;; Multiply by 3 for the note value
@@ -320,12 +340,18 @@ _lookup_note:
     ld b, a
 
     ld a, [hl]
+    ld [channel_note2], a
 
+_try_convert_note:
     cp LAST_NOTE
-    jp c, .note_exists
+    jp c, _convert_note
     ret
 
-.note_exists:
+_convert_note:
+    ;; Call with:
+    ;; Note number in A
+    ;; Stores note period value in HL
+
     add a, a ;; double it to get index into hi/lo table
 
     LD     H, 0
@@ -410,7 +436,7 @@ _playnote1:
 
     ld a, h
     ld [channel_period1+1], a
-    or %10000000
+    or %00000000
     ld [rAUD1HIGH], a
 
     ret
@@ -441,7 +467,7 @@ _playnote2:
     ld [rAUD2LOW], a
     ld a, h
     ld [channel_period2+1], a
-    or %10000000
+    or %00000000
     ld [rAUD2HIGH], a
     ret
 
@@ -488,12 +514,6 @@ _playnote4:
 
     ret
 
-; cphl: MACRO
-;     or a
-;     sbc hl, \1
-;     add hl, \1
-; ENDM
-
 loadShort: MACRO
     ld a, [\1]
     ld \3, a
@@ -533,7 +553,7 @@ _doeffect:
 
 .jump:
     ;; Jump table for effect
-    jp fx_no_op ;fx_arpeggio           ;0xy
+    jp fx_arpeggio                     ;0xy
     jp fx_porta_up                     ;1xy
     jp fx_porta_down                   ;2xy
     jp fx_toneporta                    ;3xy
@@ -553,18 +573,72 @@ _doeffect:
 setup_channel_pointer:
     ;; Call with:
     ;; Channel value in B
+    ;; Offset in D
     ;; Returns value in HL
 
     ld a, b
     REPT CHANNEL_SIZE_EXPONENT
         sla a
     ENDR
+    add d
     ld hl, channels
     add_a_to_hl
     ret
 
 fx_no_op:
     ret
+
+fx_arpeggio:
+    ld b, e ;; so we have access to DE
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ld d, 4
+    call setup_channel_pointer
+
+    ld a, [tick]
+    dec a
+    ;; Multiply by 3 to get offset into table
+    ld e, a
+    add e
+    add e
+
+    ld d, [hl]
+
+    ld hl, .arp_options
+    add_a_to_hl
+    jp hl
+
+.arp_options:
+    jp .set_arp1
+    jp .set_arp2
+    jp .reset_arp
+    jp .set_arp1
+    jp .set_arp2
+    jp .set_arp1
+    jp .set_arp2
+    jp .reset_arp
+    jp .set_arp1
+    jp .set_arp2
+.reset_arp:
+    ld a, d
+    jp .finish_skip_add
+.set_arp2:
+    ld a, c
+    swap a
+    jp .finish_arp
+.set_arp1:
+    ld a, c
+.finish_arp:
+    and %00001111
+    add d
+.finish_skip_add:
+    call _convert_note
+    ld d, h
+    ld e, l
+    jp _update_channel
 
 fx_porta_up:
     ld b, e ;; so we have access to DE
@@ -573,6 +647,7 @@ fx_porta_up:
 
     ;; free registers: A, D, E, H, L
 
+    ld d, 0
     call setup_channel_pointer
 
     ld a, [hl+]
@@ -597,6 +672,7 @@ fx_porta_down:
 
     ;; free registers: A, D, E, H, L
 
+    ld d, 0
     call setup_channel_pointer
 
     ld a, [hl+]
@@ -624,6 +700,7 @@ fx_toneporta:
     ;; better than using the stack hack which forces all effects to screw with
     ;; pushing and popping. Most effects won't need to do this.
 
+    ld d, 0
     call setup_channel_pointer
     push hl
 
@@ -739,12 +816,22 @@ _dosound:
 
     loadShort pattern1, d, e
     call _lookup_note
+
+    ld a, c
+    cp 0
+    jp z, after_effect1
+
     ld e, 0
     call _doeffect
 
 after_effect1:
     loadShort pattern2, d, e
     call _lookup_note
+
+    ld a, c
+    cp 0
+    jp z, after_effect2
+
     ld e, 1
     call _doeffect
 
@@ -781,7 +868,7 @@ _newrow:
     ld a, [row]
     inc a
     cp PATTERN_LENGTH
-    jr nz, .noreset
+    jp nz, .noreset
 
     ;; Increment order and change loaded patterns
     ld a, [order_cnt]
@@ -810,11 +897,9 @@ _halt:
     ; Do nothing, forever
     halt
     nop
-    jr _halt
+    jp _halt
 
 SECTION "Wave stuff", ROM0
-test_wave:
-incbin "test_wave3.raw"
 
 SECTION "Note Table", ROM0
 note_table:
