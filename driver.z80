@@ -153,6 +153,11 @@ arps:
 rept 64
     dn C5, 00, $047
 endr
+vib:
+    dn C5, 00, $000
+rept 63
+    dn 90, 00, $443
+endr
 updown:
     dn C4, 00, $105
 rept 31
@@ -184,7 +189,8 @@ channel1:
 channel_period1: dw
 toneporta_target1: dw
 channel_note1: db
-ds 3 ;; Just padding at the moment but may contain more stuff later
+vibrato_tremolo_phase1: db
+ds 2 ;; Just padding at the moment but may contain more stuff later
 
 ;;;;;;;;;;;
 ;;Channel 2
@@ -193,7 +199,8 @@ channel2:
 channel_period2: dw
 toneporta_target2: dw
 channel_note2: db
-ds 3
+vibrato_tremolo_phase2: db
+ds 2
 
 ;;;;;;;;;;;
 ;;Channel 3
@@ -202,7 +209,8 @@ channel3:
 channel_period3: dw
 toneporta_target3: dw
 channel_note3: db
-ds 3
+vibrato_tremolo_phase3: db
+ds 2
 
 ;;;;;;;;;;;
 ;;Channel 4
@@ -211,7 +219,8 @@ channel4:
 channel_period4: dw
 toneporta_target4: dw
 channel_note4: db
-ds 3
+vibrato_tremolo_phase4: db
+ds 2
 
 row: ds 1
 tick: ds 1
@@ -289,7 +298,7 @@ _addr = _addr + 1
     ld a, [rSTAT]
     or a, STATF_LYC
     ld [rSTAT], a
-    ld a, 0
+    xor a ; ld a, 0
     ld [rLYC], a
 
     ld a, IEF_LCDC ; IEF_VBLANK;  | IEF_LCDC ; IEF_HILO | IEF_TIMER
@@ -342,12 +351,11 @@ _lookup_note:
     ld b, a
 
     ld a, [hl]
-    ld [channel_note2], a
 
-_try_convert_note:
     cp LAST_NOTE
-    jp c, _convert_note
-    ret
+    ret nc
+
+    ld [channel_note2], a
 
 _convert_note:
     ;; Call with:
@@ -356,10 +364,12 @@ _convert_note:
 
     add a, a ;; double it to get index into hi/lo table
 
-    LD     H, 0
-    LD     L, A
-    LD     DE, note_table
-    ADD    HL, DE
+    ld hl, note_table
+    add_a_to_hl
+    ; LD     H, 0
+    ; LD     L, A
+    ; LD     DE, note_table
+    ; ADD    HL, DE
     LD     A, [HL+]
     ;; INC    HL
     LD     H, [HL]
@@ -438,7 +448,7 @@ _playnote1:
 
     ld a, h
     ld [channel_period1+1], a
-    or %00000000
+    or %10000000
     ld [rAUD1HIGH], a
 
     ret
@@ -469,7 +479,7 @@ _playnote2:
     ld [rAUD2LOW], a
     ld a, h
     ld [channel_period2+1], a
-    or %00000000
+    or %10000000
     ld [rAUD2HIGH], a
     ret
 
@@ -551,6 +561,8 @@ _doeffect:
     sub l
     ld h, a
 
+    ld b, e
+
     jp hl
 
 .jump:
@@ -559,7 +571,7 @@ _doeffect:
     jp fx_porta_up                     ;1xy
     jp fx_porta_down                   ;2xy
     jp fx_toneporta                    ;3xy
-    jp fx_no_op ;fx_vibrato            ;4xy
+    jp fx_vibrato                      ;4xy
     jp fx_no_op ;fx_toneporta_volslide ;5xy
     jp fx_no_op ;fx_vibrato_volslide   ;6xy
     jp fx_no_op ;fx_tremolo            ;7xy
@@ -590,8 +602,110 @@ setup_channel_pointer:
 fx_no_op:
     ret
 
+fx_set_volume:
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+
+
+fx_vibrato:
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ;; Extremely poor man's vibrato.
+    ;; Speed values:
+    ;; (0x0  = 1.0)
+    ;; (0x1  = 0.5)
+    ;; (0x3  = 0.25)
+    ;; (0x7  = 0.125)
+    ;; (0xf  = 0.0625)
+    ld d, 4
+    call setup_channel_pointer
+
+    ld a, c
+    and %11110000
+    swap a
+    ld d, a
+
+    ld a, [tick]
+    and d
+    ld a, [hl]
+    jr z, .go_up
+.restore:
+    call _convert_note
+    jr .finish_vibrato
+.go_up:
+    call _convert_note
+    ld a, c
+    and %00001111
+    add_a_to_hl
+.finish_vibrato:
+    ld d, h
+    ld e, l
+    jp _update_channel
+
+;; TODO: Come back and make this work later.
+
+; fx_vibrato2:
+;     ld b, e ;; so we have access to DE
+;     ;; B: channel
+;     ;; C: effect parameters
+
+;     ;; free registers: A, D, E, H, L
+
+;     ;; This isn't really a sine vibrato, it's the same thing as ProTracker's
+;     ;; "ramp down" setting, basically a sawtooth wave. Fortunately in most cases,
+;     ;; this sounds exactly the same, and we don't need to store a sine table.
+
+;     ;; Point at the vibrato phase
+;     ld d, 5
+;     call setup_channel_pointer
+
+;     ld e, [hl]
+;     inc [hl]
+;     dec hl
+
+;     ld a, [hl]
+;     call _convert_note
+
+;     ;; load D with speed
+;     ld a, c
+;     and %11110000
+;     ld d, a
+;     swap d
+
+;     xor a ; ld a, 0
+
+;     ;; Multiply E ("time") by D (speed) (at most 16 cycles...)
+;     ;; TODO: Find faster multiplication?
+; .mult1:
+;     add e
+;     dec d
+;     jr nz, .mult1
+
+;     ;; Multiply by depth into a 16 bit value
+;     ld e, a ; D is already empty
+;     ; ld hl, 0
+
+;     ;; Load E with depth
+;     ld a, c
+;     and %00001111
+; .mult2:
+;     add hl, de
+;     dec a
+;     jr nz, .mult2
+
+;     ld d, h
+;     ld e, l
+
+;     jp _update_channel
+
+
 fx_arpeggio:
-    ld b, e ;; so we have access to DE
     ;; B: channel
     ;; C: effect parameters
 
@@ -612,6 +726,7 @@ fx_arpeggio:
     add_a_to_hl
     jp hl
 
+    ;; TODO: Make this work when TICKS != 6
 .arp_options:
     jr .set_arp1
     jr .set_arp2
@@ -637,7 +752,6 @@ fx_arpeggio:
     jp _update_channel
 
 fx_porta_up:
-    ld b, e ;; so we have access to DE
     ;; B: channel
     ;; C: effect parameters
 
@@ -662,7 +776,6 @@ fx_porta_up:
 ;; TODO: Maybe merge with fx_porta_up, since they're so similar? Would need
 ;; to find a way to compare against effect code.
 fx_porta_down:
-    ld b, e ;; so we have access to DE
     ;; B: channel
     ;; C: effect parameters
 
@@ -686,7 +799,6 @@ fx_porta_down:
 
 
 fx_toneporta:
-    ld b, e ;; so we have access to DE
     ;; B: channel
     ;; C: effect parameters
 
@@ -857,7 +969,7 @@ process_tick:
 
 _newrow:
     ;; Reset tick to 0
-    ld a, 0
+    xor a ; ld a, 0
     ld [tick], a
 
     ;; Increment row.
@@ -873,14 +985,14 @@ _newrow:
     add a, 2
     cp b
     jr nz, .update_current_order
-    ld a, 0
+    xor a ; ld a, 0
 .update_current_order:
     ld [current_order], a
     ld c, a
 
     call _refresh_patterns
 
-    ld a, 0
+    xor a ; ld a, 0
     ld [row], a
     reti
 
