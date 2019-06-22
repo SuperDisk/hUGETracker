@@ -166,6 +166,17 @@ endr
 rept 32
     dn 90, 00, $205
 endr
+volset:
+    dn C5, 00, $000
+rept 32
+    dn 90, 00, $C90
+    dn 90, 00, $CF0
+endr
+notecut:
+rept 32
+    dn C5, 00, $E04
+    dn 90, 00, $000
+endr
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -190,7 +201,8 @@ channel_period1: dw
 toneporta_target1: dw
 channel_note1: db
 vibrato_tremolo_phase1: db
-ds 2 ;; Just padding at the moment but may contain more stuff later
+envelope1: db
+ds 1
 
 ;;;;;;;;;;;
 ;;Channel 2
@@ -200,7 +212,8 @@ channel_period2: dw
 toneporta_target2: dw
 channel_note2: db
 vibrato_tremolo_phase2: db
-ds 2
+envelope2: db
+ds 1
 
 ;;;;;;;;;;;
 ;;Channel 3
@@ -210,7 +223,8 @@ channel_period3: dw
 toneporta_target3: dw
 channel_note3: db
 vibrato_tremolo_phase3: db
-ds 2
+envelope3: db
+ds 1
 
 ;;;;;;;;;;;
 ;;Channel 4
@@ -220,7 +234,8 @@ channel_period4: dw
 toneporta_target4: dw
 channel_note4: db
 vibrato_tremolo_phase4: db
-ds 2
+envelope4: db
+ds 1
 
 row: ds 1
 tick: ds 1
@@ -366,14 +381,9 @@ _convert_note:
 
     ld hl, note_table
     add_a_to_hl
-    ; LD     H, 0
-    ; LD     L, A
-    ; LD     DE, note_table
-    ; ADD    HL, DE
-    LD     A, [HL+]
-    ;; INC    HL
-    LD     H, [HL]
-    LD     L, A
+    ld     a, [hl+]
+    ld     h, [hl]
+    ld     l, a
 
     ccf ;; uh....?
     ret
@@ -579,9 +589,9 @@ _doeffect:
     jp fx_no_op ;fx_set_duty           ;9xy
     jp fx_no_op ;fx_vol_slide          ;Axy
     jp fx_no_op ;fx_pos_jump           ;Bxy
-    jp fx_no_op ;fx_set_volume         ;Cxy
+    jp fx_set_volume                   ;Cxy
     jp fx_no_op ;fx_pattern_break      ;Dxy
-    jp fx_no_op ;fx_note_cut           ;Exy
+    jp fx_note_cut                     ;Exy
     jp fx_no_op ;fx_set_speed          ;Fxy
 
 setup_channel_pointer:
@@ -602,13 +612,57 @@ setup_channel_pointer:
 fx_no_op:
     ret
 
+fx_note_cut:
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+    ld a, [tick]
+    cp c
+    ret nz
+
+    ld d, 0
+    jp set_channel_volume
+
 fx_set_volume:
     ;; B: channel
     ;; C: effect parameters
 
     ;; free registers: A, D, E, H, L
 
+    ;; Arguments to this effect will be massaged to correct form for the channel
+    ;; in the editor so we don't have to AND and SWAP and stuff.
 
+    ld d, 6
+    call setup_channel_pointer
+
+    ld d, [hl]
+
+set_channel_volume:
+    ;; Call with:
+    ;; Correct volume value in D
+    ;; Channel number in B
+
+    ld a, b
+    cp 1 ; check if it's channel 2
+    jr c, set_chn_1_vol
+    jr z, set_chn_2_vol
+set_chn_3_vol:
+    ld a, d
+    ld [rAUD3LEVEL], a
+    ret
+set_chn_2_vol:
+    ld a, d
+    and %00001111
+    or c
+    ld [rAUD2ENV], a
+    ret
+set_chn_1_vol:
+    ld a, d
+    and %00001111
+    or c
+    ld [rAUD1ENV], a
+    ret
 
 fx_vibrato:
     ;; B: channel
@@ -636,7 +690,7 @@ fx_vibrato:
     ld a, [hl]
     jr z, .go_up
 .restore:
-    call _convert_note
+    call _convert_note ;; just grab the current period instead??
     jr .finish_vibrato
 .go_up:
     call _convert_note
