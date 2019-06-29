@@ -124,59 +124,63 @@ SECTION "Song Data", ROM0
 order_cnt: db 2
 order1: dw unreal ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
 order2: dw unreal_arps ;; empty, unreal, unreal, lunawaves
-order3: dw empty, lunawaves, lunawaves, unreal
-order4: dw empty, lunawaves, lunawaves, unreal
+order3: dw empty
+order4: dw empty
 
-lunawaves:
-include "lunawaves.inc"
+; lunawaves:
+; include "lunawaves.inc"
 unreal:
 include "unreal.inc"
 unreal_arps:
 include "unreal_arps.inc"
+tfau_arps:
+include "tfau_arps.inc"
+tfau_bass:
+include "tfau_bass.inc"
 empty:
 rept 64
     db 90, 0, 0
 endr
-drums:
-rept 16
-    db 44, 0, 0
-    db 90, 0, 0
-    db 90, 0, 0
-    db 90, 0, 0
-endr
-slideup:
-  dn C4, 00, $000
-rept 63
-    dn 90, 00, $101
-endr
-arps:
-rept 64
-    dn C5, 00, $047
-endr
+; drums:
+; rept 16
+;     db 44, 0, 0
+;     db 90, 0, 0
+;     db 90, 0, 0
+;     db 90, 0, 0
+; endr
+; slideup:
+;   dn C4, 00, $000
+; rept 63
+;     dn 90, 00, $101
+; endr
+; arps:
+; rept 64
+;     dn C5, 00, $047
+; endr
 vib:
     dn C5, 00, $000
 rept 63
     dn 90, 00, $443
 endr
-updown:
-    dn C4, 00, $105
-rept 31
-    dn 90, 00, $105
-endr
-rept 32
-    dn 90, 00, $205
-endr
-volset:
-    dn C5, 00, $000
-rept 32
-    dn 90, 00, $C90
-    dn 90, 00, $CF0
-endr
-notecut:
-rept 32
-    dn C5, 00, $E04
-    dn 90, 00, $000
-endr
+; updown:
+;     dn C4, 00, $105
+; rept 31
+;     dn 90, 00, $105
+; endr
+; rept 32
+;     dn 90, 00, $205
+; endr
+; volset:
+;     dn C5, 00, $000
+; rept 32
+;     dn 90, 00, $C90
+;     dn 90, 00, $CF0
+; endr
+; notecut:
+; rept 32
+;     dn C5, 00, $E04
+;     dn 90, 00, $000
+; endr
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -349,6 +353,9 @@ _lookup_note:
 ;; Pattern pointer in DE
 
 ;; Stores note period value in HL
+;; Stores instrument/effect code in B
+;; Stores effect params in C
+
     ld a, [row]
     ld h, a
     ;; Multiply by 3 for the note value
@@ -388,12 +395,6 @@ _convert_note:
     ccf ;; uh....?
     ret
 
-strip_instrument: MACRO
-    ld a, b
-    and %00001111
-    cp $3
-ENDM
-
 _update_channel:
 ;; Call with:
 ;; Channel in B
@@ -430,14 +431,28 @@ _update_channel4:
 
     ret
 
+strip_instrument: MACRO
+    ld a, b
+    and %00001111
+ENDM
+
+;;;;;;;
+;; Note playing routines. Need to either consolidate these or find some
+;; better way of doing effects that happen on the first tick.
+;;;;;;;
+
 _playnote1:
 ;; Call with:
 ;; Note value in H and L
-;; instrument + effect code in B
+;; Instrument + effect code in B
+;; Effect params in C
+
+;; Free: A, D, E
 
 ;; Play a note on channel 1 (square wave)
     strip_instrument
 
+    cp $3
     jr nz, .no_toneporta
     ld a, h
     ld [toneporta_target1+1], a
@@ -446,10 +461,17 @@ _playnote1:
     ret
 
 .no_toneporta:
-    ld a, %10111111
+    cp $C
+    jr nz, .no_volume
+    ld e, c
+    jr .set_regs
+.no_volume:
+    ld e, %11110000 ; TODO: Get from instrument
+.set_regs:
+    ld a, %01111111
     ld [rAUD1LEN], a
 
-    ld a, %11110000
+    ld a, e
     ld [rAUD1ENV], a
 
     ld a, l
@@ -471,6 +493,7 @@ _playnote2:
 ;; Play a note on channel 2 (square wave)
     strip_instrument
 
+    cp $3
     jr nz, .no_toneporta
     ld a, h
     ld [toneporta_target2+1], a
@@ -479,14 +502,23 @@ _playnote2:
     ret
 
 .no_toneporta:
-    ld a, %00111111 ; $10
+    cp $C
+    jr nz, .no_volume
+    ld e, c
+    jr .set_regs
+.no_volume:
+    ld e, %11110000 ; TODO: Get from instrument
+.set_regs:
+    ld a, %01111111 ; $10
     ld [rAUD2LEN], a
-    ld a, %11110000
+
+    ld a, e
     ld [rAUD2ENV], a
 
     ld a, l
     ld [channel_period2], a
     ld [rAUD2LOW], a
+
     ld a, h
     ld [channel_period2+1], a
     or %10000000
@@ -501,6 +533,7 @@ _playnote3:
 ;; Play a note on channel 3 (waveform)
     strip_instrument
 
+    cp $3
     jr nz, .no_toneporta
     ld a, h
     ld [toneporta_target2+1], a
@@ -589,7 +622,11 @@ _doeffect:
     jp fx_no_op ;fx_set_duty           ;9xy
     jp fx_no_op ;fx_vol_slide          ;Axy
     jp fx_no_op ;fx_pos_jump           ;Bxy
-    jp fx_set_volume                   ;Cxy
+    jp fx_set_volume
+    ; ret ;Cxy Volume always runs on first tick
+    ; nop
+    ; nop
+    jp fx_no_op
     jp fx_no_op ;fx_pattern_break      ;Dxy
     jp fx_note_cut                     ;Exy
     jp fx_no_op ;fx_set_speed          ;Fxy
@@ -685,15 +722,19 @@ fx_vibrato:
     swap a
     ld d, a
 
-    ld a, [tick]
+    ld a, [tick] ; Probably should change to some constantly ticking thing
     and d
-    ld a, [hl]
+    ld a, [hl-]
     jr z, .go_up
 .restore:
-    call _convert_note ;; just grab the current period instead??
+    dec hl
+    dec hl
+    ld a, [hl-]
+    ld l, [hl]
+    ld h, a
     jr .finish_vibrato
 .go_up:
-    call _convert_note
+    call _convert_note ; TODO: Find a way to grab it directly rather than recompute
     ld a, c
     and %00001111
     add_a_to_hl
@@ -944,10 +985,6 @@ _dosound:
     ;; We're on tick zero, so lookup and play the notes,
     ;; then return
 
-    ;; For each call of _lookup_note we push an address to jump to,
-    ;; and the procedure will discard its normal return value if it needs to
-    ;; skip a note and use the new value instead.
-
     loadShort pattern1, d, e
     call _lookup_note
     jr nc, .after_note1
@@ -981,35 +1018,35 @@ _dosound:
 
     ld a, c
     cp 0
-    jp z, after_effect1
+    jr z, .after_effect1
 
     ld e, 0
     call _doeffect
 
-after_effect1:
+.after_effect1:
     loadShort pattern2, d, e
     call _lookup_note
 
     ld a, c
     cp 0
-    jp z, after_effect2
+    jr z, .after_effect2
 
     ld e, 1
     call _doeffect
 
-after_effect2:
+.after_effect2:
     ; loadShort pattern3, d, e
     ; call _lookup_note
     ; ld e, 2
     ; call _doeffect
 
-after_effect3:
+.after_effect3:
     ; loadShort pattern4, d, e
     ; call _lookup_note
     ; ld e, 3
     ; call _doeffect
 
-after_effect4:
+.after_effect4:
 
 process_tick:
     ld a, [tick]
