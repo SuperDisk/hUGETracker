@@ -36,7 +36,7 @@ STACK_SIZE EQU 20
 ;; Stack starts at $FFFE
 
 PATTERN_LENGTH EQU 64
-TICKS EQU 7
+TICKS EQU 4
 
 ; $0000 - $003F: RST handlers.
 
@@ -122,8 +122,8 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw unreal ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw unreal_arps ;; empty, unreal, unreal, lunawaves
+order1: dw updown ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
+order2: dw empty ;; empty, unreal, unreal, lunawaves
 order3: dw empty
 order4: dw empty
 
@@ -141,46 +141,46 @@ empty:
 rept 64
     db 90, 0, 0
 endr
-; drums:
-; rept 16
-;     db 44, 0, 0
-;     db 90, 0, 0
-;     db 90, 0, 0
-;     db 90, 0, 0
-; endr
-; slideup:
-;   dn C4, 00, $000
-; rept 63
-;     dn 90, 00, $101
-; endr
-; arps:
-; rept 64
-;     dn C5, 00, $047
-; endr
+drums:
+rept 16
+    db 44, 0, 0
+    db 90, 0, 0
+    db 90, 0, 0
+    db 90, 0, 0
+endr
+slideup:
+  dn C4, 00, $000
+rept 63
+    dn 90, 00, $101
+endr
+arps:
+rept 64
+    dn C5, 00, $047
+endr
 vib:
     dn C5, 00, $000
 rept 63
     dn 90, 00, $443
 endr
-; updown:
-;     dn C4, 00, $105
-; rept 31
-;     dn 90, 00, $105
-; endr
-; rept 32
-;     dn 90, 00, $205
-; endr
-; volset:
-;     dn C5, 00, $000
-; rept 32
-;     dn 90, 00, $C90
-;     dn 90, 00, $CF0
-; endr
-; notecut:
-; rept 32
-;     dn C5, 00, $E04
-;     dn 90, 00, $000
-; endr
+updown:
+    dn C4, 00, $105
+rept 31
+    dn 90, 00, $105
+endr
+rept 32
+    dn 90, 00, $205
+endr
+volset:
+    dn C5, 00, $000
+rept 32
+    dn 90, 00, $C90
+    dn 90, 00, $CF0
+endr
+notecut:
+rept 32
+    dn C5, 00, $E04
+    dn 90, 00, $000
+endr
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -189,6 +189,9 @@ pattern3: dw
 pattern4: dw
 
 current_order: dw
+
+;; TODO: Find some way to get rid of this thing.
+temp_note_value: dw
 
 ;; Size of a channel in bytes
 CHANNEL_SIZE EQU 8
@@ -296,6 +299,11 @@ _addr = _addr + 1
     ; ld a, $20
     ; ldh [rAUD3LEVEL], a
 
+    ld a, %11110000
+    ld [envelope1], a
+    ld a, %11110000
+    ld [envelope2], a
+
     ; Enable sound globally
     ld a, $80
     ldh [rAUDENA], a
@@ -350,11 +358,13 @@ ENDM
 
 _lookup_note:
 ;; Call with:
-;; Pattern pointer in DE
+;; Pattern pointer in BC
+;; channel_noteX pointer in DE
 
 ;; Stores note period value in HL
 ;; Stores instrument/effect code in B
 ;; Stores effect params in C
+;; Stores note number in the memory pointed to by DE
 
     ld a, [row]
     ld h, a
@@ -362,11 +372,10 @@ _lookup_note:
     add h
     add h
 
+    add 2
     ld h, 0
     ld l, a
-    inc l
-    inc l
-    add hl, de ; HL now points at the 3rd byte of the note
+    add hl, bc ; HL now points at the 3rd byte of the note
     ld a, [hl-]
     ld c, a
     ld a, [hl-]
@@ -374,17 +383,22 @@ _lookup_note:
 
     ld a, [hl]
 
+    ;; If the note we found is greater than LAST_NOTE, then it's not a valid note
+    ;; and nothing needs to be updated.
     cp LAST_NOTE
     ret nc
 
-    ld [channel_note2], a
+    ;; Store the loaded note value in channel_noteX
+    ld h, d
+    ld l, e
+    ld [hl], a
 
 _convert_note:
     ;; Call with:
     ;; Note number in A
     ;; Stores note period value in HL
 
-    add a, a ;; double it to get index into hi/lo table
+    add a ;; double it to get index into hi/lo table
 
     ld hl, note_table
     add_a_to_hl
@@ -392,7 +406,9 @@ _convert_note:
     ld     h, [hl]
     ld     l, a
 
-    ccf ;; uh....?
+    ;; Need to clear the carry flag-- this complements it, but since the last
+    ;; thing that modified the flag always sets it, this will clear it.
+    ccf
     ret
 
 _update_channel:
@@ -444,42 +460,23 @@ ENDM
 _playnote1:
 ;; Call with:
 ;; Note value in H and L
-;; Instrument + effect code in B
-;; Effect params in C
 
-;; Free: A, D, E
+;; Free: A, D, E, B, C
 
 ;; Play a note on channel 1 (square wave)
-    strip_instrument
+    ; ld a, %11110000
+    ; ld [rAUD1ENV], a
 
-    cp $3
-    jr nz, .no_toneporta
-    ld a, h
-    ld [toneporta_target1+1], a
-    ld a, l
-    ld [toneporta_target1], a
-    ret
-
-.no_toneporta:
-    cp $C
-    jr nz, .no_volume
-    ld e, c
-    jr .set_regs
-.no_volume:
-    ld e, %11110000 ; TODO: Get from instrument
-.set_regs:
     ld a, %01111111
     ld [rAUD1LEN], a
 
-    ld a, e
-    ld [rAUD1ENV], a
-
-    ld a, l
+    ld a, l ; [temp_note_value+1]
     ld [channel_period1], a
     ld [rAUD1LOW], a
 
-    ld a, h
+    ld a, h ; [temp_note_value]
     ld [channel_period1+1], a
+
     or %10000000
     ld [rAUD1HIGH], a
 
@@ -491,38 +488,22 @@ _playnote2:
 ;; instrument + effect code in B
 
 ;; Play a note on channel 2 (square wave)
-    strip_instrument
+    ; ld a, %11110000
+    ; ld [rAUD2ENV], a
 
-    cp $3
-    jr nz, .no_toneporta
-    ld a, h
-    ld [toneporta_target2+1], a
-    ld a, l
-    ld [toneporta_target2], a
-    ret
-
-.no_toneporta:
-    cp $C
-    jr nz, .no_volume
-    ld e, c
-    jr .set_regs
-.no_volume:
-    ld e, %11110000 ; TODO: Get from instrument
-.set_regs:
     ld a, %01111111 ; $10
     ld [rAUD2LEN], a
 
-    ld a, e
-    ld [rAUD2ENV], a
-
-    ld a, l
+    ld a, l ; [temp_note_value+1]
     ld [channel_period2], a
     ld [rAUD2LOW], a
 
-    ld a, h
+    ld a, h ; [temp_note_value]
     ld [channel_period2+1], a
+
     or %10000000
     ld [rAUD2HIGH], a
+
     ret
 
 _playnote3:
@@ -531,24 +512,16 @@ _playnote3:
 ;; instrument + effect code in B
 
 ;; Play a note on channel 3 (waveform)
-    strip_instrument
-
-    cp $3
-    jr nz, .no_toneporta
-    ld a, h
-    ld [toneporta_target2+1], a
-    ld a, l
-    ld [toneporta_target2], a
-    ret
-
-.no_toneporta:
-    ld a, l
+    ld a, l ; [temp_note_value+1]
     ld [channel_period3], a
     ld [rAUD3LOW], a
-    ld a, h
+
+    ld a, h ; [temp_note_value]
     ld [channel_period3+1], a
+
     or %10000000
     ld [rAUD3HIGH], a
+
     ret
 
 _playnote4:
@@ -569,24 +542,15 @@ _playnote4:
 
     ret
 
-loadShort: MACRO
-    ld a, [\1]
-    ld \3, a
-    ld a, [\1 + 1]
-    ld \2, a
-ENDM
-
-
-
 _doeffect:
-;; Call with:
-;; B: instrument nibble + effect type nibble
-;; C: effect parameters
-;; E: channel
+    ;; Call with:
+    ;; B: instrument nibble + effect type nibble
+    ;; C: effect parameters
+    ;; E: channel
 
-;; free: A, D, H, L
+    ;; free: A, D, H, L
 
-;; Strip the instrument bits off leaving only effect code
+    ;; Strip the instrument bits off leaving only effect code
     ld a, b
     and %00001111
     ld b, a
@@ -605,7 +569,9 @@ _doeffect:
     ld h, a
 
     ld b, e
-
+    ld a, [tick]
+    cp 0
+    ; or a ; We can return right off the bat if it's tick zero
     jp hl
 
 .jump:
@@ -622,11 +588,7 @@ _doeffect:
     jp fx_no_op ;fx_set_duty           ;9xy
     jp fx_no_op ;fx_vol_slide          ;Axy
     jp fx_no_op ;fx_pos_jump           ;Bxy
-    jp fx_set_volume
-    ; ret ;Cxy Volume always runs on first tick
-    ; nop
-    ; nop
-    jp fx_no_op
+    jp fx_set_volume                   ;Cxy
     jp fx_no_op ;fx_pattern_break      ;Dxy
     jp fx_note_cut                     ;Exy
     jp fx_no_op ;fx_set_speed          ;Fxy
@@ -646,15 +608,20 @@ setup_channel_pointer:
     add_a_to_hl
     ret
 
+return_if_tick_zero: MACRO
+    ret z
+ENDM
+
 fx_no_op:
     ret
 
+;; TODO: Fix this
 fx_note_cut:
     ;; B: channel
     ;; C: effect parameters
 
     ;; free registers: A, D, E, H, L
-    ld a, [tick]
+    ;; ld a, [tick]
     cp c
     ret nz
 
@@ -662,6 +629,9 @@ fx_note_cut:
     jp set_channel_volume
 
 fx_set_volume:
+    ret
+    ret nz ;; Return if we're not on tick zero.
+
     ;; B: channel
     ;; C: effect parameters
 
@@ -672,8 +642,6 @@ fx_set_volume:
 
     ld d, 6
     call setup_channel_pointer
-
-    ld d, [hl]
 
 set_channel_volume:
     ;; Call with:
@@ -687,21 +655,48 @@ set_channel_volume:
 set_chn_3_vol:
     ld a, d
     ld [rAUD3LEVEL], a
+
+    ; ld a, [temp_note_value]
+    ; ld h, a
+    ; ld a, [temp_note_value+1]
+    ; ld l, a
+    ; call playnote3
+
     ret
 set_chn_2_vol:
     ld a, d
     and %00001111
     or c
     ld [rAUD2ENV], a
+
+    ld a, [temp_note_value]
+    ld h, a
+    ld a, [temp_note_value+1]
+    ld l, a
+    call _playnote2
+
     ret
 set_chn_1_vol:
     ld a, d
     and %00001111
     or c
     ld [rAUD1ENV], a
-    ret
+
+    ld a, [temp_note_value]
+    ld h, a
+    ld a, [temp_note_value+1]
+    ld l, a
+    call _playnote1
+
+    ;; Don't call _playnote. This is done by grabbing the return
+    ;; address and manually skipping the next call instruction.
+    pop hl
+    ld a, 3
+    add_a_to_hl
+    jp hl
 
 fx_vibrato:
+    return_if_tick_zero
     ;; B: channel
     ;; C: effect parameters
 
@@ -743,64 +738,8 @@ fx_vibrato:
     ld e, l
     jp _update_channel
 
-;; TODO: Come back and make this work later.
-
-; fx_vibrato2:
-;     ld b, e ;; so we have access to DE
-;     ;; B: channel
-;     ;; C: effect parameters
-
-;     ;; free registers: A, D, E, H, L
-
-;     ;; This isn't really a sine vibrato, it's the same thing as ProTracker's
-;     ;; "ramp down" setting, basically a sawtooth wave. Fortunately in most cases,
-;     ;; this sounds exactly the same, and we don't need to store a sine table.
-
-;     ;; Point at the vibrato phase
-;     ld d, 5
-;     call setup_channel_pointer
-
-;     ld e, [hl]
-;     inc [hl]
-;     dec hl
-
-;     ld a, [hl]
-;     call _convert_note
-
-;     ;; load D with speed
-;     ld a, c
-;     and %11110000
-;     ld d, a
-;     swap d
-
-;     xor a ; ld a, 0
-
-;     ;; Multiply E ("time") by D (speed) (at most 16 cycles...)
-;     ;; TODO: Find faster multiplication?
-; .mult1:
-;     add e
-;     dec d
-;     jr nz, .mult1
-
-;     ;; Multiply by depth into a 16 bit value
-;     ld e, a ; D is already empty
-;     ; ld hl, 0
-
-;     ;; Load E with depth
-;     ld a, c
-;     and %00001111
-; .mult2:
-;     add hl, de
-;     dec a
-;     jr nz, .mult2
-
-;     ld d, h
-;     ld e, l
-
-;     jp _update_channel
-
-
 fx_arpeggio:
+    return_if_tick_zero
     ;; B: channel
     ;; C: effect parameters
 
@@ -847,6 +786,7 @@ fx_arpeggio:
     jp _update_channel
 
 fx_porta_up:
+    return_if_tick_zero
     ;; B: channel
     ;; C: effect parameters
 
@@ -871,6 +811,7 @@ fx_porta_up:
 ;; TODO: Maybe merge with fx_porta_up, since they're so similar? Would need
 ;; to find a way to compare against effect code.
 fx_porta_down:
+    return_if_tick_zero
     ;; B: channel
     ;; C: effect parameters
 
@@ -892,8 +833,28 @@ fx_porta_down:
 
     jp _update_channel
 
-
 fx_toneporta:
+    jp nz, .do_toneporta
+    ;; We're on tick zero, so just move the temp note value into the toneporta target.
+    ld d, 2
+    call setup_channel_pointer
+
+    ld a, [temp_note_value]
+    ld c, a
+    ld a, [temp_note_value+1]
+    ld e, a
+
+    ld [hl+], a
+    ld [hl], c
+
+    ;; Don't call _playnote. This is done by grabbing the return
+    ;; address and manually skipping the next call instruction.
+    pop hl
+    ld a, 3
+    add_a_to_hl
+    jp hl
+
+.do_toneporta:
     ;; B: channel
     ;; C: effect parameters
 
@@ -902,7 +863,6 @@ fx_toneporta:
     ;; TOOD: Optimize. This usage of the stack isn't great but IMO it's
     ;; better than using the stack hack which forces all effects to screw with
     ;; pushing and popping. Most effects won't need to do this.
-
     ld d, 0
     call setup_channel_pointer
     push hl
@@ -977,35 +937,84 @@ fx_toneporta:
 
     jp _update_channel
 
+loadShort: MACRO
+    ld a, [\1]
+    ld \3, a
+    ld a, [\1 + 1]
+    ld \2, a
+ENDM
+
 _dosound:
     ld a, [tick]
-    cp 0
-    jr nz, .process_effects
+    or a
+    jp nz, .process_effects
 
-    ;; We're on tick zero, so lookup and play the notes,
-    ;; then return
+    ;; remove this
+    ld a, %11110000
+    ld [rAUD1ENV], a
 
-    loadShort pattern1, d, e
+    loadShort pattern1, b, c
     call _lookup_note
+
+    ld a, h
+    ld [temp_note_value], a
+    ld a, l
+    ld [temp_note_value+1], a
+
     jr nc, .after_note1
-    call _playnote1
+
+    ld e, 0
+    call _doeffect
+
+    ld a, [temp_note_value]
+    ld h, a
+    ld a, [temp_note_value+1]
+    ld l, a
+    call _playnote1 ; 3 bytes
 
 .after_note1:
-    loadShort pattern2, d, e
+    loadShort pattern2, b, c
     call _lookup_note
     jr nc, .after_note2
+
+    ld a, h
+    ld [temp_note_value], a
+    ld a, l
+    ld [temp_note_value+1], a
+
+    ld e, 1
+    call _doeffect
+
     call _playnote2
 
 .after_note2:
-    loadShort pattern3, d, e
+    loadShort pattern3, b, c
     call _lookup_note
     jr nc, .after_note3
+
+    ld a, h
+    ld [temp_note_value], a
+    ld a, l
+    ld [temp_note_value+1], a
+
+    ld e, 2
+    call _doeffect
+
     call _playnote3
 
 .after_note3:
-    loadShort pattern4, d, e
+    loadShort pattern4, b, c
     call _lookup_note
-    jp nc, process_tick
+    jr nc, process_tick
+
+    ld a, h
+    ld [temp_note_value], a
+    ld a, l
+    ld [temp_note_value+1], a
+
+    ld e, 3
+    call _doeffect
+
     call _playnote4
 
     jp process_tick
@@ -1013,7 +1022,7 @@ _dosound:
 .process_effects:
     ;; Only do effects if not on tick zero
 
-    loadShort pattern1, d, e
+    loadShort pattern1, b, c
     call _lookup_note
 
     ld a, c
@@ -1024,7 +1033,7 @@ _dosound:
     call _doeffect
 
 .after_effect1:
-    loadShort pattern2, d, e
+    loadShort pattern2, b, c
     call _lookup_note
 
     ld a, c
@@ -1035,13 +1044,13 @@ _dosound:
     call _doeffect
 
 .after_effect2:
-    ; loadShort pattern3, d, e
+    ; loadShort pattern3, b, c
     ; call _lookup_note
     ; ld e, 2
     ; call _doeffect
 
 .after_effect3:
-    ; loadShort pattern4, d, e
+    ; loadShort pattern4, b, c
     ; call _lookup_note
     ; ld e, 3
     ; call _doeffect
