@@ -122,7 +122,7 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw updown ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
+order1: dw tfau_bass ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
 order2: dw empty ;; empty, unreal, unreal, lunawaves
 order3: dw empty
 order4: dw empty
@@ -383,15 +383,15 @@ _lookup_note:
 
     ld a, [hl]
 
-    ;; If the note we found is greater than LAST_NOTE, then it's not a valid note
-    ;; and nothing needs to be updated.
-    cp LAST_NOTE
-    ret nc
-
     ;; Store the loaded note value in channel_noteX
     ld h, d
     ld l, e
     ld [hl], a
+
+    ;; If the note we found is greater than LAST_NOTE, then it's not a valid note
+    ;; and nothing needs to be updated.
+    cp LAST_NOTE
+    ret nc
 
 _convert_note:
     ;; Call with:
@@ -835,9 +835,15 @@ fx_porta_down:
 
 fx_toneporta:
     jp nz, .do_toneporta
+
     ;; We're on tick zero, so just move the temp note value into the toneporta target.
-    ld d, 2
+    ld d, 3
     call setup_channel_pointer
+
+    ;; If the note is nonexistent, then just return
+    ld a, [hl-]
+    cp LAST_NOTE
+    ret nc
 
     ld a, [temp_note_value]
     ld c, a
@@ -850,7 +856,8 @@ fx_toneporta:
     ;; Don't call _playnote. This is done by grabbing the return
     ;; address and manually skipping the next call instruction.
     pop hl
-    ld a, 3
+    pop af
+    ld a, 14
     add_a_to_hl
     jp hl
 
@@ -961,15 +968,20 @@ _dosound:
     ld a, l
     ld [temp_note_value+1], a
 
-    jr nc, .after_note1
+    push af
 
     ld e, 0
     call _doeffect
+
+    pop af
+
+    jr nc, .after_note1
 
     ld a, [temp_note_value]
     ld h, a
     ld a, [temp_note_value+1]
     ld l, a
+
     call _playnote1 ; 3 bytes
 
 .after_note1:
