@@ -36,7 +36,7 @@ STACK_SIZE EQU 20
 ;; Stack starts at $FFFE
 
 PATTERN_LENGTH EQU 64
-TICKS EQU 4
+TICKS EQU 7
 
 ; $0000 - $003F: RST handlers.
 
@@ -122,8 +122,8 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw tfau_bass ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw empty ;; empty, unreal, unreal, lunawaves
+order1: dw unreal ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
+order2: dw unreal_arps ;; empty, unreal, unreal, lunawaves
 order3: dw empty
 order4: dw empty
 
@@ -629,7 +629,6 @@ fx_note_cut:
     jp set_channel_volume
 
 fx_set_volume:
-    ret
     ret nz ;; Return if we're not on tick zero.
 
     ;; B: channel
@@ -639,9 +638,6 @@ fx_set_volume:
 
     ;; Arguments to this effect will be massaged to correct form for the channel
     ;; in the editor so we don't have to AND and SWAP and stuff.
-
-    ld d, 6
-    call setup_channel_pointer
 
 set_channel_volume:
     ;; Call with:
@@ -656,24 +652,13 @@ set_chn_3_vol:
     ld a, d
     ld [rAUD3LEVEL], a
 
-    ; ld a, [temp_note_value]
-    ; ld h, a
-    ; ld a, [temp_note_value+1]
-    ; ld l, a
-    ; call playnote3
-
     ret
 set_chn_2_vol:
-    ld a, d
-    and %00001111
-    or c
+    ; ld a, d
+    ; and %00001111
+    ; or c
+    ld a, c
     ld [rAUD2ENV], a
-
-    ld a, [temp_note_value]
-    ld h, a
-    ld a, [temp_note_value+1]
-    ld l, a
-    call _playnote2
 
     ret
 set_chn_1_vol:
@@ -682,18 +667,7 @@ set_chn_1_vol:
     or c
     ld [rAUD1ENV], a
 
-    ld a, [temp_note_value]
-    ld h, a
-    ld a, [temp_note_value+1]
-    ld l, a
-    call _playnote1
-
-    ;; Don't call _playnote. This is done by grabbing the return
-    ;; address and manually skipping the next call instruction.
-    pop hl
-    ld a, 3
-    add_a_to_hl
-    jp hl
+    ret
 
 fx_vibrato:
     return_if_tick_zero
@@ -833,8 +807,9 @@ fx_porta_down:
 
     jp _update_channel
 
+;; TODO: Figure out why this is not toneporta-ing as much as it used to. so bizarre...
 fx_toneporta:
-    jp nz, .do_toneporta
+    jr nz, .do_toneporta
 
     ;; We're on tick zero, so just move the temp note value into the toneporta target.
     ld d, 4
@@ -843,7 +818,7 @@ fx_toneporta:
     ;; If the note is nonexistent, then just return
     ld a, [hl-]
     cp LAST_NOTE
-    ret nc
+    jr nc, .return_skip
 
     ld a, [temp_note_value+1]
     ld c, a
@@ -854,6 +829,7 @@ fx_toneporta:
 
     ;; Don't call _playnote. This is done by grabbing the return
     ;; address and manually skipping the next call instruction.
+.return_skip:
     pop hl
     pop af
     ld a, 14
@@ -866,7 +842,7 @@ fx_toneporta:
 
     ;; free registers: A, D, E, H, L
 
-    ;; TOOD: Optimize. This usage of the stack isn't great but IMO it's
+    ;; TODO: Optimize. This usage of the stack isn't great but IMO it's
     ;; better than using the stack hack which forces all effects to screw with
     ;; pushing and popping. Most effects won't need to do this.
     ld d, 0
@@ -984,6 +960,34 @@ _dosound:
     call _playnote1 ; 3 bytes
 
 .after_note1:
+    ;; remove this
+    ld a, %11110000
+    ld [rAUD2ENV], a
+
+    loadShort pattern2, b, c
+    call _lookup_note
+
+    ld a, h
+    ld [temp_note_value], a
+    ld a, l
+    ld [temp_note_value+1], a
+
+    push af
+
+    ld e, 1
+    call _doeffect
+
+    pop af
+
+    jr nc, .after_note2
+
+    ld a, [temp_note_value]
+    ld h, a
+    ld a, [temp_note_value+1]
+    ld l, a
+
+    call _playnote2 ; 3 bytes
+
     ; loadShort pattern2, b, c
     ; call _lookup_note
     ; jr nc, .after_note2
@@ -1044,15 +1048,15 @@ _dosound:
     call _doeffect
 
 .after_effect1:
-    ; loadShort pattern2, b, c
-    ; call _lookup_note
+    loadShort pattern2, b, c
+    call _lookup_note
 
-    ; ld a, c
-    ; cp 0
-    ; jr z, .after_effect2
+    ld a, c
+    cp 0
+    jr z, .after_effect2
 
-    ; ld e, 1
-    ; call _doeffect
+    ld e, 1
+    call _doeffect
 
 .after_effect2:
     ; loadShort pattern3, b, c
