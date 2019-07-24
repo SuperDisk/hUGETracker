@@ -36,7 +36,7 @@ STACK_SIZE EQU 20
 ;; Stack starts at $FFFE
 
 PATTERN_LENGTH EQU 64
-TICKS EQU 4
+; TICKS EQU 4
 
 ; $0000 - $003F: RST handlers.
 
@@ -121,14 +121,14 @@ DB "NF"
 
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
-order_cnt: db 2
-order1: dw tfau_bass ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw tfau_arps ;; empty, unreal, unreal, lunawaves
+order_cnt: db 6
+order1: dw tfau_bass, unreal, unreal ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
+order2: dw tfau_arps, unreal_arps, unreal_arps ;; empty, unreal, unreal, lunawaves
 order3: dw empty
 order4: dw empty
 
-; lunawaves:
-; include "lunawaves.inc"
+lunawaves:
+include "lunawaves.inc"
 unreal:
 include "unreal.inc"
 unreal_arps:
@@ -188,6 +188,7 @@ pattern2: dw
 pattern3: dw
 pattern4: dw
 
+ticks_per_row: db
 current_order: dw
 
 ;; TODO: Find some way to get rid of this thing.
@@ -303,6 +304,10 @@ _addr = _addr + 1
     ld [envelope1], a
     ld a, %11110000
     ld [envelope2], a
+
+    ;; Load starting speed (7 ticks per row)
+    ld a, 4
+    ld [ticks_per_row], a
 
     ; Enable sound globally
     ld a, $80
@@ -571,11 +576,11 @@ _doeffect:
     jp fx_no_op ;fx_set_pan            ;8xy
     jp fx_no_op ;fx_set_duty           ;9xy
     jp fx_no_op ;fx_vol_slide          ;Axy
-    jp fx_no_op ;fx_pos_jump           ;Bxy
+    jp fx_pos_jump                     ;Bxy
     jp fx_set_volume                   ;Cxy
-    jp fx_no_op ;fx_pattern_break      ;Dxy
+    jp fx_pattern_break                ;Dxy
     jp fx_note_cut                     ;Exy
-    jp fx_no_op ;fx_set_speed          ;Fxy
+    jp fx_set_speed                    ;Fxy
 
 setup_channel_pointer:
     ;; Call with:
@@ -598,6 +603,55 @@ ENDM
 
 fx_no_op:
     ret
+
+fx_set_speed:
+    ret nz
+
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+    ld a, c
+    ld [ticks_per_row], a
+    ret
+
+fx_pos_jump:
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    pop hl ;; remove return address
+    pop hl ;; remove the AF pushed
+
+    ;; when we return from here, it will be as if we returned from the main
+    ;; _dosound function
+
+    ld a, c
+    add a ;; double it, as orders are words
+
+    jp _update_current_order
+
+fx_pattern_break:
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    pop hl ;; remove return address
+    pop hl ;; remove the AF pushed
+
+    ;; when we return from here, it will be as if we returned from the main
+    ;; _dosound function
+
+    ld b, c
+
+    call _neworder
+
+    ld a, b
+    ld [row], a
+
+    reti
 
 ;; TODO: Fix this
 fx_note_cut:
@@ -1050,10 +1104,13 @@ _dosound:
 .after_effect4:
 
 process_tick:
+    ld a, [ticks_per_row]
+    ld b, a
+
     ld a, [tick]
     inc a
 
-    cp TICKS
+    cp b
     jp z, _newrow
 
     ld [tick], a
@@ -1068,29 +1125,26 @@ _newrow:
     ld a, [row]
     inc a
     cp PATTERN_LENGTH
-    jr nz, .noreset
-
+    jr nz, _noreset
+_neworder:
     ;; Increment order and change loaded patterns
     ld a, [order_cnt]
-    ld b, a
+    ld c, a
     ld a, [current_order]
     add a, 2
-    cp b
-    jr nz, .update_current_order
+    cp c
+    jr nz, _update_current_order
     xor a ; ld a, 0
-.update_current_order:
+_update_current_order:
     ld [current_order], a
     ld c, a
 
     call _refresh_patterns
 
     xor a ; ld a, 0
-    ld [row], a
-    reti
 
-.noreset:
+_noreset:
     ld [row], a
-
     reti
 
 _halt:
