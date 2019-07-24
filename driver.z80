@@ -837,7 +837,7 @@ fx_toneporta:
     jp nz, .do_toneporta
 
     ;; We're on tick zero, so just move the temp note value into the toneporta target.
-    ld d, 3
+    ld d, 4
     call setup_channel_pointer
 
     ;; If the note is nonexistent, then just return
@@ -845,12 +845,11 @@ fx_toneporta:
     cp LAST_NOTE
     ret nc
 
-    ld a, [temp_note_value]
-    ld c, a
     ld a, [temp_note_value+1]
-    ld e, a
+    ld c, a
+    ld a, [temp_note_value]
 
-    ld [hl+], a
+    ld [hl-], a
     ld [hl], c
 
     ;; Don't call _playnote. This is done by grabbing the return
@@ -985,49 +984,49 @@ _dosound:
     call _playnote1 ; 3 bytes
 
 .after_note1:
-    loadShort pattern2, b, c
-    call _lookup_note
-    jr nc, .after_note2
+    ; loadShort pattern2, b, c
+    ; call _lookup_note
+    ; jr nc, .after_note2
 
-    ld a, h
-    ld [temp_note_value], a
-    ld a, l
-    ld [temp_note_value+1], a
+    ; ld a, h
+    ; ld [temp_note_value], a
+    ; ld a, l
+    ; ld [temp_note_value+1], a
 
-    ld e, 1
-    call _doeffect
+    ; ld e, 1
+    ; call _doeffect
 
-    call _playnote2
+    ; call _playnote2
 
 .after_note2:
-    loadShort pattern3, b, c
-    call _lookup_note
-    jr nc, .after_note3
+    ; loadShort pattern3, b, c
+    ; call _lookup_note
+    ; jr nc, .after_note3
 
-    ld a, h
-    ld [temp_note_value], a
-    ld a, l
-    ld [temp_note_value+1], a
+    ; ld a, h
+    ; ld [temp_note_value], a
+    ; ld a, l
+    ; ld [temp_note_value+1], a
 
-    ld e, 2
-    call _doeffect
+    ; ld e, 2
+    ; call _doeffect
 
-    call _playnote3
+    ; call _playnote3
 
 .after_note3:
-    loadShort pattern4, b, c
-    call _lookup_note
-    jr nc, process_tick
+    ; loadShort pattern4, b, c
+    ; call _lookup_note
+    ; jr nc, process_tick
 
-    ld a, h
-    ld [temp_note_value], a
-    ld a, l
-    ld [temp_note_value+1], a
+    ; ld a, h
+    ; ld [temp_note_value], a
+    ; ld a, l
+    ; ld [temp_note_value+1], a
 
-    ld e, 3
-    call _doeffect
+    ; ld e, 3
+    ; call _doeffect
 
-    call _playnote4
+    ; call _playnote4
 
     jp process_tick
 
@@ -1045,15 +1044,15 @@ _dosound:
     call _doeffect
 
 .after_effect1:
-    loadShort pattern2, b, c
-    call _lookup_note
+    ; loadShort pattern2, b, c
+    ; call _lookup_note
 
-    ld a, c
-    cp 0
-    jr z, .after_effect2
+    ; ld a, c
+    ; cp 0
+    ; jr z, .after_effect2
 
-    ld e, 1
-    call _doeffect
+    ; ld e, 1
+    ; call _doeffect
 
 .after_effect2:
     ; loadShort pattern3, b, c
