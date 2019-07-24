@@ -121,9 +121,9 @@ DB "NF"
 
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
-order_cnt: db 6
-order1: dw tfau_bass, unreal, unreal ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw tfau_arps, unreal_arps, unreal_arps ;; empty, unreal, unreal, lunawaves
+order_cnt: db 2
+order1: dw notedelay, tfau_bass, unreal, unreal
+order2: dw empty, tfau_arps, unreal_arps, unreal_arps
 order3: dw empty
 order4: dw empty
 
@@ -180,6 +180,11 @@ notecut:
 rept 32
     dn C5, 00, $E04
     dn 90, 00, $000
+endr
+notedelay:
+rept 32
+    dn C5, 00, 00
+    dn D#5, 00, $704
 endr
 
 SECTION "Playback variables", WRAM0
@@ -306,7 +311,7 @@ _addr = _addr + 1
     ld [envelope2], a
 
     ;; Load starting speed (7 ticks per row)
-    ld a, 4
+    ld a, 7
     ld [ticks_per_row], a
 
     ; Enable sound globally
@@ -572,7 +577,7 @@ _doeffect:
     jp fx_vibrato                      ;4xy
     jp fx_no_op ;fx_toneporta_volslide ;5xy
     jp fx_no_op ;fx_vibrato_volslide   ;6xy
-    jp fx_no_op ;fx_tremolo            ;7xy
+    jp fx_note_delay                   ;7xy
     jp fx_no_op ;fx_set_pan            ;8xy
     jp fx_no_op ;fx_set_duty           ;9xy
     jp fx_no_op ;fx_vol_slide          ;Axy
@@ -603,6 +608,60 @@ ENDM
 
 fx_no_op:
     ret
+
+fx_note_delay:
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    jp nz, .play_note
+
+    ;; Just store the note into the channel period, and don't play a note.
+    ld d, 0
+    call setup_channel_pointer
+
+    ld a, [temp_note_value]
+    ld [hl+], a
+    ld a, [temp_note_value+1]
+    ld [hl], a
+
+    ;; Don't call _playnote. This is done by grabbing the return
+    ;; address and manually skipping the next call instruction.
+    pop hl
+    pop af
+    ld a, 6
+    add_a_to_hl
+    jp hl
+
+.play_note:
+    ld a, [tick]
+    cp c
+    ret nz ; wait until the correct tick to play the note
+
+    ld d, 0
+    call setup_channel_pointer
+
+    ;; TODO: Change this to accept HL instead?
+    ld a, [hl+]
+    ld [temp_note_value], a
+    ld a, [hl]
+    ld [temp_note_value+1], a
+
+    ;; Generalize this somehow?
+
+    ld hl, .play_note_routines
+    ld a, b
+    add b
+    add b
+    add_a_to_hl
+    jp hl
+
+.play_note_routines:
+    jp _playnote1
+    jp _playnote2
+    jp _playnote3
+    jp _playnote4
 
 fx_set_speed:
     ret nz
