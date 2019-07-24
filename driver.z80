@@ -122,7 +122,7 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw notedelay, tfau_bass, unreal, unreal
+order1: dw setduty, tfau_bass, unreal, unreal
 order2: dw empty, tfau_arps, unreal_arps, unreal_arps
 order3: dw empty
 order4: dw empty
@@ -185,6 +185,19 @@ notedelay:
 rept 32
     dn C5, 00, 00
     dn D#5, 00, $704
+endr
+volslide:
+    dn C5, 00, 00
+rept 64
+    dn 90, 00, $A01
+endr
+setduty:
+    dn C5, 00, $F04
+rept 21
+    dn 90, 00, $900
+    dn 90, 00, $940
+    dn 90, 00, $980
+    dn 90, 00, $9C0
 endr
 
 SECTION "Playback variables", WRAM0
@@ -579,8 +592,8 @@ _doeffect:
     jp fx_no_op ;fx_vibrato_volslide   ;6xy
     jp fx_note_delay                   ;7xy
     jp fx_no_op ;fx_set_pan            ;8xy
-    jp fx_no_op ;fx_set_duty           ;9xy
-    jp fx_no_op ;fx_vol_slide          ;Axy
+    jp fx_set_duty                     ;9xy
+    jp fx_vol_slide                    ;Axy
     jp fx_pos_jump                     ;Bxy
     jp fx_set_volume                   ;Cxy
     jp fx_pattern_break                ;Dxy
@@ -602,12 +615,79 @@ setup_channel_pointer:
     add_a_to_hl
     ret
 
-return_if_tick_zero: MACRO
-    ret z
-ENDM
-
 fx_no_op:
     ret
+
+fx_set_duty:
+    ret nz
+
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ;; $900 = 12.5%
+    ;; $940 = 25%
+    ;; $980 = 50%
+    ;; $9C0 = 75%
+
+    ld a, b
+    or a ; cp 0
+    jp z, .chan1
+.chan2:
+    ld a, c
+    ld [rAUD2LEN], a
+    ret
+.chan1:
+    ld a, c
+    ld [rAUD1LEN], a
+    ret
+
+fx_vol_slide:
+    ret nz
+
+    ;; This is really more of a "retrigger note with lower volume" effect and thus
+    ;; isn't really that useful. Instrument envelopes should be used instead.
+
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ld d, 0
+    call setup_channel_pointer
+    ld a, [hl+]
+    ld e, [hl]
+    ld d, a
+
+    ld a, b
+    add a
+    ld hl, .envelope_registers
+    add_a_to_hl
+    ld a, [hl+]
+    ld h, [hl]
+    ld l, a
+
+    ld a, [hl]
+    and %11110000
+    swap a
+    sub c
+    swap a
+    ld [hl+], a
+
+    ld [hl], d
+    inc hl
+    ld a, e
+    or %10000000
+    ld [hl], a
+
+    ret
+
+.envelope_registers:
+    dw rAUD1ENV
+    dw rAUD2ENV
+    dw rAUD4ENV
+    dw rAUD4ENV
 
 fx_note_delay:
     ;; B: channel
@@ -768,7 +848,7 @@ set_chn_1_vol:
     ret
 
 fx_vibrato:
-    return_if_tick_zero
+    ret z
     ;; B: channel
     ;; C: effect parameters
 
@@ -811,7 +891,7 @@ fx_vibrato:
     jp _update_channel
 
 fx_arpeggio:
-    return_if_tick_zero
+    ret z
     ;; B: channel
     ;; C: effect parameters
 
@@ -858,7 +938,7 @@ fx_arpeggio:
     jp _update_channel
 
 fx_porta_up:
-    return_if_tick_zero
+    ret z
     ;; B: channel
     ;; C: effect parameters
 
@@ -883,7 +963,7 @@ fx_porta_up:
 ;; TODO: Maybe merge with fx_porta_up, since they're so similar? Would need
 ;; to find a way to compare against effect code.
 fx_porta_down:
-    return_if_tick_zero
+    ret z
     ;; B: channel
     ;; C: effect parameters
 
@@ -1026,13 +1106,15 @@ _dosound:
     or a
     jp nz, .process_effects
 
-    ld a, %11110000
-    ld [rAUD1ENV], a
-
     loadShort pattern1, b, c
     ld de, channel_note1
     call _lookup_note
 
+    jr nc, .continue
+    ld a, %11110000
+    ld [rAUD1ENV], a
+
+.continue:
     ld a, h
     ld [temp_note_value], a
     ld a, l
