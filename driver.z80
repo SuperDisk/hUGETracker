@@ -459,35 +459,22 @@ ENDM
 ;;;;;;;
 
 _playnote1:
-;; Call with:
-;; Note value in H and L
-
-;; Free: A, D, E, B, C
-
-;; Play a note on channel 1 (square wave)
-    ; ld a, %11110000
-    ; ld [rAUD1ENV], a
-
+    ;; Play a note on channel 1 (square wave)
     ld a, %01111111
     ld [rAUD1LEN], a
 
-    ld a, l ; [temp_note_value+1]
+    ld a, [temp_note_value+1]
     ld [channel_period1], a
     ld [rAUD1LOW], a
 
-    ld a, h ; [temp_note_value]
+    ld a, [temp_note_value]
     ld [channel_period1+1], a
-
     or %10000000
     ld [rAUD1HIGH], a
 
     ret
 
 _playnote2:
-;; Call with:
-;; Note value in H and L
-;; instrument + effect code in B
-
 ;; Play a note on channel 2 (square wave)
     ; ld a, %11110000
     ; ld [rAUD2ENV], a
@@ -495,11 +482,11 @@ _playnote2:
     ld a, %01111111 ; $10
     ld [rAUD2LEN], a
 
-    ld a, l ; [temp_note_value+1]
+    ld a, [temp_note_value+1]
     ld [channel_period2], a
     ld [rAUD2LOW], a
 
-    ld a, h ; [temp_note_value]
+    ld a, [temp_note_value]
     ld [channel_period2+1], a
 
     or %10000000
@@ -508,16 +495,12 @@ _playnote2:
     ret
 
 _playnote3:
-;; Call with:
-;; Note value in H and L
-;; instrument + effect code in B
-
 ;; Play a note on channel 3 (waveform)
-    ld a, l ; [temp_note_value+1]
+    ld a, [temp_note_value+1]
     ld [channel_period3], a
     ld [rAUD3LOW], a
 
-    ld a, h ; [temp_note_value]
+    ld a, [temp_note_value]
     ld [channel_period3+1], a
 
     or %10000000
@@ -663,9 +646,10 @@ set_chn_2_vol:
 
     ret
 set_chn_1_vol:
-    ld a, d
-    and %00001111
-    or c
+    ; ld a, d
+    ; and %00001111
+    ; or c
+    ld a, c
     ld [rAUD1ENV], a
 
     ret
@@ -830,7 +814,7 @@ fx_toneporta:
 .return_skip:
     pop hl
     pop af
-    ld a, 14
+    ld a, 6
     add_a_to_hl
     jp hl
 
@@ -950,15 +934,9 @@ _dosound:
 
     jr nc, .after_note1
 
-    ld a, [temp_note_value]
-    ld h, a
-    ld a, [temp_note_value+1]
-    ld l, a
-
     call _playnote1 ; 3 bytes
 
 .after_note1:
-    ;; remove this
     ld a, %11110000
     ld [rAUD2ENV], a
 
@@ -979,11 +957,6 @@ _dosound:
     pop af
 
     jr nc, .after_note2
-
-    ld a, [temp_note_value]
-    ld h, a
-    ld a, [temp_note_value+1]
-    ld l, a
 
     call _playnote2 ; 3 bytes
 
