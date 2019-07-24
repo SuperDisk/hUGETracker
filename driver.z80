@@ -36,7 +36,7 @@ STACK_SIZE EQU 20
 ;; Stack starts at $FFFE
 
 PATTERN_LENGTH EQU 64
-TICKS EQU 7
+TICKS EQU 4
 
 ; $0000 - $003F: RST handlers.
 
@@ -122,8 +122,8 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw unreal ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw unreal_arps ;; empty, unreal, unreal, lunawaves
+order1: dw tfau_bass ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
+order2: dw tfau_arps ;; empty, unreal, unreal, lunawaves
 order3: dw empty
 order4: dw empty
 
@@ -382,16 +382,17 @@ _lookup_note:
     ld b, a
 
     ld a, [hl]
-
-    ;; Store the loaded note value in channel_noteX
-    ld h, d
-    ld l, e
-    ld [hl], a
+    ld hl, 0
 
     ;; If the note we found is greater than LAST_NOTE, then it's not a valid note
     ;; and nothing needs to be updated.
     cp LAST_NOTE
     ret nc
+
+    ;; Store the loaded note value in channel_noteX
+    ld h, d
+    ld l, e
+    ld [hl], a
 
 _convert_note:
     ;; Call with:
@@ -812,20 +813,17 @@ fx_toneporta:
     jr nz, .do_toneporta
 
     ;; We're on tick zero, so just move the temp note value into the toneporta target.
-    ld d, 4
+    ld d, 2
     call setup_channel_pointer
 
     ;; If the note is nonexistent, then just return
-    ld a, [hl-]
-    cp LAST_NOTE
-    jr nc, .return_skip
-
     ld a, [temp_note_value+1]
-    ld c, a
-    ld a, [temp_note_value]
+    or a
+    jr z, .return_skip
 
-    ld [hl-], a
-    ld [hl], c
+    ld [hl+], a
+    ld a, [temp_note_value]
+    ld [hl], a
 
     ;; Don't call _playnote. This is done by grabbing the return
     ;; address and manually skipping the next call instruction.
@@ -931,11 +929,11 @@ _dosound:
     or a
     jp nz, .process_effects
 
-    ;; remove this
     ld a, %11110000
     ld [rAUD1ENV], a
 
     loadShort pattern1, b, c
+    ld de, channel_note1
     call _lookup_note
 
     ld a, h
@@ -965,6 +963,7 @@ _dosound:
     ld [rAUD2ENV], a
 
     loadShort pattern2, b, c
+    ld de, channel_note2
     call _lookup_note
 
     ld a, h
@@ -987,6 +986,9 @@ _dosound:
     ld l, a
 
     call _playnote2 ; 3 bytes
+
+
+
 
     ; loadShort pattern2, b, c
     ; call _lookup_note
@@ -1038,6 +1040,7 @@ _dosound:
     ;; Only do effects if not on tick zero
 
     loadShort pattern1, b, c
+    ld de, channel_note1
     call _lookup_note
 
     ld a, c
@@ -1049,6 +1052,7 @@ _dosound:
 
 .after_effect1:
     loadShort pattern2, b, c
+    ld de, channel_note2
     call _lookup_note
 
     ld a, c
