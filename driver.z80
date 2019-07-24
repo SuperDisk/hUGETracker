@@ -36,7 +36,7 @@ STACK_SIZE EQU 20
 ;; Stack starts at $FFFE
 
 PATTERN_LENGTH EQU 64
-TICKS EQU 7
+TICKS EQU 4
 
 ; $0000 - $003F: RST handlers.
 
@@ -122,8 +122,8 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw unreal ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
-order2: dw unreal_arps ;; empty, unreal, unreal, lunawaves
+order1: dw tfau_bass ;; unreal ;; unreal;, lunawaves, lunawaves, unreal
+order2: dw tfau_arps ;; empty, unreal, unreal, lunawaves
 order3: dw empty
 order4: dw empty
 
@@ -141,46 +141,46 @@ empty:
 rept 64
     db 90, 0, 0
 endr
-; drums:
-; rept 16
-;     db 44, 0, 0
-;     db 90, 0, 0
-;     db 90, 0, 0
-;     db 90, 0, 0
-; endr
-; slideup:
-;   dn C4, 00, $000
-; rept 63
-;     dn 90, 00, $101
-; endr
-; arps:
-; rept 64
-;     dn C5, 00, $047
-; endr
+drums:
+rept 16
+    db 44, 0, 0
+    db 90, 0, 0
+    db 90, 0, 0
+    db 90, 0, 0
+endr
+slideup:
+  dn C4, 00, $000
+rept 63
+    dn 90, 00, $101
+endr
+arps:
+rept 64
+    dn C5, 00, $047
+endr
 vib:
     dn C5, 00, $000
 rept 63
     dn 90, 00, $443
 endr
-; updown:
-;     dn C4, 00, $105
-; rept 31
-;     dn 90, 00, $105
-; endr
-; rept 32
-;     dn 90, 00, $205
-; endr
-; volset:
-;     dn C5, 00, $000
-; rept 32
-;     dn 90, 00, $C90
-;     dn 90, 00, $CF0
-; endr
-; notecut:
-; rept 32
-;     dn C5, 00, $E04
-;     dn 90, 00, $000
-; endr
+updown:
+    dn C4, 00, $105
+rept 31
+    dn 90, 00, $105
+endr
+rept 32
+    dn 90, 00, $205
+endr
+volset:
+    dn C5, 00, $000
+rept 32
+    dn 90, 00, $C90
+    dn 90, 00, $CF0
+endr
+notecut:
+rept 32
+    dn C5, 00, $E04
+    dn 90, 00, $000
+endr
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -350,7 +350,7 @@ ENDM
 
 _lookup_note:
 ;; Call with:
-;; Pattern pointer in DE
+;; Pattern pointer in BC
 
 ;; Stores note period value in HL
 ;; Stores instrument/effect code in B
@@ -366,7 +366,7 @@ _lookup_note:
     ld l, a
     inc l
     inc l
-    add hl, de ; HL now points at the 3rd byte of the note
+    add hl, bc ; HL now points at the 3rd byte of the note
     ld a, [hl-]
     ld c, a
     ld a, [hl-]
@@ -431,10 +431,39 @@ _update_channel4:
 
     ret
 
-strip_instrument: MACRO
-    ld a, b
-    and %00001111
-ENDM
+retnop: MACRO
+    ret
+    nop
+endm
+
+_do_tick_zero_effect:
+    ;; Call with:
+    ;; A: Instrument effect code
+    ;; Free: D, E
+
+    ;; Double to get offset into table
+    add a
+    ld hl, .jump
+    add_a_to_hl
+    jp hl
+
+.jump:
+    retnop                     ;0xy
+    retnop                     ;1xy
+    retnop                     ;2xy
+    retnop ; jr t0_toneporta            ;3xy
+    retnop                     ;4xy
+    retnop                     ;5xy
+    retnop                     ;6xy
+    retnop ; jr fx_note_delay                   ;7xy
+    retnop ; jr fx_no_op ;fx_set_pan            ;8xy
+    retnop ; jr fx_no_op ;fx_set_duty           ;9xy
+    retnop                             ;Axy
+    retnop ; jr fx_no_op ;fx_pos_jump           ;Bxy
+    retnop ; jr fx_set_volume                   ;Cxy
+    retnop ; jr fx_no_op ;fx_pattern_break      ;Dxy
+    retnop                             ;Exy
+    retnop ; jr fx_no_op ;fx_set_speed          ;Fxy
 
 ;;;;;;;
 ;; Note playing routines. Need to either consolidate these or find some
@@ -442,15 +471,21 @@ ENDM
 ;;;;;;;
 
 _playnote1:
-;; Call with:
-;; Note value in H and L
-;; Instrument + effect code in B
-;; Effect params in C
+    ;; Call with:
+    ;; Note value in H and L
+    ;; Instrument + effect code in B
+    ;; Effect params in C
 
-;; Free: A, D, E
+    ;; Free: A, D, E
+    ld a, b
+    and %00001111
 
-;; Play a note on channel 1 (square wave)
-    strip_instrument
+    ; push hl
+    ; push bc
+    ; ld d, 0
+    ; call _do_tick_zero_effect
+    ; pop bc
+    ; pop hl
 
     cp $3
     jr nz, .no_toneporta
@@ -491,7 +526,8 @@ _playnote2:
 ;; instrument + effect code in B
 
 ;; Play a note on channel 2 (square wave)
-    strip_instrument
+    ld a, b
+    and %00001111
 
     cp $3
     jr nz, .no_toneporta
@@ -531,7 +567,8 @@ _playnote3:
 ;; instrument + effect code in B
 
 ;; Play a note on channel 3 (waveform)
-    strip_instrument
+    ld a, b
+    and %00001111
 
     cp $3
     jr nz, .no_toneporta
@@ -579,22 +616,21 @@ ENDM
 
 
 _doeffect:
-;; Call with:
-;; B: instrument nibble + effect type nibble
-;; C: effect parameters
-;; E: channel
+    ;; Call with:
+    ;; B: instrument nibble + effect type nibble
+    ;; C: effect parameters
+    ;; E: channel
 
-;; free: A, D, H, L
+    ;; free: A, D, H, L
 
-;; Strip the instrument bits off leaving only effect code
+    ;; Strip the instrument bits off leaving only effect code
     ld a, b
     and %00001111
     ld b, a
 
     ;; Multiply by 3 to get offset into table
-    ld a, b
-    add a, b
-    add a, b
+    add b
+    add b
 
     ld hl, .jump
 
@@ -608,6 +644,17 @@ _doeffect:
 
     jp hl
 
+retnopnop: MACRO
+    ret
+    nop
+    nop
+ENDM
+
+jn: MACRO
+    jr \1
+    nop
+ENDM
+
 .jump:
     ;; Jump table for effect
     jp fx_arpeggio                     ;0xy
@@ -617,19 +664,15 @@ _doeffect:
     jp fx_vibrato                      ;4xy
     jp fx_no_op ;fx_toneporta_volslide ;5xy
     jp fx_no_op ;fx_vibrato_volslide   ;6xy
-    jp fx_no_op ;fx_tremolo            ;7xy
-    jp fx_no_op ;fx_set_pan            ;8xy
-    jp fx_no_op ;fx_set_duty           ;9xy
+    jp fx_note_delay                   ;7xy
+    retnopnop ;fx_set_pan            ;8xy
+    retnopnop ;fx_set_duty           ;9xy
     jp fx_no_op ;fx_vol_slide          ;Axy
-    jp fx_no_op ;fx_pos_jump           ;Bxy
-    jp fx_set_volume
-    ; ret ;Cxy Volume always runs on first tick
-    ; nop
-    ; nop
-    jp fx_no_op
-    jp fx_no_op ;fx_pattern_break      ;Dxy
+    retnopnop ;fx_pos_jump           ;Bxy
+    retnopnop                   ;Cxy
+    retnopnop ;fx_pattern_break      ;Dxy
     jp fx_note_cut                     ;Exy
-    jp fx_no_op ;fx_set_speed          ;Fxy
+    retnopnop ;fx_set_speed          ;Fxy
 
 setup_channel_pointer:
     ;; Call with:
@@ -649,6 +692,14 @@ setup_channel_pointer:
 fx_no_op:
     ret
 
+fx_note_delay:
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ret
+
 fx_note_cut:
     ;; B: channel
     ;; C: effect parameters
@@ -659,7 +710,8 @@ fx_note_cut:
     ret nz
 
     ld d, 0
-    jp set_channel_volume
+    call set_channel_volume
+    jp _update_channel
 
 fx_set_volume:
     ;; B: channel
@@ -742,63 +794,6 @@ fx_vibrato:
     ld d, h
     ld e, l
     jp _update_channel
-
-;; TODO: Come back and make this work later.
-
-; fx_vibrato2:
-;     ld b, e ;; so we have access to DE
-;     ;; B: channel
-;     ;; C: effect parameters
-
-;     ;; free registers: A, D, E, H, L
-
-;     ;; This isn't really a sine vibrato, it's the same thing as ProTracker's
-;     ;; "ramp down" setting, basically a sawtooth wave. Fortunately in most cases,
-;     ;; this sounds exactly the same, and we don't need to store a sine table.
-
-;     ;; Point at the vibrato phase
-;     ld d, 5
-;     call setup_channel_pointer
-
-;     ld e, [hl]
-;     inc [hl]
-;     dec hl
-
-;     ld a, [hl]
-;     call _convert_note
-
-;     ;; load D with speed
-;     ld a, c
-;     and %11110000
-;     ld d, a
-;     swap d
-
-;     xor a ; ld a, 0
-
-;     ;; Multiply E ("time") by D (speed) (at most 16 cycles...)
-;     ;; TODO: Find faster multiplication?
-; .mult1:
-;     add e
-;     dec d
-;     jr nz, .mult1
-
-;     ;; Multiply by depth into a 16 bit value
-;     ld e, a ; D is already empty
-;     ; ld hl, 0
-
-;     ;; Load E with depth
-;     ld a, c
-;     and %00001111
-; .mult2:
-;     add hl, de
-;     dec a
-;     jr nz, .mult2
-
-;     ld d, h
-;     ld e, l
-
-;     jp _update_channel
-
 
 fx_arpeggio:
     ;; B: channel
@@ -899,7 +894,7 @@ fx_toneporta:
 
     ;; free registers: A, D, E, H, L
 
-    ;; TOOD: Optimize. This usage of the stack isn't great but IMO it's
+    ;; TODO: Optimize. This usage of the stack isn't great but IMO it's
     ;; better than using the stack hack which forces all effects to screw with
     ;; pushing and popping. Most effects won't need to do this.
 
@@ -985,25 +980,25 @@ _dosound:
     ;; We're on tick zero, so lookup and play the notes,
     ;; then return
 
-    loadShort pattern1, d, e
+    loadShort pattern1, b, c
     call _lookup_note
     jr nc, .after_note1
     call _playnote1
 
 .after_note1:
-    loadShort pattern2, d, e
+    loadShort pattern2, b, c
     call _lookup_note
     jr nc, .after_note2
     call _playnote2
 
 .after_note2:
-    loadShort pattern3, d, e
+    loadShort pattern3, b, c
     call _lookup_note
     jr nc, .after_note3
     call _playnote3
 
 .after_note3:
-    loadShort pattern4, d, e
+    loadShort pattern4, b, c
     call _lookup_note
     jp nc, process_tick
     call _playnote4
@@ -1013,35 +1008,35 @@ _dosound:
 .process_effects:
     ;; Only do effects if not on tick zero
 
-    loadShort pattern1, d, e
+    loadShort pattern1, b, c
     call _lookup_note
 
     ld a, c
-    cp 0
+    or a
     jr z, .after_effect1
 
     ld e, 0
     call _doeffect
 
 .after_effect1:
-    loadShort pattern2, d, e
+    loadShort pattern2, b, c
     call _lookup_note
 
     ld a, c
-    cp 0
+    or a
     jr z, .after_effect2
 
     ld e, 1
     call _doeffect
 
 .after_effect2:
-    ; loadShort pattern3, d, e
+    ; loadShort pattern3, b, c
     ; call _lookup_note
     ; ld e, 2
     ; call _doeffect
 
 .after_effect3:
-    ; loadShort pattern4, d, e
+    ; loadShort pattern4, b, c
     ; call _lookup_note
     ; ld e, 3
     ; call _doeffect
