@@ -119,13 +119,19 @@ DS 1
 ; $0144 - $0145: "New" Licensee Code, a two character name.
 DB "NF"
 
+dn: MACRO ;; (note, instr, effect)
+    db \1
+    db ((\2 << 4) | (\3 >> 8))
+    db LOW(\3)
+ENDM
+
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw unreal, tfau_bass, unreal, unreal
-order2: dw unreal_arps, tfau_arps, unreal_arps, unreal_arps
+order1: dw unreal, unreal, unreal
+order2: dw empty, unreal_arps, unreal_arps
 order3: dw empty
-order4: dw drums
+order4: dw empty
 
 lunawaves:
 include "lunawaves.inc"
@@ -143,13 +149,19 @@ rept 64
 endr
 drums:
 rept 16
-    db 44, 0, 0
+    db C4, 0, 0
     db 90, 0, 0
     db 90, 0, 0
     db 90, 0, 0
 endr
+walkup:
+_ASDF = C3
+rept 64
+    dn _ASDF, 0, 0
+_ASDF = _ASDF + 1
+endr
 slideup:
-  dn C4, 00, $000
+  dn C3, 00, $000
 rept 63
     dn 90, 00, $101
 endr
@@ -488,7 +500,10 @@ _update_channel3:
     ld [rAUD3HIGH], a
     ret
 _update_channel4:
-
+    call _quantize_channel4_note
+    ld [rAUD4POLY], a
+    ld a, %00000000
+    ld [rAUD4GO], a
     ret
 
 strip_instrument: MACRO
@@ -550,15 +565,38 @@ _playnote4:
 
 ;; Play a "note" on channel 4 (noise)
 
-    ld a, %00011111
-    ld [rAUD4LEN], a
-    ld a, %11110001
-    ld [rAUD4ENV], a
+    ; ld a, %11110001
+    ; ld [rAUD4ENV], a
+
     ld a, [temp_note_value+1]
+    ld [channel_period4], a
+    ld e, a
+
+    ld a, [temp_note_value]
+    ld [channel_period4+1], a
+    ld d, a
+
+    call _quantize_channel4_note
+
     ld [rAUD4POLY], a
     ld a, %10000000
     ld [rAUD4GO], a
 
+    ret
+
+_quantize_channel4_note:
+    ;; Shift the "note value" right by 7 to get a spread from 0 to 15.
+    ;; Keep just the upmost bit of the lower byte
+    ld a, e
+    and %10000000
+    rla
+    ld c, a
+
+    ;; Keep the entire upper byte (but it's never the full 8 bits)
+    ld a, d
+    rla
+    or c
+    swap a
     ret
 
 _doeffect:
@@ -1246,6 +1284,11 @@ _dosound:
     ld de, channel_note3
     call _lookup_note
 
+    jr nc, .do_setvol3
+    ld a, %00100000
+    ld [rAUD3LEVEL], a
+
+.do_setvol3:
     ld a, h
     ld [temp_note_value], a
     ld a, l
