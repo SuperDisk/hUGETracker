@@ -122,7 +122,7 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw setduty, tfau_bass, unreal, unreal
+order1: dw setpan, tfau_bass, unreal, unreal
 order2: dw empty, tfau_arps, unreal_arps, unreal_arps
 order3: dw empty
 order4: dw empty
@@ -188,7 +188,7 @@ rept 32
 endr
 volslide:
     dn C5, 00, 00
-rept 64
+rept 63
     dn 90, 00, $A01
 endr
 setduty:
@@ -199,6 +199,23 @@ rept 21
     dn 90, 00, $980
     dn 90, 00, $9C0
 endr
+setpan:
+    dn C5, 00, $811
+    rept 15
+    dn 90, 00, 00
+    endr
+    dn C5, 00, $801
+    rept 15
+    dn 90, 00, 00
+    endr
+    dn C5, 00, $810
+    rept 15
+    dn 90, 00, 00
+    endr
+    dn C5, 00, $800
+    rept 15
+    dn 90, 00, 00
+    endr
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -329,13 +346,13 @@ _addr = _addr + 1
 
     ; Enable sound globally
     ld a, $80
-    ldh [rAUDENA], a
+    ld [rAUDENA], a
     ; Enable channel 1 in stereo
     ld a, $FF
-    ldh [rAUDTERM], a
+    ld [rAUDTERM], a
     ; Set volume
     ld a, $77
-    ldh [rAUDVOL], a
+    ld [rAUDVOL], a
 
     ld c, 0 ;; Current order index
     call _refresh_patterns
@@ -591,7 +608,7 @@ _doeffect:
     jp fx_no_op ;fx_toneporta_volslide ;5xy
     jp fx_no_op ;fx_vibrato_volslide   ;6xy
     jp fx_note_delay                   ;7xy
-    jp fx_no_op ;fx_set_pan            ;8xy
+    jp fx_set_pan                      ;8xy
     jp fx_set_duty                     ;9xy
     jp fx_vol_slide                    ;Axy
     jp fx_pos_jump                     ;Bxy
@@ -616,6 +633,21 @@ setup_channel_pointer:
     ret
 
 fx_no_op:
+    ret
+
+fx_set_pan:
+    ret nz
+
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ;; Pretty simple. The editor can create the correct value here without a bunch
+    ;; of bit shifting manually.
+
+    ld a, c
+    ld [rAUDTERM], a
     ret
 
 fx_set_duty:
