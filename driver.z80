@@ -139,7 +139,7 @@ order_cnt: db 2
 order1: dw unreal, unreal, unreal
 order2: dw empty, unreal_arps, unreal_arps
 order3: dw empty
-order4: dw empty
+order4: dw drums
 
 lunawaves:
 include "lunawaves.inc"
@@ -153,14 +153,14 @@ tfau_bass:
 include "tfau_bass.inc"
 empty:
 rept 64
-    db 90, 0, 0
+    dn 90, 0, 0
 endr
 drums:
 rept 16
-    db C4, 0, 0
-    db 90, 0, 0
-    db 90, 0, 0
-    db 90, 0, 0
+    dn C4, 2, 0
+    dn 90, 0, 0
+    dn 90, 0, 0
+    dn 90, 0, 0
 endr
 walkup:
 _ASDF = C3
@@ -264,9 +264,9 @@ voice_instrument:
 ;; Format for channel 4:
 
 noise_instrument:
-.length:          db
-.envelope:        db
-.step_and_ratio:  db
+.length:          db 0
+.envelope:        db %11110001
+.step_and_ratio:  db 0
 .unused:          db
 
 SECTION "Playback variables", WRAM0
@@ -576,7 +576,7 @@ _playnote1:
     ret
 
 _playnote2:
-;; Play a note on channel 2 (square wave)
+    ;; Play a note on channel 2 (square wave)
     ld a, [temp_note_value+1]
     ld [channel_period2], a
     ld [rAUD2LOW], a
@@ -590,7 +590,7 @@ _playnote2:
     ret
 
 _playnote3:
-;; Play a note on channel 3 (waveform)
+    ;; Play a note on channel 3 (waveform)
     ld a, [temp_note_value+1]
     ld [channel_period3], a
     ld [rAUD3LOW], a
@@ -604,14 +604,7 @@ _playnote3:
     ret
 
 _playnote4:
-;; Call with:
-;; Note value in H and L
-;; instrument + effect code in B
-
-;; Play a "note" on channel 4 (noise)
-
-    ; ld a, %11110001
-    ; ld [rAUD4ENV], a
+    ;; Play a "note" on channel 4 (noise)
 
     ld a, [temp_note_value+1]
     ld [channel_period4], a
@@ -622,8 +615,12 @@ _playnote4:
     ld d, a
 
     call _quantize_channel4_note
+    ld b, a
 
+    ld a, [rAUD4POLY]
+    or b
     ld [rAUD4POLY], a
+
     ld a, %10000000
     ld [rAUD4GO], a
 
@@ -1315,9 +1312,15 @@ _dosound:
     loadShort pattern2, b, c
     ld de, channel_note2
     call _lookup_note
-
+    push af
     jr nc, .do_setvol2
-    ld a, %11110000
+
+    call _setup_instrument_pointer
+    inc de
+    ld a, [de]
+    inc de
+    ld [rAUD2LEN], a
+    ld a, [de]
     ld [rAUD2ENV], a
 
 .do_setvol2:
@@ -1325,8 +1328,6 @@ _dosound:
     ld [temp_note_value], a
     ld a, l
     ld [temp_note_value+1], a
-
-    push af
 
     ld e, 1
     call _doeffect
@@ -1341,10 +1342,20 @@ _dosound:
     loadShort pattern3, b, c
     ld de, channel_note3
     call _lookup_note
+    push af
 
     jr nc, .do_setvol3
-    ld a, %00100000
+
+    call _setup_instrument_pointer
+    ld a, [de]
+    inc de
+    ld [rAUD3LEN], a
+    ld a, [de]
+    inc de
     ld [rAUD3LEVEL], a
+    ;; TODO: Write to _AUD3WAVERAM
+    ; ld a, [de]
+    ; ld [rAUD3ENV], a
 
 .do_setvol3:
     ld a, h
@@ -1352,7 +1363,6 @@ _dosound:
     ld a, l
     ld [temp_note_value+1], a
 
-    push af
 
     ld e, 2
     call _doeffect
@@ -1367,18 +1377,25 @@ _dosound:
     loadShort pattern4, b, c
     ld de, channel_note4
     call _lookup_note
+    push af
 
     jr nc, .do_setvol4
-    ld a, %11110000
+
+    call _setup_instrument_pointer
+    ld a, [de]
+    inc de
+    ld [rAUD4LEN], a
+    ld a, [de]
+    inc de
     ld [rAUD4ENV], a
+    ld a, [de]
+    ld [rAUD4POLY], a
 
 .do_setvol4:
     ld a, h
     ld [temp_note_value], a
     ld a, l
     ld [temp_note_value+1], a
-
-    push af
 
     ld e, 3
     call _doeffect
