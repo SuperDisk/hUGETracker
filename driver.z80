@@ -31,8 +31,16 @@ add_a_to_de: MACRO
     add_a_to_r16 d, e
 ENDM
 
+ret_dont_call_playnote: MACRO
+    pop hl
+    pop af
+    ld a, 6
+    add_a_to_hl
+    jp hl
+ENDM
+
 ; Constants
-STACK_SIZE EQU 20
+STACK_SIZE EQU $7A
 ;; Stack starts at $FFFE
 
 PATTERN_LENGTH EQU 64
@@ -229,6 +237,38 @@ setpan:
     dn 90, 00, 00
     endr
 
+;;;;;;;;;;;;;;;;
+;; Instruments
+;;;;;;;;;;;;;;;;
+
+;; Instruments come in blocks.
+
+instruments:
+
+;; Format for channels 1 and 2:
+
+square_instrument:
+.sweep:           db ; unused for channel 2
+.length_and_duty: db %10000000
+.envelope:        db %11110000
+.unused:          db
+
+;; Format for channel 3:
+
+voice_instrument:
+.length: db
+.volume: db
+.wave:   db
+.unused: db
+
+;; Format for channel 4:
+
+noise_instrument:
+.length:          db
+.envelope:        db
+.step_and_ratio:  db
+.unused:          db
+
 SECTION "Playback variables", WRAM0
 pattern1: dw
 pattern2: dw
@@ -408,16 +448,13 @@ ENDM
     load_pattern order4, pattern4
     ret
 
-_lookup_note:
-;; Call with:
-;; Pattern pointer in BC
-;; channel_noteX pointer in DE
+_load_note_data:
+    ;; Call with:
+    ;; Pattern pointer in BC
 
-;; Stores note period value in HL
-;; Stores instrument/effect code in B
-;; Stores effect params in C
-;; Stores note number in the memory pointed to by DE
-
+    ;; Stores instrument/effect code in B
+    ;; Stores effect params in C
+    ;; Stores note number in A
     ld a, [row]
     ld h, a
     ;; Multiply by 3 for the note value
@@ -434,6 +471,19 @@ _lookup_note:
     ld b, a
 
     ld a, [hl]
+
+    ret
+
+_lookup_note:
+    ;; Call with:
+    ;; Pattern pointer in BC
+    ;; channel_noteX pointer in DE
+
+    ;; Stores note period value in HL
+    ;; Stores instrument/effect code in B
+    ;; Stores effect params in C
+    ;; Stores note number in the memory pointed to by DE
+    call _load_note_data
     ld hl, 0
 
     ;; If the note we found is greater than LAST_NOTE, then it's not a valid note
@@ -505,11 +555,6 @@ _update_channel4:
     ld a, %00000000
     ld [rAUD4GO], a
     ret
-
-strip_instrument: MACRO
-    ld a, b
-    and %00001111
-ENDM
 
 ;;;;;;;
 ;; Note playing routines. Need to either consolidate these or find some
@@ -811,11 +856,7 @@ fx_note_delay:
 
     ;; Don't call _playnote. This is done by grabbing the return
     ;; address and manually skipping the next call instruction.
-    pop hl
-    pop af
-    ld a, 6
-    add_a_to_hl
-    jp hl
+    ret_dont_call_playnote
 
 .play_note:
     ld a, [tick]
@@ -1127,11 +1168,7 @@ fx_toneporta:
     ;; Don't call _playnote. This is done by grabbing the return
     ;; address and manually skipping the next call instruction.
 .return_skip:
-    pop hl
-    pop af
-    ld a, 6
-    add_a_to_hl
-    jp hl
+    ret_dont_call_playnote
 
 .do_toneporta:
     ;; B: channel
@@ -1223,17 +1260,40 @@ loadShort: MACRO
     ld \2, a
 ENDM
 
+_setup_instrument_pointer:
+    ld a, b
+    and %11110000
+    swap a
+
+    ;; Shift left twice to multiply by 4
+    sla a
+    sla a
+
+    ld de, instruments
+    add_a_to_de
+    ret
+
 _dosound:
     ld a, [tick]
     or a
     jp nz, .process_effects
 
+    ;; Note playback
+
     loadShort pattern1, b, c
     ld de, channel_note1
     call _lookup_note
-
+    push af
     jr nc, .do_setvol1
-    ld a, %11110000
+
+    call _setup_instrument_pointer
+    ld a, [de]
+    inc de
+    ld [rAUD1SWEEP], a
+    ld a, [de]
+    inc de
+    ld [rAUD1LEN], a
+    ld a, [de]
     ld [rAUD1ENV], a
 
 .do_setvol1:
@@ -1241,8 +1301,6 @@ _dosound:
     ld [temp_note_value], a
     ld a, l
     ld [temp_note_value+1], a
-
-    push af
 
     ld e, 0
     call _doeffect
@@ -1340,7 +1398,7 @@ _dosound:
 
     loadShort pattern1, b, c
     ld de, channel_note1
-    call _lookup_note
+    call _load_note_data
 
     ld a, c
     cp 0
@@ -1352,7 +1410,7 @@ _dosound:
 .after_effect1:
     loadShort pattern2, b, c
     ld de, channel_note2
-    call _lookup_note
+    call _load_note_data
 
     ld a, c
     cp 0
@@ -1364,7 +1422,7 @@ _dosound:
 .after_effect2:
     loadShort pattern3, b, c
     ld de, channel_note3
-    call _lookup_note
+    call _load_note_data
 
     ld a, c
     cp 0
@@ -1376,7 +1434,7 @@ _dosound:
 .after_effect3:
     loadShort pattern4, b, c
     ld de, channel_note4
-    call _lookup_note
+    call _load_note_data
 
     ld a, c
     cp 0

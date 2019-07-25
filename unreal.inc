@@ -1,10 +1,4 @@
-dn: MACRO ;; (note, instr, effect)
-    db \1
-    db ((\2 << 4) | (\3 >> 8))
-    db LOW(\3)
-ENDM
-
-    dn F5, 11, $F07
+    dn F5, 00, $F07
     dn G#5, 00, $316
     dn C6, 00, $316
     dn F6, 00, $316

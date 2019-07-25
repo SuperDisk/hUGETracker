@@ -2,11 +2,11 @@
 0000.0000-0000-0000.0000.0000
 
 Stuff to do:
-
-- Make tick stuff happen on ticks other than zero (and multiple times)
-- Get rid of popping and pushing HL
+- Implement instruments
+- Implement routines
 
 If note value is greater than 71 then it's considered to be an empty note cell.
+Will probably add some sort of RLE encoding later with special notes greater than 71.
 
 00 is an empty instrument cell.
 
@@ -17,9 +17,9 @@ If note value is greater than 71 then it's considered to be an empty note cell.
 2 - Slide down
 3 - Toneporta
 4 - Vibrato
-5 - Toneporta + volslide
-6 - Vibrato + volslide
-7 - Tremolo
+5 - Set master volume
+6 - Call routine
+7 - Note delay
 8 - Set panning
 9 - Set duty cycle
 A - Volslide
