@@ -122,10 +122,10 @@ DB "NF"
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw setpan, tfau_bass, unreal, unreal
-order2: dw empty, tfau_arps, unreal_arps, unreal_arps
+order1: dw unreal, tfau_bass, unreal, unreal
+order2: dw unreal_arps, tfau_arps, unreal_arps, unreal_arps
 order3: dw empty
-order4: dw empty
+order4: dw drums
 
 lunawaves:
 include "lunawaves.inc"
@@ -319,21 +319,21 @@ _init:
     call _paint_tile
 
     ;; Load some wave data (or code) into _AUD3WAVERAM
-    ld hl, $150 ;; note_table
+    ld hl, $000 ;; note_table
 _addr = _AUD3WAVERAM
     REPT 16
     ld a, [hl+]
-    ldh [_addr], a
+    ld [_addr], a
 _addr = _addr + 1
     ENDR
 
     ;; Enable chanel 3
-    ; ld a, $80
-    ; ldh [rAUD3ENA], a
-    ; ld a, $ff
-    ; ldh [rAUD3LEN], a
-    ; ld a, $20
-    ; ldh [rAUD3LEVEL], a
+    ld a, %10000000
+    ld [rAUD3ENA], a
+    ld a, $ff ;; full length (although this does nothing)
+    ld [rAUD3LEN], a
+    ld a, %0000000 ; 0%
+    ld [rAUD3LEVEL], a
 
     ld a, %11110000
     ld [envelope1], a
@@ -347,7 +347,7 @@ _addr = _addr + 1
     ; Enable sound globally
     ld a, $80
     ld [rAUDENA], a
-    ; Enable channel 1 in stereo
+    ; Enable all channels in stereo
     ld a, $FF
     ld [rAUDTERM], a
     ; Set volume
@@ -358,8 +358,8 @@ _addr = _addr + 1
     call _refresh_patterns
 
     ;; Enable the timer
-    ld a, TACF_START | TACF_4KHZ
-    ld [rTAC], a
+    ; ld a, TACF_START | TACF_4KHZ
+    ; ld [rTAC], a
 
     ;; Enable the HBlank interrupt on scanline 0
     ld a, [rSTAT]
@@ -471,18 +471,21 @@ _update_channel:
 
 _update_channel1:
     ld a, e
-    ldh [rAUD1LOW], a
+    ld [rAUD1LOW], a
     ld a, d
-    ldh [rAUD1HIGH], a
+    ld [rAUD1HIGH], a
     ret
 _update_channel2:
     ld a, e
-    ldh [rAUD2LOW], a
+    ld [rAUD2LOW], a
     ld a, d
-    ldh [rAUD2HIGH], a
+    ld [rAUD2HIGH], a
     ret
 _update_channel3:
-
+    ld a, e
+    ld [rAUD3LOW], a
+    ld a, d
+    ld [rAUD3HIGH], a
     ret
 _update_channel4:
 
@@ -500,15 +503,13 @@ ENDM
 
 _playnote1:
     ;; Play a note on channel 1 (square wave)
-    ld a, %01111111
-    ld [rAUD1LEN], a
-
     ld a, [temp_note_value+1]
     ld [channel_period1], a
     ld [rAUD1LOW], a
 
     ld a, [temp_note_value]
     ld [channel_period1+1], a
+
     or %10000000
     ld [rAUD1HIGH], a
 
@@ -516,12 +517,6 @@ _playnote1:
 
 _playnote2:
 ;; Play a note on channel 2 (square wave)
-    ; ld a, %11110000
-    ; ld [rAUD2ENV], a
-
-    ld a, %01111111 ; $10
-    ld [rAUD2LEN], a
-
     ld a, [temp_note_value+1]
     ld [channel_period2], a
     ld [rAUD2LOW], a
@@ -559,7 +554,7 @@ _playnote4:
     ld [rAUD4LEN], a
     ld a, %11110001
     ld [rAUD4ENV], a
-    ld a, l; %01000100
+    ld a, [temp_note_value+1]
     ld [rAUD4POLY], a
     ld a, %10000000
     ld [rAUD4GO], a
@@ -585,12 +580,7 @@ _doeffect:
     add a, b
 
     ld hl, .jump
-
-    add a, l
-    ld l, a
-    adc a, h
-    sub l
-    ld h, a
+    add_a_to_hl
 
     ld b, e
     ld a, [tick]
@@ -605,8 +595,8 @@ _doeffect:
     jp fx_porta_down                   ;2xy
     jp fx_toneporta                    ;3xy
     jp fx_vibrato                      ;4xy
-    jp fx_no_op ;fx_toneporta_volslide ;5xy
-    jp fx_no_op ;fx_vibrato_volslide   ;6xy
+    jp fx_set_master_volume            ;5xy
+    jp fx_call_routine                 ;6xy
     jp fx_note_delay                   ;7xy
     jp fx_set_pan                      ;8xy
     jp fx_set_duty                     ;9xy
@@ -632,7 +622,32 @@ setup_channel_pointer:
     add_a_to_hl
     ret
 
-fx_no_op:
+fx_set_master_volume:
+    ret nz
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ;; Upper 4 bits contain volume for left, lower 4 bits for right
+    ;; Format is ?LLL ?RRR where ? is just a random bit, since we don't use
+    ;; the Vin
+
+    ;; This can be used as a more fine grained control over channel 3's output,
+    ;; if you pan it completely.
+
+    ld a, c
+    ld [rAUDVOL], a
+    ret
+
+fx_call_routine:
+    ;; B: channel
+    ;; C: effect parameters
+
+    ;; free registers: A, D, E, H, L
+
+    ;; TODO
+
     ret
 
 fx_set_pan:
@@ -680,6 +695,8 @@ fx_vol_slide:
 
     ;; This is really more of a "retrigger note with lower volume" effect and thus
     ;; isn't really that useful. Instrument envelopes should be used instead.
+    ;; Might replace this effect with something different if a new effect is
+    ;; ever needed.
 
     ;; B: channel
     ;; C: effect parameters
@@ -700,10 +717,26 @@ fx_vol_slide:
     ld h, [hl]
     ld l, a
 
+    ;; setup the up and down params
+    ld a, c
+    and %00001111
+    ld d, a
+
+    ld a, c
+    and %11110000
+    ld e, a
+
     ld a, [hl]
     and %11110000
     swap a
-    sub c
+    sub d
+    jp nc, .cont1
+    ld a, 0
+.cont1:
+    add e
+    jp nc, .cont2
+    ld a, $F
+.cont2:
     swap a
     ld [hl+], a
 
@@ -858,9 +891,28 @@ set_channel_volume:
     jr c, set_chn_1_vol
     jr z, set_chn_2_vol
 set_chn_3_vol:
-    ld a, d
+    ;; "Quantize" the more finely grained volume control down to one of 4 values.
+    ld a, c
+    swap a
+    cp 0
+    jr z, .zero
+    cp 5
+    jr nc, .one
+    cp 10
+    jr nc, .two
+.three:
+    ld a, %01100000
+    jr .done
+.two:
+    ld a, %01000000
+    jr .done
+.one:
+    ld a, %00100000
+    jr .done
+.zero:
+    ld a, 0
+.done:
     ld [rAUD3LEVEL], a
-
     ret
 set_chn_2_vol:
     ; ld a, d
@@ -1142,11 +1194,11 @@ _dosound:
     ld de, channel_note1
     call _lookup_note
 
-    jr nc, .continue
+    jr nc, .do_setvol1
     ld a, %11110000
     ld [rAUD1ENV], a
 
-.continue:
+.do_setvol1:
     ld a, h
     ld [temp_note_value], a
     ld a, l
@@ -1164,13 +1216,15 @@ _dosound:
     call _playnote1 ; 3 bytes
 
 .after_note1:
-    ld a, %11110000
-    ld [rAUD2ENV], a
-
     loadShort pattern2, b, c
     ld de, channel_note2
     call _lookup_note
 
+    jr nc, .do_setvol2
+    ld a, %11110000
+    ld [rAUD2ENV], a
+
+.do_setvol2:
     ld a, h
     ld [temp_note_value], a
     ld a, l
@@ -1187,53 +1241,55 @@ _dosound:
 
     call _playnote2 ; 3 bytes
 
-
-
-
-    ; loadShort pattern2, b, c
-    ; call _lookup_note
-    ; jr nc, .after_note2
-
-    ; ld a, h
-    ; ld [temp_note_value], a
-    ; ld a, l
-    ; ld [temp_note_value+1], a
-
-    ; ld e, 1
-    ; call _doeffect
-
-    ; call _playnote2
-
 .after_note2:
-    ; loadShort pattern3, b, c
-    ; call _lookup_note
-    ; jr nc, .after_note3
+    loadShort pattern3, b, c
+    ld de, channel_note3
+    call _lookup_note
 
-    ; ld a, h
-    ; ld [temp_note_value], a
-    ; ld a, l
-    ; ld [temp_note_value+1], a
+    ld a, h
+    ld [temp_note_value], a
+    ld a, l
+    ld [temp_note_value+1], a
 
-    ; ld e, 2
-    ; call _doeffect
+    push af
 
-    ; call _playnote3
+    ld e, 2
+    call _doeffect
+
+    pop af
+
+    jr nc, .after_note3
+
+    call _playnote3 ; 3 bytes
 
 .after_note3:
-    ; loadShort pattern4, b, c
-    ; call _lookup_note
-    ; jr nc, process_tick
+    loadShort pattern4, b, c
+    ld de, channel_note4
+    call _lookup_note
 
-    ; ld a, h
-    ; ld [temp_note_value], a
-    ; ld a, l
-    ; ld [temp_note_value+1], a
+    jr nc, .do_setvol4
+    ld a, %11110000
+    ld [rAUD4ENV], a
 
-    ; ld e, 3
-    ; call _doeffect
+.do_setvol4:
+    ld a, h
+    ld [temp_note_value], a
+    ld a, l
+    ld [temp_note_value+1], a
 
-    ; call _playnote4
+    push af
 
+    ld e, 3
+    call _doeffect
+
+    pop af
+
+    jr nc, .after_note4
+
+    call _playnote4 ; 3 bytes
+
+.after_note4:
+    ;; finally just update the tick/order/row values
     jp process_tick
 
 .process_effects:
@@ -1263,16 +1319,28 @@ _dosound:
     call _doeffect
 
 .after_effect2:
-    ; loadShort pattern3, b, c
-    ; call _lookup_note
-    ; ld e, 2
-    ; call _doeffect
+    loadShort pattern3, b, c
+    ld de, channel_note3
+    call _lookup_note
+
+    ld a, c
+    cp 0
+    jr z, .after_effect3
+
+    ld e, 2
+    call _doeffect
 
 .after_effect3:
-    ; loadShort pattern4, b, c
-    ; call _lookup_note
-    ; ld e, 3
-    ; call _doeffect
+    loadShort pattern4, b, c
+    ld de, channel_note4
+    call _lookup_note
+
+    ld a, c
+    cp 0
+    jr z, .after_effect4
+
+    ld e, 3
+    call _doeffect
 
 .after_effect4:
 
