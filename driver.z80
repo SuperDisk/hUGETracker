@@ -135,11 +135,11 @@ ENDM
 
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
-order_cnt: db 2
-order1: dw empty, unreal, unreal
-order2: dw unreal_arps, empty, unreal_arps
-order3: dw empty, unreal_arps
-order4: dw empty, empty
+order_cnt: db 6
+order1: dw unreal, unreal, unreal_arps
+order2: dw empty, empty, empty
+order3: dw empty, empty, empty
+order4: dw empty, empty, empty
 
 lunawaves:
 include "lunawaves.inc"
@@ -253,6 +253,12 @@ instruments:
 
 square_instrument:
 .sweep:           db ; unused for channel 2
+.length_and_duty: db %00000000
+.envelope:        db %11110000
+.unused:          db
+
+square_instrument2:
+.sweep:           db ; unused for channel 2
 .length_and_duty: db %10000000
 .envelope:        db %11110000
 .unused:          db
@@ -272,6 +278,11 @@ noise_instrument:
 .envelope:        db %10100001
 .step_and_ratio:  db 0
 .unused:          db
+
+
+routines:
+
+;; nothing yet
 
 SECTION "Playback variables", WRAM0
 pattern1: dw
@@ -444,7 +455,7 @@ load_pattern: MACRO
     add hl, de
 
     ld a, [hl+]
-       ld [\2], a
+    ld [\2], a
     ld a, [hl+]
     ld [\2+1], a
 ENDM
@@ -732,9 +743,17 @@ fx_call_routine:
 
     ;; free registers: A, D, E, H, L
 
-    ;; TODO
+    ;; Routines are 16 bytes. Shift left to multiply by 16, then
+    ;; jump to that location.
 
-    ret
+    ld hl, routines
+    sla c
+    sla c
+    sla c
+    sla c
+    ld a, c
+    add_a_to_hl
+    jp hl
 
 fx_set_pan:
     ret nz
@@ -1485,6 +1504,7 @@ _newrow:
     ld a, [next_order]
     cp 0
 
+    ;; Maybe use HL instead?
     push af
     ld a, 0
     ld [next_order], a
@@ -1494,6 +1514,8 @@ _newrow:
     jr z, _neworder
 
     dec a
+    sla a ;; Multiply the order by 2 (they are words)
+
     jr _update_current_order
 
 .no_break:
@@ -1513,7 +1535,7 @@ _neworder:
     add a, 2
     cp c
     jr nz, _update_current_order
-    xor a ; ld a, 0
+    ld a, 0
 _update_current_order:
     ;; Call with:
     ;; A: The order to load
