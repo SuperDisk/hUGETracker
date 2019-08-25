@@ -94,7 +94,7 @@ SECTION "Vblank interrupt", ROM0[$0040]
     reti
 
 SECTION "LCD controller status interrupt", ROM0[$0048]
-    jp _dosound
+    call _dosound
     reti
 
 SECTION "Timer overflow interrupt", ROM0[$0050]
@@ -136,10 +136,10 @@ ENDM
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw unreal, unreal, unreal
-order2: dw empty, unreal_arps, unreal_arps
-order3: dw empty
-order4: dw drums
+order1: dw empty, unreal, unreal
+order2: dw unreal_arps, empty, unreal_arps
+order3: dw empty, unreal_arps
+order4: dw empty, empty
 
 lunawaves:
 include "lunawaves.inc"
@@ -158,6 +158,10 @@ endr
 drums:
 rept 16
     dn C4, 2, 0
+    dn 90, 0, 0
+    dn 90, 0, 0
+    dn 90, 0, 0
+    dn 90, 0, 0
     dn 90, 0, 0
     dn 90, 0, 0
     dn 90, 0, 0
@@ -256,16 +260,16 @@ square_instrument:
 ;; Format for channel 3:
 
 voice_instrument:
-.length: db
-.volume: db
-.wave:   db
-.unused: db
+.length: db 0
+.volume: db %00100000
+.wave:   db 0
+.unused: db 0
 
 ;; Format for channel 4:
 
 noise_instrument:
 .length:          db 0
-.envelope:        db %11110001
+.envelope:        db %10100001
 .step_and_ratio:  db 0
 .unused:          db
 
@@ -277,6 +281,8 @@ pattern4: dw
 
 ticks_per_row: db
 current_order: dw
+next_order: dw
+row_break: db
 
 ;; TODO: Find some way to get rid of this thing.
 temp_note_value: dw
@@ -438,7 +444,7 @@ load_pattern: MACRO
     add hl, de
 
     ld a, [hl+]
-    ld [\2], a
+       ld [\2], a
     ld a, [hl+]
     ld [\2+1], a
 ENDM
@@ -901,16 +907,12 @@ fx_pos_jump:
 
     ;; free registers: A, D, E, H, L
 
-    pop hl ;; remove return address
-    pop hl ;; remove the AF pushed
-
-    ;; when we return from here, it will be as if we returned from the main
-    ;; _dosound function
-
+    ld a, 1
+    ld [row_break], a
     ld a, c
-    add a ;; double it, as orders are words
+    ld [next_order], a
 
-    jp _update_current_order
+    ret
 
 fx_pattern_break:
     ;; B: channel
@@ -918,20 +920,10 @@ fx_pattern_break:
 
     ;; free registers: A, D, E, H, L
 
-    pop hl ;; remove return address
-    pop hl ;; remove the AF pushed
+    ld a, c
+    ld [row_break], a
 
-    ;; when we return from here, it will be as if we returned from the main
-    ;; _dosound function
-
-    ld b, c
-
-    call _neworder
-
-    ld a, b
-    ld [row], a
-
-    reti
+    ret
 
 ;; TODO: Fix this
 fx_note_cut:
@@ -1473,18 +1465,46 @@ process_tick:
     jp z, _newrow
 
     ld [tick], a
-    reti
+    ret
 
 _newrow:
     ;; Reset tick to 0
     xor a ; ld a, 0
     ld [tick], a
 
+    ;; Check if we need to perform a row break or pattern break
+    ld a, [row_break]
+    cp 0
+    jr z, .no_break
+
+    ;; These are offset by one so we can check to see if they've
+    ;; been modified
+    dec a
+    ld b, a
+
+    ld a, [next_order]
+    cp 0
+
+    push af
+    ld a, 0
+    ld [next_order], a
+    ld [row_break], a
+    pop af
+
+    jr z, _neworder
+
+    dec a
+    jr _update_current_order
+
+.no_break:
     ;; Increment row.
     ld a, [row]
     inc a
+    ld b, a
     cp PATTERN_LENGTH
     jr nz, _noreset
+
+    ld b, 0
 _neworder:
     ;; Increment order and change loaded patterns
     ld a, [order_cnt]
@@ -1495,16 +1515,17 @@ _neworder:
     jr nz, _update_current_order
     xor a ; ld a, 0
 _update_current_order:
+    ;; Call with:
+    ;; A: The order to load
+    ;; B: The row for the order to start on
     ld [current_order], a
     ld c, a
-
     call _refresh_patterns
 
-    xor a ; ld a, 0
-
 _noreset:
+    ld a, b
     ld [row], a
-    reti
+    ret
 
 _halt:
     ; Do nothing, forever

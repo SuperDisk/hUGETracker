@@ -1,65 +1,64 @@
-;; lunawaves at sunset
-db A#5
-db A#4
-db F5
-db A#5
-db G#5
-db A#4
-db F5
-db G#5
-db G5
-db A#4
-db D#5
-db G5
-db G#5
-db A#4
-db F5
-db G#5
-db A#5
-db A#4
-db F5
-db A#5
-db G#5
-db A#4
-db F5
-db G#5
-db G5
-db A#4
-db D#5
-db G5
-db G#5
-db A#4
-db F5
-db G#5
-db A#5
-db A#4
-db F5
-db A#5
-db G#5
-db A#4
-db F5
-db G#5
-db G5
-db A#4
-db D#5
-db G5
-db G#5
-db A#4
-db F5
-db G#5
-db A#5
-db A#4
-db F5
-db A#5
-db G#5
-db A#4
-db F5
-db G#5
-db G5
-db A#4
-db D#5
-db G5
-db G#5
-db A#4
-db F5
-db G#5
+    dn A#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn A#5, 00, 00
+    dn G#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn G#5, 00, 00
+    dn G5 , 00, 00
+    dn A#4, 00, 00
+    dn D#5, 00, 00
+    dn G5 , 00, 00
+    dn G#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn G#5, 00, 00
+    dn A#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn A#5, 00, 00
+    dn G#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn G#5, 00, 00
+    dn G5 , 00, 00
+    dn A#4, 00, 00
+    dn D#5, 00, 00
+    dn G5 , 00, 00
+    dn G#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn G#5, 00, 00
+    dn A#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn A#5, 00, 00
+    dn G#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn G#5, 00, 00
+    dn G5 , 00, 00
+    dn A#4, 00, 00
+    dn D#5, 00, 00
+    dn G5 , 00, 00
+    dn G#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn G#5, 00, 00
+    dn A#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn A#5, 00, 00
+    dn G#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn G#5, 00, 00
+    dn G5 , 00, 00
+    dn A#4, 00, 00
+    dn D#5, 00, 00
+    dn G5 , 00, 00
+    dn G#5, 00, 00
+    dn A#4, 00, 00
+    dn F5 , 00, 00
+    dn G#5, 00, 00
