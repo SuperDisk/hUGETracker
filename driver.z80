@@ -34,7 +34,7 @@ ENDM
 ret_dont_call_playnote: MACRO
     pop hl
     pop af
-    ld a, 6
+    ld a, 6 ; How many bytes until the next channel's code
     add_a_to_hl
     jp hl
 ENDM
@@ -135,8 +135,8 @@ ENDM
 
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
-order_cnt: db 6
-order1: dw unreal, unreal, unreal_arps
+order_cnt: db 4
+order1: dw unreal, tfau_bass, empty
 order2: dw empty, empty, empty
 order3: dw empty, empty, empty
 order4: dw empty, empty, empty
@@ -253,23 +253,17 @@ instruments:
 
 square_instrument:
 .sweep:           db ; unused for channel 2
-.length_and_duty: db %00000000
+.length_and_duty: db %10000001
 .envelope:        db %11110000
-.unused:          db
-
-square_instrument2:
-.sweep:           db ; unused for channel 2
-.length_and_duty: db %10000000
-.envelope:        db %11110000
-.unused:          db
+.highmask:        db %11000000
 
 ;; Format for channel 3:
 
 voice_instrument:
-.length: db 0
-.volume: db %00100000
-.wave:   db 0
-.unused: db 0
+.length:   db 0
+.volume:   db %00100000
+.wave:     db 0
+.highmask: db %10000000
 
 ;; Format for channel 4:
 
@@ -277,8 +271,7 @@ noise_instrument:
 .length:          db 0
 .envelope:        db %10100001
 .step_and_ratio:  db 0
-.unused:          db
-
+.highmask:        db %10000000
 
 routines:
 
@@ -314,7 +307,7 @@ toneporta_target1: dw
 channel_note1: db
 vibrato_tremolo_phase1: db
 envelope1: db
-ds 1
+highmask1: db
 
 ;;;;;;;;;;;
 ;;Channel 2
@@ -325,7 +318,7 @@ toneporta_target2: dw
 channel_note2: db
 vibrato_tremolo_phase2: db
 envelope2: db
-ds 1
+highmask2: db
 
 ;;;;;;;;;;;
 ;;Channel 3
@@ -336,7 +329,7 @@ toneporta_target3: dw
 channel_note3: db
 vibrato_tremolo_phase3: db
 envelope3: db
-ds 1
+highmask3: db
 
 ;;;;;;;;;;;
 ;;Channel 4
@@ -347,7 +340,7 @@ toneporta_target4: dw
 channel_note4: db
 vibrato_tremolo_phase4: db
 envelope4: db
-ds 1
+highmask4: db
 
 row: ds 1
 tick: ds 1
@@ -539,14 +532,14 @@ _update_channel:
 ;; TODO: Turn this into a jump table? Or find some other way to optimize
     ld a, b
 
-    cp 0
-    jp z, _update_channel1
-    cp 1
-    jp z, _update_channel2
-    cp 2
-    jp z, _update_channel3
     cp 3
     jp z, _update_channel4
+    cp 2
+    jp z, _update_channel3
+    cp 1
+    jp z, _update_channel2
+    ; cp 0
+    ; jp z, _update_channel1
 
 _update_channel1:
     ld a, e
@@ -573,12 +566,15 @@ _update_channel4:
     ld [rAUD4GO], a
     ret
 
-;;;;;;;
-;; Note playing routines. Need to either consolidate these or find some
-;; better way of doing effects that happen on the first tick.
-;;;;;;;
+    ;;;;;;;
+    ;; Note playing routines. Need to either consolidate these or find some
+    ;; better way of doing effects that happen on the first tick.
+    ;;;;;;;
 
 _playnote1:
+    ;; Call with:
+    ;; Location of highmask on the stack
+
     ;; Play a note on channel 1 (square wave)
     ld a, [temp_note_value+1]
     ld [channel_period1], a
@@ -587,7 +583,14 @@ _playnote1:
     ld a, [temp_note_value]
     ld [channel_period1+1], a
 
-    or %10000000
+    ;; IN PROGRESS:
+
+    ;; Trying to figure out how the highmask and len works, and debugging
+    ;; it with this.
+
+    ;; Get the highmask and apply it.
+    ; ld hl, highmask1
+    or %11000000; [hl]
     ld [rAUD1HIGH], a
 
     ret
@@ -1156,7 +1159,6 @@ fx_porta_down:
 
     jp _update_channel
 
-;; TODO: Figure out why this is not toneporta-ing as much as it used to. so bizarre...
 fx_toneporta:
     jr nz, .do_toneporta
 
@@ -1272,6 +1274,9 @@ _setup_instrument_pointer:
     ld a, b
     and %11110000
     swap a
+    ret z ; If there's no instrument, then return early.
+
+    dec a ; Instrument 0 is "no instrument"
 
     ;; Shift left twice to multiply by 4
     sla a
@@ -1279,6 +1284,7 @@ _setup_instrument_pointer:
 
     ld de, instruments
     add_a_to_de
+    rla ; reset the Z flag
     ret
 
 _dosound:
@@ -1303,6 +1309,13 @@ _dosound:
     ld [rAUD1LEN], a
     ld a, [de]
     ld [rAUD1ENV], a
+    inc de
+    ld a, [de]
+
+    jr nz, .use_instr_mask1 ; if there's a real instrument, use its highmask
+    ld a, 0                ; if not, then use zero.
+.use_instr_mask1:
+    ld [highmask1], a
 
 .do_setvol1:
     ld a, h
@@ -1333,6 +1346,13 @@ _dosound:
     ld [rAUD2LEN], a
     ld a, [de]
     ld [rAUD2ENV], a
+    inc de
+    ld a, [de]
+
+    jr nz, .use_instr_mask2 ; if there's a real instrument, use its highmask
+    ld a, 0                ; if not, then use zero.
+.use_instr_mask2:
+    ld [highmask2], a
 
 .do_setvol2:
     ld a, h
@@ -1367,6 +1387,14 @@ _dosound:
     ;; TODO: Write to _AUD3WAVERAM
     ; ld a, [de]
     ; ld [rAUD3ENV], a
+    inc de
+    inc de
+    ld a, [de]
+
+    jr nz, .use_instr_mask3 ; if there's a real instrument, use its highmask
+    ld a, 0                ; if not, then use zero.
+.use_instr_mask3:
+    ld [highmask3], a
 
 .do_setvol3:
     ld a, h
@@ -1401,6 +1429,13 @@ _dosound:
     ld [rAUD4ENV], a
     ld a, [de]
     ld [rAUD4POLY], a
+    inc de
+    ld a, [de]
+
+    jr nz, .use_instr_mask4 ; if there's a real instrument, use its highmask
+    ld a, 0                ; if not, then use zero.
+.use_instr_mask4:
+    ld [highmask4], a
 
 .do_setvol4:
     ld a, h
@@ -1552,6 +1587,11 @@ _noreset:
 _halt:
     ; Do nothing, forever
     halt
+_nop:
+    ;; This NOP needs to be here due to a gameboy hardware bug
+    ;; where an instruction after a HALT will be skipped. We label
+    ;; it because it's also used in _dosound as a "blank" highmask.
+    ;; Pretty clever, huh?
     nop
     jr _halt
 
