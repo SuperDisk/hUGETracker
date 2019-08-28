@@ -440,10 +440,10 @@ begin
   spokeb($ff06, 0);
   spokeb($ff07, 0);
   spokeb($ff0f, $e1);
-  spokeb($ff10, $80);
+  {spokeb($ff10, $80);
   spokeb($ff11, $bf);
   spokeb($ff12, $f3);
-  spokeb($ff14, $bf);
+  spokeb($ff14, $bf);}
   spokeb($ff16, $3f);
   spokeb($ff17, 0);
   spokeb($ff19, $bf);

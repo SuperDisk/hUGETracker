@@ -1,17 +1,16 @@
 object frmGameboy: TfrmGameboy
   Left = 3306
-  Height = 354
+  Height = 236
   Top = 338
-  Width = 318
+  Width = 212
   Caption = 'Gameboy'
-  ClientHeight = 324
-  ClientWidth = 318
+  ClientHeight = 216
+  ClientWidth = 212
   Color = clYellow
   DefaultMonitor = dmMainForm
-  DesignTimePPI = 144
   Font.CharSet = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -8
   Font.Name = 'Arial'
   Menu = MainMenu
   OnActivate = FormActivate
@@ -22,38 +21,48 @@ object frmGameboy: TfrmGameboy
   OnMouseDown = FormMouseDown
   OnResize = FormResize
   Position = poScreenCenter
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.2.0'
   object StatusBar: TStatusBar
     Left = 0
-    Height = 36
-    Top = 288
-    Width = 318
+    Height = 23
+    Top = 193
+    Width = 212
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -8
+    Font.Name = 'Arial'
     Panels = <    
       item
         Text = 'Memory'
-        Width = 80
+        Width = 53
       end    
       item
         Text = 'Gameboy'
-        Width = 145
+        Width = 97
       end    
       item
         Text = 'Company'
-        Width = 50
+        Width = 33
       end>
     ParentColor = False
+    ParentFont = False
     SimplePanel = False
   end
   object PaintBox1: TPaintBox
     Left = 0
-    Height = 288
+    Height = 193
     Top = 0
-    Width = 318
+    Width = 212
     Align = alClient
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -8
+    Font.Name = 'Arial'
+    ParentFont = False
     OnPaint = PaintBox1Paint
   end
   object MainMenu: TMainMenu
-    left = 56
+    left = 37
     object File1: TMenuItem
       Caption = '&File'
       object Load1: TMenuItem
@@ -388,6 +397,6 @@ object frmGameboy: TfrmGameboy
     Enabled = False
     Interval = 17
     OnTimer = TimerTimer
-    left = 112
+    left = 75
   end
 end

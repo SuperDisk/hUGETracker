@@ -128,6 +128,7 @@ Bit0  Sound 1 on[1]/off[0]
 
 procedure EnableSound;
 procedure DisableSound;
+procedure ResetSound;
 procedure SoundUpdate(cycles: integer);
 procedure SoundSetCycles(n: integer);
 
@@ -164,6 +165,25 @@ const
 var
   playStream: HStream;
   bufCycles, bufLVal, bufRVal: integer;
+
+procedure ResetSound;
+var
+  i: Integer;
+begin
+  for i := 0 to High(snd) do begin
+    with snd[i] do begin
+      ChannelOFF := False;
+      enable := False;
+      Freq := 0;
+      Vol := 0;
+      Len := 0;
+      swpCnt := 0;
+      EnvCnt := 0;
+      bit := 0;
+      cnt := 0;
+    end;
+  end;
+end;
 
 function SoundBufferTooFull: Boolean;
 begin
@@ -573,4 +593,6 @@ begin
   sampleCycles := n;
 end;
 
+begin
+  ResetSound
 end.

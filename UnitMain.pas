@@ -263,6 +263,7 @@ begin
   statusbar.panels[0].Text := romname;
   z80_reset;
   z80_reset;
+  ResetSound;
   f_stopped := False;
   gb_speed := 1;
   loadstat.Enabled := True;
