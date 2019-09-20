@@ -74,3 +74,4 @@ A8 EQU 69
 A#8 EQU 70
 B8 EQU 71
 LAST_NOTE EQU 72
+__ EQU 90 ; the default "no note" value

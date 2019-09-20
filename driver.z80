@@ -135,8 +135,8 @@ ENDM
 
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
-order_cnt: db 4
-order1: dw unreal, tfau_bass, empty
+order_cnt: db 2
+order1: dw testpatt2, tfau_bass, empty
 order2: dw empty, empty, empty
 order3: dw empty, empty, empty
 order4: dw empty, empty, empty
@@ -154,6 +154,29 @@ include "tfau_bass.inc"
 empty:
 rept 64
     dn 90, 0, 0
+endr
+testpatt:
+rept 16
+    dn C4, 1, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+endr
+testpatt2:
+    dn C4, 1, $000
+rept 16
+    dn D4, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
+    dn __, 0, $000
 endr
 drums:
 rept 16
@@ -255,7 +278,7 @@ square_instrument:
 .sweep:           db ; unused for channel 2
 .length_and_duty: db %10000001
 .envelope:        db %11110000
-.highmask:        db %11000000
+.highmask:        db %10000000
 
 ;; Format for channel 3:
 
@@ -573,7 +596,6 @@ _update_channel4:
 
 _playnote1:
     ;; Call with:
-    ;; Location of highmask on the stack
 
     ;; Play a note on channel 1 (square wave)
     ld a, [temp_note_value+1]
@@ -583,14 +605,9 @@ _playnote1:
     ld a, [temp_note_value]
     ld [channel_period1+1], a
 
-    ;; IN PROGRESS:
-
-    ;; Trying to figure out how the highmask and len works, and debugging
-    ;; it with this.
-
     ;; Get the highmask and apply it.
-    ; ld hl, highmask1
-    or %11000000; [hl]
+    ld hl, highmask1
+    or [hl]
     ld [rAUD1HIGH], a
 
     ret
@@ -604,7 +621,9 @@ _playnote2:
     ld a, [temp_note_value]
     ld [channel_period2+1], a
 
-    or %10000000
+    ;; Get the highmask and apply it.
+    ld hl, highmask2
+    or [hl]
     ld [rAUD2HIGH], a
 
     ret
@@ -618,7 +637,9 @@ _playnote3:
     ld a, [temp_note_value]
     ld [channel_period3+1], a
 
-    or %10000000
+    ;; Get the highmask and apply it.
+    ld hl, highmask3
+    or [hl]
     ld [rAUD3HIGH], a
 
     ret
@@ -641,7 +662,9 @@ _playnote4:
     or b
     ld [rAUD4POLY], a
 
-    ld a, %10000000
+    ;; Get the highmask and apply it.
+    ld hl, highmask4
+    or [hl]
     ld [rAUD4GO], a
 
     ret
@@ -1301,6 +1324,10 @@ _dosound:
     jr nc, .do_setvol1
 
     call _setup_instrument_pointer
+    ld a, [highmask1]
+    res 7, a ; Turn off the "initial" flag
+    jr z, .write_mask1
+
     ld a, [de]
     inc de
     ld [rAUD1SWEEP], a
@@ -1312,9 +1339,7 @@ _dosound:
     inc de
     ld a, [de]
 
-    jr nz, .use_instr_mask1 ; if there's a real instrument, use its highmask
-    ld a, 0                ; if not, then use zero.
-.use_instr_mask1:
+.write_mask1:
     ld [highmask1], a
 
 .do_setvol1:
@@ -1340,6 +1365,10 @@ _dosound:
     jr nc, .do_setvol2
 
     call _setup_instrument_pointer
+    ld a, [highmask2]
+    res 7, a ; Turn off the "initial" flag
+    jr z, .write_mask2
+
     inc de
     ld a, [de]
     inc de
@@ -1349,9 +1378,7 @@ _dosound:
     inc de
     ld a, [de]
 
-    jr nz, .use_instr_mask2 ; if there's a real instrument, use its highmask
-    ld a, 0                ; if not, then use zero.
-.use_instr_mask2:
+.write_mask2:
     ld [highmask2], a
 
 .do_setvol2:
@@ -1378,6 +1405,10 @@ _dosound:
     jr nc, .do_setvol3
 
     call _setup_instrument_pointer
+    ld a, [highmask3]
+    res 7, a ; Turn off the "initial" flag
+    jr z, .write_mask3
+
     ld a, [de]
     inc de
     ld [rAUD3LEN], a
@@ -1391,9 +1422,7 @@ _dosound:
     inc de
     ld a, [de]
 
-    jr nz, .use_instr_mask3 ; if there's a real instrument, use its highmask
-    ld a, 0                ; if not, then use zero.
-.use_instr_mask3:
+.write_mask3:
     ld [highmask3], a
 
 .do_setvol3:
@@ -1421,6 +1450,10 @@ _dosound:
     jr nc, .do_setvol4
 
     call _setup_instrument_pointer
+    ld a, [highmask4]
+    res 7, a ; Turn off the "initial" flag
+    jr z, .write_mask4
+
     ld a, [de]
     inc de
     ld [rAUD4LEN], a
@@ -1432,9 +1465,7 @@ _dosound:
     inc de
     ld a, [de]
 
-    jr nz, .use_instr_mask4 ; if there's a real instrument, use its highmask
-    ld a, 0                ; if not, then use zero.
-.use_instr_mask4:
+.write_mask4:
     ld [highmask4], a
 
 .do_setvol4:
