@@ -136,9 +136,9 @@ ENDM
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
 order_cnt: db 2
-order1: dw testpatt2, tfau_bass, empty
+order1: dw tfau_arps, tfau_bass, empty
 order2: dw empty, empty, empty
-order3: dw empty, empty, empty
+order3: dw tfau_bass, empty, empty
 order4: dw empty, empty, empty
 
 lunawaves:
@@ -157,111 +157,111 @@ rept 64
 endr
 testpatt:
 rept 16
-    dn C4, 1, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
+    dn C_4, 1, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
 endr
 testpatt2:
-    dn C4, 1, $000
+    dn C_4, 1, $000
 rept 16
-    dn D4, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
-    dn __, 0, $000
+    dn D_4, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
+    dn ___, 0, $000
 endr
 drums:
 rept 16
-    dn C4, 2, 0
-    dn 90, 0, 0
-    dn 90, 0, 0
-    dn 90, 0, 0
-    dn 90, 0, 0
-    dn 90, 0, 0
-    dn 90, 0, 0
-    dn 90, 0, 0
+    dn C_4, 2, 0
+    dn ___, 0, 0
+    dn ___, 0, 0
+    dn ___, 0, 0
+    dn ___, 0, 0
+    dn ___, 0, 0
+    dn ___, 0, 0
+    dn ___, 0, 0
 endr
 walkup:
-_ASDF = C3
+_ASDF = C_3
 rept 64
     dn _ASDF, 0, 0
 _ASDF = _ASDF + 1
 endr
 slideup:
-  dn C3, 00, $000
+  dn C_3, 00, $000
 rept 63
-    dn 90, 00, $101
+    dn ___, 00, $101
 endr
 arps:
 rept 64
-    dn C5, 00, $047
+    dn C_5, 00, $047
 endr
 vib:
-    dn C5, 00, $000
+    dn C_5, 00, $000
 rept 63
-    dn 90, 00, $443
+    dn ___, 00, $443
 endr
 updown:
-    dn C4, 00, $105
+    dn C_4, 00, $105
 rept 31
-    dn 90, 00, $105
+    dn ___, 00, $105
 endr
 rept 32
-    dn 90, 00, $205
+    dn ___, 00, $205
 endr
 volset:
-    dn C5, 00, $000
+    dn C_5, 00, $000
 rept 32
-    dn 90, 00, $C90
-    dn 90, 00, $CF0
+    dn ___, 00, $C90
+    dn ___, 00, $CF0
 endr
 notecut:
 rept 32
-    dn C5, 00, $E04
-    dn 90, 00, $000
+    dn C_5, 00, $E04
+    dn ___, 00, $000
 endr
 notedelay:
 rept 32
-    dn C5, 00, 00
+    dn C_5, 00, 00
     dn D#5, 00, $704
 endr
 volslide:
-    dn C5, 00, 00
+    dn C_5, 00, 00
 rept 63
-    dn 90, 00, $A01
+    dn ___, 00, $A01
 endr
 setduty:
-    dn C5, 00, $F04
+    dn C_5, 00, $F04
 rept 21
-    dn 90, 00, $900
-    dn 90, 00, $940
-    dn 90, 00, $980
-    dn 90, 00, $9C0
+    dn ___, 00, $900
+    dn ___, 00, $940
+    dn ___, 00, $980
+    dn ___, 00, $9C0
 endr
 setpan:
-    dn C5, 00, $811
+    dn C_5, 00, $811
     rept 15
-    dn 90, 00, 00
+    dn ___, 00, 00
     endr
-    dn C5, 00, $801
+    dn C_5, 00, $801
     rept 15
-    dn 90, 00, 00
+    dn ___, 00, 00
     endr
-    dn C5, 00, $810
+    dn C_5, 00, $810
     rept 15
-    dn 90, 00, 00
+    dn ___, 00, 00
     endr
-    dn C5, 00, $800
+    dn C_5, 00, $800
     rept 15
-    dn 90, 00, 00
+    dn ___, 00, 00
     endr
 
 ;;;;;;;;;;;;;;;;
@@ -278,7 +278,7 @@ square_instrument:
 .sweep:           db ; unused for channel 2
 .length_and_duty: db %10000001
 .envelope:        db %11110000
-.highmask:        db %10000000
+.highmask:        db %11000000
 
 ;; Format for channel 3:
 
