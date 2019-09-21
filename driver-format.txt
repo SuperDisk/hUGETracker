@@ -2,8 +2,9 @@
 0000.0000-0000-0000.0000.0000
 
 Stuff to do:
-- Implement instruments
 - Implement routines
+- Reloading the wave buffer when Channel 3's instrument changes
+- Some form of RLE compression
 
 If note value is greater than 71 then it's considered to be an empty note cell.
 Will probably add some sort of RLE encoding later with special notes greater than 71.

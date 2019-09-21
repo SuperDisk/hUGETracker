@@ -548,11 +548,11 @@ _convert_note:
     ret
 
 _update_channel:
-;; Call with:
-;; Channel in B
-;; Note tone in DE
+    ;; Call with:
+    ;; Channel in B
+    ;; Note tone in DE
 
-;; TODO: Turn this into a jump table? Or find some other way to optimize
+    ;; TODO: Turn this into a jump table? Or find some other way to optimize
     ld a, b
 
     cp 3
@@ -561,31 +561,41 @@ _update_channel:
     jp z, _update_channel3
     cp 1
     jp z, _update_channel2
-    ; cp 0
-    ; jp z, _update_channel1
 
 _update_channel1:
+    ld hl, highmask1
     ld a, e
     ld [rAUD1LOW], a
     ld a, d
+    ; or [hl]
+    ; and %01111111
     ld [rAUD1HIGH], a
     ret
 _update_channel2:
+    ld hl, highmask2
     ld a, e
     ld [rAUD2LOW], a
     ld a, d
+    ; or [hl]
+    ; and %01111111
     ld [rAUD2HIGH], a
     ret
 _update_channel3:
+    ld hl, highmask3
     ld a, e
     ld [rAUD3LOW], a
     ld a, d
+    ; or [hl]
+    ; and %01111111
     ld [rAUD3HIGH], a
     ret
 _update_channel4:
+    ld hl, highmask4
     call _quantize_channel4_note
     ld [rAUD4POLY], a
-    ld a, %00000000
+    ; ld a, [hl]
+    ; and %01111111
+    ld a, 0
     ld [rAUD4GO], a
     ret
 
@@ -773,11 +783,14 @@ fx_call_routine:
     ;; jump to that location.
 
     ld hl, routines
-    sla c
-    sla c
-    sla c
-    sla c
     ld a, c
+    swap a
+    ; and %11110000 is this necessary?
+    ; sla c
+    ; sla c
+    ; sla c
+    ; sla c
+    ; ld a, c
     add_a_to_hl
     jp hl
 
@@ -1418,7 +1431,6 @@ _dosound:
     ;; TODO: Write to _AUD3WAVERAM
     ; ld a, [de]
     ; ld [rAUD3ENV], a
-    inc de
     inc de
     ld a, [de]
 
