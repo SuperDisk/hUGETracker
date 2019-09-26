@@ -135,11 +135,11 @@ ENDM
 
 SECTION "Song Data", ROM0
 ;; order_cnt is the number of orders times 2
-order_cnt: db 2
-order1: dw tfau_arps, tfau_bass, empty
-order2: dw empty, empty, empty
-order3: dw tfau_bass, empty, empty
-order4: dw empty, empty, empty
+order_cnt: db 4
+order1: dw tfau_arps, unreal
+order2: dw silence, unreal_arps
+order3: dw tfau_bass, silence
+order4: dw empty, empty
 
 lunawaves:
 include "lunawaves.inc"
@@ -153,7 +153,11 @@ tfau_bass:
 include "tfau_bass.inc"
 empty:
 rept 64
-    dn 90, 0, 0
+    dn ___, 0, 0
+endr
+silence:
+rept 64
+    dn C_4, 0, $C00
 endr
 testpatt:
 rept 16
@@ -1631,10 +1635,6 @@ _halt:
     ; Do nothing, forever
     halt
 _nop:
-    ;; This NOP needs to be here due to a gameboy hardware bug
-    ;; where an instruction after a HALT will be skipped. We label
-    ;; it because it's also used in _dosound as a "blank" highmask.
-    ;; Pretty clever, huh?
     nop
     jr _halt
 
