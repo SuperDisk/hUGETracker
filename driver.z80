@@ -138,7 +138,7 @@ SECTION "Song Data", ROM0
 order_cnt: db 4
 order1: dw tfau_arps, unreal
 order2: dw silence, unreal_arps
-order3: dw tfau_bass, silence
+order3: dw tfau_bass, silence3
 order4: dw empty, empty
 
 lunawaves:
@@ -156,8 +156,14 @@ rept 64
     dn ___, 0, 0
 endr
 silence:
-rept 64
-    dn C_4, 0, $C00
+    dn C_4, 1, $C00
+rept 63
+    dn ___, 0, $000
+endr
+silence3:
+    dn C_4, 2, $C00
+rept 63
+    dn ___, 0, $000
 endr
 testpatt:
 rept 16
