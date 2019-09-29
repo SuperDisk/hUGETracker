@@ -2,11 +2,12 @@ object frmTracker: TfrmTracker
   Left = 497
   Height = 930
   Top = 131
-  Width = 1178
+  Width = 1306
   Caption = 'hUGETracker'
   ClientHeight = 910
-  ClientWidth = 1178
+  ClientWidth = 1306
   Menu = MainMenu1
+  OnCreate = FormCreate
   LCLVersion = '2.0.2.0'
   object TreeView1: TTreeView
     Left = 0
@@ -38,23 +39,65 @@ object frmTracker: TfrmTracker
     Left = 198
     Height = 685
     Top = 202
-    Width = 980
+    Width = 1108
     Align = alClient
     BevelOuter = bvNone
     ClientHeight = 685
-    ClientWidth = 980
+    ClientWidth = 1108
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
       Height = 685
       Top = 0
-      Width = 980
-      ActivePage = InstrumentTabSheet
+      Width = 1108
+      ActivePage = CommentsTabSheet
       Align = alClient
-      TabIndex = 2
+      TabIndex = 3
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
+        ClientHeight = 657
+        ClientWidth = 1100
+        object SongInformationGroupbox: TGroupBox
+          Left = 8
+          Height = 528
+          Top = 8
+          Width = 729
+          Caption = 'Song information'
+          ClientHeight = 508
+          ClientWidth = 725
+          TabOrder = 0
+          object Label15: TLabel
+            Left = 8
+            Height = 15
+            Top = 16
+            Width = 27
+            Caption = 'Song'
+            ParentColor = False
+          end
+          object Label16: TLabel
+            Left = 7
+            Height = 15
+            Top = 48
+            Width = 28
+            Caption = 'Artist'
+            ParentColor = False
+          end
+          object SongEdit: TEdit
+            Left = 56
+            Height = 23
+            Top = 8
+            Width = 216
+            TabOrder = 0
+          end
+          object ArtistEdit: TEdit
+            Left = 56
+            Height = 23
+            Top = 40
+            Width = 216
+            TabOrder = 1
+          end
+        end
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
@@ -62,12 +105,12 @@ object frmTracker: TfrmTracker
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
         ClientHeight = 657
-        ClientWidth = 972
+        ClientWidth = 1100
         object PaintBox1: TPaintBox
           Left = 0
           Height = 321
           Top = 336
-          Width = 972
+          Width = 1100
           Align = alClient
           Color = clBlack
           ParentColor = False
@@ -77,13 +120,13 @@ object frmTracker: TfrmTracker
           Left = 0
           Height = 336
           Top = 0
-          Width = 972
+          Width = 1100
           Align = alTop
           Caption = 'Panel3'
           ClientHeight = 336
-          ClientWidth = 972
+          ClientWidth = 1100
           TabOrder = 0
-          object GroupBox1: TGroupBox
+          object InstrumentGroupBox: TGroupBox
             Left = 8
             Height = 136
             Top = 8
@@ -99,6 +142,7 @@ object frmTracker: TfrmTracker
               Width = 176
               MaxValue = 15
               MinValue = 1
+              OnChange = InstrumentNumberSpinnerChange
               TabOrder = 0
               Value = 1
             end
@@ -123,6 +167,7 @@ object frmTracker: TfrmTracker
               Height = 23
               Top = 26
               Width = 176
+              OnChange = InstrumentNameEditChange
               TabOrder = 1
             end
             object Label3: TLabel
@@ -145,6 +190,7 @@ object frmTracker: TfrmTracker
                 'Wave'
                 'Noise'
               )
+              OnChange = InstrumentTypeComboboxChange
               Style = csDropDownList
               TabOrder = 2
               Text = 'Square'
@@ -155,101 +201,222 @@ object frmTracker: TfrmTracker
               Top = 84
               Width = 57
               Caption = 'Length'
+              OnChange = LengthEnabledCheckboxChange
               TabOrder = 3
             end
-            object LengthSpinner: TSpinEdit
+            object LengthSpinner: TECSpinPosition
               Left = 80
-              Height = 23
+              Height = 24
               Top = 80
-              Width = 50
-              MaxValue = 63
-              TabOrder = 4
-            end
-            object TrackBar1: TTrackBar
-              Left = 136
-              Height = 25
-              Top = 80
-              Width = 172
-              Max = 63
+              Width = 174
+              Buttons.BtnBigDec.BtnOrder = 1
+              Buttons.BtnBigDec.Visible = False
+              Buttons.BtnBigInc.BtnOrder = 7
+              Buttons.BtnBigInc.Visible = False
+              Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnMax.BtnOrder = 8
+              Buttons.BtnMax.Visible = False
+              Buttons.BtnMenu.BtnOrder = 5
+              Buttons.BtnMenu.Visible = False
+              Buttons.BtnMiddle.BtnOrder = 3
+              Buttons.BtnMiddle.Visible = False
+              Buttons.BtnMin.BtnOrder = 0
+              Buttons.BtnMin.Visible = False
+              Buttons.DiscreteChange = 1
+              Buttons.Increment = 1
+              Buttons.Middle = 50
+              Buttons.MouseIncrementX = 0.1
+              Buttons.MouseIncrementY = 0.05
+              Buttons.PageSize = 10
+              Buttons.Style = ebsSplittedBlock
+              Enabled = False
               Position = 0
-              TabOrder = 5
+              ProgressFontOptions.FontSize = 0
+              ProgressFontOptions.FontStyles = [fsBold]
+              ProgressMiddlePos = 0
+              ProgressStyle = epsGradient
+              Scale.DateTimeFormat = 'hh:nn:ss'
+              Scale.LogarithmBase = 10
+              Scale.Max = 63
+              Scale.Min = 0
+              Scale.TickLongValue = 10
+              Scale.TickMiddleValue = 5
+              Scale.TickShortValue = 1
+              Scale.TickVisible = etvNone
+              Scale.ValueVisible = evvNone
+              ScaleFontOptions.FontSize = 7
+              ScaleFontOptions.FontStyles = []
+              OnChange = LengthSpinnerChange
             end
           end
-          object GroupBox2: TGroupBox
+          object EnvelopeGroupBox: TGroupBox
             Left = 344
             Height = 136
             Top = 8
-            Width = 297
+            Width = 696
             Caption = 'Envelope'
             ClientHeight = 116
-            ClientWidth = 293
+            ClientWidth = 692
             TabOrder = 1
             object Label4: TLabel
               Left = 8
               Height = 15
-              Top = 6
+              Top = 9
               Width = 46
               Caption = 'Start vol.'
               ParentColor = False
             end
-            object EnvelopeStartTrackbar: TTrackBar
-              Left = 96
-              Height = 25
-              Top = -2
-              Width = 194
-              Max = 15
-              Position = 0
-              TabOrder = 0
-            end
             object Label5: TLabel
               Left = 8
               Height = 15
-              Top = 40
+              Top = 48
               Width = 48
               Caption = 'Direction'
               ParentColor = False
             end
             object DirectionComboBox: TComboBox
-              Left = 104
+              Left = 82
               Height = 23
-              Top = 34
-              Width = 176
+              Top = 40
+              Width = 198
               ItemHeight = 15
               ItemIndex = 1
               Items.Strings = (
                 'Up'
                 'Down'
               )
+              OnChange = DirectionComboBoxChange
               Style = csDropDownList
-              TabOrder = 1
+              TabOrder = 0
               Text = 'Down'
             end
             object Label6: TLabel
               Left = 8
               Height = 15
-              Top = 64
+              Top = 86
               Width = 41
               Caption = 'Change'
               ParentColor = False
             end
-            object EnvelopeSizeTrackbar: TTrackBar
-              Left = 96
-              Height = 25
-              Top = 64
-              Width = 194
-              Max = 15
+            object StartVolSpinner: TECSpinPosition
+              Left = 82
+              Height = 24
+              Top = -1
+              Width = 198
+              Buttons.BtnBigDec.BtnOrder = 1
+              Buttons.BtnBigDec.Visible = False
+              Buttons.BtnBigInc.BtnOrder = 7
+              Buttons.BtnBigInc.Visible = False
+              Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnMax.BtnOrder = 8
+              Buttons.BtnMax.Visible = False
+              Buttons.BtnMenu.BtnOrder = 5
+              Buttons.BtnMenu.Visible = False
+              Buttons.BtnMiddle.BtnOrder = 3
+              Buttons.BtnMiddle.Visible = False
+              Buttons.BtnMin.BtnOrder = 0
+              Buttons.BtnMin.Visible = False
+              Buttons.DiscreteChange = 1
+              Buttons.Increment = 1
+              Buttons.Middle = 50
+              Buttons.MouseIncrementX = 0.1
+              Buttons.MouseIncrementY = 0.05
+              Buttons.PageSize = 10
+              Buttons.Style = ebsSplittedBlock
               Position = 0
-              TabOrder = 2
+              ProgressFontOptions.FontSize = 0
+              ProgressFontOptions.FontStyles = [fsBold]
+              ProgressMiddlePos = 0
+              ProgressStyle = epsGradient
+              Scale.DateTimeFormat = 'hh:nn:ss'
+              Scale.LogarithmBase = 10
+              Scale.Max = 15
+              Scale.Min = 0
+              Scale.TickLongValue = 10
+              Scale.TickMiddleValue = 5
+              Scale.TickShortValue = 1
+              Scale.TickVisible = etvNone
+              Scale.ValueVisible = evvNone
+              ScaleFontOptions.FontSize = 7
+              ScaleFontOptions.FontStyles = []
+              OnChange = StartVolSpinnerChange
+            end
+            object EnvChangeSpinner: TECSpinPosition
+              Left = 82
+              Height = 24
+              Top = 80
+              Width = 198
+              Buttons.BtnBigDec.BtnOrder = 1
+              Buttons.BtnBigDec.Visible = False
+              Buttons.BtnBigInc.BtnOrder = 7
+              Buttons.BtnBigInc.Visible = False
+              Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnMax.BtnOrder = 8
+              Buttons.BtnMax.Visible = False
+              Buttons.BtnMenu.BtnOrder = 5
+              Buttons.BtnMenu.Visible = False
+              Buttons.BtnMiddle.BtnOrder = 3
+              Buttons.BtnMiddle.Visible = False
+              Buttons.BtnMin.BtnOrder = 0
+              Buttons.BtnMin.Visible = False
+              Buttons.DiscreteChange = 1
+              Buttons.Increment = 1
+              Buttons.Middle = 50
+              Buttons.MouseIncrementX = 0.1
+              Buttons.MouseIncrementY = 0.05
+              Buttons.PageSize = 10
+              Buttons.Style = ebsSplittedBlock
+              Position = 0
+              ProgressFontOptions.FontSize = 0
+              ProgressFontOptions.FontStyles = [fsBold]
+              ProgressMiddlePos = 0
+              ProgressStyle = epsGradient
+              Scale.DateTimeFormat = 'hh:nn:ss'
+              Scale.LogarithmBase = 10
+              Scale.Max = 7
+              Scale.Min = 0
+              Scale.TickLongValue = 10
+              Scale.TickMiddleValue = 5
+              Scale.TickShortValue = 1
+              Scale.TickVisible = etvNone
+              Scale.ValueVisible = evvNone
+              ScaleFontOptions.FontSize = 7
+              ScaleFontOptions.FontStyles = []
+              OnChange = EnvChangeSpinnerChange
+            end
+            object Panel5: TPanel
+              Left = 336
+              Height = 105
+              Top = 0
+              Width = 346
+              BevelOuter = bvLowered
+              ClientHeight = 105
+              ClientWidth = 346
+              TabOrder = 3
+              object EnvelopePaintbox: TPaintBox
+                Left = 1
+                Height = 103
+                Top = 1
+                Width = 344
+                Align = alClient
+                OnPaint = EnvelopePaintboxPaint
+              end
             end
           end
-          object GroupBox3: TGroupBox
+          object SquareGroupBox: TGroupBox
             Left = 8
             Height = 169
             Top = 152
-            Width = 320
+            Width = 360
             Caption = 'Square'
             ClientHeight = 149
-            ClientWidth = 316
+            ClientWidth = 356
             TabOrder = 2
             object Label7: TLabel
               Left = 8
@@ -259,7 +426,7 @@ object frmTracker: TfrmTracker
               Caption = 'Sweep time'
               ParentColor = False
             end
-            object ComboBox1: TComboBox
+            object SweepTimeCombobox: TComboBox
               Left = 104
               Height = 23
               Hint = 'How long to sweep'
@@ -277,13 +444,14 @@ object frmTracker: TfrmTracker
                 '46.9 ms (6/128Hz)'
                 '54.7 ms (7/128Hz)'
               )
+              OnChange = SweepTimeComboboxChange
               ParentShowHint = False
               ShowHint = True
               Style = csDropDownList
               TabOrder = 0
               Text = 'Off - no frequency change'
             end
-            object DirectionComboBox1: TComboBox
+            object SweepDirectionCombobox: TComboBox
               Left = 104
               Height = 23
               Hint = 'The direction of the sweep'
@@ -295,6 +463,7 @@ object frmTracker: TfrmTracker
                 'Up'
                 'Down'
               )
+              OnChange = SweepDirectionComboboxChange
               ParentShowHint = False
               ShowHint = True
               Style = csDropDownList
@@ -305,28 +474,17 @@ object frmTracker: TfrmTracker
               Left = 8
               Height = 15
               Top = 48
-              Width = 48
-              Caption = 'Direction'
+              Width = 84
+              Caption = 'Sweep direction'
               ParentColor = False
             end
             object Label9: TLabel
               Left = 8
               Height = 15
               Top = 84
-              Width = 20
-              Caption = 'Size'
+              Width = 56
+              Caption = 'Sweep size'
               ParentColor = False
-            end
-            object TrackBar2: TTrackBar
-              Left = 104
-              Height = 25
-              Hint = 'How much to change the frequency on each sweep step'
-              Top = 74
-              Width = 200
-              Position = 0
-              ParentShowHint = False
-              ShowHint = True
-              TabOrder = 2
             end
             object Label10: TLabel
               Left = 8
@@ -336,7 +494,7 @@ object frmTracker: TfrmTracker
               Caption = 'Duty'
               ParentColor = False
             end
-            object DirectionComboBox2: TComboBox
+            object DutyCombobox: TComboBox
               Left = 104
               Height = 23
               Hint = 'Which duty cycle to use (changes timbre of wave)'
@@ -350,21 +508,68 @@ object frmTracker: TfrmTracker
                 '50% (square)'
                 '75%'
               )
+              OnChange = DutyComboboxChange
               ParentShowHint = False
               ShowHint = True
               Style = csDropDownList
-              TabOrder = 3
+              TabOrder = 2
               Text = '50% (square)'
             end
+            object SweepSizeSpinner: TECSpinPosition
+              Left = 104
+              Height = 24
+              Top = 75
+              Width = 198
+              Buttons.BtnBigDec.BtnOrder = 1
+              Buttons.BtnBigDec.Visible = False
+              Buttons.BtnBigInc.BtnOrder = 7
+              Buttons.BtnBigInc.Visible = False
+              Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnMax.BtnOrder = 8
+              Buttons.BtnMax.Visible = False
+              Buttons.BtnMenu.BtnOrder = 5
+              Buttons.BtnMenu.Visible = False
+              Buttons.BtnMiddle.BtnOrder = 3
+              Buttons.BtnMiddle.Visible = False
+              Buttons.BtnMin.BtnOrder = 0
+              Buttons.BtnMin.Visible = False
+              Buttons.DiscreteChange = 1
+              Buttons.Increment = 1
+              Buttons.Middle = 50
+              Buttons.MouseIncrementX = 0.1
+              Buttons.MouseIncrementY = 0.05
+              Buttons.PageSize = 10
+              Buttons.Style = ebsSplittedBlock
+              Position = 0
+              ProgressFontOptions.FontSize = 0
+              ProgressFontOptions.FontStyles = [fsBold]
+              ProgressMiddlePos = 0
+              ProgressStyle = epsGradient
+              Scale.DateTimeFormat = 'hh:nn:ss'
+              Scale.LogarithmBase = 10
+              Scale.Max = 7
+              Scale.Min = 0
+              Scale.TickLongValue = 10
+              Scale.TickMiddleValue = 5
+              Scale.TickShortValue = 1
+              Scale.TickVisible = etvNone
+              Scale.ValueVisible = evvNone
+              ScaleFontOptions.FontSize = 7
+              ScaleFontOptions.FontStyles = []
+              OnChange = SweepSizeSpinnerChange
+            end
           end
-          object GroupBox4: TGroupBox
-            Left = 344
+          object WaveGroupBox: TGroupBox
+            Left = 384
             Height = 169
             Top = 152
             Width = 297
             Caption = 'Wave'
             ClientHeight = 149
             ClientWidth = 293
+            Enabled = False
             TabOrder = 3
             object Label11: TLabel
               Left = 8
@@ -374,14 +579,6 @@ object frmTracker: TfrmTracker
               Caption = 'Volume'
               ParentColor = False
             end
-            object TrackBar3: TTrackBar
-              Left = 96
-              Height = 25
-              Top = 8
-              Width = 184
-              Position = 0
-              TabOrder = 0
-            end
             object Label12: TLabel
               Left = 8
               Height = 15
@@ -390,14 +587,14 @@ object frmTracker: TfrmTracker
               Caption = 'Waveform'
               ParentColor = False
             end
-            object ComboBox2: TComboBox
+            object WaveformCombobox: TComboBox
               Left = 104
               Height = 23
               Top = 40
               Width = 176
               ItemHeight = 15
               Style = csDropDownList
-              TabOrder = 1
+              TabOrder = 0
             end
             object Panel4: TPanel
               Left = 8
@@ -407,8 +604,8 @@ object frmTracker: TfrmTracker
               BevelOuter = bvLowered
               ClientHeight = 50
               ClientWidth = 272
-              TabOrder = 2
-              object PaintBox2: TPaintBox
+              TabOrder = 1
+              object WavePaintbox: TPaintBox
                 Left = 1
                 Height = 48
                 Top = 1
@@ -416,18 +613,37 @@ object frmTracker: TfrmTracker
                 Align = alClient
                 Color = clBlack
                 ParentColor = False
-                OnPaint = PaintBox2Paint
+                OnPaint = WavePaintboxPaint
               end
             end
+            object WaveVolumeCombobox: TComboBox
+              Left = 104
+              Height = 23
+              Top = 8
+              Width = 176
+              ItemHeight = 15
+              ItemIndex = 1
+              Items.Strings = (
+                'Mute (No sound)'
+                '100% Volume'
+                '50% Volume'
+                '25% Volume'
+              )
+              OnChange = WaveVolumeComboboxChange
+              Style = csDropDownList
+              TabOrder = 2
+              Text = '100% Volume'
+            end
           end
-          object GroupBox5: TGroupBox
-            Left = 656
+          object NoiseGroupBox: TGroupBox
+            Left = 696
             Height = 169
             Top = 152
-            Width = 297
+            Width = 344
             Caption = 'Noise'
             ClientHeight = 149
-            ClientWidth = 293
+            ClientWidth = 340
+            Enabled = False
             TabOrder = 4
             object Label13: TLabel
               Left = 8
@@ -437,30 +653,15 @@ object frmTracker: TfrmTracker
               Caption = 'Frequency'
               ParentColor = False
             end
-            object TrackBar4: TTrackBar
-              Left = 88
-              Height = 25
-              Top = 6
-              Width = 196
-              Position = 0
-              TabOrder = 0
-            end
-            object CheckBox1: TCheckBox
+            object SevenBitCounterCheckbox: TCheckBox
               Left = 8
               Height = 19
               Top = 80
               Width = 215
               Alignment = taLeftJustify
               Caption = '7 bit counter (more tone-like output)'
-              TabOrder = 1
-            end
-            object TrackBar5: TTrackBar
-              Left = 88
-              Height = 25
-              Top = 40
-              Width = 196
-              Position = 0
-              TabOrder = 2
+              OnChange = SevenBitCounterCheckboxChange
+              TabOrder = 0
             end
             object Label14: TLabel
               Left = 8
@@ -470,22 +671,663 @@ object frmTracker: TfrmTracker
               Caption = 'Dividing ratio'
               ParentColor = False
             end
-            object Button1: TButton
+            object RandomizeNoiseButton: TButton
               Left = 8
               Height = 25
               Top = 110
-              Width = 276
+              Width = 320
               Caption = 'Randomize'
-              TabOrder = 3
+              OnClick = RandomizeNoiseButtonClick
+              TabOrder = 1
+            end
+            object NoiseFreqSpinner: TECSpinPosition
+              Left = 86
+              Height = 24
+              Top = 7
+              Width = 198
+              Buttons.BtnBigDec.BtnOrder = 1
+              Buttons.BtnBigDec.Visible = False
+              Buttons.BtnBigInc.BtnOrder = 7
+              Buttons.BtnBigInc.Visible = False
+              Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnMax.BtnOrder = 8
+              Buttons.BtnMax.Visible = False
+              Buttons.BtnMenu.BtnOrder = 5
+              Buttons.BtnMenu.Visible = False
+              Buttons.BtnMiddle.BtnOrder = 3
+              Buttons.BtnMiddle.Visible = False
+              Buttons.BtnMin.BtnOrder = 0
+              Buttons.BtnMin.Visible = False
+              Buttons.DiscreteChange = 1
+              Buttons.Increment = 1
+              Buttons.Middle = 50
+              Buttons.MouseIncrementX = 0.1
+              Buttons.MouseIncrementY = 0.05
+              Buttons.PageSize = 10
+              Buttons.Style = ebsSplittedBlock
+              Position = 0
+              ProgressFontOptions.FontSize = 0
+              ProgressFontOptions.FontStyles = [fsBold]
+              ProgressMiddlePos = 0
+              ProgressStyle = epsGradient
+              Scale.DateTimeFormat = 'hh:nn:ss'
+              Scale.LogarithmBase = 10
+              Scale.Max = 15
+              Scale.Min = 0
+              Scale.TickLongValue = 10
+              Scale.TickMiddleValue = 5
+              Scale.TickShortValue = 1
+              Scale.TickVisible = etvNone
+              Scale.ValueVisible = evvNone
+              ScaleFontOptions.FontSize = 7
+              ScaleFontOptions.FontStyles = []
+              OnChange = NoiseFreqSpinnerChange
+            end
+            object DivRatioSpinner: TECSpinPosition
+              Left = 86
+              Height = 24
+              Top = 39
+              Width = 198
+              Buttons.BtnBigDec.BtnOrder = 1
+              Buttons.BtnBigDec.Visible = False
+              Buttons.BtnBigInc.BtnOrder = 7
+              Buttons.BtnBigInc.Visible = False
+              Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnMax.BtnOrder = 8
+              Buttons.BtnMax.Visible = False
+              Buttons.BtnMenu.BtnOrder = 5
+              Buttons.BtnMenu.Visible = False
+              Buttons.BtnMiddle.BtnOrder = 3
+              Buttons.BtnMiddle.Visible = False
+              Buttons.BtnMin.BtnOrder = 0
+              Buttons.BtnMin.Visible = False
+              Buttons.DiscreteChange = 1
+              Buttons.Increment = 1
+              Buttons.Middle = 50
+              Buttons.MouseIncrementX = 0.1
+              Buttons.MouseIncrementY = 0.05
+              Buttons.PageSize = 10
+              Buttons.Style = ebsSplittedBlock
+              Position = 0
+              ProgressFontOptions.FontSize = 0
+              ProgressFontOptions.FontStyles = [fsBold]
+              ProgressMiddlePos = 0
+              ProgressStyle = epsGradient
+              Scale.DateTimeFormat = 'hh:nn:ss'
+              Scale.LogarithmBase = 10
+              Scale.Max = 7
+              Scale.Min = 0
+              Scale.TickLongValue = 10
+              Scale.TickMiddleValue = 5
+              Scale.TickShortValue = 1
+              Scale.TickVisible = etvNone
+              Scale.ValueVisible = evvNone
+              ScaleFontOptions.FontSize = 7
+              ScaleFontOptions.FontStyles = []
+              OnChange = DivRatioSpinnerChange
             end
           end
         end
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
+        ClientHeight = 657
+        ClientWidth = 1100
+        object CommentMemo: TMemo
+          Left = 0
+          Height = 593
+          Top = 64
+          Width = 1100
+          Align = alBottom
+          Anchors = [akTop, akLeft, akRight, akBottom]
+          OnChange = CommentMemoChange
+          TabOrder = 0
+        end
+        object Label17: TLabel
+          Left = 8
+          Height = 15
+          Top = 8
+          Width = 337
+          Caption = 'This is an area to write comments for anyone viewing your tune.'
+          ParentColor = False
+        end
       end
       object RoutinesTabSheet: TTabSheet
         Caption = 'Routines'
+        ClientHeight = 657
+        ClientWidth = 1100
+        inline RoutineSynedit: TSynEdit
+          Left = 0
+          Height = 530
+          Top = 127
+          Width = 1100
+          Align = alBottom
+          BorderSpacing.Top = 55
+          Anchors = [akTop, akLeft, akRight, akBottom]
+          Font.Height = -13
+          Font.Name = 'Courier New'
+          Font.Pitch = fpFixed
+          Font.Quality = fqNonAntialiased
+          ParentColor = False
+          ParentFont = False
+          TabOrder = 0
+          Gutter.Width = 57
+          Gutter.MouseActions = <>
+          RightGutter.Width = 0
+          RightGutter.MouseActions = <>
+          Keystrokes = <          
+            item
+              Command = ecUp
+              ShortCut = 38
+            end          
+            item
+              Command = ecSelUp
+              ShortCut = 8230
+            end          
+            item
+              Command = ecScrollUp
+              ShortCut = 16422
+            end          
+            item
+              Command = ecDown
+              ShortCut = 40
+            end          
+            item
+              Command = ecSelDown
+              ShortCut = 8232
+            end          
+            item
+              Command = ecScrollDown
+              ShortCut = 16424
+            end          
+            item
+              Command = ecLeft
+              ShortCut = 37
+            end          
+            item
+              Command = ecSelLeft
+              ShortCut = 8229
+            end          
+            item
+              Command = ecWordLeft
+              ShortCut = 16421
+            end          
+            item
+              Command = ecSelWordLeft
+              ShortCut = 24613
+            end          
+            item
+              Command = ecRight
+              ShortCut = 39
+            end          
+            item
+              Command = ecSelRight
+              ShortCut = 8231
+            end          
+            item
+              Command = ecWordRight
+              ShortCut = 16423
+            end          
+            item
+              Command = ecSelWordRight
+              ShortCut = 24615
+            end          
+            item
+              Command = ecPageDown
+              ShortCut = 34
+            end          
+            item
+              Command = ecSelPageDown
+              ShortCut = 8226
+            end          
+            item
+              Command = ecPageBottom
+              ShortCut = 16418
+            end          
+            item
+              Command = ecSelPageBottom
+              ShortCut = 24610
+            end          
+            item
+              Command = ecPageUp
+              ShortCut = 33
+            end          
+            item
+              Command = ecSelPageUp
+              ShortCut = 8225
+            end          
+            item
+              Command = ecPageTop
+              ShortCut = 16417
+            end          
+            item
+              Command = ecSelPageTop
+              ShortCut = 24609
+            end          
+            item
+              Command = ecLineStart
+              ShortCut = 36
+            end          
+            item
+              Command = ecSelLineStart
+              ShortCut = 8228
+            end          
+            item
+              Command = ecEditorTop
+              ShortCut = 16420
+            end          
+            item
+              Command = ecSelEditorTop
+              ShortCut = 24612
+            end          
+            item
+              Command = ecLineEnd
+              ShortCut = 35
+            end          
+            item
+              Command = ecSelLineEnd
+              ShortCut = 8227
+            end          
+            item
+              Command = ecEditorBottom
+              ShortCut = 16419
+            end          
+            item
+              Command = ecSelEditorBottom
+              ShortCut = 24611
+            end          
+            item
+              Command = ecToggleMode
+              ShortCut = 45
+            end          
+            item
+              Command = ecCopy
+              ShortCut = 16429
+            end          
+            item
+              Command = ecPaste
+              ShortCut = 8237
+            end          
+            item
+              Command = ecDeleteChar
+              ShortCut = 46
+            end          
+            item
+              Command = ecCut
+              ShortCut = 8238
+            end          
+            item
+              Command = ecDeleteLastChar
+              ShortCut = 8
+            end          
+            item
+              Command = ecDeleteLastChar
+              ShortCut = 8200
+            end          
+            item
+              Command = ecDeleteLastWord
+              ShortCut = 16392
+            end          
+            item
+              Command = ecUndo
+              ShortCut = 32776
+            end          
+            item
+              Command = ecRedo
+              ShortCut = 40968
+            end          
+            item
+              Command = ecLineBreak
+              ShortCut = 13
+            end          
+            item
+              Command = ecSelectAll
+              ShortCut = 16449
+            end          
+            item
+              Command = ecCopy
+              ShortCut = 16451
+            end          
+            item
+              Command = ecBlockIndent
+              ShortCut = 24649
+            end          
+            item
+              Command = ecLineBreak
+              ShortCut = 16461
+            end          
+            item
+              Command = ecInsertLine
+              ShortCut = 16462
+            end          
+            item
+              Command = ecDeleteWord
+              ShortCut = 16468
+            end          
+            item
+              Command = ecBlockUnindent
+              ShortCut = 24661
+            end          
+            item
+              Command = ecPaste
+              ShortCut = 16470
+            end          
+            item
+              Command = ecCut
+              ShortCut = 16472
+            end          
+            item
+              Command = ecDeleteLine
+              ShortCut = 16473
+            end          
+            item
+              Command = ecDeleteEOL
+              ShortCut = 24665
+            end          
+            item
+              Command = ecUndo
+              ShortCut = 16474
+            end          
+            item
+              Command = ecRedo
+              ShortCut = 24666
+            end          
+            item
+              Command = ecGotoMarker0
+              ShortCut = 16432
+            end          
+            item
+              Command = ecGotoMarker1
+              ShortCut = 16433
+            end          
+            item
+              Command = ecGotoMarker2
+              ShortCut = 16434
+            end          
+            item
+              Command = ecGotoMarker3
+              ShortCut = 16435
+            end          
+            item
+              Command = ecGotoMarker4
+              ShortCut = 16436
+            end          
+            item
+              Command = ecGotoMarker5
+              ShortCut = 16437
+            end          
+            item
+              Command = ecGotoMarker6
+              ShortCut = 16438
+            end          
+            item
+              Command = ecGotoMarker7
+              ShortCut = 16439
+            end          
+            item
+              Command = ecGotoMarker8
+              ShortCut = 16440
+            end          
+            item
+              Command = ecGotoMarker9
+              ShortCut = 16441
+            end          
+            item
+              Command = ecSetMarker0
+              ShortCut = 24624
+            end          
+            item
+              Command = ecSetMarker1
+              ShortCut = 24625
+            end          
+            item
+              Command = ecSetMarker2
+              ShortCut = 24626
+            end          
+            item
+              Command = ecSetMarker3
+              ShortCut = 24627
+            end          
+            item
+              Command = ecSetMarker4
+              ShortCut = 24628
+            end          
+            item
+              Command = ecSetMarker5
+              ShortCut = 24629
+            end          
+            item
+              Command = ecSetMarker6
+              ShortCut = 24630
+            end          
+            item
+              Command = ecSetMarker7
+              ShortCut = 24631
+            end          
+            item
+              Command = ecSetMarker8
+              ShortCut = 24632
+            end          
+            item
+              Command = ecSetMarker9
+              ShortCut = 24633
+            end          
+            item
+              Command = EcFoldLevel1
+              ShortCut = 41009
+            end          
+            item
+              Command = EcFoldLevel2
+              ShortCut = 41010
+            end          
+            item
+              Command = EcFoldLevel3
+              ShortCut = 41011
+            end          
+            item
+              Command = EcFoldLevel4
+              ShortCut = 41012
+            end          
+            item
+              Command = EcFoldLevel5
+              ShortCut = 41013
+            end          
+            item
+              Command = EcFoldLevel6
+              ShortCut = 41014
+            end          
+            item
+              Command = EcFoldLevel7
+              ShortCut = 41015
+            end          
+            item
+              Command = EcFoldLevel8
+              ShortCut = 41016
+            end          
+            item
+              Command = EcFoldLevel9
+              ShortCut = 41017
+            end          
+            item
+              Command = EcFoldLevel0
+              ShortCut = 41008
+            end          
+            item
+              Command = EcFoldCurrent
+              ShortCut = 41005
+            end          
+            item
+              Command = EcUnFoldCurrent
+              ShortCut = 41003
+            end          
+            item
+              Command = EcToggleMarkupWord
+              ShortCut = 32845
+            end          
+            item
+              Command = ecNormalSelect
+              ShortCut = 24654
+            end          
+            item
+              Command = ecColumnSelect
+              ShortCut = 24643
+            end          
+            item
+              Command = ecLineSelect
+              ShortCut = 24652
+            end          
+            item
+              Command = ecTab
+              ShortCut = 9
+            end          
+            item
+              Command = ecShiftTab
+              ShortCut = 8201
+            end          
+            item
+              Command = ecMatchBracket
+              ShortCut = 24642
+            end          
+            item
+              Command = ecColSelUp
+              ShortCut = 40998
+            end          
+            item
+              Command = ecColSelDown
+              ShortCut = 41000
+            end          
+            item
+              Command = ecColSelLeft
+              ShortCut = 40997
+            end          
+            item
+              Command = ecColSelRight
+              ShortCut = 40999
+            end          
+            item
+              Command = ecColSelPageDown
+              ShortCut = 40994
+            end          
+            item
+              Command = ecColSelPageBottom
+              ShortCut = 57378
+            end          
+            item
+              Command = ecColSelPageUp
+              ShortCut = 40993
+            end          
+            item
+              Command = ecColSelPageTop
+              ShortCut = 57377
+            end          
+            item
+              Command = ecColSelLineStart
+              ShortCut = 40996
+            end          
+            item
+              Command = ecColSelLineEnd
+              ShortCut = 40995
+            end          
+            item
+              Command = ecColSelEditorTop
+              ShortCut = 57380
+            end          
+            item
+              Command = ecColSelEditorBottom
+              ShortCut = 57379
+            end>
+          MouseActions = <>
+          MouseTextActions = <>
+          MouseSelActions = <>
+          Lines.Strings = (
+            'RoutineSynedit'
+          )
+          VisibleSpecialChars = [vscSpace, vscTabAtLast]
+          SelectedColor.BackPriority = 50
+          SelectedColor.ForePriority = 50
+          SelectedColor.FramePriority = 50
+          SelectedColor.BoldPriority = 50
+          SelectedColor.ItalicPriority = 50
+          SelectedColor.UnderlinePriority = 50
+          SelectedColor.StrikeOutPriority = 50
+          BracketHighlightStyle = sbhsBoth
+          BracketMatchColor.Background = clNone
+          BracketMatchColor.Foreground = clNone
+          BracketMatchColor.Style = [fsBold]
+          FoldedCodeColor.Background = clNone
+          FoldedCodeColor.Foreground = clGray
+          FoldedCodeColor.FrameColor = clGray
+          MouseLinkColor.Background = clNone
+          MouseLinkColor.Foreground = clBlue
+          LineHighlightColor.Background = clNone
+          LineHighlightColor.Foreground = clNone
+          inline SynLeftGutterPartList1: TSynGutterPartList
+            object SynGutterMarks1: TSynGutterMarks
+              Width = 24
+              MouseActions = <>
+            end
+            object SynGutterLineNumber1: TSynGutterLineNumber
+              Width = 17
+              MouseActions = <>
+              MarkupInfo.Background = clBtnFace
+              MarkupInfo.Foreground = clNone
+              DigitCount = 2
+              ShowOnlyLineNumbersMultiplesOf = 1
+              ZeroStart = False
+              LeadingZeros = False
+            end
+            object SynGutterChanges1: TSynGutterChanges
+              Width = 4
+              MouseActions = <>
+              ModifiedColor = 59900
+              SavedColor = clGreen
+            end
+            object SynGutterSeparator1: TSynGutterSeparator
+              Width = 2
+              MouseActions = <>
+              MarkupInfo.Background = clWhite
+              MarkupInfo.Foreground = clGray
+            end
+            object SynGutterCodeFolding1: TSynGutterCodeFolding
+              MouseActions = <>
+              MarkupInfo.Background = clNone
+              MarkupInfo.Foreground = clGray
+              MouseActionsExpanded = <>
+              MouseActionsCollapsed = <>
+            end
+          end
+        end
+        object Label18: TLabel
+          Left = 8
+          Height = 15
+          Top = 16
+          Width = 41
+          Caption = 'Routine'
+          ParentColor = False
+        end
+        object RoutineNumberSpinner: TSpinEdit
+          Left = 64
+          Height = 23
+          Top = 8
+          Width = 176
+          MaxValue = 15
+          MinValue = 1
+          OnChange = InstrumentNumberSpinnerChange
+          TabOrder = 1
+          Value = 1
+        end
+        object Label19: TLabel
+          Left = 8
+          Height = 75
+          Top = 40
+          Width = 506
+          Caption = 'Routines are an advanced feature of hUGETracker, and you likely won''t need them at all'#13#10'if you are only interested in composing music. If you want to create a custom effect, or interface'#13#10'with game code that you''re writing a soundtrack for, then routines will come in handy.'#13#10#13#10'Refer to the user manual for more information!'
+          ParentColor = False
+        end
       end
     end
   end
@@ -493,7 +1335,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 24
     Top = 0
-    Width = 1178
+    Width = 1306
     Bands = <    
       item
       end>
@@ -502,7 +1344,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 178
     Top = 24
-    Width = 1178
+    Width = 1306
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 4
@@ -511,7 +1353,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 23
     Top = 887
-    Width = 1178
+    Width = 1306
     Panels = <>
   end
   object MainMenu1: TMainMenu

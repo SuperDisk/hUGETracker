@@ -43,18 +43,27 @@
         </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="3">
+    <RequiredPackages Count="6">
       <Item1>
-        <PackageName Value="LazControls"/>
+        <PackageName Value="virtualtreeview_package"/>
       </Item1>
       <Item2>
-        <PackageName Value="BGRABitmapPack"/>
+        <PackageName Value="SynEdit"/>
       </Item2>
       <Item3>
-        <PackageName Value="LCL"/>
+        <PackageName Value="eccontrols"/>
       </Item3>
+      <Item4>
+        <PackageName Value="LazControls"/>
+      </Item4>
+      <Item5>
+        <PackageName Value="BGRABitmapPack"/>
+      </Item5>
+      <Item6>
+        <PackageName Value="LCL"/>
+      </Item6>
     </RequiredPackages>
-    <Units Count="13">
+    <Units Count="15">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -109,6 +118,7 @@
         <Filename Value="tracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmTracker"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Tracker"/>
       </Unit11>
@@ -119,6 +129,15 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="About"/>
       </Unit12>
+      <Unit13>
+        <Filename Value="instruments.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="song.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Song"/>
+      </Unit14>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
