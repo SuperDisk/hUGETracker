@@ -1,0 +1,536 @@
+object frmTracker: TfrmTracker
+  Left = 497
+  Height = 930
+  Top = 131
+  Width = 1178
+  Caption = 'hUGETracker'
+  ClientHeight = 910
+  ClientWidth = 1178
+  Menu = MainMenu1
+  LCLVersion = '2.0.2.0'
+  object TreeView1: TTreeView
+    Left = 0
+    Height = 685
+    Top = 202
+    Width = 193
+    Align = alLeft
+    ReadOnly = True
+    TabOrder = 0
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
+    Items.Data = {
+      F9FFFFFF020004000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF020000000000
+      000001080000005061747465726E73FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00
+      00000000000000000800000042696E676F677573FFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFF00000000000000000008000000426C6172676F676FFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFF0000000000000000000B000000496E737472756D656E74
+      73FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000000000050000005761
+      766573FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000000000000008000000
+      526F7574696E6573
+    }
+  end
+  object Splitter1: TSplitter
+    Left = 193
+    Height = 685
+    Top = 202
+    Width = 5
+  end
+  object Panel1: TPanel
+    Left = 198
+    Height = 685
+    Top = 202
+    Width = 980
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 685
+    ClientWidth = 980
+    TabOrder = 2
+    object PageControl1: TPageControl
+      Left = 0
+      Height = 685
+      Top = 0
+      Width = 980
+      ActivePage = InstrumentTabSheet
+      Align = alClient
+      TabIndex = 2
+      TabOrder = 0
+      object GeneralTabSheet: TTabSheet
+        Caption = 'General'
+      end
+      object PatternTabSheet: TTabSheet
+        Caption = 'Patterns'
+      end
+      object InstrumentTabSheet: TTabSheet
+        Caption = 'Instruments'
+        ClientHeight = 657
+        ClientWidth = 972
+        object PaintBox1: TPaintBox
+          Left = 0
+          Height = 321
+          Top = 336
+          Width = 972
+          Align = alClient
+          Color = clBlack
+          ParentColor = False
+          OnPaint = PaintBox1Paint
+        end
+        object Panel3: TPanel
+          Left = 0
+          Height = 336
+          Top = 0
+          Width = 972
+          Align = alTop
+          Caption = 'Panel3'
+          ClientHeight = 336
+          ClientWidth = 972
+          TabOrder = 0
+          object GroupBox1: TGroupBox
+            Left = 8
+            Height = 136
+            Top = 8
+            Width = 320
+            Caption = 'Instrument'
+            ClientHeight = 116
+            ClientWidth = 316
+            TabOrder = 0
+            object InstrumentNumberSpinner: TSpinEdit
+              Left = 80
+              Height = 23
+              Top = 0
+              Width = 176
+              MaxValue = 15
+              MinValue = 1
+              TabOrder = 0
+              Value = 1
+            end
+            object Label1: TLabel
+              Left = 8
+              Height = 15
+              Top = 8
+              Width = 58
+              Caption = 'Instrument'
+              ParentColor = False
+            end
+            object Label2: TLabel
+              Left = 8
+              Height = 15
+              Top = 34
+              Width = 32
+              Caption = 'Name'
+              ParentColor = False
+            end
+            object InstrumentNameEdit: TEdit
+              Left = 80
+              Height = 23
+              Top = 26
+              Width = 176
+              TabOrder = 1
+            end
+            object Label3: TLabel
+              Left = 8
+              Height = 15
+              Top = 61
+              Width = 24
+              Caption = 'Type'
+              ParentColor = False
+            end
+            object InstrumentTypeCombobox: TComboBox
+              Left = 80
+              Height = 23
+              Top = 53
+              Width = 176
+              ItemHeight = 15
+              ItemIndex = 0
+              Items.Strings = (
+                'Square'
+                'Wave'
+                'Noise'
+              )
+              Style = csDropDownList
+              TabOrder = 2
+              Text = 'Square'
+            end
+            object LengthEnabledCheckbox: TCheckBox
+              Left = 8
+              Height = 19
+              Top = 84
+              Width = 57
+              Caption = 'Length'
+              TabOrder = 3
+            end
+            object LengthSpinner: TSpinEdit
+              Left = 80
+              Height = 23
+              Top = 80
+              Width = 50
+              MaxValue = 63
+              TabOrder = 4
+            end
+            object TrackBar1: TTrackBar
+              Left = 136
+              Height = 25
+              Top = 80
+              Width = 172
+              Max = 63
+              Position = 0
+              TabOrder = 5
+            end
+          end
+          object GroupBox2: TGroupBox
+            Left = 344
+            Height = 136
+            Top = 8
+            Width = 297
+            Caption = 'Envelope'
+            ClientHeight = 116
+            ClientWidth = 293
+            TabOrder = 1
+            object Label4: TLabel
+              Left = 8
+              Height = 15
+              Top = 6
+              Width = 46
+              Caption = 'Start vol.'
+              ParentColor = False
+            end
+            object EnvelopeStartTrackbar: TTrackBar
+              Left = 96
+              Height = 25
+              Top = -2
+              Width = 194
+              Max = 15
+              Position = 0
+              TabOrder = 0
+            end
+            object Label5: TLabel
+              Left = 8
+              Height = 15
+              Top = 40
+              Width = 48
+              Caption = 'Direction'
+              ParentColor = False
+            end
+            object DirectionComboBox: TComboBox
+              Left = 104
+              Height = 23
+              Top = 34
+              Width = 176
+              ItemHeight = 15
+              ItemIndex = 1
+              Items.Strings = (
+                'Up'
+                'Down'
+              )
+              Style = csDropDownList
+              TabOrder = 1
+              Text = 'Down'
+            end
+            object Label6: TLabel
+              Left = 8
+              Height = 15
+              Top = 64
+              Width = 41
+              Caption = 'Change'
+              ParentColor = False
+            end
+            object EnvelopeSizeTrackbar: TTrackBar
+              Left = 96
+              Height = 25
+              Top = 64
+              Width = 194
+              Max = 15
+              Position = 0
+              TabOrder = 2
+            end
+          end
+          object GroupBox3: TGroupBox
+            Left = 8
+            Height = 169
+            Top = 152
+            Width = 320
+            Caption = 'Square'
+            ClientHeight = 149
+            ClientWidth = 316
+            TabOrder = 2
+            object Label7: TLabel
+              Left = 8
+              Height = 15
+              Top = 16
+              Width = 61
+              Caption = 'Sweep time'
+              ParentColor = False
+            end
+            object ComboBox1: TComboBox
+              Left = 104
+              Height = 23
+              Hint = 'How long to sweep'
+              Top = 8
+              Width = 200
+              ItemHeight = 15
+              ItemIndex = 0
+              Items.Strings = (
+                'Off - no frequency change'
+                '7.8 ms  (1/128Hz)'
+                '15.6 ms (2/128Hz)'
+                '23.4 ms (3/128Hz)'
+                '31.3 ms (4/128Hz)'
+                '39.1 ms (5/128Hz)'
+                '46.9 ms (6/128Hz)'
+                '54.7 ms (7/128Hz)'
+              )
+              ParentShowHint = False
+              ShowHint = True
+              Style = csDropDownList
+              TabOrder = 0
+              Text = 'Off - no frequency change'
+            end
+            object DirectionComboBox1: TComboBox
+              Left = 104
+              Height = 23
+              Hint = 'The direction of the sweep'
+              Top = 40
+              Width = 200
+              ItemHeight = 15
+              ItemIndex = 1
+              Items.Strings = (
+                'Up'
+                'Down'
+              )
+              ParentShowHint = False
+              ShowHint = True
+              Style = csDropDownList
+              TabOrder = 1
+              Text = 'Down'
+            end
+            object Label8: TLabel
+              Left = 8
+              Height = 15
+              Top = 48
+              Width = 48
+              Caption = 'Direction'
+              ParentColor = False
+            end
+            object Label9: TLabel
+              Left = 8
+              Height = 15
+              Top = 84
+              Width = 20
+              Caption = 'Size'
+              ParentColor = False
+            end
+            object TrackBar2: TTrackBar
+              Left = 104
+              Height = 25
+              Hint = 'How much to change the frequency on each sweep step'
+              Top = 74
+              Width = 200
+              Position = 0
+              ParentShowHint = False
+              ShowHint = True
+              TabOrder = 2
+            end
+            object Label10: TLabel
+              Left = 8
+              Height = 15
+              Top = 120
+              Width = 25
+              Caption = 'Duty'
+              ParentColor = False
+            end
+            object DirectionComboBox2: TComboBox
+              Left = 104
+              Height = 23
+              Hint = 'Which duty cycle to use (changes timbre of wave)'
+              Top = 112
+              Width = 200
+              ItemHeight = 15
+              ItemIndex = 2
+              Items.Strings = (
+                '12.5%'
+                '25%'
+                '50% (square)'
+                '75%'
+              )
+              ParentShowHint = False
+              ShowHint = True
+              Style = csDropDownList
+              TabOrder = 3
+              Text = '50% (square)'
+            end
+          end
+          object GroupBox4: TGroupBox
+            Left = 344
+            Height = 169
+            Top = 152
+            Width = 297
+            Caption = 'Wave'
+            ClientHeight = 149
+            ClientWidth = 293
+            TabOrder = 3
+            object Label11: TLabel
+              Left = 8
+              Height = 15
+              Top = 16
+              Width = 40
+              Caption = 'Volume'
+              ParentColor = False
+            end
+            object TrackBar3: TTrackBar
+              Left = 96
+              Height = 25
+              Top = 8
+              Width = 184
+              Position = 0
+              TabOrder = 0
+            end
+            object Label12: TLabel
+              Left = 8
+              Height = 15
+              Top = 48
+              Width = 55
+              Caption = 'Waveform'
+              ParentColor = False
+            end
+            object ComboBox2: TComboBox
+              Left = 104
+              Height = 23
+              Top = 40
+              Width = 176
+              ItemHeight = 15
+              Style = csDropDownList
+              TabOrder = 1
+            end
+            object Panel4: TPanel
+              Left = 8
+              Height = 50
+              Top = 80
+              Width = 272
+              BevelOuter = bvLowered
+              ClientHeight = 50
+              ClientWidth = 272
+              TabOrder = 2
+              object PaintBox2: TPaintBox
+                Left = 1
+                Height = 48
+                Top = 1
+                Width = 270
+                Align = alClient
+                Color = clBlack
+                ParentColor = False
+                OnPaint = PaintBox2Paint
+              end
+            end
+          end
+          object GroupBox5: TGroupBox
+            Left = 656
+            Height = 169
+            Top = 152
+            Width = 297
+            Caption = 'Noise'
+            ClientHeight = 149
+            ClientWidth = 293
+            TabOrder = 4
+            object Label13: TLabel
+              Left = 8
+              Height = 15
+              Top = 16
+              Width = 55
+              Caption = 'Frequency'
+              ParentColor = False
+            end
+            object TrackBar4: TTrackBar
+              Left = 88
+              Height = 25
+              Top = 6
+              Width = 196
+              Position = 0
+              TabOrder = 0
+            end
+            object CheckBox1: TCheckBox
+              Left = 8
+              Height = 19
+              Top = 80
+              Width = 215
+              Alignment = taLeftJustify
+              Caption = '7 bit counter (more tone-like output)'
+              TabOrder = 1
+            end
+            object TrackBar5: TTrackBar
+              Left = 88
+              Height = 25
+              Top = 40
+              Width = 196
+              Position = 0
+              TabOrder = 2
+            end
+            object Label14: TLabel
+              Left = 8
+              Height = 15
+              Top = 48
+              Width = 71
+              Caption = 'Dividing ratio'
+              ParentColor = False
+            end
+            object Button1: TButton
+              Left = 8
+              Height = 25
+              Top = 110
+              Width = 276
+              Caption = 'Randomize'
+              TabOrder = 3
+            end
+          end
+        end
+      end
+      object CommentsTabSheet: TTabSheet
+        Caption = 'Comments'
+      end
+      object RoutinesTabSheet: TTabSheet
+        Caption = 'Routines'
+      end
+    end
+  end
+  object CoolBar1: TCoolBar
+    Left = 0
+    Height = 24
+    Top = 0
+    Width = 1178
+    Bands = <    
+      item
+      end>
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 178
+    Top = 24
+    Width = 1178
+    Align = alTop
+    BevelOuter = bvNone
+    TabOrder = 4
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 887
+    Width = 1178
+    Panels = <>
+  end
+  object MainMenu1: TMainMenu
+    left = 928
+    top = 32
+    object MenuItem1: TMenuItem
+      Caption = 'File'
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Edit'
+    end
+    object MenuItem3: TMenuItem
+      Caption = 'Help'
+      object MenuItem4: TMenuItem
+        Caption = 'Example Songs'
+      end
+      object MenuItem5: TMenuItem
+        Caption = 'About hUGETracker'
+      end
+    end
+  end
+end

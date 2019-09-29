@@ -6,6 +6,7 @@ uses
   Forms,
   Interfaces,
   UnitMain in 'UnitMain.pas' {frmGameboy},
+  Tracker in 'Tracker.pas',
   debugger in 'Debugger\debugger.pas',
   gfx in 'GPU\gfx.pas',
   machine in 'CPU\machine.pas',
@@ -22,8 +23,9 @@ uses
 
 begin
   Application.Initialize;
-  Application.CreateForm(TfrmGameboy, frmGameboy);
+  {Application.CreateForm(TfrmGameboy, frmGameboy);
   Application.CreateForm(TfrmDebug, frmDebug);
-  Application.CreateForm(TfrmMapview, frmMapview);
+  Application.CreateForm(TfrmMapview, frmMapview);}
+  Application.CreateForm(TfrmTracker, frmTracker);
   Application.Run;
 end.

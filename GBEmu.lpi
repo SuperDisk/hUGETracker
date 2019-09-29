@@ -13,8 +13,15 @@
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
       <Title Value="GBEmu"/>
+      <Scaled Value="True"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <XPManifest>
+        <DpiAware Value="True"/>
+        <TextName Value="SuperDisk.UGE.HugeTracker"/>
+        <TextDesc Value="The ultimate soundtracking and composing tool for Gameboy!"/>
+      </XPManifest>
       <Icon Value="0"/>
     </General>
     <BuildModes Count="1">
@@ -36,15 +43,18 @@
         </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="2">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="BGRABitmapPack"/>
+        <PackageName Value="LazControls"/>
       </Item1>
       <Item2>
-        <PackageName Value="LCL"/>
+        <PackageName Value="BGRABitmapPack"/>
       </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
     </RequiredPackages>
-    <Units Count="11">
+    <Units Count="13">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -95,6 +105,20 @@
         <IsPartOfProject Value="True"/>
         <HasResources Value="True"/>
       </Unit10>
+      <Unit11>
+        <Filename Value="tracker.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmTracker"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Tracker"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="about.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmAbout"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="About"/>
+      </Unit12>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
