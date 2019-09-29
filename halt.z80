@@ -1,0 +1,26 @@
+include "hugedriver/hardware.inc"
+SECTION "init", ROM0[$0100]
+    jp yeah
+
+
+SECTION "romname", ROM0[$0134]
+; $0134 - $013E: The title, in upper-case letters, followed by zeroes.
+DB "HALT"
+DS 7 ; padding
+; $013F - $0142: The manufacturer code. Empty for now
+DS 4
+DS 1
+; $0144 - $0145: "New" Licensee Code, a two character name.
+DB "NF"
+
+SECTION "code", ROM0
+yeah:
+    ld a, $80
+    ld [rAUDENA], a
+    ; Enable all channels in stereo
+    ld a, $FF
+    ld [rAUDTERM], a
+    ; Set volume
+    ld a, $77
+    ld [rAUDVOL], a
+    halt

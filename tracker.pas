@@ -7,7 +7,8 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   Menus, Spin, StdCtrls, SynEdit, VirtualTrees, ECSlider, ECProgressBar,
-  instruments, song;
+  Instruments, Song, EmulationThread, Utils,
+  mainloop, sound, vars, machine;
 
 type
   { TfrmTracker }
@@ -15,6 +16,7 @@ type
   TfrmTracker = class(TForm)
     CommentMemo: TMemo;
     Label19: TLabel;
+    MenuItem6: TMenuItem;
     RoutineNumberSpinner: TSpinEdit;
     Label17: TLabel;
     EnvelopePaintbox: TPaintBox;
@@ -85,6 +87,7 @@ type
     NoiseFreqSpinner: TECSpinPosition;
     DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
+    procedure ArtistEditChange(Sender: TObject);
     procedure CommentMemoChange(Sender: TObject);
     procedure DirectionComboBoxChange(Sender: TObject);
     procedure DivRatioSpinnerChange(Sender: TObject);
@@ -95,12 +98,14 @@ type
     procedure InstrumentNameEditChange(Sender: TObject);
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
+    procedure MenuItem6Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
     procedure RandomizeNoiseButtonClick(Sender: TObject);
     procedure InstrumentTypeComboboxChange(Sender: TObject);
     procedure LengthEnabledCheckboxChange(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
     procedure SevenBitCounterCheckboxChange(Sender: TObject);
+    procedure SongEditChange(Sender: TObject);
     procedure StartVolSpinnerChange(Sender: TObject);
     procedure SweepDirectionComboboxChange(Sender: TObject);
     procedure SweepSizeSpinnerChange(Sender: TObject);
@@ -111,10 +116,14 @@ type
     Song: TSong;
     CurrentInstrument: ^TInstrument;
 
+    EmulationThread: TThread;
+
     procedure ChangeToSquare;
     procedure ChangeToWave;
     procedure ChangeToNoise;
     procedure LoadInstrument(Instr: Integer);
+
+    procedure PlayC4WithInstrument(Instr: Integer);
   public
 
   end;
@@ -127,6 +136,44 @@ implementation
 {$R *.lfm}
 
 { TfrmTracker }
+
+const
+  NR10 = $FF10;
+  NR11 = $FF11;
+  NR12 = $FF12;
+  NR13 = $FF13;
+  NR14 = $FF14;
+  NR21 = $FF16;
+  NR22 = $FF17;
+  NR23 = $FF18;
+  NR24 = $FF19;
+  NR30 = $FF1A;
+  NR31 = $FF1B;
+  NR32 = $FF1C;
+  NR33 = $FF1D;
+  NR34 = $FF1E;
+  NR41 = $FF20;
+  NR42 = $FF21;
+  NR43 = $FF22;
+  NR44 = $FF23;
+
+procedure TfrmTracker.PlayC4WithInstrument(Instr: Integer);
+var
+  Regs: TRegisters;
+begin
+  with Song.Instruments[Instr] do
+  begin
+    case Type_ of
+      Noise: begin
+        Regs := NoiseInstrumentToRegisters(True, Song.Instruments[Instr]);
+        Spokeb(NR41, Regs.NR41);
+        Spokeb(NR42, Regs.NR42);
+        Spokeb(NR43, Regs.NR43);
+        Spokeb(NR44, Regs.NR44);
+      end;
+    end;
+  end;
+end;
 
 procedure TfrmTracker.LoadInstrument(Instr: Integer);
 var
@@ -230,6 +277,11 @@ begin
     CurrentInstrument^.CounterStep := Fifteen;
 end;
 
+procedure TfrmTracker.SongEditChange(Sender: TObject);
+begin
+  Song.Name := SongEdit.Text;
+end;
+
 procedure TfrmTracker.StartVolSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.InitialVolume := Round(StartVolSpinner.Position);
@@ -276,6 +328,10 @@ begin
   NoiseFreqSpinner.Position := Random(Round(NoiseFreqSpinner.Max));
   DivRatioSpinner.Position := Random(Round(DivRatioSpinner.Max));
   SevenBitCounterCheckbox.Checked := Random <= 0.5;
+  LengthEnabledCheckbox.Checked := Random <= 0.5;
+  LengthSpinner.Position := Random(Round(LengthSpinner.Max));
+
+  PlayC4WithInstrument(InstrumentNumberSpinner.Value);
 end;
 
 procedure TfrmTracker.FormCreate(Sender: TObject);
@@ -299,6 +355,10 @@ begin
     end;
 
   LoadInstrument(1);
+
+  // Get the emulator ready to make sound...
+  EmulationThread := TEmulationThread.Create;
+  EmulationThread.Start;
 end;
 
 procedure TfrmTracker.DirectionComboBoxChange(Sender: TObject);
@@ -312,6 +372,11 @@ end;
 procedure TfrmTracker.CommentMemoChange(Sender: TObject);
 begin
   Song.Comment := CommentMemo.Text;
+end;
+
+procedure TfrmTracker.ArtistEditChange(Sender: TObject);
+begin
+  Song.Artist := ArtistEdit.Text;
 end;
 
 procedure TfrmTracker.DivRatioSpinnerChange(Sender: TObject);
@@ -350,6 +415,16 @@ end;
 procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.Length := Round(LengthSpinner.Position);
+end;
+
+procedure TfrmTracker.MenuItem6Click(Sender: TObject);
+begin
+  PlayC4WithInstrument(InstrumentNumberSpinner.Value);
+  {Spokeb($FF10, 0);
+  Spokeb($FF11, %11111111);
+  Spokeb($FF12, %11110000);
+  Spokeb($FF13, 10);
+  Spokeb($FF14, %10000000 or 6);}
 end;
 
 procedure TfrmTracker.NoiseFreqSpinnerChange(Sender: TObject);

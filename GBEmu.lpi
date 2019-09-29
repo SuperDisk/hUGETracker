@@ -63,7 +63,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="15">
+    <Units Count="17">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -138,6 +138,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Song"/>
       </Unit14>
+      <Unit15>
+        <Filename Value="emulationthread.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="EmulationThread"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="utils.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Utils"/>
+      </Unit16>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

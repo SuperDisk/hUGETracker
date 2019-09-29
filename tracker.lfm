@@ -50,9 +50,9 @@ object frmTracker: TfrmTracker
       Height = 685
       Top = 0
       Width = 1108
-      ActivePage = CommentsTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
-      TabIndex = 3
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -88,6 +88,7 @@ object frmTracker: TfrmTracker
             Height = 23
             Top = 8
             Width = 216
+            OnChange = SongEditChange
             TabOrder = 0
           end
           object ArtistEdit: TEdit
@@ -95,6 +96,7 @@ object frmTracker: TfrmTracker
             Height = 23
             Top = 40
             Width = 216
+            OnChange = ArtistEditChange
             TabOrder = 1
           end
         end
@@ -122,7 +124,6 @@ object frmTracker: TfrmTracker
           Top = 0
           Width = 1100
           Align = alTop
-          Caption = 'Panel3'
           ClientHeight = 336
           ClientWidth = 1100
           TabOrder = 0
@@ -1354,7 +1355,17 @@ object frmTracker: TfrmTracker
     Height = 23
     Top = 887
     Width = 1306
-    Panels = <>
+    Panels = <    
+      item
+        Width = 200
+      end    
+      item
+        Width = 200
+      end    
+      item
+        Width = 200
+      end>
+    SimplePanel = False
   end
   object MainMenu1: TMainMenu
     left = 928
@@ -1373,6 +1384,10 @@ object frmTracker: TfrmTracker
       object MenuItem5: TMenuItem
         Caption = 'About hUGETracker'
       end
+    end
+    object MenuItem6: TMenuItem
+      Caption = 'Debug shite'
+      OnClick = MenuItem6Click
     end
   end
 end
