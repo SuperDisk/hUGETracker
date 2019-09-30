@@ -63,7 +63,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="17">
+    <Units Count="19">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -148,6 +148,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Utils"/>
       </Unit16>
+      <Unit17>
+        <Filename Value="constants.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Constants"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="waves.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Waves"/>
+      </Unit18>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

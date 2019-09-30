@@ -49,6 +49,8 @@ type
   TEnvelopeSweepAmount = 0..7;
 
   TInstrument = record
+    Type_: TInstrumentType;
+
     Name: String;
     Length: Integer;
     // Highmask
@@ -58,28 +60,27 @@ type
     VolSweepDirection: TSweepType;
     VolSweepAmount: TEnvelopeSweepAmount;
 
-    case Type_: TInstrumentType of
-      Square: (
-        // NR10
-        SweepTime: Integer;
-        SweepIncDec: TSweepType;
-        SweepShift: Integer;
+    // Square
+    // NR10
+    SweepTime: Integer;
+    SweepIncDec: TSweepType;
+    SweepShift: Integer;
 
-        // NR11
-        Duty: TDutyType;
-      );
-      Wave: (
-        // NR32
-        OutputLevel: Integer;
-        // Wave
-        Waveform: Integer;
-      );
-      Noise: (
-        // NR42
-        ShiftClockFreq: Integer;
-        CounterStep: TStepWidth;
-        DividingRatio: Integer;
-      );
+    // NR11
+    Duty: TDutyType;
+
+    // Wave
+
+    // NR32
+    OutputLevel: Integer;
+    // Wave
+    Waveform: Integer;
+
+    // Noise
+    // NR42
+    ShiftClockFreq: Integer;
+    CounterStep: TStepWidth;
+    DividingRatio: Integer;
   end;
 
 implementation

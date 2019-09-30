@@ -1,17 +1,19 @@
 object frmTracker: TfrmTracker
   Left = 497
-  Height = 930
+  Height = 874
   Top = 131
-  Width = 1306
+  Width = 1286
   Caption = 'hUGETracker'
-  ClientHeight = 910
-  ClientWidth = 1306
+  ClientHeight = 854
+  ClientWidth = 1286
   Menu = MainMenu1
   OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
   LCLVersion = '2.0.2.0'
   object TreeView1: TTreeView
     Left = 0
-    Height = 685
+    Height = 629
     Top = 202
     Width = 193
     Align = alLeft
@@ -31,25 +33,25 @@ object frmTracker: TfrmTracker
   end
   object Splitter1: TSplitter
     Left = 193
-    Height = 685
+    Height = 629
     Top = 202
     Width = 5
   end
   object Panel1: TPanel
     Left = 198
-    Height = 685
+    Height = 629
     Top = 202
-    Width = 1108
+    Width = 1088
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 685
-    ClientWidth = 1108
+    ClientHeight = 629
+    ClientWidth = 1088
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 685
+      Height = 629
       Top = 0
-      Width = 1108
+      Width = 1088
       ActivePage = InstrumentTabSheet
       Align = alClient
       TabIndex = 2
@@ -106,13 +108,13 @@ object frmTracker: TfrmTracker
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
-        ClientHeight = 657
-        ClientWidth = 1100
+        ClientHeight = 601
+        ClientWidth = 1080
         object PaintBox1: TPaintBox
           Left = 0
-          Height = 321
+          Height = 265
           Top = 336
-          Width = 1100
+          Width = 1080
           Align = alClient
           Color = clBlack
           ParentColor = False
@@ -122,10 +124,10 @@ object frmTracker: TfrmTracker
           Left = 0
           Height = 336
           Top = 0
-          Width = 1100
+          Width = 1080
           Align = alTop
           ClientHeight = 336
-          ClientWidth = 1100
+          ClientWidth = 1080
           TabOrder = 0
           object InstrumentGroupBox: TGroupBox
             Left = 8
@@ -139,7 +141,7 @@ object frmTracker: TfrmTracker
             object InstrumentNumberSpinner: TSpinEdit
               Left = 80
               Height = 23
-              Top = 0
+              Top = 1
               Width = 176
               MaxValue = 15
               MinValue = 1
@@ -594,21 +596,22 @@ object frmTracker: TfrmTracker
               Top = 40
               Width = 176
               ItemHeight = 15
+              OnChange = WaveformComboboxChange
               Style = csDropDownList
               TabOrder = 0
             end
             object Panel4: TPanel
               Left = 8
-              Height = 50
+              Height = 59
               Top = 80
               Width = 272
               BevelOuter = bvLowered
-              ClientHeight = 50
+              ClientHeight = 59
               ClientWidth = 272
               TabOrder = 1
               object WavePaintbox: TPaintBox
                 Left = 1
-                Height = 48
+                Height = 57
                 Top = 1
                 Width = 270
                 Align = alClient
@@ -774,15 +777,75 @@ object frmTracker: TfrmTracker
           end
         end
       end
+      object WavesTabSheet: TTabSheet
+        Caption = 'Waves'
+        ClientHeight = 601
+        ClientWidth = 1080
+        object WaveEditPaintBox: TPaintBox
+          Left = 0
+          Height = 385
+          Top = 216
+          Width = 1080
+          Align = alBottom
+          Anchors = [akTop, akLeft, akRight, akBottom]
+          OnPaint = WaveEditPaintBoxPaint
+        end
+        object WaveEditGroupBox: TGroupBox
+          Left = 8
+          Height = 192
+          Top = 8
+          Width = 345
+          Caption = 'Wave Editor'
+          ClientHeight = 172
+          ClientWidth = 341
+          TabOrder = 0
+          object Label20: TLabel
+            Left = 16
+            Height = 15
+            Top = 16
+            Width = 29
+            Caption = 'Wave'
+            ParentColor = False
+          end
+          object WaveEditNumberSpinner: TSpinEdit
+            Left = 64
+            Height = 23
+            Top = 8
+            Width = 80
+            MaxValue = 15
+            MinValue = 1
+            OnChange = WaveEditNumberSpinnerChange
+            TabOrder = 0
+            Value = 1
+          end
+          object ImportWaveButton: TButton
+            Left = 16
+            Height = 25
+            Top = 48
+            Width = 147
+            Caption = 'Import'
+            OnClick = ImportWaveButtonClick
+            TabOrder = 1
+          end
+          object ExportButton: TButton
+            Left = 16
+            Height = 25
+            Top = 80
+            Width = 147
+            Caption = 'Export'
+            TabOrder = 2
+          end
+        end
+      end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 657
-        ClientWidth = 1100
+        ClientHeight = 601
+        ClientWidth = 1080
         object CommentMemo: TMemo
           Left = 0
-          Height = 593
+          Height = 537
           Top = 64
-          Width = 1100
+          Width = 1080
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           OnChange = CommentMemoChange
@@ -1336,7 +1399,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 24
     Top = 0
-    Width = 1306
+    Width = 1286
     Bands = <    
       item
       end>
@@ -1345,7 +1408,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 178
     Top = 24
-    Width = 1306
+    Width = 1286
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 4
@@ -1353,8 +1416,8 @@ object frmTracker: TfrmTracker
   object StatusBar1: TStatusBar
     Left = 0
     Height = 23
-    Top = 887
-    Width = 1306
+    Top = 831
+    Width = 1286
     Panels = <    
       item
         Width = 200
@@ -1389,5 +1452,13 @@ object frmTracker: TfrmTracker
       Caption = 'Debug shite'
       OnClick = MenuItem6Click
     end
+  end
+  object OpenDialog1: TOpenDialog
+    left = 768
+    top = 32
+  end
+  object SaveDialog1: TSaveDialog
+    left = 688
+    top = 32
   end
 end

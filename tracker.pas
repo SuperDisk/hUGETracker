@@ -7,16 +7,24 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   Menus, Spin, StdCtrls, SynEdit, VirtualTrees, ECSlider, ECProgressBar,
-  Instruments, Song, EmulationThread, Utils,
+  Instruments, Waves, Song, EmulationThread, Utils, Constants,
   mainloop, sound, vars, machine;
 
 type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    ExportButton: TButton;
+    ImportWaveButton: TButton;
     CommentMemo: TMemo;
+    Label20: TLabel;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
+    WaveEditNumberSpinner: TSpinEdit;
+    WaveEditGroupBox: TGroupBox;
     Label19: TLabel;
     MenuItem6: TMenuItem;
+    WaveEditPaintBox: TPaintBox;
     RoutineNumberSpinner: TSpinEdit;
     Label17: TLabel;
     EnvelopePaintbox: TPaintBox;
@@ -31,6 +39,7 @@ type
     SevenBitCounterCheckbox: TCheckBox;
     SweepTimeCombobox: TComboBox;
     RoutineSynedit: TSynEdit;
+    WavesTabSheet: TTabSheet;
     WaveformCombobox: TComboBox;
     WaveVolumeCombobox: TComboBox;
     SweepDirectionCombobox: TComboBox;
@@ -95,11 +104,16 @@ type
     procedure EnvChangeSpinnerChange(Sender: TObject);
     procedure EnvelopePaintboxPaint(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure ImportWaveButtonClick(Sender: TObject);
     procedure InstrumentNameEditChange(Sender: TObject);
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
     procedure MenuItem6Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
+    procedure WaveEditNumberSpinnerChange(Sender: TObject);
+    procedure WaveEditPaintBoxPaint(Sender: TObject);
     procedure RandomizeNoiseButtonClick(Sender: TObject);
     procedure InstrumentTypeComboboxChange(Sender: TObject);
     procedure LengthEnabledCheckboxChange(Sender: TObject);
@@ -110,20 +124,27 @@ type
     procedure SweepDirectionComboboxChange(Sender: TObject);
     procedure SweepSizeSpinnerChange(Sender: TObject);
     procedure SweepTimeComboboxChange(Sender: TObject);
+    procedure WaveformComboboxChange(Sender: TObject);
     procedure WavePaintboxPaint(Sender: TObject);
     procedure WaveVolumeComboboxChange(Sender: TObject);
   private
     Song: TSong;
     CurrentInstrument: ^TInstrument;
+    CurrentWave: ^TWave;
 
     EmulationThread: TThread;
+
+    PreviewingInstrument: Boolean;
 
     procedure ChangeToSquare;
     procedure ChangeToWave;
     procedure ChangeToNoise;
     procedure LoadInstrument(Instr: Integer);
+    procedure LoadWave(Wave: Integer);
 
-    procedure PlayC4WithInstrument(Instr: Integer);
+    procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
+
+    procedure PreviewInstrument(Freq: Integer; Instr: Integer);
   public
 
   end;
@@ -137,33 +158,44 @@ implementation
 
 { TfrmTracker }
 
-const
-  NR10 = $FF10;
-  NR11 = $FF11;
-  NR12 = $FF12;
-  NR13 = $FF13;
-  NR14 = $FF14;
-  NR21 = $FF16;
-  NR22 = $FF17;
-  NR23 = $FF18;
-  NR24 = $FF19;
-  NR30 = $FF1A;
-  NR31 = $FF1B;
-  NR32 = $FF1C;
-  NR33 = $FF1D;
-  NR34 = $FF1E;
-  NR41 = $FF20;
-  NR42 = $FF21;
-  NR43 = $FF22;
-  NR44 = $FF23;
+procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
+var
+  Interval: Integer;
+  I: Integer;
+  W, H : Integer;
+begin
+  W := PB.Width;
+  H := PB.Height;
 
-procedure TfrmTracker.PlayC4WithInstrument(Instr: Integer);
+  Interval := W div 32;
+  With PB.Canvas do begin
+    Brush.Color := clBlack;
+    Clear;
+
+    Brush.Color := clTeal;
+    Pen.Color := clTeal;
+    MoveTo(0, H);
+    for I := 0 to 32 do
+      LineTo(I*Interval, Round((Wave[I]/$F)*H));
+    LineTo(W, Round((Wave[0]/$F)*H));
+  end;
+end;
+
+procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer);
 var
   Regs: TRegisters;
 begin
   with Song.Instruments[Instr] do
   begin
     case Type_ of
+      Square: begin
+        Regs := SquareInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
+        Spokeb(NR10, Regs.NR10);
+        Spokeb(NR11, Regs.NR11);
+        Spokeb(NR12, Regs.NR12);
+        Spokeb(NR13, Regs.NR13);
+        Spokeb(NR14, Regs.NR14);
+      end;
       Noise: begin
         Regs := NoiseInstrumentToRegisters(True, Song.Instruments[Instr]);
         Spokeb(NR41, Regs.NR41);
@@ -173,6 +205,12 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmTracker.LoadWave(Wave: Integer);
+begin
+  CurrentWave := @Song.Waves[Wave];
+  WaveEditPaintBox.Invalidate;
 end;
 
 procedure TfrmTracker.LoadInstrument(Instr: Integer);
@@ -186,6 +224,21 @@ begin
   InstrumentNameEdit.Text := CI^.Name;
   LengthEnabledCheckbox.Checked := CI^.LengthEnabled;
   LengthSpinner.Position := CI^.Length;
+
+  case CI^.Type_ of
+    Square: begin
+      InstrumentTypeComboBox.Text := 'Square';
+      ChangeToSquare;
+    end;
+    Wave: begin
+      InstrumentTypeComboBox.Text := 'Wave';
+      ChangeToWave;
+    end;
+    Noise: begin
+      InstrumentTypeComboBox.Text := 'Noise';
+      ChangeToNoise;
+    end;
+  end;
 
   StartVolSpinner.Position := CI^.InitialVolume;
   case CI^.VolSweepDirection of
@@ -250,10 +303,14 @@ end;
 
 procedure TfrmTracker.WavePaintboxPaint(Sender: TObject);
 begin
-  with WavePaintbox.Canvas do begin
-    Brush.Color := clBlack;
-    Clear;
-  end;
+  if not WaveGroupBox.Enabled then begin
+    with WavePaintbox.Canvas do begin
+      Brush.Color := clBlack;
+      Clear;
+    end;
+  end
+  else if WaveformCombobox.ItemIndex > -1 then
+    DrawWaveform(WavePaintbox, Song.Waves[WaveformCombobox.ItemIndex]);
 end;
 
 procedure TfrmTracker.WaveVolumeComboboxChange(Sender: TObject);
@@ -263,10 +320,8 @@ end;
 
 procedure TfrmTracker.PaintBox1Paint(Sender: TObject);
 begin
-  with PaintBox1.Canvas do begin
-    Brush.Color := clBlack;
-    Clear;
-  end;
+  if WaveformCombobox.ItemIndex > -1 then
+    DrawWaveform(PaintBox1, Song.Waves[WaveformCombobox.ItemIndex]);
 end;
 
 procedure TfrmTracker.SevenBitCounterCheckboxChange(Sender: TObject);
@@ -305,6 +360,11 @@ begin
   CurrentInstrument^.SweepTime := SweepTimeCombobox.ItemIndex;
 end;
 
+procedure TfrmTracker.WaveformComboboxChange(Sender: TObject);
+begin
+  WavePaintbox.Invalidate;
+end;
+
 procedure TfrmTracker.InstrumentTypeComboboxChange(Sender: TObject);
 begin
   case InstrumentTypeComboBox.Text of
@@ -331,12 +391,12 @@ begin
   LengthEnabledCheckbox.Checked := Random <= 0.5;
   LengthSpinner.Position := Random(Round(LengthSpinner.Max));
 
-  PlayC4WithInstrument(InstrumentNumberSpinner.Value);
+  PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
 end;
 
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
-  I: Integer;
+  I, J: Integer;
 begin
   for I := Low(Song.Instruments) to High(Song.Instruments) do
     with Song.Instruments[I] do begin
@@ -354,11 +414,52 @@ begin
       Duty := 2;
     end;
 
+  for I := Low(Song.Waves) to High(Song.Waves) do begin
+    for J := 0 to 32 do
+      Song.Waves[I][J] := random($F);
+    WaveformCombobox.Items.Add('Wave #' + IntToStr(I));
+  end;
+
   LoadInstrument(1);
+  LoadWave(1);
 
   // Get the emulator ready to make sound...
   EmulationThread := TEmulationThread.Create;
   EmulationThread.Start;
+end;
+
+procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  Freq: Integer;
+begin
+    if PreviewingInstrument then exit;
+
+    Keybindings.TryGetData(Key, Freq);
+    if Freq <> 0 then
+      PreviewInstrument(Keybindings[Key], InstrumentNumberSpinner.Value);
+
+    PreviewingInstrument := True;
+end;
+
+procedure TfrmTracker.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  PreviewingInstrument := False;
+
+  // Silence channel 1
+  Spokeb(NR12, 0);
+  Spokeb(NR14, %10000000);
+end;
+
+procedure TfrmTracker.ImportWaveButtonClick(Sender: TObject);
+var
+  F: file of byte;
+begin
+  OpenDialog1.DefaultExt := '*.pcm';
+  if OpenDialog1.Execute then begin
+
+  end;
 end;
 
 procedure TfrmTracker.DirectionComboBoxChange(Sender: TObject);
@@ -419,7 +520,7 @@ end;
 
 procedure TfrmTracker.MenuItem6Click(Sender: TObject);
 begin
-  PlayC4WithInstrument(InstrumentNumberSpinner.Value);
+  PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
   {Spokeb($FF10, 0);
   Spokeb($FF11, %11111111);
   Spokeb($FF12, %11110000);
@@ -430,6 +531,16 @@ end;
 procedure TfrmTracker.NoiseFreqSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.ShiftClockFreq := Round(NoiseFreqSpinner.Position);
+end;
+
+procedure TfrmTracker.WaveEditNumberSpinnerChange(Sender: TObject);
+begin
+  LoadWave(WaveEditNumberSpinner.Value);
+end;
+
+procedure TfrmTracker.WaveEditPaintBoxPaint(Sender: TObject);
+begin
+  DrawWaveform(WaveEditPaintBox, CurrentWave^);
 end;
 
 procedure TfrmTracker.LengthEnabledCheckboxChange(Sender: TObject);

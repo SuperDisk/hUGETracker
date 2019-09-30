@@ -4,7 +4,7 @@ unit Song;
 
 interface
 
-uses instruments;
+uses instruments, waves;
 
 type
   TSong = record
@@ -13,6 +13,7 @@ type
     Comment: String;
 
     Instruments: array[1..15] of TInstrument;
+    Waves: array[0..15] of TWave;
   end;
 
 implementation
