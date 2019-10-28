@@ -6,9 +6,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  Menus, Spin, StdCtrls, SynEdit, VirtualTrees, ECSlider, ECProgressBar,
-  Instruments, Waves, Song, EmulationThread, Utils, Constants,
-  mainloop, sound, vars, machine;
+  Menus, Spin, StdCtrls, Grids, ValEdit, SynEdit, VirtualTrees, ECSlider,
+  ECProgressBar, math, Instruments, Waves, Song, EmulationThread, Utils,
+  Constants, StrUtils, mainloop, sound, vars, machine;
 
 type
   { TfrmTracker }
@@ -18,12 +18,14 @@ type
     ImportWaveButton: TButton;
     CommentMemo: TMemo;
     Label20: TLabel;
+    Label21: TLabel;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
+    SpinEdit1: TSpinEdit;
     WaveEditNumberSpinner: TSpinEdit;
     WaveEditGroupBox: TGroupBox;
     Label19: TLabel;
-    MenuItem6: TMenuItem;
+    DebugButton: TMenuItem;
     WaveEditPaintBox: TPaintBox;
     RoutineNumberSpinner: TSpinEdit;
     Label17: TLabel;
@@ -103,6 +105,7 @@ type
     procedure DutyComboboxChange(Sender: TObject);
     procedure EnvChangeSpinnerChange(Sender: TObject);
     procedure EnvelopePaintboxPaint(Sender: TObject);
+    procedure ExportButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -110,9 +113,16 @@ type
     procedure InstrumentNameEditChange(Sender: TObject);
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
-    procedure MenuItem6Click(Sender: TObject);
+    procedure DebugButtonClick(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
+    procedure SpinEdit1Change(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
+    procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure WaveEditPaintBoxMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
+    procedure WaveEditPaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure WaveEditPaintBoxPaint(Sender: TObject);
     procedure RandomizeNoiseButtonClick(Sender: TObject);
     procedure InstrumentTypeComboboxChange(Sender: TObject);
@@ -135,6 +145,7 @@ type
     EmulationThread: TThread;
 
     PreviewingInstrument: Boolean;
+    DrawingWave: Boolean;
 
     procedure ChangeToSquare;
     procedure ChangeToWave;
@@ -160,7 +171,7 @@ implementation
 
 procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
 var
-  Interval: Integer;
+  Interval, HInterval: Integer;
   I: Integer;
   W, H : Integer;
 begin
@@ -168,12 +179,22 @@ begin
   H := PB.Height;
 
   Interval := W div 32;
+  HInterval := H div $10;
   With PB.Canvas do begin
     Brush.Color := clBlack;
     Clear;
 
+    {Pen.Width := 1;
+    Pen.Color := StringToColor('$103800');
+    for I := 0 to 32 do
+      Line(I*Interval, 0, I*Interval, H);
+
+    for I := 0 to $10 do
+      Line(0, I*HInterval, W, I*HInterval);}
+
     Brush.Color := clTeal;
     Pen.Color := clTeal;
+    Pen.Width := 2;
     MoveTo(0, H);
     for I := 0 to 32 do
       LineTo(I*Interval, Round((Wave[I]/$F)*H));
@@ -421,7 +442,7 @@ begin
   end;
 
   LoadInstrument(1);
-  LoadWave(1);
+  LoadWave(0);
 
   // Get the emulator ready to make sound...
   EmulationThread := TEmulationThread.Create;
@@ -458,7 +479,11 @@ var
 begin
   OpenDialog1.DefaultExt := '*.pcm';
   if OpenDialog1.Execute then begin
-
+    assignfile(F, OpenDialog1.FileName);
+    reset(F);
+    BlockRead(F, Song.Waves[WaveEditNumberSpinner.Value], 32);
+    CloseFile(F);
+    WaveEditPaintBox.Invalidate;
   end;
 end;
 
@@ -503,6 +528,17 @@ begin
   end;
 end;
 
+procedure TfrmTracker.ExportButtonClick(Sender: TObject);
+var F: file of Byte;
+begin
+  if SaveDialog1.Execute then begin
+    AssignFile(F, OpenDialog1.FileName);
+    Rewrite(F);
+    BlockWrite(F, CurrentWave^, 32);
+    CloseFile(F);
+  end;
+end;
+
 procedure TfrmTracker.InstrumentNameEditChange(Sender: TObject);
 begin
   CurrentInstrument^.Name := InstrumentNameEdit.Text;
@@ -518,14 +554,9 @@ begin
   CurrentInstrument^.Length := Round(LengthSpinner.Position);
 end;
 
-procedure TfrmTracker.MenuItem6Click(Sender: TObject);
+procedure TfrmTracker.DebugButtonClick(Sender: TObject);
 begin
   PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
-  {Spokeb($FF10, 0);
-  Spokeb($FF11, %11111111);
-  Spokeb($FF12, %11110000);
-  Spokeb($FF13, 10);
-  Spokeb($FF14, %10000000 or 6);}
 end;
 
 procedure TfrmTracker.NoiseFreqSpinnerChange(Sender: TObject);
@@ -533,9 +564,41 @@ begin
   CurrentInstrument^.ShiftClockFreq := Round(NoiseFreqSpinner.Position);
 end;
 
+procedure TfrmTracker.SpinEdit1Change(Sender: TObject);
+begin
+  Song.TicksPerRow := SpinEdit1.Value;
+end;
+
 procedure TfrmTracker.WaveEditNumberSpinnerChange(Sender: TObject);
 begin
   LoadWave(WaveEditNumberSpinner.Value);
+end;
+
+procedure TfrmTracker.WaveEditPaintBoxMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  DrawingWave := True;
+end;
+
+procedure TfrmTracker.WaveEditPaintBoxMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+var
+  Idx: Integer;
+begin
+  if DrawingWave then begin
+    Idx := Round((X / WaveEditPaintBox.Width)*32);
+    CurrentWave^[Idx] :=
+      Min($F,
+        Max(0,
+          Round((Y / WaveEditPaintBox.Height)*$F)));
+    WaveEditPaintBox.Invalidate;
+  end;
+end;
+
+procedure TfrmTracker.WaveEditPaintBoxMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  DrawingWave := False;
 end;
 
 procedure TfrmTracker.WaveEditPaintBoxPaint(Sender: TObject);

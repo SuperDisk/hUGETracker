@@ -14,6 +14,8 @@ type
 
     Instruments: array[1..15] of TInstrument;
     Waves: array[0..15] of TWave;
+
+    TicksPerRow: Integer;
   end;
 
 implementation
