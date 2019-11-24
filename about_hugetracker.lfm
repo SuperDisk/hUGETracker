@@ -1,0 +1,49 @@
+object frmAboutHugetracker: TfrmAboutHugetracker
+  Left = 1198
+  Height = 430
+  Top = 827
+  Width = 786
+  BorderStyle = bsNone
+  Caption = 'About hUGETracker'
+  ClientHeight = 430
+  ClientWidth = 786
+  Color = clMoneyGreen
+  DesignTimePPI = 144
+  Position = poDesktopCenter
+  LCLVersion = '2.0.6.0'
+  object Panel1: TPanel
+    Left = 40
+    Height = 192
+    Top = 40
+    Width = 704
+    Caption = 'hUGETracker'
+    Font.CharSet = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -96
+    Font.Name = 'Gill Sans MT'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold, fsItalic]
+    ParentFont = False
+    TabOrder = 0
+  end
+  object Label1: TLabel
+    Left = 84
+    Height = 88
+    Top = 264
+    Width = 587
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'Created by Nick "SuperDisk" Faro and Eldred "ISSOtm" Habert'#13#10#13#10'Sound playback engine written by Christian Hackbart'
+    ParentColor = False
+  end
+  object Button1: TButton
+    Left = 292
+    Height = 38
+    Top = 368
+    Width = 202
+    Caption = 'Close'
+    OnClick = Button1Click
+    TabOrder = 1
+  end
+end

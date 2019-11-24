@@ -5,7 +5,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, instruments;
+  Classes, SysUtils, instruments, waves;
 
 type
   TRegisters = record
@@ -119,7 +119,64 @@ function SquareInstrumentToRegisters(
   Initial: Boolean;
   Instr: TInstrument): TRegisters;
 
+function WaveInstrumentToRegisters(
+  Frequency: Word;
+  Initial: Boolean;
+  Instr: TInstrument): TRegisters;
+
+function ConvertWaveform(Waveform: TWave): T4bitWave;
+
 implementation
+
+function ConvertWaveform(Waveform: TWave): T4bitWave;
+var
+  I: Integer;
+  J: Integer;
+begin
+  for I := 0 to 15 do begin
+    J := I*2;
+    Result[I] := (Waveform[J] shl 4) or (Waveform[J+1]);
+  end;
+end;
+
+function WaveInstrumentToRegisters(
+  Frequency: Word;
+  Initial: Boolean;
+  Instr: TInstrument): TRegisters;
+var
+  NR30: TCh3SoundOnOffRegister;
+  NR31: TCh3SoundLengthRegister;
+  NR32: TCh3OutputLevelRegister;
+  NR33: TLowByteRegister;
+  NR34: THighByteRegister;
+begin
+  NR30 := Default(TCh3SoundOnOffRegister);
+  NR31 := Default(TCh3SoundLengthRegister);
+  NR32 := Default(TCh3OutputLevelRegister);
+  NR33 := Default(TLowByteRegister);
+  NR34 := Default(THighByteRegister);
+
+  NR30.Playback := True;
+
+  NR31 := Instr.Length;
+
+  NR32.OutputLevel := Instr.OutputLevel;
+
+  NR33 := Frequency and $11111111;
+
+  NR34.Initial := Initial;
+  NR34.FrequencyBits := (Frequency and %0000011100000000) shr 8;
+  NR34.UseLength := Instr.LengthEnabled;
+
+  // Copy to wave ram
+
+  Result.Type_ := Wave;
+  Result.NR30 := NR30.ByteValue;
+  Result.NR31 := NR31;
+  Result.NR32 := NR32.ByteValue;
+  Result.NR33 := NR33;
+  Result.NR34 := NR34.ByteValue;
+end;
 
 function NoiseInstrumentToRegisters(
   Initial: Boolean;
@@ -148,11 +205,11 @@ begin
   NR44.Initial:= True;
   NR44.UseLength:=Instr.LengthEnabled;
 
+  Result.Type_ := Noise;
   Result.NR41 := NR41;
   Result.NR42 := NR42.ByteValue;
   Result.NR43 := NR43.ByteValue;
   Result.NR44 := NR44.ByteValue;
-
 end;
 
 function SquareInstrumentToRegisters(

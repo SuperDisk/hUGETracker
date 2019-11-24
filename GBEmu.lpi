@@ -63,7 +63,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="19">
+    <Units Count="20">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -126,6 +126,7 @@
         <Filename Value="about.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAbout"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="About"/>
       </Unit12>
@@ -158,6 +159,13 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Waves"/>
       </Unit18>
+      <Unit19>
+        <Filename Value="about_hugetracker.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmAboutHugetracker"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit19>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

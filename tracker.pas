@@ -6,22 +6,52 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  Menus, Spin, StdCtrls, Grids, ValEdit, SynEdit, VirtualTrees, ECSlider,
-  ECProgressBar, math, Instruments, Waves, Song, EmulationThread, Utils,
-  Constants, StrUtils, mainloop, sound, vars, machine;
+  Menus, Spin, StdCtrls, Grids, ValEdit, PopupNotifier, ActnList, StdActns,
+  SynEdit, VirtualTrees, ECSlider, ECProgressBar, math, Instruments, Waves,
+  Song, EmulationThread, Utils, Constants, StrUtils, mainloop, sound, vars,
+  machine, about_hugetracker;
 
 type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    HelpLookupManual: TAction;
+    ActionList1: TActionList;
+    EditCopy1: TEditCopy;
+    EditCut1: TEditCut;
+    EditDelete1: TEditDelete;
+    EditPaste1: TEditPaste;
+    EditSelectAll1: TEditSelectAll;
+    EditUndo1: TEditUndo;
     ExportButton: TButton;
+    FileExit1: TFileExit;
+    FileOpen1: TFileOpen;
+    FileSaveAs1: TFileSaveAs;
+    FlowPanel1: TFlowPanel;
+    ImageList1: TImageList;
     ImportWaveButton: TButton;
     CommentMemo: TMemo;
     Label20: TLabel;
     Label21: TLabel;
+    MenuItem10: TMenuItem;
+    MenuItem11: TMenuItem;
+    MenuItem12: TMenuItem;
+    MenuItem13: TMenuItem;
+    MenuItem14: TMenuItem;
+    MenuItem15: TMenuItem;
+    N3: TMenuItem;
+    N2: TMenuItem;
+    N1: TMenuItem;
+    MenuItem6: TMenuItem;
+    MenuItem7: TMenuItem;
+    MenuItem8: TMenuItem;
+    MenuItem9: TMenuItem;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
     SpinEdit1: TSpinEdit;
+    ToolBar1: TToolBar;
+    ToolButton1: TToolButton;
+    PanicToolButton: TToolButton;
     WaveEditNumberSpinner: TSpinEdit;
     WaveEditGroupBox: TGroupBox;
     Label19: TLabel;
@@ -62,7 +92,6 @@ type
     LengthEnabledCheckbox: TCheckBox;
     InstrumentTypeCombobox: TComboBox;
     DirectionComboBox: TComboBox;
-    CoolBar1: TCoolBar;
     InstrumentNameEdit: TEdit;
     InstrumentGroupBox: TGroupBox;
     EnvelopeGroupBox: TGroupBox;
@@ -84,7 +113,6 @@ type
     Panel1: TPanel;
     Panel2: TPanel;
     InstrumentNumberSpinner: TSpinEdit;
-    Panel3: TPanel;
     Panel4: TPanel;
     Splitter1: TSplitter;
     PatternTabSheet: TTabSheet;
@@ -98,6 +126,7 @@ type
     NoiseFreqSpinner: TECSpinPosition;
     DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
+    procedure HelpLookupManualExecute(Sender: TObject);
     procedure ArtistEditChange(Sender: TObject);
     procedure CommentMemoChange(Sender: TObject);
     procedure DirectionComboBoxChange(Sender: TObject);
@@ -114,7 +143,9 @@ type
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
+    procedure MenuItem5Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
+    procedure PanicToolButtonClick(Sender: TObject);
     procedure SpinEdit1Change(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
     procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
@@ -205,6 +236,8 @@ end;
 procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer);
 var
   Regs: TRegisters;
+  I: Integer;
+  NewWaveform: T4bitWave;
 begin
   with Song.Instruments[Instr] do
   begin
@@ -216,6 +249,26 @@ begin
         Spokeb(NR12, Regs.NR12);
         Spokeb(NR13, Regs.NR13);
         Spokeb(NR14, Regs.NR14);
+      end;
+      Wave: begin
+        Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
+        NewWaveform := ConvertWaveform(Song.Waves[Waveform]);
+        // Fill Wave RAM with the waveform
+        for I := 0 to 15 do
+          Spokeb($FF30+I, NewWaveform[I]);
+
+        Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
+        writeln(inttobin(Regs.NR30, 8, 20));
+        writeln(inttobin(Regs.NR31, 8, 20));
+        writeln(inttobin(Regs.NR32, 8, 20));
+        writeln(inttobin(Regs.NR33, 8, 20));
+        writeln(inttobin(Regs.NR34, 8, 20));
+
+        Spokeb(NR30, Regs.NR30);
+        Spokeb(NR31, Regs.NR31);
+        Spokeb(NR32, Regs.NR32);
+        Spokeb(NR33, Regs.NR33);
+        Spokeb(NR34, Regs.NR34)
       end;
       Noise: begin
         Regs := NoiseInstrumentToRegisters(True, Song.Instruments[Instr]);
@@ -341,6 +394,9 @@ end;
 
 procedure TfrmTracker.PaintBox1Paint(Sender: TObject);
 begin
+  PaintBox1.Canvas.Brush.Color := clBlack;
+  PaintBox1.Canvas.Pen.Color := clBlack;
+  PaintBox1.Canvas.Clear;
   if WaveformCombobox.ItemIndex > -1 then
     DrawWaveform(PaintBox1, Song.Waves[WaveformCombobox.ItemIndex]);
 end;
@@ -458,7 +514,7 @@ begin
 
     Keybindings.TryGetData(Key, Freq);
     if Freq <> 0 then
-      PreviewInstrument(Keybindings[Key], InstrumentNumberSpinner.Value);
+      PreviewInstrument(Freq, InstrumentNumberSpinner.Value);
 
     PreviewingInstrument := True;
 end;
@@ -503,6 +559,11 @@ end;
 procedure TfrmTracker.ArtistEditChange(Sender: TObject);
 begin
   Song.Artist := ArtistEdit.Text;
+end;
+
+procedure TfrmTracker.HelpLookupManualExecute(Sender: TObject);
+begin
+
 end;
 
 procedure TfrmTracker.DivRatioSpinnerChange(Sender: TObject);
@@ -559,9 +620,36 @@ begin
   PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
 end;
 
+procedure TfrmTracker.MenuItem5Click(Sender: TObject);
+var
+  AboutForm: TfrmAboutHugeTracker;
+begin
+  AboutForm := TfrmAboutHugetracker.Create(Self);
+  AboutForm.ShowModal;
+  AboutForm.Free;
+end;
+
 procedure TfrmTracker.NoiseFreqSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.ShiftClockFreq := Round(NoiseFreqSpinner.Position);
+end;
+
+procedure TfrmTracker.PanicToolButtonClick(Sender: TObject);
+begin
+  // Silence CH1
+  Spokeb(NR12, 0);
+  Spokeb(NR14, %10000000);
+
+  // Silence CH2
+  Spokeb(NR22, 0);
+  Spokeb(NR24, %10000000);
+
+  // Silence CH3
+  Spokeb(NR30, 0);
+
+  // Silence CH4
+  Spokeb(NR42, 0);
+  Spokeb(NR44, %10000000);
 end;
 
 procedure TfrmTracker.SpinEdit1Change(Sender: TObject);
