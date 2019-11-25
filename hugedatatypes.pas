@@ -15,6 +15,8 @@ type
     EffectParams: Integer;
   end;
 
+  TSelection = array of array of TCell;
+
 implementation
 
 end.

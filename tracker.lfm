@@ -55,10 +55,10 @@ object frmTracker: TfrmTracker
       Height = 930
       Top = 0
       Width = 1595
-      ActivePage = CommentsTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 4
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -1713,9 +1713,10 @@ object frmTracker: TfrmTracker
     end
     object FileSaveAs1: TFileSaveAs
       Category = 'File'
-      Caption = 'Save &As ...'
+      Caption = 'Save As ...'
       Hint = 'Save As'
       ImageIndex = 59
+      ShortCut = 16467
       OnAccept = FileSaveAs1Accept
     end
     object FileExit1: TFileExit

@@ -5,7 +5,7 @@ unit ClipboardUtils;
 interface
 
 uses
-  Classes, SysUtils, Constants, HugeDatatypes;
+  Classes, SysUtils, Constants, Clipbrd, HugeDatatypes;
 
 type
   TModplugClipboardCell = packed record
@@ -14,7 +14,7 @@ type
     Instrument: array[0..1] of Char;
     Volume: array[0..2] of Char;
     EffectCode: Char;
-    EffectParam: array[0..2] of Char;
+    EffectParams: array[0..1] of Char;
   end;
 
 function ModplugToHuge(MPCell: TModplugClipboardCell): TCell;
@@ -23,17 +23,27 @@ implementation
 
 function ModplugToHuge(MPCell: TModplugClipboardCell): TCell;
 begin
-  if not NoteToCodeMap.TryGetData(String(MPCell.Note), Result.Note) then begin
-    Result := nil;
-    exit;
-  end;
-  try
-    Result.Instrument := StrToInt(String(MPCell.Instrument));
-    Result.EffectCode := StrToInt(String(MPCell.EffectCode));
-    Result.EffectParam := StrToInt(String(MPCell.EffectParam));
-  except
-    on E: EConvertError do Result := nil;
-  end;
+  Writeln(String(MPCell.Pipe));
+  Writeln(String(MPCell.Note));
+  Result.Note := NoteToCodeMap.KeyData[String(MPCell.Note)];
+  Result.Instrument := StrToInt(String(MPCell.Instrument));
+  Result.EffectCode := StrToInt(String('0x'+MPCell.EffectCode));
+  Result.EffectParams := StrToInt(String('0x'+MPCell.EffectParams));
+end;
+
+function GetPastedCells: TSelection;
+var
+  C: TCell;
+  X: TModplugClipboardCell;
+  ClipboardDynamicBytes: TBytes;
+  ClipboardBytes: array[0..sizeof(X)] of Byte absolute X;
+  I: Integer;
+begin
+  ClipboardDynamicBytes := TEncoding.UTF8.GetBytes(Clipboard.AsText);
+  for I := 0 to sizeof(X) do
+    ClipboardBytes[I] := ClipboardDynamicBytes[I];
+
+  C := ModplugToHuge(X);
 end;
 
 end.
