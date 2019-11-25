@@ -34,7 +34,7 @@ object frmAboutHugetracker: TfrmAboutHugetracker
     Width = 587
     Alignment = taCenter
     AutoSize = False
-    Caption = 'Created by Nick "SuperDisk" Faro and Eldred "ISSOtm" Habert'#13#10#13#10'Sound playback engine written by Christian Hackbart'
+    Caption = 'Created by Nick "SuperDisk" Faro and Eldred "ISSOtm" Habert'#13#10#13#10'Soundchip emulator written by Christian Hackbart and Rusty Wagner'
     ParentColor = False
   end
   object Button1: TButton

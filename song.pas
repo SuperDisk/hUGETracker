@@ -4,16 +4,22 @@ unit Song;
 
 interface
 
-uses instruments, waves;
+uses instruments, waves, patterns;
 
 type
+
+  { TSong }
+
   TSong = record
-    Name: String;
-    Artist: String;
-    Comment: String;
+    Name: ShortString;
+    Artist: ShortString;
+    Comment: ShortString;
 
     Instruments: array[1..15] of TInstrument;
     Waves: array[0..15] of TWave;
+
+    Patterns: array of TPattern;
+    OrderMatrix: array of integer;
 
     TicksPerRow: Integer;
   end;

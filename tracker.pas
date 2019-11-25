@@ -6,19 +6,22 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  Menus, Spin, StdCtrls, Grids, ValEdit, PopupNotifier, ActnList, StdActns,
-  SynEdit, VirtualTrees, ECSlider, ECProgressBar, math, Instruments, Waves,
-  Song, EmulationThread, Utils, Constants, StrUtils, mainloop, sound, vars,
-  machine, about_hugetracker;
+  Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit,
+  ECSlider, ECProgressBar, math, Instruments, Waves, Song, EmulationThread,
+  Utils, Constants, sound, vars, machine, about_hugetracker, Clipbrd, ValEdit,
+  Grids, TrackerGrid, lclintf, lmessages;
 
 type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    CutAction: TAction;
+    EditCut1: TEditCut;
+    PasteAction: TAction;
+    CopyAction: TAction;
     HelpLookupManual: TAction;
     ActionList1: TActionList;
     EditCopy1: TEditCopy;
-    EditCut1: TEditCut;
     EditDelete1: TEditDelete;
     EditPaste1: TEditPaste;
     EditSelectAll1: TEditSelectAll;
@@ -39,6 +42,7 @@ type
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
+    MenuItem16: TMenuItem;
     N3: TMenuItem;
     N2: TMenuItem;
     N1: TMenuItem;
@@ -48,7 +52,8 @@ type
     MenuItem9: TMenuItem;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
-    SpinEdit1: TSpinEdit;
+    ScrollBox1: TScrollBox;
+    TicksPerRowSpinEdit: TSpinEdit;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
     PanicToolButton: TToolButton;
@@ -126,6 +131,11 @@ type
     NoiseFreqSpinner: TECSpinPosition;
     DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
+    TrackerGrid: TTrackerGrid;
+    procedure CopyActionExecute(Sender: TObject);
+    procedure CutActionExecute(Sender: TObject);
+    procedure FileOpen1Accept(Sender: TObject);
+    procedure FileSaveAs1Accept(Sender: TObject);
     procedure HelpLookupManualExecute(Sender: TObject);
     procedure ArtistEditChange(Sender: TObject);
     procedure CommentMemoChange(Sender: TObject);
@@ -143,10 +153,12 @@ type
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
+    procedure MenuItem16Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
     procedure PanicToolButtonClick(Sender: TObject);
-    procedure SpinEdit1Change(Sender: TObject);
+    procedure PasteActionExecute(Sender: TObject);
+    procedure TicksPerRowSpinEditChange(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
     procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -184,6 +196,8 @@ type
     procedure LoadInstrument(Instr: Integer);
     procedure LoadWave(Wave: Integer);
 
+    procedure UpdateUIAfterLoad;
+
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
 
     procedure PreviewInstrument(Freq: Integer; Instr: Integer);
@@ -199,6 +213,18 @@ implementation
 {$R *.lfm}
 
 { TfrmTracker }
+
+procedure TfrmTracker.UpdateUIAfterLoad;
+begin
+  LoadInstrument(1);
+  LoadWave(0);
+
+  SongEdit.Text := Song.Name;
+  ArtistEdit.Text := Song.Artist;
+  CommentMemo.Text := Song.Comment;
+
+  TicksPerRowSpinEdit.Value := Song.TicksPerRow;
+end;
 
 procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
 var
@@ -258,14 +284,14 @@ begin
           Spokeb($FF30+I, NewWaveform[I]);
 
         Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
-        writeln(inttobin(Regs.NR30, 8, 20));
+        {writeln(inttobin(Regs.NR30, 8, 20));
         writeln(inttobin(Regs.NR31, 8, 20));
         writeln(inttobin(Regs.NR32, 8, 20));
         writeln(inttobin(Regs.NR33, 8, 20));
-        writeln(inttobin(Regs.NR34, 8, 20));
+        writeln(inttobin(Regs.NR34, 8, 20));}
 
         Spokeb(NR30, Regs.NR30);
-        Spokeb(NR31, Regs.NR31);
+        Spokeb(NR31, Regs.NR31); // TODO: Figure out why this isn't working?
         Spokeb(NR32, Regs.NR32);
         Spokeb(NR33, Regs.NR33);
         Spokeb(NR34, Regs.NR34)
@@ -500,6 +526,10 @@ begin
   LoadInstrument(1);
   LoadWave(0);
 
+  // Create pattern editor control
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1);
+  //TrackerGrid.Parent := ScrollBox1;
+
   // Get the emulator ready to make sound...
   EmulationThread := TEmulationThread.Create;
   EmulationThread.Start;
@@ -531,13 +561,13 @@ end;
 
 procedure TfrmTracker.ImportWaveButtonClick(Sender: TObject);
 var
-  F: file of byte;
+  F: file of TWave;
 begin
   OpenDialog1.DefaultExt := '*.pcm';
   if OpenDialog1.Execute then begin
     assignfile(F, OpenDialog1.FileName);
     reset(F);
-    BlockRead(F, Song.Waves[WaveEditNumberSpinner.Value], 32);
+    Read(F, Song.Waves[WaveEditNumberSpinner.Value]);
     CloseFile(F);
     WaveEditPaintBox.Invalidate;
   end;
@@ -566,6 +596,43 @@ begin
 
 end;
 
+procedure TfrmTracker.FileSaveAs1Accept(Sender: TObject);
+{var
+  F: file of TSong;}
+begin
+  {AssignFile(F, FileSaveAs1.Dialog.FileName);
+  Rewrite(F);
+  Write(F, Song);
+  CloseFile(F);}
+end;
+
+procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
+{var
+  F: file of TSong;}
+begin
+  {AssignFile(F, FileOpen1.Dialog.FileName);
+  Reset(F);
+  Read(F, Song);
+  CloseFile(F);
+
+  UpdateUIAfterLoad;}
+end;
+
+procedure TfrmTracker.CutActionExecute(Sender: TObject);
+begin
+  PostMessage(Screen.ActiveControl.Handle, LM_CUT, 0, 0);
+end;
+
+procedure TfrmTracker.CopyActionExecute(Sender: TObject);
+begin
+  PostMessage(Screen.ActiveControl.Handle, LM_COPY, 0, 0);
+end;
+
+procedure TfrmTracker.PasteActionExecute(Sender: TObject);
+begin
+  PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
+end;
+
 procedure TfrmTracker.DivRatioSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.DividingRatio := Round(DivRatioSpinner.Position);
@@ -590,12 +657,12 @@ begin
 end;
 
 procedure TfrmTracker.ExportButtonClick(Sender: TObject);
-var F: file of Byte;
+var F: file of TWave;
 begin
   if SaveDialog1.Execute then begin
     AssignFile(F, OpenDialog1.FileName);
     Rewrite(F);
-    BlockWrite(F, CurrentWave^, 32);
+    Write(F, CurrentWave^);
     CloseFile(F);
   end;
 end;
@@ -618,6 +685,11 @@ end;
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
 begin
   PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
+end;
+
+procedure TfrmTracker.MenuItem16Click(Sender: TObject);
+begin
+  PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
@@ -652,9 +724,9 @@ begin
   Spokeb(NR44, %10000000);
 end;
 
-procedure TfrmTracker.SpinEdit1Change(Sender: TObject);
+procedure TfrmTracker.TicksPerRowSpinEditChange(Sender: TObject);
 begin
-  Song.TicksPerRow := SpinEdit1.Value;
+  Song.TicksPerRow := TicksPerRowSpinEdit.Value;
 end;
 
 procedure TfrmTracker.WaveEditNumberSpinnerChange(Sender: TObject);

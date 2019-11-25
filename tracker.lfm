@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 986
+  Left = 1560
   Height = 1298
-  Top = 460
+  Top = 529
   Width = 1893
   Caption = 'hUGETracker'
   ClientHeight = 1268
@@ -55,14 +55,14 @@ object frmTracker: TfrmTracker
       Height = 930
       Top = 0
       Width = 1595
-      ActivePage = InstrumentTabSheet
+      ActivePage = CommentsTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 4
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 927
+        ClientHeight = 892
         ClientWidth = 1587
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
@@ -120,14 +120,14 @@ object frmTracker: TfrmTracker
             ParentColor = False
             ParentFont = False
           end
-          object SpinEdit1: TSpinEdit
+          object TicksPerRowSpinEdit: TSpinEdit
             Left = 199
             Height = 33
             Top = 110
             Width = 75
             MaxValue = 20
             MinValue = 1
-            OnChange = SpinEdit1Change
+            OnChange = TicksPerRowSpinEditChange
             ParentFont = False
             TabOrder = 2
             Value = 1
@@ -136,7 +136,25 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
+        ClientHeight = 892
+        ClientWidth = 1587
         ParentFont = False
+        object ScrollBox1: TScrollBox
+          Left = 0
+          Height = 892
+          Top = 0
+          Width = 1587
+          HorzScrollBar.Increment = 1
+          HorzScrollBar.Page = 1
+          HorzScrollBar.Smooth = True
+          HorzScrollBar.Tracking = True
+          VertScrollBar.Increment = 1
+          VertScrollBar.Page = 1
+          VertScrollBar.Smooth = True
+          VertScrollBar.Tracking = True
+          Align = alClient
+          TabOrder = 0
+        end
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
@@ -988,14 +1006,14 @@ object frmTracker: TfrmTracker
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 927
+        ClientHeight = 892
         ClientWidth = 1587
         ParentFont = False
         object CommentMemo: TMemo
           AnchorSideTop.Control = Label17
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 870
+          Height = 835
           Top = 57
           Width = 1587
           Align = alBottom
@@ -1017,14 +1035,14 @@ object frmTracker: TfrmTracker
       end
       object RoutinesTabSheet: TTabSheet
         Caption = 'Routines'
-        ClientHeight = 927
+        ClientHeight = 892
         ClientWidth = 1587
         ParentFont = False
         inline RoutineSynedit: TSynEdit
           AnchorSideTop.Control = Label19
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 722
+          Height = 687
           Top = 205
           Width = 1587
           Align = alBottom
@@ -1632,13 +1650,13 @@ object frmTracker: TfrmTracker
     object MenuItem2: TMenuItem
       Caption = 'Edit'
       object MenuItem6: TMenuItem
-        Action = EditCopy1
+        Action = CopyAction
       end
       object MenuItem7: TMenuItem
-        Action = EditCut1
+        Action = CutAction
       end
       object MenuItem9: TMenuItem
-        Action = EditPaste1
+        Action = PasteAction
       end
       object N1: TMenuItem
         Caption = '-'
@@ -1673,8 +1691,12 @@ object frmTracker: TfrmTracker
       end
     end
     object DebugButton: TMenuItem
-      Caption = 'Debug shite'
+      Caption = 'Debug play note'
       OnClick = DebugButtonClick
+    end
+    object MenuItem16: TMenuItem
+      Caption = 'Debug shite'
+      OnClick = MenuItem16Click
     end
   end
   object ActionList1: TActionList
@@ -1687,18 +1709,48 @@ object frmTracker: TfrmTracker
       Hint = 'Open'
       ImageIndex = 42
       ShortCut = 16463
+      OnAccept = FileOpen1Accept
     end
     object FileSaveAs1: TFileSaveAs
       Category = 'File'
       Caption = 'Save &As ...'
       Hint = 'Save As'
       ImageIndex = 59
+      OnAccept = FileSaveAs1Accept
     end
-    object EditCut1: TEditCut
+    object FileExit1: TFileExit
+      Category = 'File'
+      Caption = 'E&xit'
+      Hint = 'Exit'
+    end
+    object HelpLookupManual: TAction
+      Category = 'Help'
+      Caption = 'Look up in &Manual ...'
+      ImageIndex = 19
+      OnExecute = HelpLookupManualExecute
+      ShortCut = 32845
+    end
+    object CopyAction: TAction
+      Category = 'Edit'
+      Caption = '&Copy'
+      Hint = 'Copy'
+      ImageIndex = 9
+      OnExecute = CopyActionExecute
+      ShortCut = 16451
+    end
+    object PasteAction: TAction
+      Category = 'Edit'
+      Caption = '&Paste'
+      Hint = 'Paste'
+      ImageIndex = 47
+      OnExecute = PasteActionExecute
+      ShortCut = 16470
+    end
+    object CutAction: TAction
       Category = 'Edit'
       Caption = 'Cu&t'
-      Hint = 'Cut'
       ImageIndex = 10
+      OnExecute = CutActionExecute
       ShortCut = 16472
     end
     object EditCopy1: TEditCopy
@@ -1736,17 +1788,11 @@ object frmTracker: TfrmTracker
       ImageIndex = 39
       ShortCut = 16449
     end
-    object FileExit1: TFileExit
-      Category = 'File'
-      Caption = 'E&xit'
-      Hint = 'Exit'
-    end
-    object HelpLookupManual: TAction
-      Category = 'Help'
-      Caption = 'Look up in &Manual ...'
-      ImageIndex = 19
-      OnExecute = HelpLookupManualExecute
-      ShortCut = 32845
+    object EditCut1: TEditCut
+      Category = 'Edit'
+      Caption = 'Cu&t'
+      Hint = 'Cut'
+      ShortCut = 16472
     end
   end
   object ImageList1: TImageList
