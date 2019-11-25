@@ -254,8 +254,8 @@ begin
     Pen.Width := 2;
     MoveTo(0, H);
     for I := 0 to 32 do
-      LineTo(I*Interval, Round((Wave[I]/$F)*H));
-    LineTo(W, Round((Wave[0]/$F)*H));
+      LineTo(I*Interval, Trunc((Wave[I]/$F)*H));
+    LineTo(W, Trunc((Wave[0]/$F)*H));
   end;
 end;
 
@@ -746,11 +746,11 @@ var
   Idx: Integer;
 begin
   if DrawingWave then begin
-    Idx := Round((X / WaveEditPaintBox.Width)*32);
+    Idx := Trunc((X / WaveEditPaintBox.Width)*32);
     CurrentWave^[Idx] :=
       Min($F,
         Max(0,
-          Round((Y / WaveEditPaintBox.Height)*$F)));
+          Trunc((Y / WaveEditPaintBox.Height)*$F)));
     WaveEditPaintBox.Invalidate;
   end;
 end;

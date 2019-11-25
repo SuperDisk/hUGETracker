@@ -8,19 +8,27 @@ uses
   Classes, SysUtils, Controls, Graphics, Constants, LCLType, math,
   LCLIntf, LMessages, ClipboardUtils, HugeDatatypes;
 
+// TODO: Maybe read these from a config file
 const
-  clMisc = clMaroon;
-  clPitch = clYellow;
-  clVolume = clGreen;
-  clPan = clTeal;
-  clSong = clRed;
+  clNote = TColor($7F4A00);
+  clInstrument = TColor($7F7F00);
+  clVolume = TColor($99FFB7);
+
+  clFxMisc = TColor($3F3F7C);
+  clFxPitch = TColor($006262);
+  clFxVolume = TColor($007F26);
+  clFxPan = clInstrument;
+  clFxSong = TColor($00007F);
+
+  NumColumns = 4;
+  NumRows = 64;
 
 type
-  TCellPart = (cpNote, cpInstrument, cpVolume, cpEffect);
+  TCellPart = (cpNote = 0, cpInstrument = 1, cpVolume = 2, cpEffect = 3);
 
   TSelectionPos = record
     X, Y: Integer;
-    SelectedPart: set of TCellPart
+    SelectedPart: TCellPart
   end;
 
   { TTrackerGrid }
@@ -58,17 +66,12 @@ type
 
     function GetEffectColor(EffectCode: Integer): TColor;
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
+    function SelectionToRect(Selection: TSelectionPos): TRect;
+    function MousePosToSelection(X, Y: Integer): TSelectionPos;
 
   public
     Cursor, Other: TSelectionPos;
-    SelectedRow: Integer;
   end;
-
-const
-  NotePosition = 0;
-  InstrumentPosition = 3;
-  VolumePosition = 5;
-  EffectPosition = 8;
 
 implementation
 
@@ -80,16 +83,15 @@ var
 begin
   inherited Create(AOwner);
 
-  ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents,
-      csDoubleClicks];
+  ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents, csDoubleClicks];
   Self.Parent := Parent;
 
   // Kind of a hack
   with Canvas.Font do begin
     Name := 'Pixelite';
     Size := 12;
-    ColumnWidth := GetTextWidth('C-501v64C01');
-    RowHeight := GetTextHeight('C-501v64C01');
+    ColumnWidth := GetTextWidth('C-5 01v64C01 ');
+    RowHeight := GetTextHeight('C-5 01v64C01 ');
 
     CharHeight := RowHeight;
     CharWidth := GetTextWidth('C');
@@ -123,7 +125,7 @@ begin
         Brush.Color := RGBToColor(206, 197, 181);
         FillRect(0, I*RowHeight, Width, (I+1)*RowHeight);
       end;
-      if I = SelectedRow then begin
+      if I = Cursor.Y then begin
         Brush.Color := RGBToColor(169, 153, 122);
         FillRect(0, I*RowHeight, Width, (I+1)*RowHeight);
       end;
@@ -133,7 +135,7 @@ begin
     end;
   end;
 
-  {Canvas.Pen.Color := RGBToColor(169, 153, 122);
+  Canvas.Pen.Color := TColor($ABB7BC);
   Canvas.Pen.Width := 2;
   R := TRect.Create(0, 0, ColumnWidth+1, Height);
   Canvas.Rectangle(R);
@@ -144,15 +146,13 @@ begin
   R := TRect.Create(ColumnWidth*3, 0, ColumnWidth, Height);
   Canvas.Rectangle(R);
   R := TRect.Create(ColumnWidth*4, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);}
+  Canvas.Rectangle(R);
 
   RenderSelectedArea;
 end;
 
 procedure TTrackerGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
-var
-  SelectedColumn: Integer;
 begin
   inherited MouseDown(Button, Shift, X, Y);
 
@@ -162,13 +162,7 @@ begin
   if not (csDesigning in ComponentState) and CanFocus then
     SetFocus;
 
-  SelectedRow := Round((Y/Height)*63);
-  SelectedColumn := Round((X/Width)*4);
-  with Cursor do begin
-    X := SelectedColumn;
-    Y := SelectedRow;
-    SelectedPart := [];
-  end;
+  Cursor := MousePosToSelection(X, Y);
 
   ClampCursors;
   Other := Cursor;
@@ -177,20 +171,12 @@ begin
 end;
 
 procedure TTrackerGrid.MouseMove(Shift: TShiftState; X, Y: Integer);
-var
-  SelectedRow, SelectedColumn: Integer;
 begin
   inherited MouseMove(Shift, X, Y);
 
   if MouseButtonDown then begin
     Selecting := True;
-    SelectedRow := Round((Y/Height)*63);
-    SelectedColumn := Round((X/Width)*4);
-    with Other do begin
-      X := SelectedColumn;
-      Y := SelectedRow;
-      SelectedPart := [];
-    end;
+    Other := MousePosToSelection(X, Y);
 
     ClampCursors;
 
@@ -210,13 +196,24 @@ procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited KeyDown(Key, Shift);
 
-  Selecting := False;
-
+  Writeln(Cursor.SelectedPart, ' ', High(TCellPart), ' ', Low(TCellPart));
   case Key of
     VK_UP: Cursor.Y -= 1;
     VK_DOWN: Cursor.Y += 1;
-    VK_LEFT: Cursor.X -= 1;
-    VK_RIGHT: Cursor.X += 1;
+    VK_LEFT: begin
+      if ssCtrl in Shift then
+        Cursor.X -= 1
+      else if Cursor.SelectedPart > Low(TCellPart) then begin
+        Cursor.SelectedPart := Pred(Cursor.SelectedPart);
+      end;
+    end;
+    VK_RIGHT: begin
+      if ssCtrl in Shift then
+        Cursor.X += 1
+      else if Cursor.SelectedPart < High(TCellPart) then begin
+        Cursor.SelectedPart := Succ(Cursor.SelectedPart);
+      end;
+    end;
     else begin
       with Cells[Cursor.X, Cursor.Y] do begin
         Instrument := Random(20);
@@ -227,8 +224,11 @@ begin
     end;
   end;
 
+  if not (ssShift in Shift) then
+    Other := Cursor;
+  Selecting := ssShift in Shift;
+
   ClampCursors;
-  SelectedRow := Cursor.Y;
 
   Invalidate
 end;
@@ -249,7 +249,6 @@ procedure TTrackerGrid.RenderSelectedArea;
 var
   R: TRect;
 begin
-  if Selecting then begin
     R := SelectionsToRect(Cursor, Other);
 
     with Cursor do begin;
@@ -264,19 +263,6 @@ begin
         R.Top,
         DSTINVERT);
     end;
-  end
-  else
-    with Cursor do
-      BitBlt(
-        Canvas.Handle,
-        Cursor.X*ColumnWidth,
-        Cursor.Y*RowHeight,
-        ColumnWidth,
-        RowHeight,
-        Canvas.Handle,
-        Cursor.X*ColumnWidth,
-        Cursor.Y*RowHeight,
-        DSTINVERT);
 end;
 
 procedure TTrackerGrid.ClampCursors;
@@ -306,7 +292,7 @@ var
 begin
   with Canvas do begin
     if NoteMap.TryGetData(Cell.Note, NoteString) then begin
-      Font.Color := clBlue;
+      Font.Color := clNote;
       TextOut(PenPos.X, PenPos.Y, NoteString);
     end
     else begin
@@ -314,8 +300,10 @@ begin
       TextOut(PenPos.X, PenPos.Y, '...');
     end;
 
+    TextOut(PenPos.X, PenPos.Y, ' ');
+
     if Cell.Instrument <> 0 then begin
-      Font.Color := clTeal;
+      Font.Color := clInstrument;
       TextOut(PenPos.X, PenPos.Y, FormatFloat('00', Cell.Instrument));
     end
     else begin
@@ -339,6 +327,8 @@ begin
       Font.Color := clGray;
       TextOut(PenPos.X, PenPos.Y, '...');
     end;
+
+    TextOut(PenPos.X, PenPos.Y, ' ');
   end;
 end;
 
@@ -346,29 +336,73 @@ function TTrackerGrid.GetEffectColor(EffectCode: Integer): TColor;
 begin
   Result := clBlack;
   case EffectCode of
-    $0: Result := clMisc;
-    $1: Result := clPitch;
-    $2: Result := clPitch;
-    $3: Result := clPitch;
-    $4: Result := clPitch;
-    $5: Result := clSong;
-    $6: Result := clMisc;
-    $7: Result := clMisc;
-    $8: Result := clPan;
-    $9: Result := clSong;
-    $A: Result := clVolume;
-    $B: Result := clSong;
-    $C: Result := clVolume;
-    $D: Result := clSong;
-    $E: Result := clMisc;
-    $F: Result := clSong;
+    $0: Result := clFxMisc;
+    $1: Result := clFxPitch;
+    $2: Result := clFxPitch;
+    $3: Result := clFxPitch;
+    $4: Result := clFxPitch;
+    $5: Result := clFxSong;
+    $6: Result := clFxMisc;
+    $7: Result := clFxMisc;
+    $8: Result := clFxPan;
+    $9: Result := clFxSong;
+    $A: Result := clFxVolume;
+    $B: Result := clFxSong;
+    $C: Result := clFxVolume;
+    $D: Result := clFxSong;
+    $E: Result := clFxMisc;
+    $F: Result := clFxSong;
   end;
 end;
 
 function TTrackerGrid.SelectionsToRect(S1, S2: TSelectionPos): TRect;
 begin
-  Result := TRect.Create(S1.X*ColumnWidth, S1.Y*RowHeight, S1.X*ColumnWidth + ColumnWidth, S1.Y*RowHeight + RowHeight);
-  Result.Union(TRect.Create(S2.X*ColumnWidth, S2.Y*RowHeight, S2.X*ColumnWidth + ColumnWidth, S2.Y*RowHeight + RowHeight));
+  Result := SelectionToRect(S1);
+  Result.Union(SelectionToRect(S2));
+end;
+
+function TTrackerGrid.SelectionToRect(Selection: TSelectionPos): TRect;
+var
+  CharLeft, CharRight: Integer;
+begin
+  case Selection.SelectedPart of
+    cpNote: begin
+      CharLeft := 0;
+      CharRight := 3;
+    end;
+    cpInstrument: begin
+      CharLeft := 4;
+      CharRight := 6
+    end;
+    cpVolume: begin
+      CharLeft := 6;
+      CharRight := 9;
+    end;
+    cpEffect: begin
+      CharLeft := 9;
+      CharRight := 12;
+    end;
+  end;
+
+  Result.Left := (Selection.X*ColumnWidth) + (CharLeft*CharWidth);
+  Result.Right := (Selection.X*ColumnWidth) + (CharRight*CharWidth);
+  Result.Top := (Selection.Y*RowHeight);
+  Result.Bottom := (Selection.Y*RowHeight) + RowHeight;
+end;
+
+function TTrackerGrid.MousePosToSelection(X, Y: Integer): TSelectionPos;
+begin
+  Result.X := Trunc((X/Width)*NumColumns);
+  Result.Y := Trunc((Y/Height)*NumRows);
+
+  X := (min(X, width-1) mod ColumnWidth);
+  X := Trunc((X/ColumnWidth)*13);
+  case X of
+    0..3: Result.SelectedPart := cpNote;
+    4..6: Result.SelectedPart := cpInstrument;
+    7..9: Result.SelectedPart := cpVolume;
+    10..12: Result.SelectedPart := cpEffect;
+  end;
 end;
 
 end.
