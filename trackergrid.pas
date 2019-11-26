@@ -24,7 +24,13 @@ const
   NumRows = 64;
 
 type
-  TCellPart = (cpNote = 0, cpInstrument = 1, cpVolume = 2, cpEffect = 3);
+  TCellPart = (
+    cpNote = 0,
+    cpInstrument = 1,
+    cpVolume = 2,
+    cpEffectCode = 3,
+    cpEffectParams = 4
+  );
 
   TSelectionPos = record
     X, Y: Integer;
@@ -50,6 +56,12 @@ type
     procedure RenderSelectedArea;
     procedure ClampCursors;
 
+    procedure InputNote(Key: Word);
+    procedure InputInstrument(Key: Word);
+    procedure InputVolume(Key: Word);
+    procedure InputEffectCode(Key: Word);
+    procedure InputEffectParams(Key: Word);
+
   private
     Cells: array[0..3, 0..63] of TCell;
 
@@ -61,6 +73,8 @@ type
     MouseButtonDown: Boolean;
     Selecting: Boolean;
 
+    DigitInputting: Boolean;
+
     procedure RenderRow(Row: Integer);
     procedure RenderCell(Cell: TCell);
 
@@ -68,7 +82,8 @@ type
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
     function SelectionToRect(Selection: TSelectionPos): TRect;
     function MousePosToSelection(X, Y: Integer): TSelectionPos;
-
+    function KeycodeToHexNumber(Key: Word; out Num: Byte): Boolean; overload;
+    function KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean; overload;
   public
     Cursor, Other: TSelectionPos;
   end;
@@ -135,6 +150,7 @@ begin
     end;
   end;
 
+  // Draw borders between columns
   Canvas.Pen.Color := TColor($ABB7BC);
   Canvas.Pen.Width := 2;
   R := TRect.Create(0, 0, ColumnWidth+1, Height);
@@ -156,16 +172,17 @@ procedure TTrackerGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
 begin
   inherited MouseDown(Button, Shift, X, Y);
 
-  MouseButtonDown := True;
+  if Button = mbLeft then
+    MouseButtonDown := True;
   Selecting := False;
+  DigitInputting := False;
 
   if not (csDesigning in ComponentState) and CanFocus then
     SetFocus;
 
   Cursor := MousePosToSelection(X, Y);
-
-  ClampCursors;
   Other := Cursor;
+  ClampCursors;
 
   Invalidate;
 end;
@@ -190,22 +207,29 @@ begin
   inherited MouseUp(Button, Shift, X, Y);
 
   MouseButtonDown := False;
+  DigitInputting := False;
 end;
 
 procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited KeyDown(Key, Shift);
 
-  Writeln(Cursor.SelectedPart, ' ', High(TCellPart), ' ', Low(TCellPart));
   case Key of
-    VK_UP: Cursor.Y -= 1;
-    VK_DOWN: Cursor.Y += 1;
+    VK_UP: begin
+      Cursor.Y -= 1;
+      DigitInputting := False;
+    end;
+    VK_DOWN: begin
+      Cursor.Y += 1;
+      DigitInputting := False;
+    end;
     VK_LEFT: begin
       if ssCtrl in Shift then
         Cursor.X -= 1
       else if Cursor.SelectedPart > Low(TCellPart) then begin
         Cursor.SelectedPart := Pred(Cursor.SelectedPart);
       end;
+      DigitInputting := False;
     end;
     VK_RIGHT: begin
       if ssCtrl in Shift then
@@ -213,13 +237,15 @@ begin
       else if Cursor.SelectedPart < High(TCellPart) then begin
         Cursor.SelectedPart := Succ(Cursor.SelectedPart);
       end;
+      DigitInputting := False;
     end;
     else begin
-      with Cells[Cursor.X, Cursor.Y] do begin
-        Instrument := Random(20);
-        EffectCode := Random($F);
-        EffectParams := Random($FF);
-        Note := NoteMap.Keys[Random(NoteMap.Count)];
+      case Cursor.SelectedPart of
+        cpNote:         InputNote(Key);
+        cpInstrument:   InputInstrument(Key);
+        cpVolume:       InputVolume(Key);
+        cpEffectCode:   InputEffectCode(Key);
+        cpEffectParams: InputEffectParams(Key);
       end;
     end;
   end;
@@ -251,7 +277,7 @@ var
 begin
     R := SelectionsToRect(Cursor, Other);
 
-    with Cursor do begin;
+    with Cursor do
       BitBlt(
         Canvas.Handle,
         R.Left,
@@ -262,7 +288,6 @@ begin
         R.Left,
         R.Top,
         DSTINVERT);
-    end;
 end;
 
 procedure TTrackerGrid.ClampCursors;
@@ -271,6 +296,65 @@ begin
   Cursor.X := Min(3, Max(0, Cursor.X));
   Other.Y := Min(63, Max(0, Other.Y));
   Other.X := Min(3, Max(0, Other.X));
+end;
+
+procedure TTrackerGrid.InputNote(Key: Word);
+var
+  Temp: Integer;
+begin
+  with Cells[Cursor.X, Cursor.Y] do
+    if Key = VK_DELETE then
+      Note := NO_NOTE
+    else begin
+      Keybindings.TryGetData(Key, Temp);
+      if Temp <> 0 then Note := Temp;
+    end;
+end;
+
+procedure TTrackerGrid.InputInstrument(Key: Word);
+var
+  Temp: Byte;
+begin
+  with Cells[Cursor.X, Cursor.Y] do
+    if Key = VK_DELETE then Instrument := 0
+    else if KeycodeToHexNumber(Key, Temp) and (Temp < 9) then
+      Instrument := ((Instrument mod 10) * 10) + Temp;
+end;
+
+procedure TTrackerGrid.InputVolume(Key: Word);
+begin
+
+end;
+
+procedure TTrackerGrid.InputEffectCode(Key: Word);
+begin
+  with Cells[Cursor.X, Cursor.Y] do
+    if Key = VK_DELETE then begin
+      EffectCode := 0;
+      EffectParams.Value := 0;
+    end
+    else KeycodeToHexNumber(Key, EffectCode);
+end;
+
+procedure TTrackerGrid.InputEffectParams(Key: Word);
+var
+  Temp: Byte;
+begin
+  with Cells[Cursor.X, Cursor.Y] do
+    if Key = VK_DELETE then begin
+      EffectCode := 0;
+      EffectParams.Value := 0;
+    end
+    else if not DigitInputting then begin
+      if KeycodeToHexNumber(Key, Temp) then begin
+        EffectParams.Param2 := EffectParams.Param1;
+        EffectParams.Param1 := Temp;
+        DigitInputting := True;
+      end;
+    end
+    else
+      if KeycodeToHexNumber(Key, EffectParams.Param2) then
+        DigitInputting := False;
 end;
 
 procedure TTrackerGrid.RenderRow(Row: Integer);
@@ -315,12 +399,14 @@ begin
     Font.Color := clGray;
     TextOut(PenPos.X, PenPos.Y, '...');
 
-    if (Cell.EffectCode <> 0) or (Cell.EffectParams <> 0) then begin
+    if (Cell.EffectCode <> 0) or (Cell.EffectParams.Value <> 0) then begin
       Font.Color := GetEffectColor(Cell.EffectCode);
       TextOut(
         PenPos.X,
         PenPos.Y,
-        IntToHex(Cell.EffectCode, 1) + IntToHex(Cell.EffectParams, 2)
+        IntToHex(Cell.EffectCode, 1)
+          + IntToHex(Cell.EffectParams.Param1, 1)
+          + IntToHex(Cell.EffectParams.Param2, 1)
       );
     end
     else begin
@@ -378,8 +464,12 @@ begin
       CharLeft := 6;
       CharRight := 9;
     end;
-    cpEffect: begin
+    cpEffectCode: begin
       CharLeft := 9;
+      CharRight := 10;
+    end;
+    cpEffectParams: begin
+      CharLeft := 10;
       CharRight := 12;
     end;
   end;
@@ -399,10 +489,44 @@ begin
   X := Trunc((X/ColumnWidth)*13);
   case X of
     0..3: Result.SelectedPart := cpNote;
-    4..6: Result.SelectedPart := cpInstrument;
-    7..9: Result.SelectedPart := cpVolume;
-    10..12: Result.SelectedPart := cpEffect;
+    4..5: Result.SelectedPart := cpInstrument;
+    6..8: Result.SelectedPart := cpVolume;
+    9:   Result.SelectedPart := cpEffectCode;
+    10..12: Result.SelectedPart := cpEffectParams;
   end;
+end;
+
+function TTrackerGrid.KeycodeToHexNumber(Key: Word; out Num: Byte): Boolean;
+begin
+  Result := True;
+
+  case Key of
+    VK_0: Num := $0;
+    VK_1: Num := $1;
+    VK_2: Num := $2;
+    VK_3: Num := $3;
+    VK_4: Num := $4;
+    VK_5: Num := $5;
+    VK_6: Num := $6;
+    VK_7: Num := $7;
+    VK_8: Num := $8;
+    VK_9: Num := $9;
+    VK_A: Num := $A;
+    VK_B: Num := $B;
+    VK_C: Num := $C;
+    VK_D: Num := $D;
+    VK_E: Num := $E;
+    VK_F: Num := $F;
+    else Result := False;
+  end;
+end;
+
+function TTrackerGrid.KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean;
+var
+  X: Byte;
+begin
+  Result := KeycodeToHexNumber(Key, X);
+  Num := X;
 end;
 
 end.

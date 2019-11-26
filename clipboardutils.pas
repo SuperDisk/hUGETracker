@@ -28,7 +28,7 @@ begin
   Result.Note := NoteToCodeMap.KeyData[String(MPCell.Note)];
   Result.Instrument := StrToInt(String(MPCell.Instrument));
   Result.EffectCode := StrToInt(String('0x'+MPCell.EffectCode));
-  Result.EffectParams := StrToInt(String('0x'+MPCell.EffectParams));
+  Result.EffectParams.Value := StrToInt(String('0x'+MPCell.EffectParams));
 end;
 
 function GetPastedCells: TSelection;

@@ -193,6 +193,8 @@ function NoteCodeToString(NoteCode: Integer): String;
 
 implementation
 
+uses LCLType;
+
 function NoteCodeToString(NoteCode: Integer): String;
 begin
   if not NoteMap.TryGetData(NoteCode, Result) then
@@ -205,40 +207,40 @@ begin
   NotesToFreqs := TNoteToFreqMap.Create;
   NoteToCodeMap := TNoteToCodeMap.Create;
 
-  Keybindings.Add(Ord('Q'), C_4);
-  Keybindings.Add(Ord('W'), CS4);
-  Keybindings.Add(Ord('E'), D_4);
-  Keybindings.Add(Ord('R'), DS4);
-  Keybindings.Add(Ord('T'), E_4);
-  Keybindings.Add(Ord('Y'), F_4);
-  Keybindings.Add(Ord('U'), FS4);
-  Keybindings.Add(Ord('I'), G_4);
-  Keybindings.Add(Ord('O'), GS4);
-  Keybindings.Add(Ord('P'), A_4);
-  Keybindings.Add(Ord('['), AS4);
-  Keybindings.Add(Ord(']'), B_4);
-  Keybindings.Add(Ord('\'), B_5);
-  Keybindings.Add(Ord('A'), C_5);
-  Keybindings.Add(Ord('S'), CS5);
-  Keybindings.Add(Ord('D'), D_5);
-  Keybindings.Add(Ord('F'), DS5);
-  Keybindings.Add(Ord('G'), E_5);
-  Keybindings.Add(Ord('H'), F_5);
-  Keybindings.Add(Ord('J'), FS5);
-  Keybindings.Add(Ord('K'), G_5);
-  Keybindings.Add(Ord('L'), GS5);
-  Keybindings.Add(Ord(';'), A_5);
-  Keybindings.Add(Ord(''''), AS5);
-  Keybindings.Add(Ord('Z'), C_6);
-  Keybindings.Add(Ord('X'), CS6);
-  Keybindings.Add(Ord('C'), D_6);
-  Keybindings.Add(Ord('V'), DS6);
-  Keybindings.Add(Ord('B'), E_6);
-  Keybindings.Add(Ord('N'), F_6);
-  Keybindings.Add(Ord('M'), FS6);
-  Keybindings.Add(Ord(','), G_6);
-  Keybindings.Add(Ord('.'), GS6);
-  Keybindings.Add(Ord('/'), A_6);
+  Keybindings.Add(VK_Q, C_4);
+  Keybindings.Add(VK_W, CS4);
+  Keybindings.Add(VK_E, D_4);
+  Keybindings.Add(VK_R, DS4);
+  Keybindings.Add(VK_T, E_4);
+  Keybindings.Add(VK_Y, F_4);
+  Keybindings.Add(VK_U, FS4);
+  Keybindings.Add(VK_I, G_4);
+  Keybindings.Add(VK_O, GS4);
+  Keybindings.Add(VK_P, A_4);
+  Keybindings.Add(VK_OEM_4, AS4);
+  Keybindings.Add(VK_OEM_6, B_4);
+  Keybindings.Add(VK_OEM_5, B_5);
+  Keybindings.Add(VK_A, C_5);
+  Keybindings.Add(VK_S, CS5);
+  Keybindings.Add(VK_D, D_5);
+  Keybindings.Add(VK_F, DS5);
+  Keybindings.Add(VK_G, E_5);
+  Keybindings.Add(VK_H, F_5);
+  Keybindings.Add(VK_J, FS5);
+  Keybindings.Add(VK_K, G_5);
+  Keybindings.Add(VK_L, GS5);
+  Keybindings.Add(VK_OEM_1, A_5);
+  Keybindings.Add(VK_OEM_7, AS5);
+  Keybindings.Add(VK_Z, C_6);
+  Keybindings.Add(VK_X, CS6);
+  Keybindings.Add(VK_C, D_6);
+  Keybindings.Add(VK_V, DS6);
+  Keybindings.Add(VK_B, E_6);
+  Keybindings.Add(VK_N, F_6);
+  Keybindings.Add(VK_M, FS6);
+  Keybindings.Add(VK_OEM_COMMA, G_6);
+  Keybindings.Add(VK_OEM_PERIOD, GS6);
+  Keybindings.Add(VK_OEM_2, A_6);
 
   NoteToCodeMap.add('C-3', C_3);
   NoteToCodeMap.add('C#3', Cs3);
