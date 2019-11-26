@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1560
+  Left = 1184
   Height = 1298
-  Top = 529
+  Top = 306
   Width = 1893
   Caption = 'hUGETracker'
   ClientHeight = 1268
@@ -139,21 +139,118 @@ object frmTracker: TfrmTracker
         ClientHeight = 892
         ClientWidth = 1587
         ParentFont = False
-        object ScrollBox1: TScrollBox
+        object Panel3: TPanel
+          Left = 336
+          Height = 892
+          Top = 0
+          Width = 1251
+          Align = alClient
+          ClientHeight = 892
+          ClientWidth = 1251
+          TabOrder = 0
+          object HeaderControl1: THeaderControl
+            Left = 1
+            Height = 45
+            Top = 1
+            Width = 1249
+            DragReorder = False
+            Sections = <            
+              item
+                Alignment = taCenter
+                Text = 'Duty 1'
+                Width = 200
+                Visible = True
+              end            
+              item
+                Alignment = taCenter
+                Text = 'Duty 2'
+                Width = 200
+                Visible = True
+              end            
+              item
+                Alignment = taCenter
+                Text = 'Wave'
+                Width = 200
+                Visible = True
+              end            
+              item
+                Alignment = taCenter
+                Text = 'Noise'
+                Width = 200
+                Visible = True
+              end>
+            Align = alTop
+          end
+          object ScrollBox1: TScrollBox
+            Left = 1
+            Height = 845
+            Top = 46
+            Width = 1249
+            HorzScrollBar.Increment = 1
+            HorzScrollBar.Page = 1
+            HorzScrollBar.Smooth = True
+            HorzScrollBar.Tracking = True
+            VertScrollBar.Increment = 1
+            VertScrollBar.Page = 1
+            VertScrollBar.Smooth = True
+            VertScrollBar.Tracking = True
+            Align = alClient
+            BorderStyle = bsNone
+            TabOrder = 1
+          end
+        end
+        object DrawGrid1: TStringGrid
           Left = 0
           Height = 892
           Top = 0
-          Width = 1587
-          HorzScrollBar.Increment = 1
-          HorzScrollBar.Page = 1
-          HorzScrollBar.Smooth = True
-          HorzScrollBar.Tracking = True
-          VertScrollBar.Increment = 1
-          VertScrollBar.Page = 1
-          VertScrollBar.Smooth = True
-          VertScrollBar.Tracking = True
-          Align = alClient
-          TabOrder = 0
+          Width = 336
+          Align = alLeft
+          AutoFillColumns = True
+          Columns = <          
+            item
+              Alignment = taCenter
+              MinSize = 50
+              MaxSize = 50
+              Title.Caption = 'Dty1'
+              Width = 52
+            end          
+            item
+              Alignment = taCenter
+              MinSize = 50
+              MaxSize = 50
+              Title.Caption = 'Dty2'
+              Width = 52
+            end          
+            item
+              Alignment = taCenter
+              MinSize = 50
+              MaxSize = 50
+              Title.Caption = 'Wav'
+              Width = 52
+            end          
+            item
+              Alignment = taCenter
+              MinSize = 50
+              MaxSize = 50
+              Title.Caption = 'Nse'
+              Width = 54
+            end>
+          DefaultColWidth = 25
+          DefaultRowHeight = 32
+          ExtendedSelect = False
+          Options = [goFixedVertLine, goFixedHorzLine, goRangeSelect, goEditing, goTabs, goSmoothScroll, goFixedRowNumbering, goRowHighlight]
+          RangeSelectMode = rsmMulti
+          RowCount = 10
+          ScrollBars = ssVertical
+          TabOrder = 1
+          UseXORFeatures = True
+          ColWidths = (
+            96
+            52
+            52
+            52
+            54
+          )
         end
       end
       object InstrumentTabSheet: TTabSheet
@@ -1630,11 +1727,45 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
       ShowHint = True
     end
+    object ToolButton2: TToolButton
+      Left = 160
+      Top = 0
+      Caption = 'Play'
+    end
+    object ToolButton3: TToolButton
+      Left = 200
+      Top = 0
+      Caption = 'Pause'
+    end
+    object ToolButton4: TToolButton
+      Left = 254
+      Top = 0
+      Caption = 'Stop'
+    end
+    object ToolButton5: TToolButton
+      Left = 305
+      Top = 0
+      Caption = 'ToolButton5'
+    end
+    object ToolButton8: TToolButton
+      Left = 155
+      Height = 33
+      Top = 0
+      Caption = 'ToolButton8'
+      Style = tbsDivider
+    end
+    object ToolButton6: TToolButton
+      Left = 300
+      Height = 33
+      Top = 0
+      Caption = 'ToolButton6'
+      Style = tbsDivider
+    end
   end
   object MainMenu1: TMainMenu
     Images = ImageList1
-    left = 1416
-    top = 80
+    left = 528
+    top = 64
     object MenuItem1: TMenuItem
       Caption = 'File'
       object MenuItem12: TMenuItem
@@ -1701,8 +1832,8 @@ object frmTracker: TfrmTracker
   end
   object ActionList1: TActionList
     Images = ImageList1
-    left = 1208
-    top = 72
+    left = 832
+    top = 64
     object FileOpen1: TFileOpen
       Category = 'File'
       Caption = '&Open ...'
@@ -1797,8 +1928,8 @@ object frmTracker: TfrmTracker
     end
   end
   object ImageList1: TImageList
-    left = 1288
-    top = 72
+    left = 928
+    top = 64
     Bitmap = {
       4C69480000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4108,11 +4239,11 @@ object frmTracker: TfrmTracker
     }
   end
   object OpenDialog1: TOpenDialog
-    left = 1028
-    top = 66
+    left = 632
+    top = 64
   end
   object SaveDialog1: TSaveDialog
-    left = 1112
-    top = 69
+    left = 744
+    top = 64
   end
 end

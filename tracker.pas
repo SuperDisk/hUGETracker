@@ -6,17 +6,20 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit,
-  ECSlider, ECProgressBar, math, Instruments, Waves, Song, EmulationThread,
-  Utils, Constants, sound, vars, machine, about_hugetracker, Clipbrd, ValEdit,
-  Grids, TrackerGrid, lclintf, lmessages;
+  Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
+  Song, EmulationThread, Utils, Constants, sound, vars, machine,
+  about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
+  ECProgressBar, ECSpinCtrls, ECCheckListBox, ECGrid;
 
 type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
     CutAction: TAction;
+    DrawGrid1: TStringGrid;
     EditCut1: TEditCut;
+    HeaderControl1: THeaderControl;
+    Panel3: TPanel;
     PasteAction: TAction;
     CopyAction: TAction;
     HelpLookupManual: TAction;
@@ -57,6 +60,12 @@ type
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
     PanicToolButton: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton8: TToolButton;
     WaveEditNumberSpinner: TSpinEdit;
     WaveEditGroupBox: TGroupBox;
     Label19: TLabel;
@@ -189,6 +198,8 @@ type
 
     PreviewingInstrument: Boolean;
     DrawingWave: Boolean;
+
+    Ticks: Integer;
 
     procedure ChangeToSquare;
     procedure ChangeToWave;
@@ -500,6 +511,7 @@ end;
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   I, J: Integer;
+  Section: TCollectionItem;
 begin
   for I := Low(Song.Instruments) to High(Song.Instruments) do
     with Song.Instruments[I] do begin
@@ -528,7 +540,11 @@ begin
 
   // Create pattern editor control
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1);
-  //TrackerGrid.Parent := ScrollBox1;
+  for Section in HeaderControl1.Sections do
+    (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
+
+  // Manually resize the fixed column in the order editor
+  DrawGrid1.ColWidths[0]:=50;
 
   // Get the emulator ready to make sound...
   EmulationThread := TEmulationThread.Create;

@@ -65,8 +65,6 @@ type
   private
     Cells: array[0..3, 0..63] of TCell;
 
-    ColumnWidth: Integer;
-    RowHeight: Integer;
     CharHeight: Integer;
     CharWidth: Integer;
 
@@ -86,6 +84,7 @@ type
     function KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean; overload;
   public
     Cursor, Other: TSelectionPos;
+    ColumnWidth, RowHeight: Integer;
   end;
 
 implementation
