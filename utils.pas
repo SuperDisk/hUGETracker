@@ -12,6 +12,7 @@ type
 
   TOrderMapHelper = class helper for TOrderMap
     function GetOrCreateNew(Key: Integer): PPattern;
+    procedure CreateNewPattern(Key: Integer);
   end;
 
   TRegisters = record
@@ -150,6 +151,17 @@ begin
     Self.Add(Key, NewPat);
     Result := NewPat;
   end;
+end;
+
+procedure TOrderMapHelper.CreateNewPattern(Key: Integer);
+var
+  NewPat: PPattern;
+begin
+  if IndexOf(Key) <> -1 then Exit;
+
+  New(NewPat);
+  BlankPattern(NewPat);
+  Self.Add(Key, NewPat);
 end;
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;

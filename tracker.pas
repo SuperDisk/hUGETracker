@@ -9,7 +9,7 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, HugeDatatypes;
+  ECProgressBar, HugeDatatypes, LCLType;
 
 type
   { TfrmTracker }
@@ -171,6 +171,9 @@ type
     procedure LengthSpinnerChange(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
     procedure MenuItem16Click(Sender: TObject);
+    procedure MenuItem17Click(Sender: TObject);
+    procedure MenuItem18Click(Sender: TObject);
+    procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
     procedure OrderEditStringGridAfterSelection(Sender: TObject; aCol,
@@ -184,6 +187,8 @@ type
     procedure OrderEditStringGridColRowMoved(Sender: TObject;
       IsColumn: Boolean; sIndex, tIndex: Integer);
     procedure OrderEditStringGridEditingDone(Sender: TObject);
+    procedure OrderEditStringGridKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     procedure PanicToolButtonClick(Sender: TObject);
     procedure PasteActionExecute(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
@@ -770,6 +775,36 @@ begin
   PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
 end;
 
+procedure TfrmTracker.MenuItem17Click(Sender: TObject);
+var
+  X, Highest: Integer;
+begin
+  Highest := 0;
+  for X := 0 to Orders.Count-1 do
+    if Orders.Keys[X] > Highest then Highest := Orders.Keys[X]+1;
+
+  OrderEditStringGrid.InsertRowWithValues(
+    OrderEditStringGrid.Row,
+    ['',IntToStr(Highest),IntToStr(Highest+1), IntToStr(Highest+2), IntToStr(Highest+3)]
+  );
+
+  for X := 0 to 3 do
+    Orders.CreateNewPattern(Highest+X);
+end;
+
+procedure TfrmTracker.MenuItem18Click(Sender: TObject);
+begin
+  OrderEditStringGrid.InsertRowWithValues(
+    OrderEditStringGrid.Row,
+    ['', '0', '0', '0', '0']
+  );
+end;
+
+procedure TfrmTracker.MenuItem19Click(Sender: TObject);
+begin
+  OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
+end;
+
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
 var
   AboutForm: TfrmAboutHugeTracker;
@@ -824,6 +859,12 @@ begin
     if not TryStrToInt(Cells[Col, Row], Temp) then Cells[Col, Row] := '';
 
   ReloadPatterns;
+end;
+
+procedure TfrmTracker.OrderEditStringGridKeyDown(Sender: TObject;
+  var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_DELETE then OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
 end;
 
 procedure TfrmTracker.PanicToolButtonClick(Sender: TObject);

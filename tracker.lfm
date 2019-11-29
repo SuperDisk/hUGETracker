@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 2103
+  Left = 2132
   Height = 1298
-  Top = 343
+  Top = 374
   Width = 1893
   Caption = 'hUGETracker'
   ClientHeight = 1268
@@ -53,10 +53,10 @@ object frmTracker: TfrmTracker
       Height = 930
       Top = 0
       Width = 1595
-      ActivePage = PatternTabSheet
+      ActivePage = GeneralTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -260,6 +260,7 @@ object frmTracker: TfrmTracker
           OnColRowInserted = OrderEditStringGridColRowInserted
           OnColRowMoved = OrderEditStringGridColRowMoved
           OnEditingDone = OrderEditStringGridEditingDone
+          OnKeyDown = OrderEditStringGridKeyDown
           ColWidths = (
             96
             52
@@ -4286,10 +4287,12 @@ object frmTracker: TfrmTracker
     object MenuItem17: TMenuItem
       Caption = 'Insert new row'
       Hint = 'Insert a new row filled with brand new patterns'
+      OnClick = MenuItem17Click
     end
     object MenuItem18: TMenuItem
       Caption = 'Insert empty row'
       Hint = 'Insert a new with nothing in it yet'
+      OnClick = MenuItem18Click
     end
     object MenuItem20: TMenuItem
       Caption = '-'
@@ -4297,6 +4300,7 @@ object frmTracker: TfrmTracker
     object MenuItem19: TMenuItem
       Caption = 'Remove row'
       Hint = 'Remove a row-- Does not delete the patterns from existence'
+      OnClick = MenuItem19Click
     end
   end
   object ImageList2: TImageList

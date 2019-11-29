@@ -75,7 +75,7 @@
         <PackageName Value="LCL"/>
       </Item10>
     </RequiredPackages>
-    <Units Count="24">
+    <Units Count="25">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -198,6 +198,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="HugeDatatypes"/>
       </Unit23>
+      <Unit24>
+        <Filename Value="codegen.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Codegen"/>
+      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -210,7 +215,8 @@
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
-        <SyntaxMode Value="Delphi"/>
+        <CStyleOperator Value="False"/>
+        <CPPInline Value="False"/>
       </SyntaxOptions>
     </Parsing>
     <CodeGeneration>
