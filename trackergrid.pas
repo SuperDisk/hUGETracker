@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Controls, Graphics, Constants, LCLType, math,
-  LCLIntf, LMessages, ClipboardUtils, HugeDatatypes;
+  LCLIntf, LMessages, HugeDatatypes;
 
 // TODO: Maybe read these from a config file
 const
@@ -42,9 +42,7 @@ type
   TTrackerGrid = class(TCustomControl)
     constructor Create(
       AOwner: TComponent;
-      Parent: TWinControl;
-      C1, C2, C3, C4: PPattern
-    );
+      Parent: TWinControl);
     procedure Paint; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
       override;
@@ -99,11 +97,7 @@ implementation
 
 constructor TTrackerGrid.Create(
   AOwner: TComponent;
-  Parent: TWinControl;
-  C1, C2, C3, C4: PPattern
-);
-var
-  X, Y: Integer;
+  Parent: TWinControl);
 begin
   inherited Create(AOwner);
 
@@ -123,15 +117,6 @@ begin
 
   Width := ColumnWidth*4;
   Height := RowHeight*64;
-
-  Patterns[0] := C1;
-  Patterns[1] := C2;
-  Patterns[2] := C3;
-  Patterns[3] := C4;
-
-  for X := 0 to High(Patterns) do
-    for Y := 0 to High(Patterns[X]^) do
-      Patterns[X]^[Y].Note := NO_NOTE;
 end;
 
 procedure TTrackerGrid.Paint;

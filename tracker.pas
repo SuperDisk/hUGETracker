@@ -16,6 +16,7 @@ type
 
   TfrmTracker = class(TForm)
     CutAction: TAction;
+    ImageList2: TImageList;
     OrderEditStringGrid: TStringGrid;
     EditCut1: TEditCut;
     HeaderControl1: THeaderControl;
@@ -150,6 +151,8 @@ type
     procedure CutActionExecute(Sender: TObject);
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
+    procedure HeaderControl1SectionClick(HeaderControl: TCustomHeaderControl;
+      Section: THeaderSection);
     procedure HelpLookupManualExecute(Sender: TObject);
     procedure ArtistEditChange(Sender: TObject);
     procedure CommentMemoChange(Sender: TObject);
@@ -215,9 +218,9 @@ type
     PreviewingInstrument: Boolean;
     DrawingWave: Boolean;
 
-    Ticks: Integer;
-
     Orders: TOrderMap;
+
+    PatternsNode, InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
     procedure ChangeToSquare;
     procedure ChangeToWave;
@@ -548,7 +551,6 @@ procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   I, J: Integer;
   Section: TCollectionItem;
-  Pattern0: PPattern;
 begin
   ReturnNilIfGrowHeapFails := False;
 
@@ -577,20 +579,25 @@ begin
   LoadInstrument(1);
   LoadWave(0);
 
-  // Initialize order table
-  for I := 0 to 4 do
-    OrderEditStringGrid.Cells[I, 1] := '0';
-
-  // Create the order map and pattern 0
-  New(Pattern0);
-  Pattern0^ := Default(TPattern);
-  Orders := TOrderMap.Create;
-  Orders.Add(0, Pattern0);
+  // Fetch the tree items
+  with TreeView1 do begin
+    PatternsNode := Items[0];
+    InstrumentsNode := Items[1];
+    WavesNode := Items[2];
+    RoutinesNode := Items[3];
+  end;
 
   // Create pattern editor control
-  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Pattern0, Pattern0, Pattern0, Pattern0);
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1);
   for Section in HeaderControl1.Sections do
     (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
+
+  // Initialize order table
+  Orders := TOrderMap.Create;
+  for I := 0 to 3 do begin
+    OrderEditStringGrid.Cells[I+1, 1] := IntToStr(I);
+    TrackerGrid.LoadPattern(I, Orders.GetOrCreateNew(I));
+  end;
 
   // Manually resize the fixed column in the order editor
   OrderEditStringGrid.ColWidths[0]:=50;
@@ -669,6 +676,12 @@ begin
   Rewrite(F);
   Write(F, Song);
   CloseFile(F);}
+end;
+
+procedure TfrmTracker.HeaderControl1SectionClick(
+  HeaderControl: TCustomHeaderControl; Section: THeaderSection);
+begin
+  Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
 end;
 
 procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
@@ -807,14 +820,8 @@ var
 begin
   // TODO: Fix this hack! For some reason OnValidateEntry is giving bad pointers
   // for its NewValue and OldValue params. This is the workaround for now.
-  if not TryStrToInt(
-    OrderEditStringGrid.Cells[OrderEditStringGrid.Col, OrderEditStringGrid.Row],
-    Temp
-  ) then
-      OrderEditStringGrid.Cells[
-        OrderEditStringGrid.Col,
-        OrderEditStringGrid.Row
-      ] := '';
+  with OrderEditStringGrid do
+    if not TryStrToInt(Cells[Col, Row], Temp) then Cells[Col, Row] := '';
 
   ReloadPatterns;
 end;
