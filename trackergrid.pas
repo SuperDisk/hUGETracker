@@ -20,8 +20,8 @@ const
   clFxPan = clInstrument;
   clFxSong = TColor($00007F);
 
-  NumColumns = 4;
-  NumRows = 64;
+  NUM_COLUMNS = 4;
+  NUM_ROWS = 64;
 
 type
   TCellPart = (
@@ -40,7 +40,11 @@ type
   { TTrackerGrid }
 
   TTrackerGrid = class(TCustomControl)
-    constructor Create(AOwner: TComponent; Parent: TWinControl);
+    constructor Create(
+      AOwner: TComponent;
+      Parent: TWinControl;
+      C1, C2, C3, C4: PPattern
+    );
     procedure Paint; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
       override;
@@ -63,7 +67,7 @@ type
     procedure InputEffectParams(Key: Word);
 
   private
-    Cells: array[0..3, 0..63] of TCell;
+    Patterns: array[0..3] of PPattern;
 
     CharHeight: Integer;
     CharWidth: Integer;
@@ -74,7 +78,7 @@ type
     DigitInputting: Boolean;
 
     procedure RenderRow(Row: Integer);
-    procedure RenderCell(Cell: TCell);
+    procedure RenderCell(const Cell: TCell);
 
     function GetEffectColor(EffectCode: Integer): TColor;
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
@@ -85,13 +89,19 @@ type
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
+
+    procedure LoadPattern(Idx: Integer; Pat: PPattern);
   end;
 
 implementation
 
 { TTrackerGrid }
 
-constructor TTrackerGrid.Create(AOwner: TComponent; Parent: TWinControl);
+constructor TTrackerGrid.Create(
+  AOwner: TComponent;
+  Parent: TWinControl;
+  C1, C2, C3, C4: PPattern
+);
 var
   X, Y: Integer;
 begin
@@ -114,9 +124,14 @@ begin
   Width := ColumnWidth*4;
   Height := RowHeight*64;
 
-  for X := 0 to High(Cells) do
-    for Y := 0 to High(Cells[X]) do
-      Cells[X, Y].Note := NO_NOTE;
+  Patterns[0] := C1;
+  Patterns[1] := C2;
+  Patterns[2] := C3;
+  Patterns[3] := C4;
+
+  for X := 0 to High(Patterns) do
+    for Y := 0 to High(Patterns[X]^) do
+      Patterns[X]^[Y].Note := NO_NOTE;
 end;
 
 procedure TTrackerGrid.Paint;
@@ -130,7 +145,7 @@ begin
     Brush.Color := RGBToColor(225, 219, 208);
     Clear;
 
-    for I := 0 to 64 do begin
+    for I := 0 to High(TPattern) do begin
       if (I mod 4) = 0 then begin
         Brush.Color := RGBToColor(216, 209, 195);
         FillRect(0, I*RowHeight, Width, (I+1)*RowHeight);
@@ -301,7 +316,7 @@ procedure TTrackerGrid.InputNote(Key: Word);
 var
   Temp: Integer;
 begin
-  with Cells[Cursor.X, Cursor.Y] do
+  with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then
       Note := NO_NOTE
     else begin
@@ -314,7 +329,7 @@ procedure TTrackerGrid.InputInstrument(Key: Word);
 var
   Temp: Byte;
 begin
-  with Cells[Cursor.X, Cursor.Y] do
+  with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then Instrument := 0
     else if KeycodeToHexNumber(Key, Temp) and (Temp < 9) then
       Instrument := ((Instrument mod 10) * 10) + Temp;
@@ -327,7 +342,7 @@ end;
 
 procedure TTrackerGrid.InputEffectCode(Key: Word);
 begin
-  with Cells[Cursor.X, Cursor.Y] do
+  with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then begin
       EffectCode := 0;
       EffectParams.Value := 0;
@@ -339,7 +354,7 @@ procedure TTrackerGrid.InputEffectParams(Key: Word);
 var
   Temp: Byte;
 begin
-  with Cells[Cursor.X, Cursor.Y] do
+  with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then begin
       EffectCode := 0;
       EffectParams.Value := 0;
@@ -364,12 +379,12 @@ begin
     Brush.Style := bsClear;
     Pen.Color := RGBToColor(58, 52, 39);
 
-    for I := 0 to 4 do
-      RenderCell(Cells[I, Row]);
+    for I := 0 to High(Patterns) do
+      RenderCell(Patterns[I]^[Row]);
   end;
 end;
 
-procedure TTrackerGrid.RenderCell(Cell: TCell);
+procedure TTrackerGrid.RenderCell(const Cell: TCell);
 var
   NoteString: ShortString;
 begin
@@ -481,8 +496,8 @@ end;
 
 function TTrackerGrid.MousePosToSelection(X, Y: Integer): TSelectionPos;
 begin
-  Result.X := Trunc((X/Width)*NumColumns);
-  Result.Y := Trunc((Y/Height)*NumRows);
+  Result.X := Trunc((X/Width)*NUM_COLUMNS);
+  Result.Y := Trunc((Y/Height)*NUM_ROWS);
 
   X := (min(X, width-1) mod ColumnWidth);
   X := Trunc((X/ColumnWidth)*13);
@@ -526,6 +541,12 @@ var
 begin
   Result := KeycodeToHexNumber(Key, X);
   Num := X;
+end;
+
+procedure TTrackerGrid.LoadPattern(Idx: Integer; Pat: PPattern);
+begin
+  Patterns[Idx] := Pat;
+  Invalidate;
 end;
 
 end.

@@ -5,9 +5,15 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, instruments, waves;
+  Classes, SysUtils, Instruments, Waves, HugeDatatypes, Constants;
 
 type
+  { TOrderMapHelper }
+
+  TOrderMapHelper = class helper for TOrderMap
+    function GetOrCreateNew(Key: Integer): PPattern;
+  end;
+
   TRegisters = record
     case Type_: TInstrumentType of
       Square: (NR10, NR11, NR12, NR13, NR14: Byte);
@@ -126,7 +132,25 @@ function WaveInstrumentToRegisters(
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;
 
+procedure BlankPattern(Pat: PPattern);
+
 implementation
+
+{ TOrderMapHelper }
+
+function TOrderMapHelper.GetOrCreateNew(Key: Integer): PPattern;
+var
+  NewPat: PPattern;
+begin
+  if Self.IndexOf(Key) <> -1 then
+    Result := Self.KeyData[Key]
+  else begin
+    New(NewPat);
+    BlankPattern(NewPat);
+    Self.Add(Key, NewPat);
+    Result := NewPat;
+  end;
+end;
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;
 var
@@ -136,6 +160,16 @@ begin
   for I := 0 to 15 do begin
     J := I*2;
     Result[I] := (Waveform[J] shl 4) or (Waveform[J+1]);
+  end;
+end;
+
+procedure BlankPattern(Pat: PPattern);
+var
+  I: Integer;
+begin
+  for I := 0 to High(Pat^) do begin
+    Pat^[I] := Default(TCell);
+    Pat^[I].Note := NO_NOTE;
   end;
 end;
 

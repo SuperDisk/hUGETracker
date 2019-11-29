@@ -1,11 +1,11 @@
 unit HugeDatatypes;
 
-{$mode delphi}
+{$mode objfpc}
 
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, fgl;
 
 type
   TEffectParams = packed record
@@ -20,6 +20,11 @@ type
     EffectCode: Integer;
     EffectParams: TEffectParams;
   end;
+
+  TPattern = array[0..63] of TCell;
+  PPattern = ^TPattern;
+
+  TOrderMap = specialize TFPGMap<Integer, PPattern>;
 
   TSelection = array of array of TCell;
 

@@ -9,16 +9,20 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, ECSpinCtrls, ECCheckListBox, ECGrid;
+  ECProgressBar, HugeDatatypes;
 
 type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
     CutAction: TAction;
-    DrawGrid1: TStringGrid;
+    OrderEditStringGrid: TStringGrid;
     EditCut1: TEditCut;
     HeaderControl1: THeaderControl;
+    MenuItem17: TMenuItem;
+    MenuItem18: TMenuItem;
+    MenuItem19: TMenuItem;
+    MenuItem20: TMenuItem;
     Panel3: TPanel;
     PasteAction: TAction;
     CopyAction: TAction;
@@ -54,6 +58,7 @@ type
     MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     OpenDialog1: TOpenDialog;
+    OrderEditPopup: TPopupMenu;
     SaveDialog1: TSaveDialog;
     ScrollBox1: TScrollBox;
     TicksPerRowSpinEdit: TSpinEdit;
@@ -165,6 +170,17 @@ type
     procedure MenuItem16Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
+    procedure OrderEditStringGridAfterSelection(Sender: TObject; aCol,
+      aRow: Integer);
+    procedure OrderEditStringGridColRowDeleted(Sender: TObject;
+      IsColumn: Boolean; sIndex, tIndex: Integer);
+    procedure OrderEditStringGridColRowExchanged(Sender: TObject;
+      IsColumn: Boolean; sIndex, tIndex: Integer);
+    procedure OrderEditStringGridColRowInserted(Sender: TObject;
+      IsColumn: Boolean; sIndex, tIndex: Integer);
+    procedure OrderEditStringGridColRowMoved(Sender: TObject;
+      IsColumn: Boolean; sIndex, tIndex: Integer);
+    procedure OrderEditStringGridEditingDone(Sender: TObject);
     procedure PanicToolButtonClick(Sender: TObject);
     procedure PasteActionExecute(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
@@ -201,11 +217,14 @@ type
 
     Ticks: Integer;
 
+    Orders: TOrderMap;
+
     procedure ChangeToSquare;
     procedure ChangeToWave;
     procedure ChangeToNoise;
     procedure LoadInstrument(Instr: Integer);
     procedure LoadWave(Wave: Integer);
+    procedure ReloadPatterns;
 
     procedure UpdateUIAfterLoad;
 
@@ -322,6 +341,23 @@ procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
   WaveEditPaintBox.Invalidate;
+end;
+
+procedure TfrmTracker.ReloadPatterns;
+var
+  I: Integer;
+  OrderNum: Integer;
+  Pat: PPattern;
+begin
+  for I := 0 to 3 do begin
+    OrderNum := 0;
+    TryStrToInt(
+      OrderEditStringGrid.Cells[I+1, OrderEditStringGrid.Row],
+      OrderNum
+    );
+    Pat := Orders.GetOrCreateNew(OrderNum);
+    TrackerGrid.LoadPattern(I, Pat);
+  end;
 end;
 
 procedure TfrmTracker.LoadInstrument(Instr: Integer);
@@ -512,7 +548,10 @@ procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   I, J: Integer;
   Section: TCollectionItem;
+  Pattern0: PPattern;
 begin
+  ReturnNilIfGrowHeapFails := False;
+
   for I := Low(Song.Instruments) to High(Song.Instruments) do
     with Song.Instruments[I] do begin
       Type_ := Square;
@@ -538,13 +577,23 @@ begin
   LoadInstrument(1);
   LoadWave(0);
 
+  // Initialize order table
+  for I := 0 to 4 do
+    OrderEditStringGrid.Cells[I, 1] := '0';
+
+  // Create the order map and pattern 0
+  New(Pattern0);
+  Pattern0^ := Default(TPattern);
+  Orders := TOrderMap.Create;
+  Orders.Add(0, Pattern0);
+
   // Create pattern editor control
-  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1);
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Pattern0, Pattern0, Pattern0, Pattern0);
   for Section in HeaderControl1.Sections do
     (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
 
   // Manually resize the fixed column in the order editor
-  DrawGrid1.ColWidths[0]:=50;
+  OrderEditStringGrid.ColWidths[0]:=50;
 
   // Get the emulator ready to make sound...
   EmulationThread := TEmulationThread.Create;
@@ -720,6 +769,54 @@ end;
 procedure TfrmTracker.NoiseFreqSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.ShiftClockFreq := Round(NoiseFreqSpinner.Position);
+end;
+
+procedure TfrmTracker.OrderEditStringGridAfterSelection(Sender: TObject; aCol,
+  aRow: Integer);
+begin
+  ReloadPatterns;
+end;
+
+procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;
+  IsColumn: Boolean; sIndex, tIndex: Integer);
+begin
+  ReloadPatterns;
+end;
+
+procedure TfrmTracker.OrderEditStringGridColRowExchanged(Sender: TObject;
+  IsColumn: Boolean; sIndex, tIndex: Integer);
+begin
+  ReloadPatterns;
+end;
+
+procedure TfrmTracker.OrderEditStringGridColRowInserted(Sender: TObject;
+  IsColumn: Boolean; sIndex, tIndex: Integer);
+begin
+  ReloadPatterns;
+end;
+
+procedure TfrmTracker.OrderEditStringGridColRowMoved(Sender: TObject;
+  IsColumn: Boolean; sIndex, tIndex: Integer);
+begin
+  ReloadPatterns;
+end;
+
+procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
+var
+  Temp: Integer;
+begin
+  // TODO: Fix this hack! For some reason OnValidateEntry is giving bad pointers
+  // for its NewValue and OldValue params. This is the workaround for now.
+  if not TryStrToInt(
+    OrderEditStringGrid.Cells[OrderEditStringGrid.Col, OrderEditStringGrid.Row],
+    Temp
+  ) then
+      OrderEditStringGrid.Cells[
+        OrderEditStringGrid.Col,
+        OrderEditStringGrid.Row
+      ] := '';
+
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.PanicToolButtonClick(Sender: TObject);
