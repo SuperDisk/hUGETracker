@@ -10,9 +10,10 @@ uses
 type
   { TOrderMapHelper }
 
-  TOrderMapHelper = class helper for TOrderMap
+  TOrderMapHelper = class helper for TPatternMap
     function GetOrCreateNew(Key: Integer): PPattern;
     procedure CreateNewPattern(Key: Integer);
+    function MaxKey: Integer;
   end;
 
   TRegisters = record
@@ -132,7 +133,6 @@ function WaveInstrumentToRegisters(
   Instr: TInstrument): TRegisters;
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;
-
 procedure BlankPattern(Pat: PPattern);
 
 implementation
@@ -162,6 +162,16 @@ begin
   New(NewPat);
   BlankPattern(NewPat);
   Self.Add(Key, NewPat);
+end;
+
+function TOrderMapHelper.MaxKey: Integer;
+var
+  X: Integer;
+begin
+  Result := 0;
+  for X := 0 to Self.Count-1 do
+    if Self.Keys[X] > Result then Result := Self.Keys[X];
+  Inc(Result);
 end;
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;

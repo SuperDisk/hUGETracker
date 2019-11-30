@@ -24,7 +24,8 @@ type
   TPattern = array[0..63] of TCell;
   PPattern = ^TPattern;
 
-  TOrderMap = specialize TFPGMap<Integer, PPattern>;
+  TPatternMap = specialize TFPGMap<Integer, PPattern>;
+  TOrderMatrix = array[0..3] of array of Integer;
 
   TSelection = array of array of TCell;
 

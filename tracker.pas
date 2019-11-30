@@ -151,6 +151,8 @@ type
     procedure CutActionExecute(Sender: TObject);
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
+    procedure HeaderControl1MouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure HeaderControl1SectionClick(HeaderControl: TCustomHeaderControl;
       Section: THeaderSection);
     procedure HelpLookupManualExecute(Sender: TObject);
@@ -186,6 +188,7 @@ type
       IsColumn: Boolean; sIndex, tIndex: Integer);
     procedure OrderEditStringGridColRowMoved(Sender: TObject;
       IsColumn: Boolean; sIndex, tIndex: Integer);
+    procedure OrderEditStringGridDblClick(Sender: TObject);
     procedure OrderEditStringGridEditingDone(Sender: TObject);
     procedure OrderEditStringGridKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -223,7 +226,7 @@ type
     PreviewingInstrument: Boolean;
     DrawingWave: Boolean;
 
-    Orders: TOrderMap;
+    Patterns: TPatternMap;
 
     PatternsNode, InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
@@ -363,7 +366,7 @@ begin
       OrderEditStringGrid.Cells[I+1, OrderEditStringGrid.Row],
       OrderNum
     );
-    Pat := Orders.GetOrCreateNew(OrderNum);
+    Pat := Patterns.GetOrCreateNew(OrderNum);
     TrackerGrid.LoadPattern(I, Pat);
   end;
 end;
@@ -598,10 +601,10 @@ begin
     (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
 
   // Initialize order table
-  Orders := TOrderMap.Create;
+  Patterns := TPatternMap.Create;
   for I := 0 to 3 do begin
     OrderEditStringGrid.Cells[I+1, 1] := IntToStr(I);
-    TrackerGrid.LoadPattern(I, Orders.GetOrCreateNew(I));
+    TrackerGrid.LoadPattern(I, Patterns.GetOrCreateNew(I));
   end;
 
   // Manually resize the fixed column in the order editor
@@ -681,6 +684,26 @@ begin
   Rewrite(F);
   Write(F, Song);
   CloseFile(F);}
+end;
+
+procedure TfrmTracker.HeaderControl1MouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  SelectedSection: THeaderSection;
+  Section: TCollectionItem;
+  P: TPoint;
+begin
+  if Button = mbRight then begin
+    // Hack
+    P.X := X;
+    P.Y := Y;
+
+    for Section in HeaderControl1.Sections do
+      (Section as THeaderSection).ImageIndex := 0;
+
+    SelectedSection := HeaderControl1.Sections[HeaderControl1.GetSectionAt(P)];
+    SelectedSection.ImageIndex := 1;
+  end;
 end;
 
 procedure TfrmTracker.HeaderControl1SectionClick(
@@ -779,9 +802,7 @@ procedure TfrmTracker.MenuItem17Click(Sender: TObject);
 var
   X, Highest: Integer;
 begin
-  Highest := 0;
-  for X := 0 to Orders.Count-1 do
-    if Orders.Keys[X] > Highest then Highest := Orders.Keys[X]+1;
+  Highest := Patterns.MaxKey;
 
   OrderEditStringGrid.InsertRowWithValues(
     OrderEditStringGrid.Row,
@@ -789,7 +810,7 @@ begin
   );
 
   for X := 0 to 3 do
-    Orders.CreateNewPattern(Highest+X);
+    Patterns.CreateNewPattern(Highest+X);
 end;
 
 procedure TfrmTracker.MenuItem18Click(Sender: TObject);
@@ -847,6 +868,18 @@ procedure TfrmTracker.OrderEditStringGridColRowMoved(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
   ReloadPatterns;
+end;
+
+procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
+var
+  X, Highest: Integer;
+begin
+  Highest := Patterns.MaxKey;
+
+  with OrderEditStringGrid do begin
+    Cells[Col, Row] := IntToStr(Highest);
+    TrackerGrid.LoadPattern(Col - 1, Patterns.GetOrCreateNew(Highest));
+  end;
 end;
 
 procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
