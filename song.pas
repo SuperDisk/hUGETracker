@@ -4,10 +4,9 @@ unit Song;
 
 interface
 
-uses instruments, waves, patterns;
+uses instruments, waves, patterns, HugeDatatypes;
 
 type
-
   { TSong }
 
   TSong = record
@@ -15,8 +14,8 @@ type
     Artist: ShortString;
     Comment: ShortString;
 
-    Instruments: array[1..15] of TInstrument;
-    Waves: array[0..15] of TWave;
+    Instruments: TInstrumentBank;
+    Waves: TWaveBank;
 
     Patterns: array of TPattern;
     OrderMatrix: array of integer;

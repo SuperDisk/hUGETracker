@@ -1,10 +1,10 @@
 object frmTracker: TfrmTracker
-  Left = 1409
-  Height = 1514
-  Top = 390
+  Left = 799
+  Height = 1396
+  Top = 201
   Width = 2208
   Caption = 'hUGETracker'
-  ClientHeight = 1480
+  ClientHeight = 1362
   ClientWidth = 2208
   DesignTimePPI = 168
   Menu = MainMenu1
@@ -15,7 +15,7 @@ object frmTracker: TfrmTracker
   LCLVersion = '2.0.6.0'
   object TreeView1: TTreeView
     Left = 0
-    Height = 1084
+    Height = 966
     Top = 353
     Width = 338
     Align = alLeft
@@ -33,24 +33,24 @@ object frmTracker: TfrmTracker
   end
   object Splitter1: TSplitter
     Left = 338
-    Height = 1084
+    Height = 966
     Top = 353
     Width = 9
   end
   object Panel1: TPanel
     Left = 347
-    Height = 1084
+    Height = 966
     Top = 353
     Width = 1861
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 1084
+    ClientHeight = 966
     ClientWidth = 1861
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 1084
+      Height = 966
       Top = 0
       Width = 1861
       ActivePage = PatternTabSheet
@@ -137,16 +137,16 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
-        ClientHeight = 1041
+        ClientHeight = 923
         ClientWidth = 1853
         ParentFont = False
         object Panel3: TPanel
           Left = 392
-          Height = 1041
+          Height = 923
           Top = 0
           Width = 1461
           Align = alClient
-          ClientHeight = 1041
+          ClientHeight = 923
           ClientWidth = 1461
           ParentFont = False
           TabOrder = 0
@@ -194,7 +194,7 @@ object frmTracker: TfrmTracker
           end
           object ScrollBox1: TScrollBox
             Left = 1
-            Height = 987
+            Height = 869
             Top = 53
             Width = 1459
             HorzScrollBar.Increment = 1
@@ -213,10 +213,11 @@ object frmTracker: TfrmTracker
         end
         object OrderEditStringGrid: TStringGrid
           Left = 0
-          Height = 1041
+          Height = 923
           Top = 0
           Width = 392
           Align = alLeft
+          AutoEdit = False
           AutoFillColumns = True
           Columns = <          
             item
@@ -1723,7 +1724,7 @@ object frmTracker: TfrmTracker
   object StatusBar1: TStatusBar
     Left = 0
     Height = 43
-    Top = 1437
+    Top = 1319
     Width = 2208
     AutoHint = True
     Panels = <    
@@ -1762,7 +1763,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 120
+      Left = 487
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1773,41 +1774,51 @@ object frmTracker: TfrmTracker
       ShowHint = True
     end
     object ToolButton2: TToolButton
-      Left = 202
+      Left = 125
       Top = 0
       Caption = 'Play'
       ImageIndex = 74
     end
     object ToolButton3: TToolButton
-      Left = 266
+      Left = 189
       Top = 0
       Caption = 'Pause'
       ImageIndex = 75
     end
     object ToolButton4: TToolButton
-      Left = 347
+      Left = 270
       Top = 0
       Caption = 'Stop'
       ImageIndex = 73
     end
     object ToolButton5: TToolButton
-      Left = 421
+      Left = 343
       Top = 0
-      Caption = 'ToolButton5'
+      AutoSize = True
+      Caption = 'Export song'
+      ImageIndex = 76
+      OnClick = ToolButton5Click
     end
     object ToolButton8: TToolButton
-      Left = 196
+      Left = 120
       Height = 39
       Top = 0
       Caption = 'ToolButton8'
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 415
+      Left = 338
       Height = 39
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
+    end
+    object ToolButton7: TToolButton
+      Left = 479
+      Height = 39
+      Top = 0
+      Caption = 'ToolButton7'
+      Style = tbsSeparator
     end
   end
   object MainMenu1: TMainMenu
@@ -1979,7 +1990,7 @@ object frmTracker: TfrmTracker
     left = 1129
     top = 75
     Bitmap = {
-      4C694C0000001000000010000000000000000000000000000000000000000000
+      4C694D0000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4411,7 +4422,39 @@ object frmTracker: TfrmTracker
       44F7555555FF4E4E4EFF464646FF4E4E4EFF555555FF444444F7000000C40000
       00190000000BFFFFFF00FFFFFF00FFFFFF000000001400000030000000680000
       00CC000000E8000000E8000000E8000000E8000000E8000000CC000000680000
-      003100000016FFFFFF00FFFFFF00
+      003100000016FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF0000A9FE0000AAFF0000AAFF000286DF000461
+      BF120462C08B0462C08B0462C08B004080CC004080CC004080CC004080CC0462
+      C08B0462C08B0462C08B0461BF1200A9FE0000AAFF0000AAFF0000AAFF000357
+      AB68468ED6C788BBEEFF88BBEEFF4477AAFF4477AAFF4477AAFF4073A6FF88BB
+      EEFF88BBEEFF468ED6C70357AB6800A9FE9900A9FECC00A9FECC00A9FECC007E
+      D4CCAADDFFFFAADDFFFFAADDFFFF77AADDFF77AADDFF77AADDFF6699CCFFAADD
+      FFFFAADDFFFFAADDFFFF045FBA9100A4F9CC51EAFFFF4CE5FFFF4CE5FFFF007A
+      D0CC9DD0F8FF95C8F3FF95C8F3FF5588BBFF5588BBFF5588BBFF4D80B3FF95C8
+      F3FF95C8F3FF9FD2F9FF035DB694673501AA9B7A58FF9B7A58FF40D9FFFF0075
+      CBCC97CAF3FF8FC2EEFF91C4F0FF5588BBFF5487BAFFFFCB43FFFBC33BFFF5B9
+      31FFF0AF27FF96C9F2FF035BB299663802A2CEAD8BFFA58765FF3BD4FFFF006F
+      C5CC8EC1ECFF85B8E6FF89BCEAFF4477AAFF4275A8FFF5F5E4FFF5F5E4FFF5F5
+      E4FFF5F5E4FF89BCE6FF0359AE9D653D0398D5BB99FFB19A78FF35CEFFFF0069
+      BECC86B9E6FF7DB0E0FF81B4E3FF85B8E7FF6FA2D2FFECECDBFFBABAA9FFCDCD
+      BCFFECECDBFF7AADD9FF0356A9A26341048FCDBA98FF98B0A5FF2FC8FFFF0062
+      B8CC7DB0DFFF77AADBFF79ACDDFF7DB0E1FF6194C6FFE2E2D1FFE2E2D1FFE2E2
+      D1FFE2E2D1FF6C9FCDFF0253A4A70072C7CC32CBFFFF29C2FFFF29C2FFFF005D
+      B2CC77AADAFF71A4D6FF74A7D9FF77AADBFF699CCEFF598CBEFF5A8DBFFF5A8D
+      BFFF5A8DBFFF73A6D5FF024F9BB0010101AB0099DDFF31465DFF31465DFF134C
+      89DD76A9D9FF74A7D8FF78ABDBFF78ABDBFF7AADDEFF7CAFE0FF6487AEFF3D43
+      59FF3D4359FF698BB1FF014589C30404048B000012ED777777FF777777FF0000
+      12ED0303036F03030396030303990303039B0202029E02020279000012ED7777
+      77FF777777FF000012ED010101AA02020200000012CF777777FFBBBBBBFF0000
+      12CF010106000202020002020200020202000101010001010500000012CF7777
+      77FFBBBBBBFF000012CF010101000000001E00000B66000012D1000012D10000
+      0B6600000026000000260000002600000026000000260000002600000B660000
+      12D1000012D100000B660000001E0000000F000000170000001A0000001A0000
+      001A0000001A0000001A0000001A0000001A0000001A0000001A0000001A0000
+      001A0000001A000000170000000F
     }
   end
   object OpenDialog1: TOpenDialog

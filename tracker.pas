@@ -9,7 +9,7 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, HugeDatatypes, LCLType;
+  ECProgressBar, HugeDatatypes, LCLType, Codegen;
 
 type
   { TfrmTracker }
@@ -71,6 +71,7 @@ type
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
     ToolButton8: TToolButton;
     WaveEditNumberSpinner: TSpinEdit;
     WaveEditGroupBox: TGroupBox;
@@ -195,6 +196,7 @@ type
     procedure PanicToolButtonClick(Sender: TObject);
     procedure PasteActionExecute(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
+    procedure ToolButton5Click(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
     procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -269,7 +271,7 @@ end;
 
 procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
 var
-  Interval, HInterval: Integer;
+  Interval{, HInterval}: Integer;
   I: Integer;
   W, H : Integer;
 begin
@@ -277,7 +279,7 @@ begin
   H := PB.Height;
 
   Interval := W div 32;
-  HInterval := H div $10;
+  //HInterval := H div $10;
   With PB.Canvas do begin
     Brush.Color := clBlack;
     Clear;
@@ -693,8 +695,9 @@ var
   Section: TCollectionItem;
   P: TPoint;
 begin
+  // Hack
+
   if Button = mbRight then begin
-    // Hack
     P.X := X;
     P.Y := Y;
 
@@ -804,10 +807,15 @@ var
 begin
   Highest := Patterns.MaxKey;
 
-  OrderEditStringGrid.InsertRowWithValues(
-    OrderEditStringGrid.Row,
-    ['',IntToStr(Highest),IntToStr(Highest+1), IntToStr(Highest+2), IntToStr(Highest+3)]
-  );
+  with OrderEditStringGrid do
+    InsertRowWithValues(
+      Row,
+      ['',
+      IntToStr(Highest),
+      IntToStr(Highest+1),
+      IntToStr(Highest+2),
+      IntToStr(Highest+3)]
+    );
 
   for X := 0 to 3 do
     Patterns.CreateNewPattern(Highest+X);
@@ -815,10 +823,8 @@ end;
 
 procedure TfrmTracker.MenuItem18Click(Sender: TObject);
 begin
-  OrderEditStringGrid.InsertRowWithValues(
-    OrderEditStringGrid.Row,
-    ['', '0', '0', '0', '0']
-  );
+  with OrderEditStringGrid do
+    InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
 end;
 
 procedure TfrmTracker.MenuItem19Click(Sender: TObject);
@@ -872,7 +878,7 @@ end;
 
 procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
 var
-  X, Highest: Integer;
+  Highest: Integer;
 begin
   Highest := Patterns.MaxKey;
 
@@ -886,7 +892,8 @@ procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
 var
   Temp: Integer;
 begin
-  // TODO: Fix this hack! For some reason OnValidateEntry is giving bad pointers
+  // TODO: Fix this hack!
+  // For some reason OnValidateEntry is giving bad pointers
   // for its NewValue and OldValue params. This is the workaround for now.
   with OrderEditStringGrid do
     if not TryStrToInt(Cells[Col, Row], Temp) then Cells[Col, Row] := '';
@@ -897,7 +904,10 @@ end;
 procedure TfrmTracker.OrderEditStringGridKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
-  if Key = VK_DELETE then OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
+  if Key = VK_DELETE then begin
+    // TODO: Make this stop the editor from showing
+    OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
+  end;
 end;
 
 procedure TfrmTracker.PanicToolButtonClick(Sender: TObject);
@@ -921,6 +931,13 @@ end;
 procedure TfrmTracker.TicksPerRowSpinEditChange(Sender: TObject);
 begin
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
+end;
+
+procedure TfrmTracker.ToolButton5Click(Sender: TObject);
+begin
+  if SaveDialog1.Execute then begin
+    RenderSongToFile(Song, SaveDialog1.FileName);
+  end;
 end;
 
 procedure TfrmTracker.WaveEditNumberSpinnerChange(Sender: TObject);

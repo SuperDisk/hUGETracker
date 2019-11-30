@@ -5,9 +5,12 @@ unit HugeDatatypes;
 interface
 
 uses
-  Classes, SysUtils, fgl;
+  Classes, SysUtils, fgl, instruments, waves;
 
 type
+    TInstrumentBank = array[1..15] of TInstrument;
+    TWaveBank = array[0..15] of TWave;
+
   TEffectParams = packed record
     case Boolean of
       True: (Param1, Param2: Byte);

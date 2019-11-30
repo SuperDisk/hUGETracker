@@ -1,18 +1,23 @@
 unit Codegen;
 
-{$mode objfpc}
+{$mode objfpc}{$H+}
 
 interface
 
 uses
   Classes, SysUtils, math,
-  Waves, Instruments,
+  Waves, Instruments, Song,
   HugeDatatypes;
 
 function RenderOrderTable(OrderMatrix: TOrderMatrix): String;
-function RenderInstrument(Name: String; Instr: TInstrument): String;
+
+function RenderInstruments(Instruments: TInstrumentBank): String;
+
 function RenderPattern(Name: String; Pattern: TPattern): String;
-function RenderWaveform(Name: String; Wave: TWave): String;
+
+function RenderWaveforms(Waves: TWaveBank): String;
+
+procedure RenderSongToFile(Song: TSong; Filename: String);
 
 //TODO: RenderRoutines
 
@@ -27,15 +32,18 @@ var
 function ArrayHelper(Ints: array of Integer): String;
 var
   I: Integer;
-  Strs: array of string;
+  SL: TStringList;
 begin
+  SL := TStringList.Create;
+  SL.Delimiter := ',';
   for I := Low(Ints) to High(Ints) do
-    Strs[I] := 'o' + IntToStr(Ints[I]);
-  Result := TStringHelper.Join(',', Strs);
+    SL.Add('o' + IntToStr(Ints[I]));
+  Result := SL.DelimitedText;
+  SL.Free;
 end;
 begin
   Res := TStringList.Create;
-  Res.Delimiter := LineEnding;
+  Res.Delimiter := #10;
   OrderCnt := maxvalue([High(OrderMatrix[0]), High(OrderMatrix[1]),
                         High(OrderMatrix[2]), High(OrderMatrix[3])]);
 
@@ -49,11 +57,29 @@ begin
   Res.Free;
 end;
 
-function RenderInstrument(Name: String; Instr: TInstrument): String;
+function RenderInstruments(Instruments: TInstrumentBank): String;
 var
-  SL: TStringList;
+  SL, ResultSL: TStringList;
+  AsmInstrument: TAsmInstrument;
+  I, J: Integer;
 begin
+  ResultSL := TStringList.Create;
+  ResultSL.Delimiter := #10;
 
+  for I := Low(Instruments) to High(Instruments) do begin
+    AsmInstrument := InstrumentToBytes(Instruments[I]);
+    SL := TStringList.Create;
+    SL.Delimiter := ',';
+
+    for J := Low(AsmInstrument) to High(AsmInstrument) do
+      SL.Add(IntToStr(AsmInstrument[J]));
+
+    ResultSL.Add(Format('%s: db %s', ['inst'+IntToStr(I), SL.DelimitedText]));
+    SL.Free;
+  end;
+
+  Result := ResultSL.DelimitedText;
+  ResultSL.Free;
 end;
 
 function RenderPattern(Name: String; Pattern: TPattern): String;
@@ -61,17 +87,45 @@ begin
 
 end;
 
-function RenderWaveform(Name: String; Wave: TWave): String;
+function RenderWaveforms(Waves: TWaveBank): String;
 var
-  SL: TStringList;
-  I: Integer;
+  SL, ResultSL: TStringList;
+  I, J: Integer;
 begin
-  SL := TStringList.Create;
-  SL.Delimiter := ', ';
-  for I := Low(Wave) to High(Wave) do
-    SL.Add(IntToStr(Wave[I]));
-  Result := Name + SL.DelimitedText;
-  SL.Free;
+  ResultSL := TStringList.Create;
+  ResultSL.Delimiter := #10;
+
+  for I := Low(Waves) to High(Waves) do begin
+    SL := TStringList.Create;
+    SL.Delimiter := ',';
+    for J := Low(Waves[I]) to High(Waves[I]) do
+      SL.Add(IntToStr(Waves[I][J]));
+    Result := Format('wave%d: db %s', [I, SL.DelimitedText]);
+    SL.Free;
+  end;
+
+  Result := ResultSL.DelimitedText;
+  ResultSL.Free;
+end;
+
+procedure RenderSongToFile(Song: TSong; Filename: String);
+var
+  OutFile: Text;
+begin
+  Assign(OutFile, 'C:/test/wave');
+  Rewrite(OutFile);
+  Write(OutFile, RenderWaveforms(Song.Waves));
+  Close(OutFile);
+
+  {Assign(OutFile, 'C:/test/order');
+  Rewrite(OutFile);
+  Write(RenderOrderTable(Song.Waves));
+  Close(OutFile);}
+
+  Assign(OutFile, 'C:/test/instrument');
+  Rewrite(OutFile);
+  Write(OutFile, RenderInstruments(Song.Instruments));
+  Close(OutFile);
 end;
 
 end.
