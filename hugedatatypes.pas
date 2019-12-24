@@ -1,6 +1,6 @@
 unit HugeDatatypes;
 
-{$mode objfpc}
+{$mode objfpc}{$H+}
 
 interface
 
@@ -8,12 +8,14 @@ uses
   Classes, SysUtils, fgl, instruments, waves;
 
 type
-    TInstrumentBank = array[1..15] of TInstrument;
-    TWaveBank = array[0..15] of TWave;
+  Nibble = $0..$F;
 
-  TEffectParams = packed record
+  TInstrumentBank = array[1..15] of TInstrument;
+  TWaveBank = array[0..15] of TWave;
+
+  TEffectParams = bitpacked record
     case Boolean of
-      True: (Param1, Param2: Byte);
+      True: (Param2, Param1: Nibble);
       False: (Value: Word);
   end;
 

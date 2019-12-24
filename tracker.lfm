@@ -1,11 +1,11 @@
 object frmTracker: TfrmTracker
-  Left = 799
+  Left = 806
   Height = 1396
-  Top = 201
-  Width = 2208
+  Top = 188
+  Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1362
-  ClientWidth = 2208
+  ClientWidth = 2212
   DesignTimePPI = 168
   Menu = MainMenu1
   OnCreate = FormCreate
@@ -41,18 +41,18 @@ object frmTracker: TfrmTracker
     Left = 347
     Height = 966
     Top = 353
-    Width = 1861
+    Width = 1865
     Align = alClient
     BevelOuter = bvNone
     ClientHeight = 966
-    ClientWidth = 1861
+    ClientWidth = 1865
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
       Height = 966
       Top = 0
-      Width = 1861
+      Width = 1865
       ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
@@ -138,16 +138,16 @@ object frmTracker: TfrmTracker
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
         ClientHeight = 923
-        ClientWidth = 1853
+        ClientWidth = 1857
         ParentFont = False
         object Panel3: TPanel
           Left = 392
           Height = 923
           Top = 0
-          Width = 1461
+          Width = 1465
           Align = alClient
           ClientHeight = 923
-          ClientWidth = 1461
+          ClientWidth = 1465
           ParentFont = False
           TabOrder = 0
           object HeaderControl1: THeaderControl
@@ -155,7 +155,7 @@ object frmTracker: TfrmTracker
             Height = 52
             Hint = 'Left click to mute, right click to solo'
             Top = 1
-            Width = 1459
+            Width = 1463
             DragReorder = False
             Images = ImageList2
             Sections = <            
@@ -188,6 +188,7 @@ object frmTracker: TfrmTracker
                 Visible = True
               end>
             OnSectionClick = HeaderControl1SectionClick
+            OnSectionResize = HeaderControl1SectionResize
             Align = alTop
             ParentFont = False
             OnMouseDown = HeaderControl1MouseDown
@@ -196,7 +197,7 @@ object frmTracker: TfrmTracker
             Left = 1
             Height = 869
             Top = 53
-            Width = 1459
+            Width = 1463
             HorzScrollBar.Increment = 1
             HorzScrollBar.Page = 1
             HorzScrollBar.Smooth = True
@@ -1715,7 +1716,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 312
     Top = 41
-    Width = 2208
+    Width = 2212
     Align = alTop
     BevelOuter = bvNone
     ParentFont = False
@@ -1725,7 +1726,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 43
     Top = 1319
-    Width = 2208
+    Width = 2212
     AutoHint = True
     Panels = <    
       item
@@ -1746,7 +1747,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 41
     Top = 0
-    Width = 2208
+    Width = 2212
     AutoSize = True
     Caption = 'ToolBar1'
     EdgeBorders = [ebBottom]
@@ -1778,6 +1779,7 @@ object frmTracker: TfrmTracker
       Top = 0
       Caption = 'Play'
       ImageIndex = 74
+      OnClick = ToolButton2Click
     end
     object ToolButton3: TToolButton
       Left = 189
@@ -1790,6 +1792,7 @@ object frmTracker: TfrmTracker
       Top = 0
       Caption = 'Stop'
       ImageIndex = 73
+      OnClick = ToolButton4Click
     end
     object ToolButton5: TToolButton
       Left = 343

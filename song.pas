@@ -4,7 +4,7 @@ unit Song;
 
 interface
 
-uses instruments, waves, patterns, HugeDatatypes;
+uses HugeDatatypes;
 
 type
   { TSong }
@@ -17,8 +17,8 @@ type
     Instruments: TInstrumentBank;
     Waves: TWaveBank;
 
-    Patterns: array of TPattern;
-    OrderMatrix: array of integer;
+    Patterns: TPatternMap;
+    OrderMatrix: TOrderMatrix;
 
     TicksPerRow: Integer;
   end;

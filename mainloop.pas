@@ -16,22 +16,13 @@ interface
 uses ExtCtrls;
 
 function main_loop(a: DWord): DWORD;
-procedure SetPaintBox(pb: TPaintBox);
 
 function z80_decode: byte; pascal;
 procedure z80_reset;
 
-var
-  PaintBox: TPaintBox;
-
 implementation
 
 uses vars, gfx, machine, z80cpu, sound;
-
-procedure SetPaintBox(pb: TPaintBox);
-begin
-  PaintBox := pb;
-end;
 
 procedure TimerControl;
 (*
@@ -219,8 +210,8 @@ begin
         if (old_mode = 0) then
         begin
           make_line_finish(143);
-          if (m_iram[$ff40] and 128) > 0 then
-             PaintBox.Repaint;
+          //if (m_iram[$ff40] and 128) > 0 then
+             //PaintBox.Repaint;
           vbi_count := vbi_latency;
         end;
         make_line_count := -1;

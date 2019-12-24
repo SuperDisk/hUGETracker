@@ -82,7 +82,7 @@ type
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
     function SelectionToRect(Selection: TSelectionPos): TRect;
     function MousePosToSelection(X, Y: Integer): TSelectionPos;
-    function KeycodeToHexNumber(Key: Word; out Num: Byte): Boolean; overload;
+    function KeycodeToHexNumber(Key: Word; out Num: Nibble): Boolean; overload;
     function KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean; overload;
   public
     Cursor, Other: TSelectionPos;
@@ -101,6 +101,7 @@ constructor TTrackerGrid.Create(
 begin
   inherited Create(AOwner);
 
+  DoubleBuffered := True;
   ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents, csDoubleClicks];
   Self.Parent := Parent;
 
@@ -312,11 +313,11 @@ end;
 
 procedure TTrackerGrid.InputInstrument(Key: Word);
 var
-  Temp: Byte;
+  Temp: Nibble;
 begin
   with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then Instrument := 0
-    else if KeycodeToHexNumber(Key, Temp) and (Temp < 9) then
+    else if KeycodeToHexNumber(Key, Temp) and (Temp <= 9) then
       Instrument := ((Instrument mod 10) * 10) + Temp;
 end;
 
@@ -337,7 +338,7 @@ end;
 
 procedure TTrackerGrid.InputEffectParams(Key: Word);
 var
-  Temp: Byte;
+  Temp: Nibble;
 begin
   with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then begin
@@ -351,9 +352,10 @@ begin
         DigitInputting := True;
       end;
     end
-    else
-      if KeycodeToHexNumber(Key, EffectParams.Param2) then
-        DigitInputting := False;
+    else if KeycodeToHexNumber(Key, Temp) then begin
+      EffectParams.Param2 := Temp;
+      DigitInputting := False;
+    end;
 end;
 
 procedure TTrackerGrid.RenderRow(Row: Integer);
@@ -495,7 +497,7 @@ begin
   end;
 end;
 
-function TTrackerGrid.KeycodeToHexNumber(Key: Word; out Num: Byte): Boolean;
+function TTrackerGrid.KeycodeToHexNumber(Key: Word; out Num: Nibble): Boolean;
 begin
   Result := True;
 
@@ -522,7 +524,7 @@ end;
 
 function TTrackerGrid.KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean;
 var
-  X: Byte;
+  X: Nibble;
 begin
   Result := KeycodeToHexNumber(Key, X);
   Num := X;

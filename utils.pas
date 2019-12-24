@@ -1,6 +1,6 @@
 unit Utils;
 
-{$mode objfpc}
+{$mode objfpc}{$H+}
 
 interface
 

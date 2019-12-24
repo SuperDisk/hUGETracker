@@ -18,7 +18,7 @@ type
   protected
     procedure Execute; override;
   public
-    Constructor Create;
+    Constructor Create(ROM: String);
   end;
 
 implementation
@@ -66,23 +66,14 @@ begin
   until Terminated;
 end;
 
-constructor TEmulationThread.Create;
+constructor TEmulationThread.Create(ROM: String);
 begin
   inherited Create(True);
-  FreeOnTerminate := True;
   z80_reset;
   ResetSound;
   enablesound;
 
-  load('../../halt.gb');
-
-  {halt_mode := 1;
-  z80_decode;
-  Spokeb($FF1A, $80);
-  z80_decode;
-  Spokeb($FF25, $FF);
-  z80_decode;
-  Spokeb($FF24, $77);}
+  load(ROM);
 end;
 
 end.

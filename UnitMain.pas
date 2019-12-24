@@ -305,7 +305,7 @@ begin
   gb_speed := 1;
 
   frmGameboy.DoubleBuffered := True;
-  SetPaintBox(PaintBox1);
+  //SetPaintBox(PaintBox1);
   postmessage(handle, wm_user, 0, 0);
 
   if ParamCount >= 1 then

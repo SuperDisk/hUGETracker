@@ -1,6 +1,6 @@
 unit Tracker;
 
-{$mode objfpc}
+{$mode objfpc}{$H+}
 
 interface
 
@@ -9,7 +9,7 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, HugeDatatypes, LCLType, Codegen;
+  ECProgressBar, HugeDatatypes, LCLType, Codegen, SymParser;
 
 type
   { TfrmTracker }
@@ -156,6 +156,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure HeaderControl1SectionClick(HeaderControl: TCustomHeaderControl;
       Section: THeaderSection);
+    procedure HeaderControl1SectionResize(HeaderControl: TCustomHeaderControl;
+      Section: THeaderSection);
     procedure HelpLookupManualExecute(Sender: TObject);
     procedure ArtistEditChange(Sender: TObject);
     procedure CommentMemoChange(Sender: TObject);
@@ -196,6 +198,8 @@ type
     procedure PanicToolButtonClick(Sender: TObject);
     procedure PasteActionExecute(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
+    procedure ToolButton2Click(Sender: TObject);
+    procedure ToolButton4Click(Sender: TObject);
     procedure ToolButton5Click(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
     procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
@@ -228,9 +232,9 @@ type
     PreviewingInstrument: Boolean;
     DrawingWave: Boolean;
 
-    Patterns: TPatternMap;
-
     PatternsNode, InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
+
+    SymbolTable: TSymbolMap;
 
     procedure ChangeToSquare;
     procedure ChangeToWave;
@@ -238,6 +242,9 @@ type
     procedure LoadInstrument(Instr: Integer);
     procedure LoadWave(Wave: Integer);
     procedure ReloadPatterns;
+    procedure CopyOrderGridToOrderMatrix;
+    function PeekSymbol(Symbol: String): Integer;
+    procedure ResetEmulationThread;
 
     procedure UpdateUIAfterLoad;
 
@@ -368,9 +375,46 @@ begin
       OrderEditStringGrid.Cells[I+1, OrderEditStringGrid.Row],
       OrderNum
     );
-    Pat := Patterns.GetOrCreateNew(OrderNum);
+    Pat := Song.Patterns.GetOrCreateNew(OrderNum);
     TrackerGrid.LoadPattern(I, Pat);
   end;
+
+  CopyOrderGridToOrderMatrix;
+end;
+
+procedure TfrmTracker.CopyOrderGridToOrderMatrix;
+var
+  C, R, OrderNum: Integer;
+begin
+  // Copy the data in the grid to the song's order matrix. Not super efficient
+  // but it's fast enough
+  with OrderEditStringGrid do begin
+    for C := 0 to 3 do begin
+      SetLength(Song.OrderMatrix[C], RowCount);
+      for R := 0 to RowCount-2 do begin
+        OrderNum := 0;
+        TryStrToInt(Cells[C+1, R+1], OrderNum);
+        Song.OrderMatrix[C, R] := OrderNum;
+      end;
+    end;
+  end;
+end;
+
+function TfrmTracker.PeekSymbol(Symbol: String): Integer;
+begin
+  if SymbolTable = nil then exit;
+  Result := speekb(SymbolTable.KeyData[Symbol]);
+end;
+
+procedure TfrmTracker.ResetEmulationThread;
+begin
+  SymbolTable := nil;
+
+  EmulationThread.Terminate;
+  EmulationThread.WaitFor;
+  EmulationThread.Free;
+  EmulationThread := TEmulationThread.Create('halt.gb');
+  EmulationThread.Start;
 end;
 
 procedure TfrmTracker.LoadInstrument(Instr: Integer);
@@ -603,17 +647,18 @@ begin
     (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
 
   // Initialize order table
-  Patterns := TPatternMap.Create;
+  Song.Patterns := TPatternMap.Create;
   for I := 0 to 3 do begin
     OrderEditStringGrid.Cells[I+1, 1] := IntToStr(I);
-    TrackerGrid.LoadPattern(I, Patterns.GetOrCreateNew(I));
+    TrackerGrid.LoadPattern(I, Song.Patterns.GetOrCreateNew(I));
   end;
+  CopyOrderGridToOrderMatrix;
 
   // Manually resize the fixed column in the order editor
   OrderEditStringGrid.ColWidths[0]:=50;
 
   // Get the emulator ready to make sound...
-  EmulationThread := TEmulationThread.Create;
+  EmulationThread := TEmulationThread.Create('halt.gb');
   EmulationThread.Start;
 end;
 
@@ -715,6 +760,14 @@ begin
   Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
 end;
 
+procedure TfrmTracker.HeaderControl1SectionResize(
+  HeaderControl: TCustomHeaderControl; Section: THeaderSection);
+begin
+  // Prevent resizing these
+  // TODO: Create a subclass of them that doesn't allow resizing maybe?
+  Section.Width := TrackerGrid.ColumnWidth;
+end;
+
 procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
 {var
   F: file of TSong;}
@@ -805,7 +858,7 @@ procedure TfrmTracker.MenuItem17Click(Sender: TObject);
 var
   X, Highest: Integer;
 begin
-  Highest := Patterns.MaxKey;
+  Highest := Song.Patterns.MaxKey;
 
   with OrderEditStringGrid do
     InsertRowWithValues(
@@ -818,7 +871,7 @@ begin
     );
 
   for X := 0 to 3 do
-    Patterns.CreateNewPattern(Highest+X);
+    Song.Patterns.CreateNewPattern(Highest+X);
 end;
 
 procedure TfrmTracker.MenuItem18Click(Sender: TObject);
@@ -880,24 +933,27 @@ procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
 var
   Highest: Integer;
 begin
-  Highest := Patterns.MaxKey;
+  Highest := Song.Patterns.MaxKey;
 
   with OrderEditStringGrid do begin
     Cells[Col, Row] := IntToStr(Highest);
-    TrackerGrid.LoadPattern(Col - 1, Patterns.GetOrCreateNew(Highest));
+    TrackerGrid.LoadPattern(Col - 1, Song.Patterns.GetOrCreateNew(Highest));
   end;
 end;
 
 procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
 var
   Temp: Integer;
+  R, C: Integer;
 begin
   // TODO: Fix this hack!
   // For some reason OnValidateEntry is giving bad pointers
   // for its NewValue and OldValue params. This is the workaround for now.
-  with OrderEditStringGrid do
-    if not TryStrToInt(Cells[Col, Row], Temp) then Cells[Col, Row] := '';
-
+  with OrderEditStringGrid do begin
+    if not TryStrToInt(Cells[Col, Row], Temp) then
+      Cells[Col, Row] := ''
+    else;
+  end;
   ReloadPatterns;
 end;
 
@@ -931,6 +987,27 @@ end;
 procedure TfrmTracker.TicksPerRowSpinEditChange(Sender: TObject);
 begin
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
+end;
+
+procedure TfrmTracker.ToolButton2Click(Sender: TObject);
+begin
+  if RenderPreviewROM(Song) then begin
+    // Load the new symbol table
+    SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
+
+    // Start emulation on the rendered preview binary
+    EmulationThread.Terminate;
+    EmulationThread.WaitFor;
+    EmulationThread.Free;
+    EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
+    EmulationThread.Start;
+  end
+  else ResetEmulationThread;
+end;
+
+procedure TfrmTracker.ToolButton4Click(Sender: TObject);
+begin
+  ResetEmulationThread;
 end;
 
 procedure TfrmTracker.ToolButton5Click(Sender: TObject);

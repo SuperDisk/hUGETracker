@@ -185,6 +185,7 @@ const
 
 var
   NoteMap: TNoteMap;
+  NoteToDriverMap: TNoteMap;
   Keybindings: TKeybindings;
   NotesToFreqs: TNoteToFreqMap;
   NoteToCodeMap: TNoteToCodeMap;
@@ -203,6 +204,8 @@ end;
 
 begin
   NoteMap := TNoteMap.Create;
+  NoteToDriverMap := TNoteMap.Create;
+
   Keybindings := TKeybindings.Create;
   NotesToFreqs := TNoteToFreqMap.Create;
   NoteToCodeMap := TNoteToCodeMap.Create;
@@ -387,6 +390,79 @@ begin
   NoteMap.add(A_8, 'A-8');
   NoteMap.add(As8, 'A#8');
   NoteMap.add(B_8, 'B-8');
+
+  NoteToDriverMap.add(C_3, 'C_3');
+  NoteToDriverMap.add(Cs3, 'C#3');
+  NoteToDriverMap.add(D_3, 'D_3');
+  NoteToDriverMap.add(Ds3, 'D#3');
+  NoteToDriverMap.add(E_3, 'E_3');
+  NoteToDriverMap.add(F_3, 'F_3');
+  NoteToDriverMap.add(Fs3, 'F#3');
+  NoteToDriverMap.add(G_3, 'G_3');
+  NoteToDriverMap.add(Gs3, 'G#3');
+  NoteToDriverMap.add(A_3, 'A_3');
+  NoteToDriverMap.add(As3, 'A#3');
+  NoteToDriverMap.add(B_3, 'B_3');
+  NoteToDriverMap.add(C_4, 'C_4');
+  NoteToDriverMap.add(Cs4, 'C#4');
+  NoteToDriverMap.add(D_4, 'D_4');
+  NoteToDriverMap.add(Ds4, 'D#4');
+  NoteToDriverMap.add(E_4, 'E_4');
+  NoteToDriverMap.add(F_4, 'F_4');
+  NoteToDriverMap.add(Fs4, 'F#4');
+  NoteToDriverMap.add(G_4, 'G_4');
+  NoteToDriverMap.add(Gs4, 'G#4');
+  NoteToDriverMap.add(A_4, 'A_4');
+  NoteToDriverMap.add(As4, 'A#4');
+  NoteToDriverMap.add(B_4, 'B_4');
+  NoteToDriverMap.add(C_5, 'C_5');
+  NoteToDriverMap.add(Cs5, 'C#5');
+  NoteToDriverMap.add(D_5, 'D_5');
+  NoteToDriverMap.add(Ds5, 'D#5');
+  NoteToDriverMap.add(E_5, 'E_5');
+  NoteToDriverMap.add(F_5, 'F_5');
+  NoteToDriverMap.add(Fs5, 'F#5');
+  NoteToDriverMap.add(G_5, 'G_5');
+  NoteToDriverMap.add(Gs5, 'G#5');
+  NoteToDriverMap.add(A_5, 'A_5');
+  NoteToDriverMap.add(As5, 'A#5');
+  NoteToDriverMap.add(B_5, 'B_5');
+  NoteToDriverMap.add(C_6, 'C_6');
+  NoteToDriverMap.add(Cs6, 'C#6');
+  NoteToDriverMap.add(D_6, 'D_6');
+  NoteToDriverMap.add(Ds6, 'D#6');
+  NoteToDriverMap.add(E_6, 'E_6');
+  NoteToDriverMap.add(F_6, 'F_6');
+  NoteToDriverMap.add(Fs6, 'F#6');
+  NoteToDriverMap.add(G_6, 'G_6');
+  NoteToDriverMap.add(Gs6, 'G#6');
+  NoteToDriverMap.add(A_6, 'A_6');
+  NoteToDriverMap.add(As6, 'A#6');
+  NoteToDriverMap.add(B_6, 'B_6');
+  NoteToDriverMap.add(C_7, 'C_7');
+  NoteToDriverMap.add(Cs7, 'C#7');
+  NoteToDriverMap.add(D_7, 'D_7');
+  NoteToDriverMap.add(Ds7, 'D#7');
+  NoteToDriverMap.add(E_7, 'E_7');
+  NoteToDriverMap.add(F_7, 'F_7');
+  NoteToDriverMap.add(Fs7, 'F#7');
+  NoteToDriverMap.add(G_7, 'G_7');
+  NoteToDriverMap.add(Gs7, 'G#7');
+  NoteToDriverMap.add(A_7, 'A_7');
+  NoteToDriverMap.add(As7, 'A#7');
+  NoteToDriverMap.add(B_7, 'B_7');
+  NoteToDriverMap.add(C_8, 'C_8');
+  NoteToDriverMap.add(Cs8, 'C#8');
+  NoteToDriverMap.add(D_8, 'D_8');
+  NoteToDriverMap.add(Ds8, 'D#8');
+  NoteToDriverMap.add(E_8, 'E_8');
+  NoteToDriverMap.add(F_8, 'F_8');
+  NoteToDriverMap.add(Fs8, 'F#8');
+  NoteToDriverMap.add(G_8, 'G_8');
+  NoteToDriverMap.add(Gs8, 'G#8');
+  NoteToDriverMap.add(A_8, 'A_8');
+  NoteToDriverMap.add(As8, 'A#8');
+  NoteToDriverMap.add(B_8, 'B_8');
 
 
 end.

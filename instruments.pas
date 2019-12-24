@@ -1,6 +1,6 @@
 unit instruments;
 
-{$mode objfpc}
+{$mode objfpc}{$H+}
 
 interface
 

@@ -7,16 +7,14 @@ interface
 uses
   Classes, SysUtils, math,
   Waves, Instruments, Song,
-  HugeDatatypes;
+  HugeDatatypes, Constants, dialogs;
 
 function RenderOrderTable(OrderMatrix: TOrderMatrix): String;
-
 function RenderInstruments(Instruments: TInstrumentBank): String;
-
 function RenderPattern(Name: String; Pattern: TPattern): String;
-
 function RenderWaveforms(Waves: TWaveBank): String;
 
+function RenderPreviewRom(Song: TSong): Boolean;
 procedure RenderSongToFile(Song: TSong; Filename: String);
 
 //TODO: RenderRoutines
@@ -24,36 +22,35 @@ procedure RenderSongToFile(Song: TSong; Filename: String);
 implementation
 
 function RenderOrderTable(OrderMatrix: TOrderMatrix): String;
-var
-  I: Integer;
-  Res: TStringList;
-  OrderCnt: Integer;
-
 function ArrayHelper(Ints: array of Integer): String;
 var
   I: Integer;
   SL: TStringList;
 begin
   SL := TStringList.Create;
+  SL.StrictDelimiter := True;
   SL.Delimiter := ',';
   for I := Low(Ints) to High(Ints) do
-    SL.Add('o' + IntToStr(Ints[I]));
+    SL.Add('P'+IntToStr(Ints[I]));
   Result := SL.DelimitedText;
   SL.Free;
 end;
+
+var
+  Res: TStringList;
+  OrderCnt: Integer;
 begin
   Res := TStringList.Create;
-  Res.Delimiter := #10;
   OrderCnt := maxvalue([High(OrderMatrix[0]), High(OrderMatrix[1]),
                         High(OrderMatrix[2]), High(OrderMatrix[3])]);
 
-  Res.Add(Format('order_cnt: db %s', [OrderCnt*2]));
-  Res.Add(Format('order1: dw %s', [ArrayHelper(OrderMatrix[0])]));
-  Res.Add(Format('order2: dw %s', [ArrayHelper(OrderMatrix[1])]));
-  Res.Add(Format('order3: dw %s', [ArrayHelper(OrderMatrix[2])]));
-  Res.Add(Format('order4: dw %s', [ArrayHelper(OrderMatrix[3])]));
+  Res.Add('order_cnt: db ' + IntToStr(OrderCnt*2));
+  Res.Add('order1: dw ' + ArrayHelper(OrderMatrix[0]));
+  Res.Add('order2: dw ' + ArrayHelper(OrderMatrix[1]));
+  Res.Add('order3: dw ' + ArrayHelper(OrderMatrix[2]));
+  Res.Add('order4: dw ' + ArrayHelper(OrderMatrix[3]));
 
-  Result := Res.DelimitedText;
+  Result := Res.GetText;
   Res.Free;
 end;
 
@@ -64,11 +61,11 @@ var
   I, J: Integer;
 begin
   ResultSL := TStringList.Create;
-  ResultSL.Delimiter := #10;
 
   for I := Low(Instruments) to High(Instruments) do begin
     AsmInstrument := InstrumentToBytes(Instruments[I]);
     SL := TStringList.Create;
+    SL.StrictDelimiter := True;
     SL.Delimiter := ',';
 
     for J := Low(AsmInstrument) to High(AsmInstrument) do
@@ -78,13 +75,44 @@ begin
     SL.Free;
   end;
 
-  Result := ResultSL.DelimitedText;
+  Result := ResultSL.GetText;
   ResultSL.Free;
 end;
 
-function RenderPattern(Name: String; Pattern: TPattern): String;
+function RenderCell(Cell: TCell): String;
+var
+  SL: TStringList;
 begin
+  SL := TStringList.Create;
+  SL.Delimiter := ',';
+  SL.StrictDelimiter := True;
 
+  if Cell.Note = NO_NOTE then
+    SL.Add('___')
+  else
+    SL.Add(NoteToDriverMap.KeyData[Cell.Note]);
+
+  SL.Add(IntToStr(Cell.Instrument));
+  SL.Add('$' + HexStr((Cell.EffectCode shl 8) or Cell.EffectParams.Value, 3));
+
+  // RGBDS thinks you're defining a new macro if you don't have a space first.
+  Result := ' dn ' + SL.DelimitedText;
+  SL.Free;
+end;
+
+function RenderPattern(Name: String; Pattern: TPattern): String;
+var
+  SL: TStringList;
+  I: Integer;
+begin
+  SL := TStringList.Create;
+  SL.Add(Name + ':');
+
+  for I := Low(TPattern) to High(TPattern) do
+    SL.Add(RenderCell(Pattern[I]));
+
+  Result := SL.GetText;
+  SL.Free;
 end;
 
 function RenderWaveforms(Waves: TWaveBank): String;
@@ -93,39 +121,79 @@ var
   I, J: Integer;
 begin
   ResultSL := TStringList.Create;
-  ResultSL.Delimiter := #10;
 
   for I := Low(Waves) to High(Waves) do begin
     SL := TStringList.Create;
+    SL.StrictDelimiter := True;
     SL.Delimiter := ',';
     for J := Low(Waves[I]) to High(Waves[I]) do
       SL.Add(IntToStr(Waves[I][J]));
-    Result := Format('wave%d: db %s', [I, SL.DelimitedText]);
+    ResultSL.Add(Format('wave%d: db %s', [I, SL.DelimitedText]));
     SL.Free;
   end;
 
-  Result := ResultSL.DelimitedText;
+  Result := ResultSL.GetText;
   ResultSL.Free;
 end;
 
-procedure RenderSongToFile(Song: TSong; Filename: String);
+function RenderPreviewROM(Song: TSong): Boolean;
 var
   OutFile: Text;
+  I: Integer;
+label AssemblyError, Cleanup;
 begin
-  Assign(OutFile, 'C:/test/wave');
+  AssignFile(OutFile, './hUGEDriver/wave.htt');
   Rewrite(OutFile);
   Write(OutFile, RenderWaveforms(Song.Waves));
-  Close(OutFile);
+  CloseFile(OutFile);
 
-  {Assign(OutFile, 'C:/test/order');
+  AssignFile(OutFile, './hUGEDriver/order.htt');
   Rewrite(OutFile);
-  Write(RenderOrderTable(Song.Waves));
-  Close(OutFile);}
+  Write(OutFile, RenderOrderTable(Song.OrderMatrix));
+  CloseFile(OutFile);
 
-  Assign(OutFile, 'C:/test/instrument');
+  AssignFile(OutFile, './hUGEDriver/instrument.htt');
   Rewrite(OutFile);
   Write(OutFile, RenderInstruments(Song.Instruments));
-  Close(OutFile);
+  CloseFile(OutFile);
+
+  AssignFile(OutFile, './hUGEDriver/pattern.htt');
+  Rewrite(OutFile);
+
+  for I := 0 to Song.Patterns.Count-1 do
+    Write(OutFile, RenderPattern('P'+IntToStr(I), Song.Patterns.Data[I]^));
+
+  CloseFile(OutFile);
+
+  // Assemble the ROM
+  Chdir('hUGEDriver');
+
+  if ExecuteProcess(('rgbasm'),
+    '-opreview.obj driverLite.z80', []) <> 0 then
+    goto AssemblyError;
+
+  if ExecuteProcess(('rgblink'),
+    '-mpreview.map -npreview.sym -opreview.gb preview.obj', []) <> 0 then
+    goto AssemblyError;
+
+  if ExecuteProcess(('rgbfix'),
+    '-p0 -v preview.gb', []) <> 0 then
+    goto AssemblyError;
+
+  Result := True;
+  goto Cleanup;
+
+  // Eh, screw good practice. How bad can it be?
+  AssemblyError:
+  Result := False;
+  MessageDlg('Error!', 'There was an error assembling the song for playback. Write the rest of this dialog.', mtError, [mbOK], 0);
+
+  Cleanup:
+  Chdir('..');
+end;
+
+procedure RenderSongToFile(Song: TSong; Filename: String);
+begin
 end;
 
 end.
