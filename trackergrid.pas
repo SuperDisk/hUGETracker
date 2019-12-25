@@ -27,6 +27,33 @@ const
   NUM_ROWS = 64;
 
 type
+
+  { TUndoState }
+
+  TOrderGroup = array[0..3] of Integer;
+  TPatternGroup = array[0..3] of Integer;
+  PUndoState = ^TUndoState;
+  TUndoState = record
+    Next, Prev: PUndoState;
+    Orders: TOrderGroup;
+    Patterns: TPatternGroup;
+    Pattern: TPattern;
+  end;
+
+
+  { TUndoStack }
+
+  TUndoStack = class(TObject)
+    Current: PUndoState;
+  public
+    constructor Create;
+    procedure PushState(
+      Patterns: TPatternGroup;
+      Orders: TOrderGroup);
+    function Rewind: PUndoState;
+    function StepForward: PUndoState;
+  end;
+
   { TTrackerGrid }
 
   TTrackerGrid = class(TCustomControl)
@@ -96,6 +123,59 @@ type
   end;
 
 implementation
+
+{ TUndoStack }
+
+constructor TUndoStack.Create;
+begin
+  Current := Nil;
+end;
+
+procedure TUndoStack.PushState(
+  Patterns: TPatternGroup;
+  Orders: TOrderGroup);
+var
+  NewState, Temp: PUndoState;
+begin
+  New(NewState);
+  NewState.Prev := Current;
+  NewState.Next := nil;
+  NewState.Patterns := Patterns;
+  NewState.Orders := Orders;
+
+  if Current = nil then
+    Current := NewState
+  else begin
+    while Current.Next <> nil do begin
+      Temp := Current^.Next;
+      Current^.Next := Current^.Next^.Next;
+      Dispose(Temp);
+    end;
+
+    Current^.Next := NewState;
+    Current := NewState;
+  end;
+end;
+
+function TUndoStack.Rewind: PUndoState;
+begin
+  if (Current = nil) or (Current.Prev = nil) then
+    Result := nil
+  else begin
+    Current := Current^.Prev;
+    Result := Current;
+  end;
+end;
+
+function TUndoStack.StepForward: PUndoState;
+begin
+  if (Current = nil) or (Current.Next = nil) then
+    Result := nil
+  else begin
+    Current := Current^.Next;
+    Result := Current;
+  end;
+end;
 
 { TTrackerGrid }
 

@@ -752,6 +752,7 @@ var
   SelectedSection: THeaderSection;
   Section: TCollectionItem;
   P: TPoint;
+  I: Integer;
 begin
   // Hack
 
@@ -764,6 +765,9 @@ begin
 
     SelectedSection := HeaderControl1.Sections[HeaderControl1.GetSectionAt(P)];
     SelectedSection.ImageIndex := 1;
+
+    for I := 0 to 3 do
+      snd[I+1].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
   end;
 end;
 
@@ -771,6 +775,7 @@ procedure TfrmTracker.HeaderControl1SectionClick(
   HeaderControl: TCustomHeaderControl; Section: THeaderSection);
 begin
   Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
+  snd[Section.OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;
 end;
 
 procedure TfrmTracker.HeaderControl1SectionResize(

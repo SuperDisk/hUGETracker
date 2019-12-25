@@ -1,11 +1,11 @@
 object frmTracker: TfrmTracker
-  Left = 791
+  Left = 666
   Height = 1396
-  Top = 460
+  Top = 161
   Width = 2212
   Caption = 'hUGETracker'
-  ClientHeight = 1362
-  ClientWidth = 2212
+  ClientHeight = 0
+  ClientWidth = 0
   DesignTimePPI = 168
   Menu = MainMenu1
   OnCreate = FormCreate
