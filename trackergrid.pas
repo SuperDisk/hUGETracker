@@ -84,7 +84,8 @@ type
     procedure RenderCell(const Cell: TCell);
 
     procedure SetHighlightedRow(Row: Integer);
-
+    procedure SetSelectionGridRect(R: TRect);
+    function GetSelectionGridRect: TRect;
     function GetEffectColor(EffectCode: Integer): TColor;
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
     function SelectionToRect(Selection: TSelectionPos): TRect;
@@ -95,7 +96,7 @@ type
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
-
+    property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
     procedure LoadPattern(Idx: Integer; Pat: PPattern);
   end;
 
@@ -256,7 +257,7 @@ begin
     end;
   end;
 
-  if not (ssShift in Shift) then
+  if not (ssShift in Shift) and not(ssCtrl in Shift) then
     Other := Cursor;
   Selecting := ssShift in Shift;
 
@@ -281,6 +282,7 @@ begin
     end;
     Other.X := Cursor.X + X;
     Other.Y := Cursor.Y + Y;
+    Cursor.SelectedPart := Low(TCellPart);
     Other.SelectedPart := High(TCellPart);
   except
     on E: Exception do
@@ -291,8 +293,21 @@ begin
 end;
 
 procedure TTrackerGrid.DoCopy(var Msg: TLMessage);
+var
+  Selection: TSelection;
+  R, C: Integer;
+  Rect: TRect;
 begin
+  Rect := SelectionGridRect;
+  SetLength(Selection, Rect.Height+1);
+  for R := 0 to Rect.Height do begin
+    SetLength(Selection[R], Rect.Width+1);
+    for C := 0 to Rect.Width do begin
+      Selection[R, C] := Patterns[Rect.Left+C]^[Rect.Top+R];
+    end;
+  end;
 
+  CopyCells(Selection);
 end;
 
 procedure TTrackerGrid.DoCut(var Msg: TLMessage);
@@ -452,6 +467,23 @@ procedure TTrackerGrid.SetHighlightedRow(Row: Integer);
 begin
   FHighlightedRow := Row;
   if FHighlightedRow >= 0 then Invalidate;
+end;
+
+procedure TTrackerGrid.SetSelectionGridRect(R: TRect);
+begin
+  Cursor.X := R.Left;
+  Other.X := R.Right;
+  Cursor.Y := R.Top;
+  Other.Y := R.Bottom;
+end;
+
+function TTrackerGrid.GetSelectionGridRect: TRect;
+begin
+  Result := TRect.Create(
+    TPoint.Create(Cursor.X, Cursor.Y),
+    TPoint.Create(Other.X, Other.Y),
+    True
+  );
 end;
 
 function TTrackerGrid.GetEffectColor(EffectCode: Integer): TColor;

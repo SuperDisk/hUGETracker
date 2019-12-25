@@ -18,6 +18,7 @@ type
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;
 procedure BlankPattern(Pat: PPattern);
+function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 
 implementation
 
@@ -77,6 +78,11 @@ begin
     Pat^[I] := Default(TCell);
     Pat^[I].Note := NO_NOTE;
   end;
+end;
+
+function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
+begin
+  Result := HexStr((Code shl 8) or Params.Value, 3);
 end;
 
 end.

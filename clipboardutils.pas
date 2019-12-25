@@ -5,29 +5,12 @@ unit ClipboardUtils;
 interface
 
 uses
-  Classes, SysUtils, Constants, Clipbrd, HugeDatatypes;
+  Classes, SysUtils, Constants, Clipbrd, HugeDatatypes, Utils;
 
-{type
-  TModplugClipboardCell = packed record
-    Note: array[0..2] of Char;
-    Instrument: array[0..1] of Char;
-    Volume: array[0..2] of Char;
-    EffectCode: Char;
-    EffectParams: array[0..1] of Char;
-  end;}
-
-// function ModplugToHuge(MPCell: TModplugClipboardCell): TCell;
 function GetPastedCells: TSelection;
+procedure CopyCells(Selection: TSelection);
 
 implementation
-
-{function ModplugToHuge(MPCell: TModplugClipboardCell): TCell;
-begin
-  Result.Note := NoteToCodeMap.KeyData[String(MPCell.Note)];
-  Result.Instrument := StrToInt(String(MPCell.Instrument));
-  Result.EffectCode := StrToInt(String('0x'+MPCell.EffectCode));
-  Result.EffectParams.Value := StrToInt(String('0x'+MPCell.EffectParams));
-end;}
 
 function ParseCell(Cell: String): TCell;
 var
@@ -52,27 +35,28 @@ begin
   if TryStrToInt('x'+EffectParam1, Temp) then
     Result.EffectParams.Param1 := Temp
   else
-    Result.EffectParams.Param1 := 0;
+    Result.EffectParams.Value := 0;
 
   if TryStrToInt('x'+EffectParam2, Temp) then
     Result.EffectParams.Param2 := Temp
   else
-    Result.EffectParams.Param2 := 0;
+    Result.EffectParams.Value := 0;
 end;
 
 function GetPastedCells: TSelection;
 var
   SL: TStringList;
   StringCells: TStringArray;
-  Row, Cell, S: String;
+  Row: String;
   I, J: Integer;
 begin
   SL := TStringList.Create;
   try
     SL.Text := Clipboard.AsText;
 
-    // First line is the header, last is a blank line
-    SL.Delete(0);
+    // Delete lines until we reach the note data
+    while not SL.Strings[0].StartsWith('|') do
+      SL.Delete(0);
     SetLength(Result, SL.Count);
 
     I := 0;
@@ -84,6 +68,39 @@ begin
         Result[I, J] := ParseCell(StringCells[J+1]);
       Inc(I);
     end;
+  finally
+    SL.Free;
+  end;
+end;
+
+function SerializeCell(Cell: TCell): String;
+begin
+  Result := '|';
+
+  Result += NoteCodeToString(Cell.Note);
+  Result += FormatFloat('00', Cell.Instrument);
+  Result += '...'; // volume
+  Result += EffectCodeToStr(Cell.EffectCode, Cell.EffectParams);
+end;
+
+procedure CopyCells(Selection: TSelection);
+var
+  C, R: Integer;
+  S: String;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  SL.Add('The hUGETracker paste format is compatible with...');
+  SL.Add('ModPlug Tracker  XM');
+  try
+    for R := 0 to High(Selection) do begin
+      S := '';
+      for C := 0 to High(Selection[R]) do
+        S += SerializeCell(Selection[R, C]);
+      SL.Add(S);
+    end;
+
+    Clipboard.AsText := SL.Text;
   finally
     SL.Free;
   end;

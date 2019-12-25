@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, math,
-  Waves, Instruments, Song,
+  Waves, Instruments, Song, Utils,
   HugeDatatypes, Constants, dialogs;
 
 function RenderOrderTable(OrderMatrix: TOrderMatrix): String;
@@ -50,7 +50,7 @@ begin
   Res.Add('order3: dw ' + ArrayHelper(OrderMatrix[2]));
   Res.Add('order4: dw ' + ArrayHelper(OrderMatrix[3]));
 
-  Result := Res.GetText;
+  Result := Res.Text;
   Res.Free;
 end;
 
@@ -75,7 +75,7 @@ begin
     SL.Free;
   end;
 
-  Result := ResultSL.GetText;
+  Result := ResultSL.Text;
   ResultSL.Free;
 end;
 
@@ -93,7 +93,7 @@ begin
     SL.Add(NoteToDriverMap.KeyData[Cell.Note]);
 
   SL.Add(IntToStr(Cell.Instrument));
-  SL.Add('$' + HexStr((Cell.EffectCode shl 8) or Cell.EffectParams.Value, 3));
+  SL.Add('$' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
 
   // RGBDS thinks you're defining a new macro if you don't have a space first.
   Result := ' dn ' + SL.DelimitedText;
@@ -111,7 +111,7 @@ begin
   for I := Low(TPattern) to High(TPattern) do
     SL.Add(RenderCell(Pattern[I]));
 
-  Result := SL.GetText;
+  Result := SL.Text;
   SL.Free;
 end;
 
@@ -132,7 +132,7 @@ begin
     SL.Free;
   end;
 
-  Result := ResultSL.GetText;
+  Result := ResultSL.Text;
   ResultSL.Free;
 end;
 
