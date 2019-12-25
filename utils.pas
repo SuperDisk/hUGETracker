@@ -5,7 +5,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Instruments, Waves, HugeDatatypes, Constants;
+  Classes, SysUtils, Waves, HugeDatatypes, Constants;
 
 type
   { TOrderMapHelper }
@@ -18,6 +18,7 @@ type
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;
 procedure BlankPattern(Pat: PPattern);
+procedure BlankCell(var Cell: TCell);
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 
 implementation
@@ -78,6 +79,12 @@ begin
     Pat^[I] := Default(TCell);
     Pat^[I].Note := NO_NOTE;
   end;
+end;
+
+procedure BlankCell(var Cell: TCell);
+begin
+  Cell := Default(TCell);
+  Cell.Note := NO_NOTE;
 end;
 
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;

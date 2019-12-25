@@ -957,7 +957,6 @@ end;
 procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
 var
   Temp: Integer;
-  R, C: Integer;
 begin
   // TODO: Fix this hack!
   // For some reason OnValidateEntry is giving bad pointers

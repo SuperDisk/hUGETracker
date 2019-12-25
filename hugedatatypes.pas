@@ -34,7 +34,82 @@ type
 
   TSelection = array of array of TCell;
 
+  TCellPart = (
+    cpNote = 0,
+    cpInstrument = 1,
+    cpVolume = 2,
+    cpEffectCode = 3,
+    cpEffectParams = 4
+  );
+
+  TSelectionPos = record
+    X, Y: Integer;
+    SelectedPart: TCellPart
+  end;
+
+operator > (L, R: TSelectionPos): Boolean;
+operator < (L, R: TSelectionPos): Boolean;
+operator >= (L, R: TSelectionPos): Boolean;
+operator <= (L, R: TSelectionPos): Boolean;
+operator = (L, R: TSelectionPos): Boolean;
+
+procedure IncSelectionPos(var SP: TSelectionPos);
+procedure DecSelectionPos(var SP: TSelectionPos);
+
 implementation
+
+operator>(L, R: TSelectionPos): Boolean;
+begin
+  if L.X > R.X then
+    Result := True
+  else if (L.X = R.X) and (L.SelectedPart > R.SelectedPart) then
+    Result := True
+  else
+    Result := False;
+end;
+
+operator<(L, R: TSelectionPos): Boolean;
+begin
+  if L.X < R.X then
+    Result := True
+  else if (L.X = R.X) and (L.SelectedPart < R.SelectedPart) then
+    Result := True
+  else
+    Result := False;
+end;
+
+operator>=(L, R: TSelectionPos): Boolean;
+begin
+  Result := (L > R) or (L = R);
+end;
+
+operator<=(L, R: TSelectionPos): Boolean;
+begin
+  Result := (L < R) or (L = R);
+end;
+
+operator=(L, R: TSelectionPos): Boolean;
+begin
+  Result := (L.X = R.X) and (L.SelectedPart = R.SelectedPart);
+end;
+
+procedure IncSelectionPos(var SP: TSelectionPos);
+begin
+  if SP.SelectedPart = High(TCellPart) then begin
+    SP.SelectedPart := Low(TCellPart);
+    Inc(SP.X);
+  end
+  else Inc(SP.SelectedPart);
+end;
+
+procedure DecSelectionPos(var SP: TSelectionPos);
+begin
+  if SP.SelectedPart = Low(TCellPart) then begin
+    SP.SelectedPart := High(TCellPart);
+    Dec(SP.X);
+  end
+  else Dec(SP.SelectedPart);
+end;
 
 end.
 

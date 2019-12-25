@@ -5,7 +5,7 @@ unit TrackerGrid;
 interface
 
 uses
-  Classes, SysUtils, Controls, Graphics, Constants, LCLType, math,
+  Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, utils,
   LCLIntf, LMessages, HugeDatatypes, ClipboardUtils;
 
 // TODO: Maybe read these from a config file
@@ -27,58 +27,36 @@ const
   NUM_ROWS = 64;
 
 type
-  TCellPart = (
-    cpNote = 0,
-    cpInstrument = 1,
-    cpVolume = 2,
-    cpEffectCode = 3,
-    cpEffectParams = 4
-  );
-
-  TSelectionPos = record
-    X, Y: Integer;
-    SelectedPart: TCellPart
-  end;
-
   { TTrackerGrid }
 
   TTrackerGrid = class(TCustomControl)
-    constructor Create(
-      AOwner: TComponent;
-      Parent: TWinControl);
+    constructor Create(AOwner: TComponent; Parent: TWinControl);
+
     procedure Paint; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-      override;
+    override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
 
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
-
+  private
+    procedure PerformPaste(Paste: TSelection);
+    procedure PerformCopy;
+    procedure DoRepeatPaste;
     procedure DoPaste(var Msg: TLMessage); message LM_PASTE;
     procedure DoCopy(var Msg: TLMessage); message LM_COPY;
     procedure DoCut(var Msg: TLMessage); message LM_CUT;
 
     procedure RenderSelectedArea;
     procedure ClampCursors;
+    procedure NormalizeCursors;
 
+    procedure EraseSelection;
     procedure InputNote(Key: Word);
     procedure InputInstrument(Key: Word);
     procedure InputVolume(Key: Word);
     procedure InputEffectCode(Key: Word);
     procedure InputEffectParams(Key: Word);
-
-  private
-    Patterns: array[0..3] of PPattern;
-
-    CharHeight: Integer;
-    CharWidth: Integer;
-
-    MouseButtonDown: Boolean;
-    Selecting: Boolean;
-
-    DigitInputting: Boolean;
-
-    FHighlightedRow: Integer;
 
     procedure RenderRow(Row: Integer);
     procedure RenderCell(const Cell: TCell);
@@ -92,12 +70,29 @@ type
     function MousePosToSelection(X, Y: Integer): TSelectionPos;
     function KeycodeToHexNumber(Key: Word; out Num: Nibble): Boolean; overload;
     function KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean; overload;
+  private
+    Patterns: array[0..3] of PPattern;
+
+    CharHeight: Integer;
+    CharWidth: Integer;
+
+    MouseButtonDown: Boolean;
+    Selecting: Boolean;
+
+    DigitInputting: Boolean;
+
+    FHighlightedRow: Integer;
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
+
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
     procedure LoadPattern(Idx: Integer; Pat: PPattern);
+
+    function GetAt(SelectionPos: TSelectionPos): Integer;
+    procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
+    procedure ClearAt(SelectionPos: TSelectionPos);
   end;
 
 implementation
@@ -221,6 +216,18 @@ begin
   inherited KeyDown(Key, Shift);
 
   case Key of
+    VK_V: if ssShift in Shift then DoRepeatPaste;
+    VK_L: begin
+      if ssCtrl in Shift then begin
+        Cursor.Y := 0;
+        Other.Y := High(TPattern);
+        Cursor.SelectedPart := Low(TCellPart);
+        Other.SelectedPart := High(TCellPart);
+      end;
+    end;
+    VK_DELETE: begin
+      EraseSelection;
+    end;
     VK_UP: begin
       Cursor.Y -= 1;
       DigitInputting := False;
@@ -266,13 +273,11 @@ begin
   Invalidate
 end;
 
-procedure TTrackerGrid.DoPaste(var Msg: TLMessage);
+procedure TTrackerGrid.PerformPaste(Paste: TSelection);
 var
-  Paste: TSelection;
   X, Y: Integer;
 begin
   try
-    Paste := GetPastedCells;
     for Y := 0 to High(Paste) do begin
       if Cursor.Y+Y > High(TPattern) then Break;
       for X := 0 to High(Paste[Y]) do begin
@@ -290,6 +295,30 @@ begin
   end;
 
   Invalidate;
+end;
+
+procedure TTrackerGrid.PerformCopy;
+begin
+
+end;
+
+procedure TTrackerGrid.DoRepeatPaste;
+var
+  Selection: TSelection;
+  I: Integer;
+begin
+  Selection := GetPastedCells;
+  I := Cursor.Y;
+  while I <= High(TPattern) do begin
+    Cursor.Y := I;
+    PerformPaste(Selection);
+    Inc(I, High(Selection)+1);
+  end;
+end;
+
+procedure TTrackerGrid.DoPaste(var Msg: TLMessage);
+begin
+  PerformPaste(GetPastedCells);
 end;
 
 procedure TTrackerGrid.DoCopy(var Msg: TLMessage);
@@ -336,10 +365,49 @@ end;
 
 procedure TTrackerGrid.ClampCursors;
 begin
-  Cursor.Y := Min(63, Max(0, Cursor.Y));
-  Cursor.X := Min(3, Max(0, Cursor.X));
-  Other.Y := Min(63, Max(0, Other.Y));
-  Other.X := Min(3, Max(0, Other.X));
+  Cursor.Y := Min(High(TPattern), Max(Low(TPattern), Cursor.Y));
+  Cursor.X := Min(High(Patterns), Max(Low(Patterns), Cursor.X));
+  Other.Y := Min(High(TPattern), Max(Low(TPattern), Other.Y));
+  Other.X := Min(High(Patterns), Max(Low(Patterns), Other.X));
+end;
+
+procedure TTrackerGrid.NormalizeCursors;
+var
+  TempI: Integer;
+  TempS: TCellPart;
+begin
+  // Normalize the cursor positions such that cursor is always in the top left
+  if (Cursor > Other) then begin
+    TempI := Other.X;
+    Other.X := Cursor.X;
+    Cursor.X := TempI;
+
+    TempS := Other.SelectedPart;
+    Other.SelectedPart := Cursor.SelectedPart;
+    Cursor.SelectedPart := TempS;
+  end;
+  if (Cursor.Y > Other.Y) then begin
+    TempI := Other.Y;
+    Other.Y := Cursor.Y;
+    Cursor.Y := TempI;
+  end;
+end;
+
+procedure TTrackerGrid.EraseSelection;
+var
+  X: TSelectionPos;
+  R: Integer;
+begin
+  NormalizeCursors;
+
+  for R := Cursor.Y to Other.Y do begin
+    X := Cursor;
+    X.Y := R;
+    while X <= Other do begin
+      ClearAt(X);
+      IncSelectionPos(X);
+    end;
+  end;
 end;
 
 procedure TTrackerGrid.InputNote(Key: Word);
@@ -595,6 +663,42 @@ var
 begin
   Result := KeycodeToHexNumber(Key, X);
   Num := X;
+end;
+
+function TTrackerGrid.GetAt(SelectionPos: TSelectionPos): Integer;
+begin
+  with Patterns[SelectionPos.X]^[SelectionPos.Y] do
+    case SelectionPos.SelectedPart of
+      cpNote: Result := Note;
+      cpInstrument: Result := Instrument;
+      cpVolume:;
+      cpEffectCode: Result := EffectCode;
+      cpEffectParams: Result := EffectParams.Value;
+    end;
+end;
+
+procedure TTrackerGrid.SetAt(SelectionPos: TSelectionPos; Value: Integer);
+begin
+  with Patterns[SelectionPos.X]^[SelectionPos.Y] do
+    case SelectionPos.SelectedPart of
+      cpNote: Note := Value;
+      cpInstrument: Instrument := Value;
+      cpVolume:;
+      cpEffectCode: EffectCode := Value;
+      cpEffectParams: EffectParams.Value := Value;
+    end;
+end;
+
+procedure TTrackerGrid.ClearAt(SelectionPos: TSelectionPos);
+begin
+  with Patterns[SelectionPos.X]^[SelectionPos.Y] do
+    case SelectionPos.SelectedPart of
+      cpNote: Note := NO_NOTE;
+      cpInstrument: Instrument := 0;
+      cpVolume:;
+      cpEffectCode: EffectCode := 0;
+      cpEffectParams: EffectParams.Value := 0;
+    end;
 end;
 
 procedure TTrackerGrid.LoadPattern(Idx: Integer; Pat: PPattern);
