@@ -33,7 +33,7 @@ begin
 
     for S in SL do begin
       SA := S.Split(' ');
-      Result.Add(SA[1], StrToInt('x'+LeftStr(SA[0], 3)));
+      Result.Add(SA[1], StrToInt('x'+SA[0].Substring(3)));
     end;
   finally
     SL.Free;

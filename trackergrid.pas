@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Controls, Graphics, Constants, LCLType, math,
-  LCLIntf, LMessages, HugeDatatypes;
+  LCLIntf, LMessages, HugeDatatypes, ClipboardUtils;
 
 // TODO: Maybe read these from a config file
 const
@@ -19,6 +19,9 @@ const
   clFxVolume = TColor($007F26);
   clFxPan = clInstrument;
   clFxSong = TColor($00007F);
+
+  clHighlighted = TColor($7A99A9);
+  clSelected = TColor($9EB4C0);
 
   NUM_COLUMNS = 4;
   NUM_ROWS = 64;
@@ -75,8 +78,12 @@ type
 
     DigitInputting: Boolean;
 
+    FHighlightedRow: Integer;
+
     procedure RenderRow(Row: Integer);
     procedure RenderCell(const Cell: TCell);
+
+    procedure SetHighlightedRow(Row: Integer);
 
     function GetEffectColor(EffectCode: Integer): TColor;
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
@@ -87,6 +94,7 @@ type
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
+    property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
 
     procedure LoadPattern(Idx: Integer; Pat: PPattern);
   end;
@@ -132,19 +140,16 @@ begin
     Clear;
 
     for I := 0 to High(TPattern) do begin
-      if (I mod 4) = 0 then begin
+      if (I mod 4) = 0 then
         Brush.Color := RGBToColor(216, 209, 195);
-        FillRect(0, I*RowHeight, Width, (I+1)*RowHeight);
-      end;
-      if (I mod 16) = 0 then begin
+      if (I mod 16) = 0 then
         Brush.Color := RGBToColor(206, 197, 181);
-        FillRect(0, I*RowHeight, Width, (I+1)*RowHeight);
-      end;
-      if I = Cursor.Y then begin
-        Brush.Color := RGBToColor(169, 153, 122);
-        FillRect(0, I*RowHeight, Width, (I+1)*RowHeight);
-      end;
+      if I = Cursor.Y then
+        Brush.Color := clSelected;
+      if I = FHighlightedRow then
+        Brush.Color := clHighlighted;
 
+      FillRect(0, I*RowHeight, Width, (I+1)*RowHeight);
       MoveTo(0, I*RowHeight);
       RenderRow(I);
     end;
@@ -240,13 +245,14 @@ begin
       DigitInputting := False;
     end;
     else begin
-      case Cursor.SelectedPart of
-        cpNote:         InputNote(Key);
-        cpInstrument:   InputInstrument(Key);
-        cpVolume:       InputVolume(Key);
-        cpEffectCode:   InputEffectCode(Key);
-        cpEffectParams: InputEffectParams(Key);
-      end;
+      if not (ssCtrl in Shift) then
+        case Cursor.SelectedPart of
+          cpNote:         InputNote(Key);
+          cpInstrument:   InputInstrument(Key);
+          cpVolume:       InputVolume(Key);
+          cpEffectCode:   InputEffectCode(Key);
+          cpEffectParams: InputEffectParams(Key);
+        end;
     end;
   end;
 
@@ -260,15 +266,38 @@ begin
 end;
 
 procedure TTrackerGrid.DoPaste(var Msg: TLMessage);
+var
+  Paste: TSelection;
+  X, Y: Integer;
 begin
+  try
+    Paste := GetPastedCells;
+    for Y := 0 to High(Paste) do begin
+      if Cursor.Y+Y > High(TPattern) then Break;
+      for X := 0 to High(Paste[Y]) do begin
+        if Cursor.X+X > High(Patterns) then Break;
+        Patterns[Cursor.X + X]^[Cursor.Y + Y] := Paste[Y, X];
+      end;
+    end;
+    Other.X := Cursor.X + X;
+    Other.Y := Cursor.Y + Y;
+    Other.SelectedPart := High(TCellPart);
+  except
+    on E: Exception do
+      WriteLn(StdErr, 'Clipboard did not contain valid note data!');
+  end;
+
+  Invalidate;
 end;
 
 procedure TTrackerGrid.DoCopy(var Msg: TLMessage);
 begin
+
 end;
 
 procedure TTrackerGrid.DoCut(var Msg: TLMessage);
 begin
+
 end;
 
 procedure TTrackerGrid.RenderSelectedArea;
@@ -417,6 +446,12 @@ begin
 
     TextOut(PenPos.X, PenPos.Y, ' ');
   end;
+end;
+
+procedure TTrackerGrid.SetHighlightedRow(Row: Integer);
+begin
+  FHighlightedRow := Row;
+  if FHighlightedRow >= 0 then Invalidate;
 end;
 
 function TTrackerGrid.GetEffectColor(EffectCode: Integer): TColor;

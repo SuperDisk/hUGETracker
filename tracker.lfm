@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 806
+  Left = 791
   Height = 1396
-  Top = 188
+  Top = 460
   Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1362
@@ -1764,7 +1764,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 487
+      Left = 406
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1781,21 +1781,15 @@ object frmTracker: TfrmTracker
       ImageIndex = 74
       OnClick = ToolButton2Click
     end
-    object ToolButton3: TToolButton
-      Left = 189
-      Top = 0
-      Caption = 'Pause'
-      ImageIndex = 75
-    end
     object ToolButton4: TToolButton
-      Left = 270
+      Left = 189
       Top = 0
       Caption = 'Stop'
       ImageIndex = 73
       OnClick = ToolButton4Click
     end
     object ToolButton5: TToolButton
-      Left = 343
+      Left = 262
       Top = 0
       AutoSize = True
       Caption = 'Export song'
@@ -1810,14 +1804,14 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 338
+      Left = 257
       Height = 39
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 479
+      Left = 398
       Height = 39
       Top = 0
       Caption = 'ToolButton7'

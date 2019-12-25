@@ -7,12 +7,17 @@ unit vars;
 
 interface
 
+type
+  TFDCallback = procedure of object;
+
 const
   thr_f: integer = 1;
   cart: pointer = nil; // Cartridge
   isddraw: boolean = True; // DirectDraw;
 
 var
+  FDCallback: TFDCallback;
+
   bdrop, dirname, dirload: string;
   romname, speicher: string[128];
   buffer: array[0..1023] of char;

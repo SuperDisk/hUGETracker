@@ -14,6 +14,8 @@ type
   TNoteToFreqMap = specialize TFPGMap<Integer, Integer>;
 
 const
+  SYM_ROW = 'row';
+
   // Sound controller registers
   NR10 = $FF10;
   NR11 = $FF11;

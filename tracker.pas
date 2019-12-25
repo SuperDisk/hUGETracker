@@ -67,7 +67,6 @@ type
     ToolButton1: TToolButton;
     PanicToolButton: TToolButton;
     ToolButton2: TToolButton;
-    ToolButton3: TToolButton;
     ToolButton4: TToolButton;
     ToolButton5: TToolButton;
     ToolButton6: TToolButton;
@@ -231,6 +230,7 @@ type
 
     PreviewingInstrument: Boolean;
     DrawingWave: Boolean;
+    Playing: Boolean;
 
     PatternsNode, InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
@@ -245,6 +245,7 @@ type
     procedure CopyOrderGridToOrderMatrix;
     function PeekSymbol(Symbol: String): Integer;
     procedure ResetEmulationThread;
+    procedure OnFD;
 
     procedure UpdateUIAfterLoad;
 
@@ -408,13 +409,23 @@ end;
 
 procedure TfrmTracker.ResetEmulationThread;
 begin
+  Playing := False;
+
   SymbolTable := nil;
+
+  TrackerGrid.HighlightedRow := -1;
+  ToolButton2.ImageIndex := 74;
 
   EmulationThread.Terminate;
   EmulationThread.WaitFor;
   EmulationThread.Free;
   EmulationThread := TEmulationThread.Create('halt.gb');
   EmulationThread.Start;
+end;
+
+procedure TfrmTracker.OnFD;
+begin
+  TrackerGrid.HighlightedRow:=PeekSymbol(SYM_ROW);
 end;
 
 procedure TfrmTracker.LoadInstrument(Instr: Integer);
@@ -607,6 +618,8 @@ var
   Section: TCollectionItem;
 begin
   ReturnNilIfGrowHeapFails := False;
+
+  FDCallback := @Self.OnFD;
 
   for I := Low(Song.Instruments) to High(Song.Instruments) do
     with Song.Instruments[I] do begin
@@ -991,22 +1004,29 @@ end;
 
 procedure TfrmTracker.ToolButton2Click(Sender: TObject);
 begin
-  if RenderPreviewROM(Song) then begin
-    // Load the new symbol table
-    SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
+  if not Playing then begin
+    if RenderPreviewROM(Song) then begin
+      Playing := True;
+      ToolButton2.ImageIndex := 75;
 
-    // Start emulation on the rendered preview binary
-    EmulationThread.Terminate;
-    EmulationThread.WaitFor;
-    EmulationThread.Free;
-    EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
-    EmulationThread.Start;
+      // Load the new symbol table
+      SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
+
+      // Start emulation on the rendered preview binary
+      EmulationThread.Terminate;
+      EmulationThread.WaitFor;
+      EmulationThread.Free;
+      EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
+      EmulationThread.Start;
+    end
+    else ResetEmulationThread;
   end
   else ResetEmulationThread;
 end;
 
 procedure TfrmTracker.ToolButton4Click(Sender: TObject);
 begin
+  TrackerGrid.HighlightedRow := -1;
   ResetEmulationThread;
 end;
 
