@@ -5,7 +5,7 @@ unit TrackerGrid;
 interface
 
 uses
-  Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, utils,
+  Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, contnrs,
   LCLIntf, LMessages, HugeDatatypes, ClipboardUtils;
 
 // TODO: Maybe read these from a config file
@@ -28,31 +28,15 @@ const
 
 type
 
-  { TUndoState }
+  { TSavedPattern }
 
-  TOrderGroup = array[0..3] of Integer;
-  TPatternGroup = array[0..3] of Integer;
-  PUndoState = ^TUndoState;
-  TUndoState = record
-    Next, Prev: PUndoState;
-    Orders: TOrderGroup;
-    Patterns: TPatternGroup;
+  TSavedPattern = object
+    PatternNumber: Integer;
     Pattern: TPattern;
   end;
 
-
-  { TUndoStack }
-
-  TUndoStack = class(TObject)
-    Current: PUndoState;
-  public
-    constructor Create;
-    procedure PushState(
-      Patterns: TPatternGroup;
-      Orders: TOrderGroup);
-    function Rewind: PUndoState;
-    function StepForward: PUndoState;
-  end;
+  TUndoRedoAction = array[0..3] of TSavedPattern;
+  TUndoRedoStack = TObjectStack;
 
   { TTrackerGrid }
 
@@ -73,6 +57,9 @@ type
     procedure DoPaste(var Msg: TLMessage); message LM_PASTE;
     procedure DoCopy(var Msg: TLMessage); message LM_COPY;
     procedure DoCut(var Msg: TLMessage); message LM_CUT;
+    procedure SaveUndoState;
+    procedure DoUndo;
+    procedure DoRedo;
 
     procedure RenderSelectedArea;
     procedure ClampCursors;
@@ -106,6 +93,8 @@ type
     MouseButtonDown: Boolean;
     Selecting: Boolean;
 
+    Performed, Recall: TUndoRedoStack;
+
     DigitInputting: Boolean;
 
     FHighlightedRow: Integer;
@@ -124,59 +113,6 @@ type
 
 implementation
 
-{ TUndoStack }
-
-constructor TUndoStack.Create;
-begin
-  Current := Nil;
-end;
-
-procedure TUndoStack.PushState(
-  Patterns: TPatternGroup;
-  Orders: TOrderGroup);
-var
-  NewState, Temp: PUndoState;
-begin
-  New(NewState);
-  NewState.Prev := Current;
-  NewState.Next := nil;
-  NewState.Patterns := Patterns;
-  NewState.Orders := Orders;
-
-  if Current = nil then
-    Current := NewState
-  else begin
-    while Current.Next <> nil do begin
-      Temp := Current^.Next;
-      Current^.Next := Current^.Next^.Next;
-      Dispose(Temp);
-    end;
-
-    Current^.Next := NewState;
-    Current := NewState;
-  end;
-end;
-
-function TUndoStack.Rewind: PUndoState;
-begin
-  if (Current = nil) or (Current.Prev = nil) then
-    Result := nil
-  else begin
-    Current := Current^.Prev;
-    Result := Current;
-  end;
-end;
-
-function TUndoStack.StepForward: PUndoState;
-begin
-  if (Current = nil) or (Current.Next = nil) then
-    Result := nil
-  else begin
-    Current := Current^.Next;
-    Result := Current;
-  end;
-end;
-
 { TTrackerGrid }
 
 constructor TTrackerGrid.Create(
@@ -184,6 +120,9 @@ constructor TTrackerGrid.Create(
   Parent: TWinControl);
 begin
   inherited Create(AOwner);
+
+  Performed := TUndoRedoStack.Create;
+  Recall := TUndoRedoStack.Create;
 
   DoubleBuffered := True;
   ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents, csDoubleClicks];
@@ -420,6 +359,22 @@ begin
 end;
 
 procedure TTrackerGrid.DoCut(var Msg: TLMessage);
+begin
+  DoCopy(Msg);
+  EraseSelection;
+end;
+
+procedure TTrackerGrid.SaveUndoState;
+begin
+
+end;
+
+procedure TTrackerGrid.DoUndo;
+begin
+
+end;
+
+procedure TTrackerGrid.DoRedo;
 begin
 
 end;
