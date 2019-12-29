@@ -28,10 +28,11 @@ const
   UNDO_STACK_SIZE = 100;
 
 type
+  TPatternGrid = array[0..3] of PPattern;
 
   { TSavedPattern }
 
-  TSavedPattern = object
+  TSavedPattern = record
     PatternNumber: Integer;
     Pattern: TPattern;
   end;
@@ -39,6 +40,22 @@ type
   TUndoRedoAction = array[0..3] of TSavedPattern;
   TUndoDeque = TDeque<TUndoRedoAction>;
   TRedoStack = TStack<TUndoRedoAction>;
+
+  { TSelectionEnumerator }
+
+  TSelectionEnumerator = record
+  private
+    function GetCurrent: TSelectionRow;
+  public
+    Grid: TPatternGrid;
+    Row: Integer;
+    Cursor, Other: TSelectionPos;
+
+    constructor Create(Grid: TPatternGrid; Cursor, Other: TSelectionPos);
+    function MoveNext: Boolean;
+    property Current: TSelectionRow read GetCurrent;
+    function GetEnumerator: TSelectionEnumerator;
+  end;
 
   { TTrackerGrid }
 
@@ -86,7 +103,7 @@ type
     function KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean; overload;
   private
     PatternMap: TPatternMap;
-    Patterns: array[0..3] of PPattern;
+    Patterns: TPatternGrid;
     PatternNumbers: array[0..3] of Integer;
 
     CharHeight: Integer;
@@ -118,10 +135,58 @@ type
       Parent: TWinControl;
       PatternMap: TPatternMap); reintroduce;
     destructor Destroy; override;
-
   end;
 
 implementation
+
+{ TSelectionEnumerator }
+
+constructor TSelectionEnumerator.Create(Grid: TPatternGrid; Cursor,
+  Other: TSelectionPos);
+begin
+  Self.Grid := Grid;
+  Self.Row := Cursor.Y-1;
+  Self.Cursor := Cursor;
+  Self.Other := Other;
+end;
+
+function TSelectionEnumerator.GetCurrent: TSelectionRow;
+var
+  X, I: Integer;
+begin
+  // Very ugly function
+  SetLength(Result, (Other.X-Cursor.X)+1);
+
+  Result[0].Cell := Grid[Cursor.X]^[Row];
+  if Cursor.X <> Other.X then
+    Result[0].Parts := [Cursor.SelectedPart..High(TCellPart)]
+  else
+    Result[0].Parts := [Cursor.SelectedPart..Other.SelectedPart];
+
+  I := 1;
+  for X := Cursor.X+1 to Other.X - 1 do begin
+    Result[I].Cell := Grid[X]^[Row];
+    Result[I].Parts := [Low(TCellPart)..High(TCellPart)];
+    Inc(I);
+  end;
+
+  if Cursor.X <> Other.X then begin
+    Result[High(Result)].Cell := Grid[Other.X]^[Row];
+    Result[High(Result)].Parts := [Low(TCellPart)..Other.SelectedPart];
+  end;
+end;
+
+function TSelectionEnumerator.MoveNext: Boolean;
+begin
+  Result := True;
+  Inc(Row);
+  if Row > Other.Y then Result := False;
+end;
+
+function TSelectionEnumerator.GetEnumerator: TSelectionEnumerator;
+begin
+  Result := Self;
+end;
 
 { TTrackerGrid }
 
@@ -316,7 +381,7 @@ begin
     end;
   end;
 
-  if not (ssShift in Shift) then
+  if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
     Other := Cursor;
   Selecting := ssShift in Shift;
 
@@ -326,6 +391,14 @@ begin
 end;
 
 procedure TTrackerGrid.PerformPaste(Paste: TSelection);
+procedure OverlayCell(var Cell1: TCell; const Cell2: TSelectedCell);
+begin
+  if cpNote in Cell2.Parts then Cell1.Note := Cell2.Cell.Note;
+  if cpInstrument in Cell2.Parts then Cell1.Instrument := Cell2.Cell.Instrument;
+  if cpEffectCode in Cell2.Parts then Cell1.EffectCode:=Cell2.Cell.EffectCode;
+  if cpEffectParams in Cell2.Parts then
+    Cell1.EffectParams.Value := Cell2.Cell.EffectParams.Value;
+end;
 var
   X, Y: Integer;
 begin
@@ -334,7 +407,7 @@ begin
       if Cursor.Y+Y > High(TPattern) then Break;
       for X := 0 to High(Paste[Y]) do begin
         if Cursor.X+X > High(Patterns) then Break;
-        Patterns[Cursor.X + X]^[Cursor.Y + Y] := Paste[Y, X];
+        OverlayCell(Patterns[Cursor.X + X]^[Cursor.Y + Y], Paste[Y, X]);
       end;
     end;
     Other.X := Cursor.X + X;
@@ -380,16 +453,18 @@ end;
 procedure TTrackerGrid.DoCopy(var Msg: TLMessage);
 var
   Selection: TSelection;
-  R, C: Integer;
+  R: Integer;
   Rect: TRect;
+  SelRow: TSelectionRow;
 begin
+  NormalizeCursors;
+
   Rect := SelectionGridRect;
   SetLength(Selection, Rect.Height+1);
-  for R := 0 to Rect.Height do begin
-    SetLength(Selection[R], Rect.Width+1);
-    for C := 0 to Rect.Width do begin
-      Selection[R, C] := Patterns[Rect.Left+C]^[Rect.Top+R];
-    end;
+  R := 0;
+  for SelRow in TSelectionEnumerator.Create(Patterns, Cursor, Other) do begin
+    Selection[R] := SelRow;
+    Inc(R)
   end;
 
   CopyCells(Selection);

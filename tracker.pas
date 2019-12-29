@@ -287,6 +287,8 @@ begin
 
   OrderEditStringGrid.Row := 1;
   ReloadPatterns;
+
+  PageControl1.ActivePageIndex := 0;
 end;
 
 procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);

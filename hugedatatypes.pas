@@ -16,7 +16,7 @@ type
   TEffectParams = bitpacked record
     case Boolean of
       True: (Param2, Param1: Nibble);
-      False: (Value: Word);
+      False: (Value: Byte);
   end;
 
   TCell = record
@@ -32,8 +32,6 @@ type
   TPatternMap = specialize TFPGMap<Integer, PPattern>;
   TOrderMatrix = array[0..3] of array of Integer;
 
-  TSelection = array of array of TCell;
-
   TCellPart = (
     cpNote = 0,
     cpInstrument = 1,
@@ -46,6 +44,14 @@ type
     X, Y: Integer;
     SelectedPart: TCellPart
   end;
+
+  TSelectedCell = record
+    Cell: TCell;
+    Parts: set of TCellPart;
+  end;
+
+  TSelectionRow = array of TSelectedCell;
+  TSelection = array of TSelectionRow;
 
 operator > (L, R: TSelectionPos): Boolean;
 operator < (L, R: TSelectionPos): Boolean;
