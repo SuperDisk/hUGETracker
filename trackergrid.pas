@@ -43,11 +43,6 @@ type
   { TTrackerGrid }
 
   TTrackerGrid = class(TCustomControl)
-    constructor Create(
-      AOwner: TComponent;
-      Parent: TWinControl;
-      PatternMap: TPatternMap); reintroduce;
-
     procedure Paint; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     override;
@@ -117,6 +112,13 @@ type
     function GetAt(SelectionPos: TSelectionPos): Integer;
     procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
     procedure ClearAt(SelectionPos: TSelectionPos);
+
+    constructor Create(
+      AOwner: TComponent;
+      Parent: TWinControl;
+      PatternMap: TPatternMap); reintroduce;
+    destructor Destroy; override;
+
   end;
 
 implementation
@@ -152,6 +154,14 @@ begin
 
   Width := ColumnWidth*4;
   Height := RowHeight*64;
+end;
+
+destructor TTrackerGrid.Destroy;
+begin
+  inherited Destroy;
+
+  Performed.Free;
+  Recall.Free;
 end;
 
 procedure TTrackerGrid.Paint;
@@ -237,6 +247,8 @@ procedure TTrackerGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
 begin
   inherited MouseUp(Button, Shift, X, Y);
 
+  NormalizeCursors;
+
   MouseButtonDown := False;
   DigitInputting := False;
 end;
@@ -245,18 +257,26 @@ procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited KeyDown(Key, Shift);
 
-  case Key of
-    VK_Z: if ssCtrl in Shift then DoUndo;
-    VK_Y: if ssCtrl in Shift then DoRedo;
-    VK_V: if ssShift in Shift then DoRepeatPaste;
-    VK_L: begin
-      if ssCtrl in Shift then begin
+  if Key in [VK_CONTROL, VK_SHIFT] then Exit;
+
+  if ssCtrl in Shift then
+    case Key of
+      VK_Z: DoUndo;
+      VK_Y: DoRedo;
+      VK_L: begin
         Cursor.Y := 0;
         Other.Y := High(TPattern);
         Cursor.SelectedPart := Low(TCellPart);
         Other.SelectedPart := High(TCellPart);
       end;
     end;
+
+  if ssShift in Shift then
+    case Key of
+      VK_V: DoRepeatPaste;
+    end;
+
+  case Key of
     VK_DELETE: begin
       EraseSelection;
     end;
@@ -296,7 +316,7 @@ begin
     end;
   end;
 
-  if not (ssShift in Shift) and not(ssCtrl in Shift) then
+  if not (ssShift in Shift) then
     Other := Cursor;
   Selecting := ssShift in Shift;
 
@@ -476,6 +496,8 @@ var
   TempI: Integer;
   TempS: TCellPart;
 begin
+  ClampCursors;
+
   // Normalize the cursor positions such that cursor is always in the top left
   if (Cursor > Other) then begin
     TempI := Other.X;
@@ -594,7 +616,8 @@ begin
     Pen.Color := RGBToColor(58, 52, 39);
 
     for I := 0 to High(Patterns) do
-      RenderCell(Patterns[I]^[Row]);
+      if Patterns[I] <> nil then
+        RenderCell(Patterns[I]^[Row]);
   end;
 end;
 

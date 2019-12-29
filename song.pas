@@ -4,7 +4,7 @@ unit Song;
 
 interface
 
-uses HugeDatatypes;
+uses Classes, HugeDatatypes;
 
 type
   { TSong }
@@ -17,13 +17,82 @@ type
     Instruments: TInstrumentBank;
     Waves: TWaveBank;
 
+    TicksPerRow: Integer;
+
     Patterns: TPatternMap;
     OrderMatrix: TOrderMatrix;
-
-    TicksPerRow: Integer;
   end;
 
+procedure WriteSongToStream(S: TStream; const ASong: TSong);
+procedure ReadSongFromStream(S: TStream; var ASong: TSong);
+
 implementation
+
+// Thanks to WP on the FreePascal forums for this code!
+// https://forum.lazarus.freepascal.org/index.php/topic,47892.msg344152.html#msg344152
+
+procedure WriteSongToStream(S: TStream; const ASong: TSong);
+var
+  i, n: Integer;
+  pPat: PPattern;
+begin
+  // Write the fixed record elements first
+  n := SizeOf(TSong) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
+  S.Write(ASong, n);
+
+  // Write the pattern count
+  S.Write(ASong.Patterns.Count, SizeOf(Integer));
+  // Write the patterns
+  for i := 0 to ASong.Patterns.Count-1 do
+  begin
+    pPat := ASong.Patterns[i];
+    S.Write(pPat^, SizeOf(pPat^));
+  end;
+
+  // Write the OrderMatrix arrays
+  for i := 0 to 3 do
+  begin
+    n := Length(ASong.OrderMatrix[i]);
+    S.Write(n, SizeOf(Integer));
+    S.Write(ASong.OrderMatrix[i][0], n*SizeOf(Integer));
+  end;
+end;
+
+procedure ReadSongFromStream(S: TStream; var ASong: TSong);
+var
+  i, n: Integer;
+  pat: PPattern;
+begin
+  // Read the fixed elements first
+  n := SizeOf(TSong) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
+  S.Read(ASong, n);
+
+  // ASong.Patterns.Clear;
+
+  // Create the patterns
+  ASong.Patterns := TPatternMap.Create;
+  // Read the pattern count
+  S.Read(n, SizeOf(Integer));
+  for i:=0 to n - 1 do begin
+    // Allocate memory for each pattern ...
+    New(pat);
+    // and read the pattern content
+    S.Read(pat^, SizeOf(TPattern));
+    // Add the pattern to the list
+    ASong.Patterns.Add(i, pat);
+  end;
+
+  // Read the OrderMatrix
+  for i := 0 to 3 do
+  begin
+    // Read length of each OrderMatrix array
+    S.Read(n, SizeOf(Integer));
+    // Allocate memory for it
+    SetLength(ASong.OrderMatrix[i], n);
+    // Read content of OrderMatrix array
+    S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
+  end;
+end;
 
 end.
 

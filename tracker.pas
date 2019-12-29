@@ -231,6 +231,7 @@ type
     PreviewingInstrument: Boolean;
     DrawingWave: Boolean;
     Playing: Boolean;
+    LoadingFile: Boolean;
 
     PatternsNode, InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
@@ -243,10 +244,12 @@ type
     procedure LoadWave(Wave: Integer);
     procedure ReloadPatterns;
     procedure CopyOrderGridToOrderMatrix;
+    procedure CopyOrderMatrixToOrderGrid;
     function PeekSymbol(Symbol: String): Integer;
     procedure ResetEmulationThread;
     procedure OnFD;
 
+    procedure RecreateTrackerGrid;
     procedure UpdateUIAfterLoad;
 
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
@@ -267,6 +270,7 @@ implementation
 
 procedure TfrmTracker.UpdateUIAfterLoad;
 begin
+  LoadingFile := True; // HACK!!!!!
   LoadInstrument(1);
   LoadWave(0);
 
@@ -275,6 +279,14 @@ begin
   CommentMemo.Text := Song.Comment;
 
   TicksPerRowSpinEdit.Value := Song.TicksPerRow;
+
+  RecreateTrackerGrid;
+  CopyOrderMatrixToOrderGrid;
+
+  LoadingFile := False; // HACK!!!!
+
+  OrderEditStringGrid.Row := 1;
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
@@ -369,6 +381,8 @@ var
   I: Integer;
   OrderNum: Integer;
 begin
+  if LoadingFile then Exit;
+
   for I := 0 to 3 do begin
     OrderNum := 0;
     TryStrToInt(
@@ -399,6 +413,38 @@ begin
   end;
 end;
 
+procedure TfrmTracker.CopyOrderMatrixToOrderGrid;
+
+function IntToStr_(X: Integer): String;
+begin
+  if X = 0 then Result := '' else Result := IntToStr(X);
+end;
+
+var
+  MaxRows, C, R: Integer;
+begin
+  MaxRows := -1;
+  OrderEditStringGrid.Clean([gzNormal]);
+
+  for C := Low(TOrderMatrix) to High(TOrderMatrix) do
+    if Length(Song.OrderMatrix[C]) > MaxRows then
+      MaxRows := Length(Song.OrderMatrix[C]);
+
+  OrderEditStringGrid.RowCount := MaxRows;
+
+  for C := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do begin
+    for R := 0 to High(Song.OrderMatrix[C])-1 do
+      OrderEditStringGrid.Cells[C+1, R+1] := IntToStr_(Song.OrderMatrix[C, R]);
+  end;
+
+  // Show zeroes where they belong
+  for R := 1 to OrderEditStringGrid.RowCount-1 do
+    if Trim(OrderEditStringGrid.Rows[R].Text) <> '' then
+      for C := 1 to OrderEditStringGrid.ColCount-1 do
+        if OrderEditStringGrid.Cells[C, R] = '' then
+          OrderEditStringGrid.Cells[C, R] := '0';
+end;
+
 function TfrmTracker.PeekSymbol(Symbol: String): Integer;
 begin
   if SymbolTable = nil then exit;
@@ -424,6 +470,12 @@ end;
 procedure TfrmTracker.OnFD;
 begin
   TrackerGrid.HighlightedRow:=PeekSymbol(SYM_ROW);
+end;
+
+procedure TfrmTracker.RecreateTrackerGrid;
+begin
+  if TrackerGrid <> nil then TrackerGrid.Free;
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
 end;
 
 procedure TfrmTracker.LoadInstrument(Instr: Integer);
@@ -619,8 +671,7 @@ begin
 
   // Create pattern editor control
   Song.Patterns := TPatternMap.Create;
-  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
-
+  RecreateTrackerGrid;
 
   // Fix the size of the channel headers
   for Section in HeaderControl1.Sections do
@@ -738,13 +789,29 @@ begin
 end;
 
 procedure TfrmTracker.FileSaveAs1Accept(Sender: TObject);
-{var
-  F: file of TSong;}
+var
+  Stream: TStream;
 begin
-  {AssignFile(F, FileSaveAs1.Dialog.FileName);
-  Rewrite(F);
-  Write(F, Song);
-  CloseFile(F);}
+  stream := TFileStream.Create(FileSaveAs1.Dialog.FileName, fmCreate);
+  try
+    WriteSongToStream(stream, Song);
+  finally
+    stream.Free;
+  end;
+end;
+
+procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
+var
+  Stream: TStream;
+begin
+  stream := TFileStream.Create(FileOpen1.Dialog.FileName, fmOpenRead);
+  try
+    ReadSongFromStream(stream, Song);
+  finally
+    stream.Free;
+  end;
+
+  UpdateUIAfterLoad;
 end;
 
 procedure TfrmTracker.HeaderControl1MouseDown(Sender: TObject;
@@ -785,18 +852,6 @@ begin
   // Prevent resizing these
   // TODO: Create a subclass of them that doesn't allow resizing maybe?
   Section.Width := TrackerGrid.ColumnWidth;
-end;
-
-procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
-{var
-  F: file of TSong;}
-begin
-  {AssignFile(F, FileOpen1.Dialog.FileName);
-  Reset(F);
-  Read(F, Song);
-  CloseFile(F);
-
-  UpdateUIAfterLoad;}
 end;
 
 procedure TfrmTracker.CutActionExecute(Sender: TObject);

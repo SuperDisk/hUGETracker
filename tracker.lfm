@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 666
+  Left = 862
   Height = 1396
-  Top = 161
+  Top = 197
   Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1362
@@ -53,15 +53,15 @@ object frmTracker: TfrmTracker
       Height = 966
       Top = 0
       Width = 1865
-      ActivePage = PatternTabSheet
+      ActivePage = WavesTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 3
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 1041
-        ClientWidth = 1853
+        ClientHeight = 923
+        ClientWidth = 1857
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
           Left = 14
@@ -279,18 +279,18 @@ object frmTracker: TfrmTracker
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
-        ClientHeight = 1041
-        ClientWidth = 1853
+        ClientHeight = 923
+        ClientWidth = 1857
         ParentFont = False
         object PaintBox1: TPaintBox
           AnchorSideTop.Control = FlowPanel1
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 459
+          Height = 341
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
           Top = 582
-          Width = 1853
+          Width = 1857
           Align = alClient
           Color = clBlack
           ParentColor = False
@@ -301,7 +301,7 @@ object frmTracker: TfrmTracker
           Left = 0
           Height = 582
           Top = 0
-          Width = 1853
+          Width = 1857
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
@@ -1071,16 +1071,16 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 892
-        ClientWidth = 1587
+        ClientHeight = 923
+        ClientWidth = 1857
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 652
-          Top = 240
-          Width = 1587
+          Height = 643
+          Top = 280
+          Width = 1857
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 23
@@ -1102,16 +1102,16 @@ object frmTracker: TfrmTracker
           TabOrder = 0
           object Label20: TLabel
             Left = 28
-            Height = 25
+            Height = 30
             Top = 28
-            Width = 43
+            Width = 51
             Caption = 'Wave'
             ParentColor = False
             ParentFont = False
           end
           object WaveEditNumberSpinner: TSpinEdit
             Left = 112
-            Height = 33
+            Height = 38
             Top = 14
             Width = 140
             MaxValue = 15
@@ -1143,16 +1143,16 @@ object frmTracker: TfrmTracker
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 892
-        ClientWidth = 1587
+        ClientHeight = 923
+        ClientWidth = 1857
         ParentFont = False
         object CommentMemo: TMemo
           AnchorSideTop.Control = Label17
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 835
-          Top = 57
-          Width = 1587
+          Height = 856
+          Top = 67
+          Width = 1857
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 23
@@ -1162,9 +1162,9 @@ object frmTracker: TfrmTracker
         end
         object Label17: TLabel
           Left = 14
-          Height = 25
+          Height = 30
           Top = 14
-          Width = 500
+          Width = 587
           Caption = 'This is an area to write comments for anyone editing your tune.'
           ParentColor = False
           ParentFont = False
