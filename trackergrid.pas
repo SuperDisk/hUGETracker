@@ -5,8 +5,8 @@ unit TrackerGrid;
 interface
 
 uses
-  Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, contnrs,
-  LCLIntf, LMessages, HugeDatatypes, ClipboardUtils;
+  Classes, SysUtils, Controls, Graphics, Constants, LCLType, math,
+  LCLIntf, LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils;
 
 // TODO: Maybe read these from a config file
 const
@@ -25,6 +25,7 @@ const
 
   NUM_COLUMNS = 4;
   NUM_ROWS = 64;
+  UNDO_STACK_SIZE = 100;
 
 type
 
@@ -36,12 +37,16 @@ type
   end;
 
   TUndoRedoAction = array[0..3] of TSavedPattern;
-  TUndoRedoStack = TObjectStack;
+  TUndoDeque = TDeque<TUndoRedoAction>;
+  TRedoStack = TStack<TUndoRedoAction>;
 
   { TTrackerGrid }
 
   TTrackerGrid = class(TCustomControl)
-    constructor Create(AOwner: TComponent; Parent: TWinControl);
+    constructor Create(
+      AOwner: TComponent;
+      Parent: TWinControl;
+      PatternMap: TPatternMap); reintroduce;
 
     procedure Paint; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -85,7 +90,9 @@ type
     function KeycodeToHexNumber(Key: Word; out Num: Nibble): Boolean; overload;
     function KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean; overload;
   private
+    PatternMap: TPatternMap;
     Patterns: array[0..3] of PPattern;
+    PatternNumbers: array[0..3] of Integer;
 
     CharHeight: Integer;
     CharWidth: Integer;
@@ -93,7 +100,8 @@ type
     MouseButtonDown: Boolean;
     Selecting: Boolean;
 
-    Performed, Recall: TUndoRedoStack;
+    Performed: TUndoDeque;
+    Recall: TRedoStack;
 
     DigitInputting: Boolean;
 
@@ -104,7 +112,7 @@ type
 
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
-    procedure LoadPattern(Idx: Integer; Pat: PPattern);
+    procedure LoadPattern(Idx: Integer; PatternNumber: Integer);
 
     function GetAt(SelectionPos: TSelectionPos): Integer;
     procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
@@ -117,12 +125,15 @@ implementation
 
 constructor TTrackerGrid.Create(
   AOwner: TComponent;
-  Parent: TWinControl);
+  Parent: TWinControl;
+  PatternMap: TPatternMap);
 begin
   inherited Create(AOwner);
 
-  Performed := TUndoRedoStack.Create;
-  Recall := TUndoRedoStack.Create;
+  Self.PatternMap := PatternMap;
+
+  Performed := TUndoDeque.Create;
+  Recall := TRedoStack.Create;
 
   DoubleBuffered := True;
   ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents, csDoubleClicks];
@@ -235,6 +246,8 @@ begin
   inherited KeyDown(Key, Shift);
 
   case Key of
+    VK_Z: if ssCtrl in Shift then DoUndo;
+    VK_Y: if ssCtrl in Shift then DoRedo;
     VK_V: if ssShift in Shift then DoRepeatPaste;
     VK_L: begin
       if ssCtrl in Shift then begin
@@ -272,7 +285,7 @@ begin
       DigitInputting := False;
     end;
     else begin
-      if not (ssCtrl in Shift) then
+      if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
         case Cursor.SelectedPart of
           cpNote:         InputNote(Key);
           cpInstrument:   InputInstrument(Key);
@@ -312,8 +325,6 @@ begin
     on E: Exception do
       WriteLn(StdErr, 'Clipboard did not contain valid note data!');
   end;
-
-  Invalidate;
 end;
 
 procedure TTrackerGrid.PerformCopy;
@@ -333,11 +344,17 @@ begin
     PerformPaste(Selection);
     Inc(I, High(Selection)+1);
   end;
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.DoPaste(var Msg: TLMessage);
 begin
   PerformPaste(GetPastedCells);
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.DoCopy(var Msg: TLMessage);
@@ -365,18 +382,66 @@ begin
 end;
 
 procedure TTrackerGrid.SaveUndoState;
+var
+  Actn: TUndoRedoAction;
+  I: Integer;
 begin
+  // First, clear out the recall stack
+  while not Recall.IsEmpty do
+    Recall.Pop;
 
+  // Create the state we need to save
+  for I := Low(Patterns) to High(Patterns) do
+    with Actn[I] do begin
+      Pattern := Patterns[I]^;
+      PatternNumber := PatternNumbers[I];
+    end;
+
+  // Push it into the performed queue
+  Performed.PushFront(Actn);
+  while Performed.Size > UNDO_STACK_SIZE do
+    Performed.PopBack;
 end;
 
 procedure TTrackerGrid.DoUndo;
+var
+  OldState, NewState: TUndoRedoAction;
+  I: Integer;
 begin
+  if Performed.IsEmpty then Exit;
 
+  OldState := Performed.Front;
+  Performed.PopFront;
+  NewState := Performed.Front;
+
+  Recall.Push(OldState);
+
+  for I := Low(NewState) to High(NewState) do begin
+    LoadPattern(I, NewState[I].PatternNumber);
+    Patterns[I]^ := NewState[I].Pattern;
+  end;
+
+  Invalidate;
 end;
 
 procedure TTrackerGrid.DoRedo;
+var
+  State: TUndoRedoAction;
+  I: Integer;
 begin
+  if Recall.IsEmpty then Exit;
 
+  State := Recall.Top;
+  Recall.Pop;
+
+  Performed.PushFront(State);
+
+  for I := Low(State) to High(State) do begin
+    LoadPattern(I, State[I].PatternNumber);
+    Patterns[I]^ := State[I].Pattern;
+  end;
+
+  Invalidate;
 end;
 
 procedure TTrackerGrid.RenderSelectedArea;
@@ -443,6 +508,9 @@ begin
       IncSelectionPos(X);
     end;
   end;
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.InputNote(Key: Word);
@@ -456,6 +524,9 @@ begin
       Keybindings.TryGetData(Key, Temp);
       if Temp <> 0 then Note := Temp;
     end;
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.InputInstrument(Key: Word);
@@ -466,6 +537,9 @@ begin
     if Key = VK_DELETE then Instrument := 0
     else if KeycodeToHexNumber(Key, Temp) and (Temp <= 9) then
       Instrument := ((Instrument mod 10) * 10) + Temp;
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.InputVolume(Key: Word);
@@ -481,6 +555,9 @@ begin
       EffectParams.Value := 0;
     end
     else KeycodeToHexNumber(Key, EffectCode);
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.InputEffectParams(Key: Word);
@@ -503,6 +580,9 @@ begin
       EffectParams.Param2 := Temp;
       DigitInputting := False;
     end;
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.RenderRow(Row: Integer);
@@ -653,10 +733,13 @@ end;
 
 function TTrackerGrid.MousePosToSelection(X, Y: Integer): TSelectionPos;
 begin
+  X := Max(0, Min(Width-1, X));
+  Y := Max(0, Min(Height-1, Y));
+
   Result.X := Trunc((X/Width)*NUM_COLUMNS);
   Result.Y := Trunc((Y/Height)*NUM_ROWS);
 
-  X := (min(X, width-1) mod ColumnWidth);
+  X := X mod ColumnWidth;
   X := Trunc((X/ColumnWidth)*13);
   case X of
     0..3: Result.SelectedPart := cpNote;
@@ -736,9 +819,10 @@ begin
     end;
 end;
 
-procedure TTrackerGrid.LoadPattern(Idx: Integer; Pat: PPattern);
+procedure TTrackerGrid.LoadPattern(Idx: Integer; PatternNumber: Integer);
 begin
-  Patterns[Idx] := Pat;
+  Patterns[Idx] := PatternMap.GetOrCreateNew(PatternNumber);
+  PatternNumbers[Idx] := PatternNumber; // Ugh
   Invalidate;
 end;
 

@@ -26,16 +26,13 @@ implementation
 { TOrderMapHelper }
 
 function TOrderMapHelper.GetOrCreateNew(Key: Integer): PPattern;
-var
-  NewPat: PPattern;
 begin
   if Self.IndexOf(Key) <> -1 then
     Result := Self.KeyData[Key]
   else begin
-    New(NewPat);
-    BlankPattern(NewPat);
-    Self.Add(Key, NewPat);
-    Result := NewPat;
+    New(Result);
+    BlankPattern(Result);
+    Self.Add(Key, Result);
   end;
 end;
 

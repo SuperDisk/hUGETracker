@@ -368,7 +368,6 @@ procedure TfrmTracker.ReloadPatterns;
 var
   I: Integer;
   OrderNum: Integer;
-  Pat: PPattern;
 begin
   for I := 0 to 3 do begin
     OrderNum := 0;
@@ -376,8 +375,7 @@ begin
       OrderEditStringGrid.Cells[I+1, OrderEditStringGrid.Row],
       OrderNum
     );
-    Pat := Song.Patterns.GetOrCreateNew(OrderNum);
-    TrackerGrid.LoadPattern(I, Pat);
+    TrackerGrid.LoadPattern(I, OrderNum);
   end;
 
   CopyOrderGridToOrderMatrix;
@@ -619,6 +617,15 @@ var
 begin
   ReturnNilIfGrowHeapFails := False;
 
+  // Create pattern editor control
+  Song.Patterns := TPatternMap.Create;
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
+
+
+  // Fix the size of the channel headers
+  for Section in HeaderControl1.Sections do
+    (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
+
   FDCallback := @Self.OnFD;
 
   for I := Low(Song.Instruments) to High(Song.Instruments) do
@@ -654,16 +661,10 @@ begin
     RoutinesNode := Items[3];
   end;
 
-  // Create pattern editor control
-  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1);
-  for Section in HeaderControl1.Sections do
-    (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
-
   // Initialize order table
-  Song.Patterns := TPatternMap.Create;
   for I := 0 to 3 do begin
     OrderEditStringGrid.Cells[I+1, 1] := IntToStr(I);
-    TrackerGrid.LoadPattern(I, Song.Patterns.GetOrCreateNew(I));
+    TrackerGrid.LoadPattern(I, I);
   end;
   CopyOrderGridToOrderMatrix;
 
@@ -955,7 +956,7 @@ begin
 
   with OrderEditStringGrid do begin
     Cells[Col, Row] := IntToStr(Highest);
-    TrackerGrid.LoadPattern(Col - 1, Song.Patterns.GetOrCreateNew(Highest));
+    TrackerGrid.LoadPattern(Col - 1, Highest);
   end;
 end;
 

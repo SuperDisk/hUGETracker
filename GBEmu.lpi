@@ -234,6 +234,9 @@
     <CodeGeneration>
       <TargetCPU Value="i386"/>
       <TargetOS Value="win32"/>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
     </CodeGeneration>
     <Other>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
