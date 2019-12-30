@@ -157,7 +157,6 @@ implementation
 uses vars, bass;
 
 const
-  VolumeDecreaseCoeff = 1; // It's really loud otherwise...
   playbackFrequency = 44100;
   sampleCycles: longint = (8192 * 1024) div playbackFrequency;
   TooFullThreshold: DWORD = (playbackFrequency div 10)*sizeof(single); //0.1s
@@ -234,8 +233,8 @@ begin
   Inc(bufCycles, cycles);
   if bufCycles >= sampleCycles then
   begin
-    buf[0] := ((bufRVal div sampleCycles) / 512.0)/VolumeDecreaseCoeff;
-    buf[1] := ((bufLVal div sampleCycles) / 512.0)/VolumeDecreaseCoeff;
+    buf[0] := ((bufRVal div sampleCycles) / 512.0);
+    buf[1] := ((bufLVal div sampleCycles) / 512.0);
     bufCycles := 0;
     bufLVal := 0;
     bufRVal := 0;
