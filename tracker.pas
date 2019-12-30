@@ -9,7 +9,7 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, HugeDatatypes, LCLType, Codegen, SymParser;
+  ECProgressBar, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser;
 
 type
   { TfrmTracker }
@@ -24,7 +24,12 @@ type
     MenuItem18: TMenuItem;
     MenuItem19: TMenuItem;
     MenuItem20: TMenuItem;
+    Duty1Visualizer: TPaintBox;
+    WaveVisualizer: TPaintBox;
+    Duty2Visualizer: TPaintBox;
+    NoiseVisualizer: TPaintBox;
     Panel3: TPanel;
+    Panel6: TPanel;
     PasteAction: TAction;
     CopyAction: TAction;
     HelpLookupManual: TAction;
@@ -149,6 +154,8 @@ type
     TrackerGrid: TTrackerGrid;
     procedure CopyActionExecute(Sender: TObject);
     procedure CutActionExecute(Sender: TObject);
+    procedure Duty1VisualizerPaint(Sender: TObject);
+    procedure Duty2VisualizerPaint(Sender: TObject);
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
     procedure HeaderControl1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -180,6 +187,7 @@ type
     procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
+    procedure NoiseVisualizerPaint(Sender: TObject);
     procedure OrderEditStringGridAfterSelection(Sender: TObject; aCol,
       aRow: Integer);
     procedure OrderEditStringGridColRowDeleted(Sender: TObject;
@@ -220,6 +228,7 @@ type
     procedure SweepTimeComboboxChange(Sender: TObject);
     procedure WaveformComboboxChange(Sender: TObject);
     procedure WavePaintboxPaint(Sender: TObject);
+    procedure WaveVisualizerPaint(Sender: TObject);
     procedure WaveVolumeComboboxChange(Sender: TObject);
   private
     Song: TSong;
@@ -253,6 +262,7 @@ type
     procedure UpdateUIAfterLoad;
 
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
+    procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
     procedure PreviewInstrument(Freq: Integer; Instr: Integer);
   public
@@ -322,6 +332,11 @@ begin
       LineTo(I*Interval, Trunc((Wave[I]/$F)*H));
     LineTo(W, Trunc((Wave[0]/$F)*H));
   end;
+end;
+
+procedure TfrmTracker.DrawVizualizer(PB: TPaintBox; Channel: Integer);
+begin
+
 end;
 
 procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer);
@@ -578,6 +593,11 @@ begin
   end
   else if WaveformCombobox.ItemIndex > -1 then
     DrawWaveform(WavePaintbox, Song.Waves[WaveformCombobox.ItemIndex]);
+end;
+
+procedure TfrmTracker.WaveVisualizerPaint(Sender: TObject);
+begin
+
 end;
 
 procedure TfrmTracker.WaveVolumeComboboxChange(Sender: TObject);
@@ -861,6 +881,16 @@ begin
   PostMessage(Screen.ActiveControl.Handle, LM_CUT, 0, 0);
 end;
 
+procedure TfrmTracker.Duty1VisualizerPaint(Sender: TObject);
+begin
+
+end;
+
+procedure TfrmTracker.Duty2VisualizerPaint(Sender: TObject);
+begin
+
+end;
+
 procedure TfrmTracker.CopyActionExecute(Sender: TObject);
 begin
   PostMessage(Screen.ActiveControl.Handle, LM_COPY, 0, 0);
@@ -973,6 +1003,11 @@ end;
 procedure TfrmTracker.NoiseFreqSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.ShiftClockFreq := Round(NoiseFreqSpinner.Position);
+end;
+
+procedure TfrmTracker.NoiseVisualizerPaint(Sender: TObject);
+begin
+
 end;
 
 procedure TfrmTracker.OrderEditStringGridAfterSelection(Sender: TObject; aCol,
