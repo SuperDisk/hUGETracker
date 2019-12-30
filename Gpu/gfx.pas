@@ -22,7 +22,7 @@ var
 
 implementation
 
-uses Windows, vars;
+uses vars;
 
 procedure make_line_tile(nr: byte; offset: word);
 var

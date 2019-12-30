@@ -11,8 +11,6 @@ unit machine;
 
 interface
 
-uses Windows;
-
 const
   MaxCompanies = 74;
 

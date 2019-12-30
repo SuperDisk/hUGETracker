@@ -9,22 +9,24 @@ uses
   cthreads,
   cmem, // the c memory manager is on some systems much faster for multi-threading
   {$endif}
-  Classes, SysUtils;
+  Classes, SysUtils, epiktimer;
 
 type
+  { TEmulationThread }
+
   TEmulationThread = class(TThread)
   private
-    //stuff
+    ET: TEpikTimer;
   protected
     procedure Execute; override;
   public
     Constructor Create(ROM: String);
+    destructor Destroy; override;
   end;
 
 implementation
 
-uses sound, mainloop, vars, machine,
-  windows;
+uses sound, mainloop, vars, machine;
 
 const
   CyclesPerFrame : Integer = 70224;
@@ -32,22 +34,21 @@ const
 
 procedure TEmulationThread.Execute;
 var
-  li: Large_Integer;
-  tickFreq, cycles: Integer;
-  frameStart, frameEnd: Integer;
+  tickFreq, cycles: Extended;
+  frameStart, frameEnd: Extended;
   frameElapsedInSec: Double;
 function GetCounter: Integer;
 begin
-  QueryPerformanceCounter(@li);
-  Result := li.QuadPart
+  Result := Trunc(ET.Elapsed*1000000); // Convert to microseconds
 end;
 begin
+  ET.Start;
+
   lastTime := 0;
 
   cycles := 0;
 
-  QueryPerformanceFrequency(@li);
-  tickFreq := li.QuadPart;
+  tickFreq := 1000000; // Convert to microseconds
   FrameStart := GetCounter;
 
   repeat
@@ -73,7 +74,16 @@ begin
   ResetSound;
   enablesound;
 
+  ET := TEpikTimer.Create(nil);
+
   load(ROM);
+end;
+
+destructor TEmulationThread.Destroy;
+begin
+  inherited Destroy;
+
+  ET.Free;
 end;
 
 end.
