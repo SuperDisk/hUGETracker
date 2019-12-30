@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 798
+  Left = 801
   Height = 1376
-  Top = 193
+  Top = 186
   Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1342
@@ -53,10 +53,10 @@ object frmTracker: TfrmTracker
       Height = 946
       Top = 0
       Width = 1865
-      ActivePage = PatternTabSheet
+      ActivePage = GeneralTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -1762,6 +1762,102 @@ object frmTracker: TfrmTracker
         Width = 344
         OnPaint = NoiseVisualizerPaint
       end
+    end
+    object LEDMeter1: TLEDMeter
+      AnchorSideRight.Side = asrBottom
+      Left = 1432
+      Height = 312
+      Top = 0
+      Width = 88
+      Anchors = [akTop, akRight]
+      BevelStyle = bvLowered
+      Colors.Border = clBlack
+      Colors.Section1 = clLime
+      Colors.Section2 = clYellow
+      Colors.Section3 = clRed
+      Direction = mdUp
+      FallbackDelay = 0
+      LEDContrast = 9
+      Max = 100
+      Min = 0
+      NumDigits = 50
+      PeakHoldTime = 0
+      Position = 0
+      SingleLED = False
+      Section2Value = 70
+      Section3Value = 90
+    end
+    object LEDMeter2: TLEDMeter
+      AnchorSideRight.Side = asrBottom
+      Left = 1344
+      Height = 312
+      Top = 0
+      Width = 88
+      Anchors = [akTop, akRight]
+      BevelStyle = bvLowered
+      Colors.Border = clBlack
+      Colors.Section1 = clLime
+      Colors.Section2 = clYellow
+      Colors.Section3 = clRed
+      Direction = mdUp
+      FallbackDelay = 0
+      LEDContrast = 9
+      Max = 100
+      Min = 0
+      NumDigits = 50
+      PeakHoldTime = 0
+      Position = 0
+      SingleLED = False
+      Section2Value = 70
+      Section3Value = 90
+    end
+    object LEDMeter3: TLEDMeter
+      AnchorSideRight.Side = asrBottom
+      Left = 1256
+      Height = 312
+      Top = 0
+      Width = 88
+      Anchors = [akTop, akRight]
+      BevelStyle = bvLowered
+      Colors.Border = clBlack
+      Colors.Section1 = clLime
+      Colors.Section2 = clYellow
+      Colors.Section3 = clRed
+      Direction = mdUp
+      FallbackDelay = 0
+      LEDContrast = 9
+      Max = 100
+      Min = 0
+      NumDigits = 50
+      PeakHoldTime = 0
+      Position = 0
+      SingleLED = False
+      Section2Value = 70
+      Section3Value = 90
+    end
+    object LEDMeter4: TLEDMeter
+      AnchorSideRight.Side = asrBottom
+      Left = 1168
+      Height = 312
+      Top = 0
+      Width = 88
+      Anchors = [akTop, akRight]
+      BevelStyle = bvLowered
+      Colors.Border = clBlack
+      Colors.Section1 = clLime
+      Colors.Section2 = clYellow
+      Colors.Section3 = clRed
+      Direction = mdUp
+      FallbackDelay = 0
+      LEDContrast = 9
+      Max = 100
+      Min = 0
+      NumDigits = 50
+      PeakHoldTime = 0
+      Position = 0
+      SingleLED = False
+      Section2Value = 70
+      Section3Value = 90
     end
   end
   object StatusBar1: TStatusBar

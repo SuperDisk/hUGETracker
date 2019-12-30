@@ -9,7 +9,7 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, HugeDatatypes, LCLType, Codegen,
+  ECProgressBar, HugeDatatypes, LCLType, RackCtls, Codegen,
   SymParser;
 
 type
@@ -22,6 +22,10 @@ type
     Label22: TLabel;
     Label23: TLabel;
     Label24: TLabel;
+    LEDMeter1: TLEDMeter;
+    LEDMeter2: TLEDMeter;
+    LEDMeter3: TLEDMeter;
+    LEDMeter4: TLEDMeter;
     OrderEditStringGrid: TStringGrid;
     EditCut1: TEditCut;
     HeaderControl1: THeaderControl;
@@ -541,7 +545,7 @@ end;
 procedure TfrmTracker.OnFD;
 begin
   TrackerGrid.HighlightedRow:=PeekSymbol(SYM_ROW);
-
+  OrderEditStringGrid.Row := (PeekSymbol(SYM_CURRENT_ORDER) div 2) + 1;
 end;
 
 procedure TfrmTracker.RecreateTrackerGrid;
