@@ -3186,7 +3186,7 @@ end;
 function PFX_FD: byte;
 begin
   // Writeln('[DEBUG] 0xFD Called, A = ', af.h);
-  if @FDCallback <> nil then FDCallback;
+  if Assigned(@FDCallback) then FDCallback;
   Result := 0;
 end;
 

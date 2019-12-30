@@ -491,7 +491,7 @@ end;
 
 procedure TfrmTracker.RecreateTrackerGrid;
 begin
-  if TrackerGrid <> nil then TrackerGrid.Free;
+  if Assigned(TrackerGrid) then TrackerGrid.Free;
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
 end;
 

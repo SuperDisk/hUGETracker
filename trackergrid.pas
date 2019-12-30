@@ -691,7 +691,7 @@ begin
     Pen.Color := RGBToColor(58, 52, 39);
 
     for I := 0 to High(Patterns) do
-      if Patterns[I] <> nil then
+      if Assigned(Patterns[I]) then
         RenderCell(Patterns[I]^[Row]);
   end;
 end;

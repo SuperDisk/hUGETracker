@@ -78,146 +78,114 @@
         <PackageName Value="LCL"/>
       </Item11>
     </RequiredPackages>
-    <Units Count="27">
+    <Units Count="21">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="UnitMain.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmGameboy"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-      </Unit1>
-      <Unit2>
-        <Filename Value="Debugger\debugger.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit2>
-      <Unit3>
         <Filename Value="Gpu\gfx.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit3>
-      <Unit4>
-        <Filename Value="Cpu\machine.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit4>
-      <Unit5>
+      </Unit1>
+      <Unit2>
         <Filename Value="Cpu\z80cpu.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Z80CPU"/>
-      </Unit5>
-      <Unit6>
+      </Unit2>
+      <Unit3>
         <Filename Value="Sound\sound.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit6>
-      <Unit7>
+      </Unit3>
+      <Unit4>
         <Filename Value="Global\vars.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit7>
-      <Unit8>
+      </Unit4>
+      <Unit5>
         <Filename Value="mainloop.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit8>
-      <Unit9>
-        <Filename Value="Debugger\UnitDebug.pas"/>
-        <IsPartOfProject Value="True"/>
-        <HasResources Value="True"/>
-      </Unit9>
-      <Unit10>
-        <Filename Value="Debugger\UnitMapview.pas"/>
-        <IsPartOfProject Value="True"/>
-        <HasResources Value="True"/>
-      </Unit10>
-      <Unit11>
+      </Unit5>
+      <Unit6>
         <Filename Value="tracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmTracker"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Tracker"/>
-      </Unit11>
-      <Unit12>
+      </Unit6>
+      <Unit7>
         <Filename Value="about.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAbout"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="About"/>
-      </Unit12>
-      <Unit13>
+      </Unit7>
+      <Unit8>
         <Filename Value="instruments.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit13>
-      <Unit14>
+      </Unit8>
+      <Unit9>
         <Filename Value="song.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Song"/>
-      </Unit14>
-      <Unit15>
+      </Unit9>
+      <Unit10>
         <Filename Value="emulationthread.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EmulationThread"/>
-      </Unit15>
-      <Unit16>
+      </Unit10>
+      <Unit11>
         <Filename Value="utils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Utils"/>
-      </Unit16>
-      <Unit17>
+      </Unit11>
+      <Unit12>
         <Filename Value="constants.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Constants"/>
-      </Unit17>
-      <Unit18>
+      </Unit12>
+      <Unit13>
         <Filename Value="waves.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Waves"/>
-      </Unit18>
-      <Unit19>
+      </Unit13>
+      <Unit14>
         <Filename Value="about_hugetracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAboutHugetracker"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit19>
-      <Unit20>
+      </Unit14>
+      <Unit15>
         <Filename Value="trackergrid.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TrackerGrid"/>
-      </Unit20>
-      <Unit21>
+      </Unit15>
+      <Unit16>
         <Filename Value="patterns.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Patterns"/>
-      </Unit21>
-      <Unit22>
+      </Unit16>
+      <Unit17>
         <Filename Value="clipboardutils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ClipboardUtils"/>
-      </Unit22>
-      <Unit23>
+      </Unit17>
+      <Unit18>
         <Filename Value="hugedatatypes.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="HugeDatatypes"/>
-      </Unit23>
-      <Unit24>
+      </Unit18>
+      <Unit19>
         <Filename Value="codegen.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Codegen"/>
-      </Unit24>
-      <Unit25>
-        <Filename Value="unit1.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="Form1"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="Unit1"/>
-      </Unit25>
-      <Unit26>
+      </Unit19>
+      <Unit20>
         <Filename Value="symparser.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SymParser"/>
-      </Unit26>
+      </Unit20>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -225,7 +193,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="Debugger;Directx;GPU;CPU;Sound;Global;Components;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="Debugger;GPU;CPU;Sound;Global"/>
+      <OtherUnitFiles Value="GPU;CPU;Sound;Global"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
