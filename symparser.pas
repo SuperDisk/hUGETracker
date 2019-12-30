@@ -28,8 +28,6 @@ begin
     // Drop the first two lines
     SL.Delete(0);
     SL.Delete(0);
-    // Drop the last line
-    SL.Delete(SL.Count-1);
 
     for S in SL do begin
       SA := S.Split(' ');

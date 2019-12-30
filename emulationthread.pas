@@ -11,18 +11,18 @@ type
   { TEmulationThread }
 
   TEmulationThread = class(TThread)
-  private
-    ET: TEpikTimer;
   protected
     procedure Execute; override;
   public
     Constructor Create(ROM: String);
-    destructor Destroy; override;
   end;
 
 implementation
 
 uses sound, mainloop, vars, machine;
+
+var
+  ET: TEpikTimer;
 
 const
   CyclesPerFrame : Integer = 70224;
@@ -38,8 +38,6 @@ begin
   Result := Trunc(ET.Elapsed*1000000); // Convert to microseconds
 end;
 begin
-  ET.Start;
-
   lastTime := 0;
 
   cycles := 0;
@@ -70,17 +68,11 @@ begin
   ResetSound;
   enablesound;
 
-  ET := TEpikTimer.Create(nil);
-
   load(ROM);
 end;
 
-destructor TEmulationThread.Destroy;
 begin
-  inherited Destroy;
-
-  ET.Free;
-end;
-
+  ET := TEpikTimer.Create(nil);
+  ET.Start;
 end.
 

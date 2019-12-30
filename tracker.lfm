@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1206
+  Left = 798
   Height = 1376
-  Top = 306
+  Top = 193
   Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1342
@@ -127,11 +127,11 @@ object frmTracker: TfrmTracker
             Top = 128
             Width = 88
             MaxValue = 20
-            MinValue = 1
+            MinValue = 7
             OnChange = TicksPerRowSpinEditChange
             ParentFont = False
             TabOrder = 2
-            Value = 1
+            Value = 7
           end
         end
       end
@@ -1806,7 +1806,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 551
+      Left = 428
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1817,21 +1817,21 @@ object frmTracker: TfrmTracker
       ShowHint = True
     end
     object ToolButton2: TToolButton
-      Left = 171
+      Left = 169
       Top = 0
-      Caption = 'Pause/Resume'
+      Caption = '⏯'
       ImageIndex = 75
       OnClick = ToolButton2Click
     end
     object ToolButton4: TToolButton
-      Left = 334
+      Left = 224
       Top = 0
-      Caption = 'Stop'
+      Caption = '⏹️'
       ImageIndex = 73
       OnClick = ToolButton4Click
     end
     object ToolButton5: TToolButton
-      Left = 407
+      Left = 284
       Top = 0
       AutoSize = True
       Caption = 'Export song'
@@ -1846,21 +1846,21 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 402
+      Left = 279
       Height = 39
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 543
+      Left = 420
       Height = 39
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object SpinEdit1: TSpinEdit
-      Left = 712
+      Left = 589
       Height = 38
       Top = 0
       Width = 158
@@ -1869,14 +1869,14 @@ object frmTracker: TfrmTracker
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 627
+      Left = 504
       Height = 39
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 635
+      Left = 512
       Height = 30
       Top = 0
       Width = 77
@@ -1884,7 +1884,7 @@ object frmTracker: TfrmTracker
       ParentColor = False
     end
     object Label23: TLabel
-      Left = 870
+      Left = 747
       Height = 30
       Top = 0
       Width = 125
@@ -1892,7 +1892,7 @@ object frmTracker: TfrmTracker
       ParentColor = False
     end
     object ComboBox1: TComboBox
-      Left = 995
+      Left = 872
       Height = 38
       Top = 0
       Width = 375
@@ -1922,7 +1922,7 @@ object frmTracker: TfrmTracker
       Text = '(no instrument)'
     end
     object Label24: TLabel
-      Left = 1370
+      Left = 1247
       Height = 30
       Top = 0
       Width = 64
@@ -1930,7 +1930,7 @@ object frmTracker: TfrmTracker
       ParentColor = False
     end
     object SpinEdit2: TSpinEdit
-      Left = 1434
+      Left = 1311
       Height = 38
       Top = 0
       Width = 88
@@ -1941,7 +1941,7 @@ object frmTracker: TfrmTracker
     object ToolButton3: TToolButton
       Left = 125
       Top = 0
-      Caption = 'Play'
+      Caption = '▶️'
       ImageIndex = 74
       OnClick = ToolButton3Click
     end

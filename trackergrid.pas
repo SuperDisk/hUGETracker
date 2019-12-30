@@ -614,8 +614,9 @@ begin
 
   for R := Cursor.Y to Other.Y do
     for C := Cursor.X to Other.X do
-      Patterns[C]^[R].Note :=
-        Max(LOWEST_NOTE, Min(HIGHEST_NOTE, Patterns[C]^[R].Note + Semitones));
+      if Patterns[C]^[R].Note <> NO_NOTE then
+        Patterns[C]^[R].Note :=
+          Max(LOWEST_NOTE, Min(HIGHEST_NOTE, Patterns[C]^[R].Note + Semitones));
 
   Invalidate;
   SaveUndoState;

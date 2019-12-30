@@ -515,6 +515,7 @@ begin
     EmulationThread.WaitFor;
     EmulationThread.Free;
     EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
+    PokeSymbol(SYM_TICKS_PER_ROW, Song.TicksPerRow);
 
     Result := True;
   end
@@ -540,6 +541,7 @@ end;
 procedure TfrmTracker.OnFD;
 begin
   TrackerGrid.HighlightedRow:=PeekSymbol(SYM_ROW);
+
 end;
 
 procedure TfrmTracker.RecreateTrackerGrid;
@@ -747,6 +749,9 @@ begin
   // Create pattern editor control
   Song.Patterns := TPatternMap.Create;
   RecreateTrackerGrid;
+
+  // Initialize ticks per row
+  Song.TicksPerRow := TicksPerRowSpinEdit.Value;
 
   // Fix the size of the channel headers
   for Section in HeaderControl1.Sections do
@@ -1181,6 +1186,10 @@ procedure TfrmTracker.ToolButton3Click(Sender: TObject);
 begin
   if PreparePreview then begin
     Playing := True;
+
+    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
+
     EmulationThread.Start;
   end;
 end;
