@@ -78,7 +78,7 @@
         <PackageName Value="LCL"/>
       </Item11>
     </RequiredPackages>
-    <Units Count="21">
+    <Units Count="22">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -88,104 +88,108 @@
         <IsPartOfProject Value="True"/>
       </Unit1>
       <Unit2>
+        <Filename Value="Cpu\machine.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit2>
+      <Unit3>
         <Filename Value="Cpu\z80cpu.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Z80CPU"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="Sound\sound.pas"/>
-        <IsPartOfProject Value="True"/>
       </Unit3>
       <Unit4>
-        <Filename Value="Global\vars.pas"/>
+        <Filename Value="Sound\sound.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit4>
       <Unit5>
-        <Filename Value="mainloop.pas"/>
+        <Filename Value="Global\vars.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit5>
       <Unit6>
+        <Filename Value="mainloop.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit6>
+      <Unit7>
         <Filename Value="tracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmTracker"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Tracker"/>
-      </Unit6>
-      <Unit7>
+      </Unit7>
+      <Unit8>
         <Filename Value="about.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAbout"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="About"/>
-      </Unit7>
-      <Unit8>
-        <Filename Value="instruments.pas"/>
-        <IsPartOfProject Value="True"/>
       </Unit8>
       <Unit9>
+        <Filename Value="instruments.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit9>
+      <Unit10>
         <Filename Value="song.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Song"/>
-      </Unit9>
-      <Unit10>
+      </Unit10>
+      <Unit11>
         <Filename Value="emulationthread.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EmulationThread"/>
-      </Unit10>
-      <Unit11>
+      </Unit11>
+      <Unit12>
         <Filename Value="utils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Utils"/>
-      </Unit11>
-      <Unit12>
+      </Unit12>
+      <Unit13>
         <Filename Value="constants.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Constants"/>
-      </Unit12>
-      <Unit13>
+      </Unit13>
+      <Unit14>
         <Filename Value="waves.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Waves"/>
-      </Unit13>
-      <Unit14>
+      </Unit14>
+      <Unit15>
         <Filename Value="about_hugetracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAboutHugetracker"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit14>
-      <Unit15>
+      </Unit15>
+      <Unit16>
         <Filename Value="trackergrid.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TrackerGrid"/>
-      </Unit15>
-      <Unit16>
+      </Unit16>
+      <Unit17>
         <Filename Value="patterns.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Patterns"/>
-      </Unit16>
-      <Unit17>
+      </Unit17>
+      <Unit18>
         <Filename Value="clipboardutils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ClipboardUtils"/>
-      </Unit17>
-      <Unit18>
+      </Unit18>
+      <Unit19>
         <Filename Value="hugedatatypes.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="HugeDatatypes"/>
-      </Unit18>
-      <Unit19>
+      </Unit19>
+      <Unit20>
         <Filename Value="codegen.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Codegen"/>
-      </Unit19>
-      <Unit20>
+      </Unit20>
+      <Unit21>
         <Filename Value="symparser.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SymParser"/>
-      </Unit20>
+      </Unit21>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
