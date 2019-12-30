@@ -126,8 +126,12 @@ begin
     SL := TStringList.Create;
     SL.StrictDelimiter := True;
     SL.Delimiter := ',';
-    for J := Low(Waves[I]) to High(Waves[I]) do
-      SL.Add(IntToStr(Waves[I][J]));
+
+    J := Low(Waves[I]);
+    while J < High(Waves[I]) do begin
+      SL.Add(IntToStr((Waves[I, J] shl 4) or Waves[I, J+1]));
+      Inc(J, 2);
+    end;
     ResultSL.Add(Format('wave%d: db %s', [I, SL.DelimitedText]));
     SL.Free;
   end;
