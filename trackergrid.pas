@@ -82,6 +82,7 @@ type
     procedure ClampCursors;
     procedure NormalizeCursors;
 
+    procedure TransposeSelection(Semitones: Integer);
     procedure EraseSelection;
     procedure InputNote(Key: Word);
     procedure InputInstrument(Key: Word);
@@ -121,6 +122,8 @@ type
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
+
+    SelectedInstrument, SelectedOctave, Step: Integer;
 
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
@@ -219,6 +222,10 @@ begin
 
   Width := ColumnWidth*4;
   Height := RowHeight*64;
+
+  SelectedInstrument := 0;
+  SelectedOctave := 0;
+  Step := 0;
 end;
 
 destructor TTrackerGrid.Destroy;
@@ -324,22 +331,31 @@ begin
 
   if Key in [VK_CONTROL, VK_SHIFT] then Exit;
 
-  if ssCtrl in Shift then
+  if [ssCtrl, ssShift] <= Shift then
     case Key of
-      VK_Z: DoUndo;
-      VK_Y: DoRedo;
-      VK_L: begin
-        Cursor.Y := 0;
-        Other.Y := High(TPattern);
-        Cursor.SelectedPart := Low(TCellPart);
-        Other.SelectedPart := High(TCellPart);
+      VK_Q: TransposeSelection(12);
+      VK_A: TransposeSelection(-12);
+    end
+  else begin
+    if ssCtrl in Shift then
+      case Key of
+        VK_Q: TransposeSelection(1);
+        VK_A: TransposeSelection(-1);
+        VK_Z: DoUndo;
+        VK_Y: DoRedo;
+        VK_L: begin
+          Cursor.Y := 0;
+          Other.Y := High(TPattern);
+          Cursor.SelectedPart := Low(TCellPart);
+          Other.SelectedPart := High(TCellPart);
+        end;
       end;
-    end;
 
-  if ssShift in Shift then
-    case Key of
-      VK_V: DoRepeatPaste;
-    end;
+    if ssShift in Shift then
+      case Key of
+        VK_V: DoRepeatPaste;
+      end;
+  end;
 
   case Key of
     VK_DELETE: begin
@@ -590,6 +606,21 @@ begin
   end;
 end;
 
+procedure TTrackerGrid.TransposeSelection(Semitones: Integer);
+var
+  C, R: Integer;
+begin
+  NormalizeCursors;
+
+  for R := Cursor.Y to Other.Y do
+    for C := Cursor.X to Other.X do
+      Patterns[C]^[R].Note :=
+        Max(LOWEST_NOTE, Min(HIGHEST_NOTE, Patterns[C]^[R].Note + Semitones));
+
+  Invalidate;
+  SaveUndoState;
+end;
+
 procedure TTrackerGrid.EraseSelection;
 var
   X: TSelectionPos;
@@ -614,12 +645,21 @@ procedure TTrackerGrid.InputNote(Key: Word);
 var
   Temp: Integer;
 begin
+  Temp := -1;
+
   with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then
       Note := NO_NOTE
     else begin
       Keybindings.TryGetData(Key, Temp);
-      if Temp <> 0 then Note := Temp;
+      if Temp <> -1 then begin
+        Note := Min(HIGHEST_NOTE, Temp+(SelectedOctave*12));
+        if Instrument = 0 then
+          Instrument := SelectedInstrument;
+
+        Inc(Cursor.Y, Step);
+        ClampCursors;
+      end;
     end;
 
   Invalidate;

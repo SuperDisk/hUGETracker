@@ -15,6 +15,7 @@ type
 
 const
   SYM_ROW = 'row';
+  SYM_CURRENT_ORDER = 'current_order';
 
   // Sound controller registers
   NR10 = $FF10;
@@ -36,6 +37,7 @@ const
   NR43 = $FF22;
   NR44 = $FF23;
 
+  LOWEST_NOTE = 0;
   C_3 = 0;
   Cs3 = 1;
   D_3 = 2;
@@ -108,6 +110,7 @@ const
   A_8 = 69;
   As8 = 70;
   B_8 = 71;
+  HIGHEST_NOTE = 71;
   LAST_NOTE = 72;
   NO_NOTE = 90;
 
@@ -212,40 +215,40 @@ begin
   NotesToFreqs := TNoteToFreqMap.Create;
   NoteToCodeMap := TNoteToCodeMap.Create;
 
-  Keybindings.Add(VK_Q, C_4);
-  Keybindings.Add(VK_W, CS4);
-  Keybindings.Add(VK_E, D_4);
-  Keybindings.Add(VK_R, DS4);
-  Keybindings.Add(VK_T, E_4);
-  Keybindings.Add(VK_Y, F_4);
-  Keybindings.Add(VK_U, FS4);
-  Keybindings.Add(VK_I, G_4);
-  Keybindings.Add(VK_O, GS4);
-  Keybindings.Add(VK_P, A_4);
-  Keybindings.Add(VK_OEM_4, AS4);
-  Keybindings.Add(VK_OEM_6, B_4);
-  Keybindings.Add(VK_OEM_5, B_5);
-  Keybindings.Add(VK_A, C_5);
-  Keybindings.Add(VK_S, CS5);
-  Keybindings.Add(VK_D, D_5);
-  Keybindings.Add(VK_F, DS5);
-  Keybindings.Add(VK_G, E_5);
-  Keybindings.Add(VK_H, F_5);
-  Keybindings.Add(VK_J, FS5);
-  Keybindings.Add(VK_K, G_5);
-  Keybindings.Add(VK_L, GS5);
-  Keybindings.Add(VK_OEM_1, A_5);
-  Keybindings.Add(VK_OEM_7, AS5);
-  Keybindings.Add(VK_Z, C_6);
-  Keybindings.Add(VK_X, CS6);
-  Keybindings.Add(VK_C, D_6);
-  Keybindings.Add(VK_V, DS6);
-  Keybindings.Add(VK_B, E_6);
-  Keybindings.Add(VK_N, F_6);
-  Keybindings.Add(VK_M, FS6);
-  Keybindings.Add(VK_OEM_COMMA, G_6);
-  Keybindings.Add(VK_OEM_PERIOD, GS6);
-  Keybindings.Add(VK_OEM_2, A_6);
+  Keybindings.Add(VK_Q, C_3);
+  Keybindings.Add(VK_W, CS3);
+  Keybindings.Add(VK_E, D_3);
+  Keybindings.Add(VK_R, DS3);
+  Keybindings.Add(VK_T, E_3);
+  Keybindings.Add(VK_Y, F_3);
+  Keybindings.Add(VK_U, FS3);
+  Keybindings.Add(VK_I, G_3);
+  Keybindings.Add(VK_O, GS3);
+  Keybindings.Add(VK_P, A_3);
+  Keybindings.Add(VK_OEM_4, AS3);
+  Keybindings.Add(VK_OEM_6, B_3);
+  Keybindings.Add(VK_OEM_5, B_4);
+  Keybindings.Add(VK_A, C_4);
+  Keybindings.Add(VK_S, CS4);
+  Keybindings.Add(VK_D, D_4);
+  Keybindings.Add(VK_F, DS4);
+  Keybindings.Add(VK_G, E_4);
+  Keybindings.Add(VK_H, F_4);
+  Keybindings.Add(VK_J, FS4);
+  Keybindings.Add(VK_K, G_4);
+  Keybindings.Add(VK_L, GS4);
+  Keybindings.Add(VK_OEM_1, A_4);
+  Keybindings.Add(VK_OEM_7, AS4);
+  Keybindings.Add(VK_Z, C_5);
+  Keybindings.Add(VK_X, CS5);
+  Keybindings.Add(VK_C, D_5);
+  Keybindings.Add(VK_V, DS5);
+  Keybindings.Add(VK_B, E_5);
+  Keybindings.Add(VK_N, F_5);
+  Keybindings.Add(VK_M, FS5);
+  Keybindings.Add(VK_OEM_COMMA, G_5);
+  Keybindings.Add(VK_OEM_PERIOD, GS5);
+  Keybindings.Add(VK_OEM_2, A_5);
 
   NoteToCodeMap.add('C-3', C_3);
   NoteToCodeMap.add('C#3', Cs3);

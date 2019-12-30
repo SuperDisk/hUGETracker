@@ -9,14 +9,19 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser;
+  ECProgressBar, HugeDatatypes, LCLType, Codegen,
+  SymParser;
 
 type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    ComboBox1: TComboBox;
     CutAction: TAction;
     ImageList2: TImageList;
+    Label22: TLabel;
+    Label23: TLabel;
+    Label24: TLabel;
     OrderEditStringGrid: TStringGrid;
     EditCut1: TEditCut;
     HeaderControl1: THeaderControl;
@@ -25,6 +30,10 @@ type
     MenuItem19: TMenuItem;
     MenuItem20: TMenuItem;
     Duty1Visualizer: TPaintBox;
+    SpinEdit1: TSpinEdit;
+    SpinEdit2: TSpinEdit;
+    ToolButton3: TToolButton;
+    ToolButton9: TToolButton;
     WaveVisualizer: TPaintBox;
     Duty2Visualizer: TPaintBox;
     NoiseVisualizer: TPaintBox;
@@ -152,6 +161,7 @@ type
     DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
+    procedure ComboBox1Change(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
     procedure CutActionExecute(Sender: TObject);
     procedure Duty1VisualizerPaint(Sender: TObject);
@@ -204,8 +214,11 @@ type
       Shift: TShiftState);
     procedure PanicToolButtonClick(Sender: TObject);
     procedure PasteActionExecute(Sender: TObject);
+    procedure SpinEdit1Change(Sender: TObject);
+    procedure SpinEdit2Change(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
     procedure ToolButton2Click(Sender: TObject);
+    procedure ToolButton3Click(Sender: TObject);
     procedure ToolButton4Click(Sender: TObject);
     procedure ToolButton5Click(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
@@ -254,8 +267,13 @@ type
     procedure ReloadPatterns;
     procedure CopyOrderGridToOrderMatrix;
     procedure CopyOrderMatrixToOrderGrid;
-    function PeekSymbol(Symbol: String): Integer;
+    function PreparePreview: Boolean;
     procedure ResetEmulationThread;
+
+    function WordPeekSymbol(Symbol: String): Integer;
+    procedure WordPokeSymbol(Symbol: String; Value: Word);
+    function PeekSymbol(Symbol: String): Integer;
+    procedure PokeSymbol(Symbol: String; Value: Byte);
     procedure OnFD;
 
     procedure RecreateTrackerGrid;
@@ -466,6 +484,41 @@ function TfrmTracker.PeekSymbol(Symbol: String): Integer;
 begin
   if SymbolTable = nil then exit;
   Result := speekb(SymbolTable.KeyData[Symbol]);
+end;
+
+procedure TfrmTracker.PokeSymbol(Symbol: String; Value: Byte);
+begin
+  if SymbolTable = nil then exit;
+  spokeb(SymbolTable.KeyData[Symbol], Value);
+end;
+
+function TfrmTracker.WordPeekSymbol(Symbol: String): Integer;
+begin
+  if SymbolTable = nil then exit;
+  Result := wordpeek(SymbolTable.KeyData[Symbol]);
+end;
+
+procedure TfrmTracker.WordPokeSymbol(Symbol: String; Value: Word);
+begin
+  if SymbolTable = nil then exit;
+  wordpoke(SymbolTable.KeyData[Symbol], Value);
+end;
+
+function TfrmTracker.PreparePreview: Boolean;
+begin
+  if RenderPreviewROM(Song) then begin
+    // Load the new symbol table
+    SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
+
+    // Start emulation on the rendered preview binary
+    EmulationThread.Terminate;
+    EmulationThread.WaitFor;
+    EmulationThread.Free;
+    EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
+
+    Result := True;
+  end
+  else Result := False;
 end;
 
 procedure TfrmTracker.ResetEmulationThread;
@@ -896,9 +949,24 @@ begin
   PostMessage(Screen.ActiveControl.Handle, LM_COPY, 0, 0);
 end;
 
+procedure TfrmTracker.ComboBox1Change(Sender: TObject);
+begin
+  TrackerGrid.SelectedInstrument := ComboBox1.ItemIndex;
+end;
+
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
 begin
   PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
+end;
+
+procedure TfrmTracker.SpinEdit1Change(Sender: TObject);
+begin
+  TrackerGrid.SelectedOctave := SpinEdit1.Value;
+end;
+
+procedure TfrmTracker.SpinEdit2Change(Sender: TObject);
+begin
+  TrackerGrid.Step := SpinEdit2.Value;
 end;
 
 procedure TfrmTracker.DivRatioSpinnerChange(Sender: TObject);
@@ -1101,24 +1169,20 @@ end;
 
 procedure TfrmTracker.ToolButton2Click(Sender: TObject);
 begin
-  if not Playing then begin
-    if RenderPreviewROM(Song) then begin
-      Playing := True;
-      ToolButton2.ImageIndex := 75;
+  if Playing then ResetEmulationThread;
 
-      // Load the new symbol table
-      SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
+  if PreparePreview then begin
+    Playing := True;
+    EmulationThread.Start;
+  end;
+end;
 
-      // Start emulation on the rendered preview binary
-      EmulationThread.Terminate;
-      EmulationThread.WaitFor;
-      EmulationThread.Free;
-      EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
-      EmulationThread.Start;
-    end
-    else ResetEmulationThread;
-  end
-  else ResetEmulationThread;
+procedure TfrmTracker.ToolButton3Click(Sender: TObject);
+begin
+  if PreparePreview then begin
+    Playing := True;
+    EmulationThread.Start;
+  end;
 end;
 
 procedure TfrmTracker.ToolButton4Click(Sender: TObject);

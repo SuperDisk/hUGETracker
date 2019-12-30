@@ -1,10 +1,10 @@
 object frmTracker: TfrmTracker
-  Left = 802
-  Height = 1396
-  Top = 180
+  Left = 1206
+  Height = 1376
+  Top = 306
   Width = 2212
   Caption = 'hUGETracker'
-  ClientHeight = 1362
+  ClientHeight = 1342
   ClientWidth = 2212
   DesignTimePPI = 168
   Menu = MainMenu1
@@ -15,7 +15,7 @@ object frmTracker: TfrmTracker
   LCLVersion = '2.0.6.0'
   object TreeView1: TTreeView
     Left = 0
-    Height = 966
+    Height = 946
     Top = 353
     Width = 338
     Align = alLeft
@@ -33,34 +33,34 @@ object frmTracker: TfrmTracker
   end
   object Splitter1: TSplitter
     Left = 338
-    Height = 966
+    Height = 946
     Top = 353
     Width = 9
   end
   object Panel1: TPanel
     Left = 347
-    Height = 966
+    Height = 946
     Top = 353
     Width = 1865
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 966
+    ClientHeight = 946
     ClientWidth = 1865
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 966
+      Height = 946
       Top = 0
       Width = 1865
-      ActivePage = InstrumentTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 923
+        ClientHeight = 903
         ClientWidth = 1857
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
@@ -137,16 +137,16 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
-        ClientHeight = 923
+        ClientHeight = 903
         ClientWidth = 1857
         ParentFont = False
         object Panel3: TPanel
           Left = 392
-          Height = 923
+          Height = 903
           Top = 0
           Width = 1465
           Align = alClient
-          ClientHeight = 923
+          ClientHeight = 903
           ClientWidth = 1465
           ParentFont = False
           TabOrder = 0
@@ -195,7 +195,7 @@ object frmTracker: TfrmTracker
           end
           object ScrollBox1: TScrollBox
             Left = 1
-            Height = 869
+            Height = 849
             Top = 53
             Width = 1463
             HorzScrollBar.Increment = 1
@@ -214,7 +214,7 @@ object frmTracker: TfrmTracker
         end
         object OrderEditStringGrid: TStringGrid
           Left = 0
-          Height = 923
+          Height = 903
           Top = 0
           Width = 392
           Align = alLeft
@@ -279,7 +279,7 @@ object frmTracker: TfrmTracker
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
-        ClientHeight = 923
+        ClientHeight = 903
         ClientWidth = 1857
         ParentFont = False
         object PaintBox1: TPaintBox
@@ -287,7 +287,7 @@ object frmTracker: TfrmTracker
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 341
+          Height = 321
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
           Top = 582
           Width = 1857
@@ -1071,14 +1071,14 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 923
+        ClientHeight = 903
         ClientWidth = 1857
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 643
+          Height = 623
           Top = 280
           Width = 1857
           Align = alBottom
@@ -1143,14 +1143,14 @@ object frmTracker: TfrmTracker
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 923
+        ClientHeight = 903
         ClientWidth = 1857
         ParentFont = False
         object CommentMemo: TMemo
           AnchorSideTop.Control = Label17
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 856
+          Height = 836
           Top = 67
           Width = 1857
           Align = alBottom
@@ -1172,16 +1172,16 @@ object frmTracker: TfrmTracker
       end
       object RoutinesTabSheet: TTabSheet
         Caption = 'Routines'
-        ClientHeight = 892
-        ClientWidth = 1587
+        ClientHeight = 903
+        ClientWidth = 1857
         ParentFont = False
         inline RoutineSynedit: TSynEdit
           AnchorSideTop.Control = Label19
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 687
-          Top = 205
-          Width = 1587
+          Height = 660
+          Top = 243
+          Width = 1857
           Align = alBottom
           BorderSpacing.Top = 23
           Anchors = [akTop, akLeft, akRight, akBottom]
@@ -1681,16 +1681,16 @@ object frmTracker: TfrmTracker
         end
         object Label18: TLabel
           Left = 14
-          Height = 25
+          Height = 30
           Top = 28
-          Width = 60
+          Width = 71
           Caption = 'Routine'
           ParentColor = False
           ParentFont = False
         end
         object RoutineNumberSpinner: TSpinEdit
           Left = 112
-          Height = 33
+          Height = 38
           Top = 14
           Width = 308
           MaxValue = 15
@@ -1702,9 +1702,9 @@ object frmTracker: TfrmTracker
         end
         object Label19: TLabel
           Left = 14
-          Height = 125
+          Height = 150
           Top = 70
-          Width = 758
+          Width = 891
           Caption = 'Routines are an advanced feature of hUGETracker, and you likely won''t need them at all'#13#10'if you are only interested in composing music. If you want to create a custom effect, or interface'#13#10'with game code that you''re writing a soundtrack for, then routines will come in handy.'#13#10#13#10'Refer to the user manual for more information!'
           ParentColor = False
           ParentFont = False
@@ -1719,6 +1719,7 @@ object frmTracker: TfrmTracker
     Width = 2212
     Align = alTop
     BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 10
     ClientHeight = 312
     ClientWidth = 2212
     ParentFont = False
@@ -1766,7 +1767,7 @@ object frmTracker: TfrmTracker
   object StatusBar1: TStatusBar
     Left = 0
     Height = 43
-    Top = 1319
+    Top = 1299
     Width = 2212
     AutoHint = True
     Panels = <    
@@ -1805,7 +1806,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 406
+      Left = 551
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1816,21 +1817,21 @@ object frmTracker: TfrmTracker
       ShowHint = True
     end
     object ToolButton2: TToolButton
-      Left = 125
+      Left = 171
       Top = 0
-      Caption = 'Play'
-      ImageIndex = 74
+      Caption = 'Pause/Resume'
+      ImageIndex = 75
       OnClick = ToolButton2Click
     end
     object ToolButton4: TToolButton
-      Left = 189
+      Left = 334
       Top = 0
       Caption = 'Stop'
       ImageIndex = 73
       OnClick = ToolButton4Click
     end
     object ToolButton5: TToolButton
-      Left = 262
+      Left = 407
       Top = 0
       AutoSize = True
       Caption = 'Export song'
@@ -1845,18 +1846,104 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 257
+      Left = 402
       Height = 39
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 398
+      Left = 543
       Height = 39
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
+    end
+    object SpinEdit1: TSpinEdit
+      Left = 712
+      Height = 38
+      Top = 0
+      Width = 158
+      MaxValue = 5
+      OnChange = SpinEdit1Change
+      TabOrder = 0
+    end
+    object ToolButton9: TToolButton
+      Left = 627
+      Height = 39
+      Top = 0
+      Caption = 'ToolButton9'
+      Style = tbsSeparator
+    end
+    object Label22: TLabel
+      Left = 635
+      Height = 30
+      Top = 0
+      Width = 77
+      Caption = 'Octave  '
+      ParentColor = False
+    end
+    object Label23: TLabel
+      Left = 870
+      Height = 30
+      Top = 0
+      Width = 125
+      Caption = '  Instrument  '
+      ParentColor = False
+    end
+    object ComboBox1: TComboBox
+      Left = 995
+      Height = 38
+      Top = 0
+      Width = 375
+      ItemHeight = 30
+      ItemIndex = 0
+      Items.Strings = (
+        '(no instrument)'
+        '1:'
+        '2:'
+        '3:'
+        '4:'
+        '5:'
+        '6:'
+        '7:'
+        '8:'
+        '9:'
+        '10:'
+        '11:'
+        '12:'
+        '13:'
+        '14:'
+        '15:'
+      )
+      OnChange = ComboBox1Change
+      Style = csDropDownList
+      TabOrder = 1
+      Text = '(no instrument)'
+    end
+    object Label24: TLabel
+      Left = 1370
+      Height = 30
+      Top = 0
+      Width = 64
+      Caption = '  Step  '
+      ParentColor = False
+    end
+    object SpinEdit2: TSpinEdit
+      Left = 1434
+      Height = 38
+      Top = 0
+      Width = 88
+      MaxValue = 63
+      OnChange = SpinEdit2Change
+      TabOrder = 2
+    end
+    object ToolButton3: TToolButton
+      Left = 125
+      Top = 0
+      Caption = 'Play'
+      ImageIndex = 74
+      OnClick = ToolButton3Click
     end
   end
   object MainMenu1: TMainMenu

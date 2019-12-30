@@ -43,40 +43,43 @@
         </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="11">
+    <RequiredPackages Count="12">
       <Item1>
-        <PackageName Value="etpackage"/>
+        <PackageName Value="laz_acs_lib"/>
       </Item1>
       <Item2>
-        <PackageName Value="LazColorPalette"/>
+        <PackageName Value="etpackage"/>
       </Item2>
       <Item3>
-        <PackageName Value="RackCtlsPkg"/>
+        <PackageName Value="LazColorPalette"/>
       </Item3>
       <Item4>
-        <PackageName Value="laz_fpspreadsheet_visual"/>
+        <PackageName Value="RackCtlsPkg"/>
       </Item4>
       <Item5>
-        <PackageName Value="RunTimeTypeInfoControls"/>
+        <PackageName Value="laz_fpspreadsheet_visual"/>
       </Item5>
       <Item6>
-        <PackageName Value="virtualtreeview_package"/>
+        <PackageName Value="RunTimeTypeInfoControls"/>
       </Item6>
       <Item7>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="virtualtreeview_package"/>
       </Item7>
       <Item8>
-        <PackageName Value="eccontrols"/>
+        <PackageName Value="SynEdit"/>
       </Item8>
       <Item9>
-        <PackageName Value="LazControls"/>
+        <PackageName Value="eccontrols"/>
       </Item9>
       <Item10>
-        <PackageName Value="BGRABitmapPack"/>
+        <PackageName Value="LazControls"/>
       </Item10>
       <Item11>
-        <PackageName Value="LCL"/>
+        <PackageName Value="BGRABitmapPack"/>
       </Item11>
+      <Item12>
+        <PackageName Value="LCL"/>
+      </Item12>
     </RequiredPackages>
     <Units Count="22">
       <Unit0>
