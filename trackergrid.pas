@@ -797,17 +797,20 @@ begin
   // a lot (every time the FD callback happens) so it needs to be fast. It can
   // sort of lag out the main thread if it just does a full invalidate.
 
-  RenderRow(OldRow);
-  RenderRow(Row);
-
   R.Left:=0;
   R.Width:=ColumnWidth*4;
   R.Height:=RowHeight*2;
 
-  R.Top:=(Row-1)*RowHeight;
-  InvalidateRect(Self.Handle, @R, True);
-  R.Top:=(OldRow-1)*RowHeight;
-  InvalidateRect(Self.Handle, @R, True);
+  if InRange(OldRow, Low(TPattern), High(TPattern)) then begin
+    RenderRow(OldRow);
+    R.Top:=(Row-1)*RowHeight;
+    InvalidateRect(Self.Handle, @R, True);
+  end;
+  if InRange(Row, Low(TPattern), High(TPattern)) then begin
+    RenderRow(Row);
+    R.Top:=(OldRow-1)*RowHeight;
+    InvalidateRect(Self.Handle, @R, True);
+  end;
 end;
 
 procedure TTrackerGrid.SetSelectionGridRect(R: TRect);

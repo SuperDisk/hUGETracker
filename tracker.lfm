@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 793
+  Left = 800
   Height = 1376
-  Top = 197
+  Top = 189
   Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1342
@@ -868,10 +868,30 @@ object frmTracker: TfrmTracker
               Top = 70
               Width = 308
               ItemHeight = 30
+              ItemIndex = 0
+              Items.Strings = (
+                'Wave #0'
+                'Wave #1'
+                'Wave #2'
+                'Wave #3'
+                'Wave #4'
+                'Wave #5'
+                'Wave #6'
+                'Wave #7'
+                'Wave #8'
+                'Wave #9'
+                'Wave #10'
+                'Wave #11'
+                'Wave #12'
+                'Wave #13'
+                'Wave #14'
+                'Wave #15'
+              )
               OnChange = WaveformComboboxChange
               ParentFont = False
               Style = csDropDownList
               TabOrder = 0
+              Text = 'Wave #0'
             end
             object Panel4: TPanel
               Left = 14
@@ -2078,6 +2098,8 @@ object frmTracker: TfrmTracker
     object FileSaveAs1: TFileSaveAs
       Category = 'File'
       Caption = 'Save As ...'
+      Dialog.DefaultExt = '.uge'
+      Dialog.Filter = 'hUGETracker Modules|*.uge'
       Hint = 'Save As'
       ImageIndex = 59
       ShortCut = 16467

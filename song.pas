@@ -4,7 +4,7 @@ unit Song;
 
 interface
 
-uses Classes, HugeDatatypes;
+uses Classes, HugeDatatypes, instruments;
 
 type
   { TSong }
@@ -27,6 +27,7 @@ type
 
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; var ASong: TSong);
+procedure InitializeSong(var S: TSong);
 
 implementation
 
@@ -94,6 +95,42 @@ begin
     // Read content of OrderMatrix array
     S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
   end;
+end;
+
+procedure InitializeSong(var S: TSong);
+var
+  I, J: Integer;
+begin
+  with S do begin
+    Version := 1;
+    Name := '';
+    Artist := '';
+    Comment := '';
+  end;
+  for I := Low(S.Instruments) to High(S.Instruments) do
+    with S.Instruments[I] do begin
+      Type_ := Square;
+      Length := 0;
+      LengthEnabled := False;
+      InitialVolume := 63;
+      VolSweepDirection := Down;
+      VolSweepAmount := 0;
+
+      SweepTime := 0;
+      SweepIncDec := Down;
+      SweepShift := 0;
+
+      Duty := 2;
+
+      OutputLevel := 1;
+    end;
+  for I := Low(S.Waves) to High(S.Waves) do begin
+    for J := 0 to 32 do
+      S.Waves[I][J] := random($F);
+  end;
+
+  S.TicksPerRow := 7;
+  S.Patterns := TPatternMap.Create;
 end;
 
 end.

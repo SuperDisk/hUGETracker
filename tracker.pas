@@ -541,6 +541,8 @@ begin
 end;
 
 function TfrmTracker.PreparePreview: Boolean;
+var
+  I: Integer;
 begin
   if RenderPreviewROM(Song) then begin
     // Load the new symbol table
@@ -552,6 +554,8 @@ begin
     EmulationThread.Free;
     EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
     PokeSymbol(SYM_TICKS_PER_ROW, Song.TicksPerRow);
+    for I := 0 to 3 do
+      snd[I+1].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
 
     Result := True;
   end
@@ -743,6 +747,7 @@ end;
 
 procedure TfrmTracker.WaveformComboboxChange(Sender: TObject);
 begin
+  CurrentInstrument^.Waveform:=WaveformCombobox.ItemIndex;
   WavePaintbox.Invalidate;
 end;
 
@@ -777,15 +782,14 @@ end;
 
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
-  I, J: Integer;
+  I: Integer;
   Section: TCollectionItem;
 begin
   ReturnNilIfGrowHeapFails := False;
 
-  Song.Version := UGE_FORMAT_VERSION;
+  InitializeSong(Song);
 
   // Create pattern editor control
-  Song.Patterns := TPatternMap.Create;
   RecreateTrackerGrid;
 
   // Initialize ticks per row
@@ -794,28 +798,6 @@ begin
   // Fix the size of the channel headers
   for Section in HeaderControl1.Sections do
     (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
-
-  for I := Low(Song.Instruments) to High(Song.Instruments) do
-    with Song.Instruments[I] do begin
-      Type_ := Square;
-      Length := 0;
-      LengthEnabled := False;
-      InitialVolume := 63;
-      VolSweepDirection := Down;
-      VolSweepAmount := 0;
-
-      SweepTime := 0;
-      SweepIncDec := Down;
-      SweepShift := 0;
-
-      Duty := 2;
-    end;
-
-  for I := Low(Song.Waves) to High(Song.Waves) do begin
-    for J := 0 to 32 do
-      Song.Waves[I][J] := random($F);
-    WaveformCombobox.Items.Add('Wave #' + IntToStr(I));
-  end;
 
   LoadInstrument(1);
   LoadWave(0);
