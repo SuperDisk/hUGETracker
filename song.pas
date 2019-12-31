@@ -10,6 +10,8 @@ type
   { TSong }
 
   TSong = packed record
+    Version: Integer;
+
     Name: ShortString;
     Artist: ShortString;
     Comment: ShortString;

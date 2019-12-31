@@ -594,7 +594,7 @@ begin
   CI := CurrentInstrument;
 
   InstrumentNumberSpinner.Value := Instr;
-  //InstrumentNameEdit.Text := CI^.Name;
+  InstrumentNameEdit.Text := CI^.Name;
   LengthEnabledCheckbox.Checked := CI^.LengthEnabled;
   LengthSpinner.Position := CI^.Length;
 
@@ -781,6 +781,8 @@ var
   Section: TCollectionItem;
 begin
   ReturnNilIfGrowHeapFails := False;
+
+  Song.Version := UGE_FORMAT_VERSION;
 
   // Create pattern editor control
   Song.Patterns := TPatternMap.Create;

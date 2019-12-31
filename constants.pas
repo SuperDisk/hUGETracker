@@ -14,6 +14,8 @@ type
   TNoteToFreqMap = specialize TFPGMap<Integer, Integer>;
 
 const
+  UGE_FORMAT_VERSION = 1;
+
   LM_FD = LM_USER + 0;
 
   SYM_ROW = 'row';
