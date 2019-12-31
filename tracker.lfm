@@ -1,13 +1,14 @@
 object frmTracker: TfrmTracker
-  Left = 801
+  Left = 793
   Height = 1376
-  Top = 186
+  Top = 197
   Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1342
   ClientWidth = 2212
   DesignTimePPI = 168
   Menu = MainMenu1
+  OnClose = FormClose
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
@@ -53,10 +54,10 @@ object frmTracker: TfrmTracker
       Height = 946
       Top = 0
       Width = 1865
-      ActivePage = GeneralTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -127,7 +128,7 @@ object frmTracker: TfrmTracker
             Top = 128
             Width = 88
             MaxValue = 20
-            MinValue = 7
+            MinValue = 1
             OnChange = TicksPerRowSpinEditChange
             ParentFont = False
             TabOrder = 2
@@ -1784,8 +1785,8 @@ object frmTracker: TfrmTracker
       PeakHoldTime = 0
       Position = 0
       SingleLED = False
-      Section2Value = 70
-      Section3Value = 90
+      Section2Value = 60
+      Section3Value = 80
     end
     object LEDMeter2: TLEDMeter
       AnchorSideRight.Side = asrBottom
@@ -1808,56 +1809,8 @@ object frmTracker: TfrmTracker
       PeakHoldTime = 0
       Position = 0
       SingleLED = False
-      Section2Value = 70
-      Section3Value = 90
-    end
-    object LEDMeter3: TLEDMeter
-      AnchorSideRight.Side = asrBottom
-      Left = 1256
-      Height = 312
-      Top = 0
-      Width = 88
-      Anchors = [akTop, akRight]
-      BevelStyle = bvLowered
-      Colors.Border = clBlack
-      Colors.Section1 = clLime
-      Colors.Section2 = clYellow
-      Colors.Section3 = clRed
-      Direction = mdUp
-      FallbackDelay = 0
-      LEDContrast = 9
-      Max = 100
-      Min = 0
-      NumDigits = 50
-      PeakHoldTime = 0
-      Position = 0
-      SingleLED = False
-      Section2Value = 70
-      Section3Value = 90
-    end
-    object LEDMeter4: TLEDMeter
-      AnchorSideRight.Side = asrBottom
-      Left = 1168
-      Height = 312
-      Top = 0
-      Width = 88
-      Anchors = [akTop, akRight]
-      BevelStyle = bvLowered
-      Colors.Border = clBlack
-      Colors.Section1 = clLime
-      Colors.Section2 = clYellow
-      Colors.Section3 = clRed
-      Direction = mdUp
-      FallbackDelay = 0
-      LEDContrast = 9
-      Max = 100
-      Min = 0
-      NumDigits = 50
-      PeakHoldTime = 0
-      Position = 0
-      SingleLED = False
-      Section2Value = 70
-      Section3Value = 90
+      Section2Value = 60
+      Section3Value = 80
     end
   end
   object StatusBar1: TStatusBar
@@ -1955,13 +1908,13 @@ object frmTracker: TfrmTracker
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
-    object SpinEdit1: TSpinEdit
+    object OctaveSpinEdit: TSpinEdit
       Left = 589
       Height = 38
       Top = 0
       Width = 158
       MaxValue = 5
-      OnChange = SpinEdit1Change
+      OnChange = OctaveSpinEditChange
       TabOrder = 0
     end
     object ToolButton9: TToolButton
@@ -1987,7 +1940,7 @@ object frmTracker: TfrmTracker
       Caption = '  Instrument  '
       ParentColor = False
     end
-    object ComboBox1: TComboBox
+    object InstrumentComboBox: TComboBox
       Left = 872
       Height = 38
       Top = 0
@@ -2012,7 +1965,7 @@ object frmTracker: TfrmTracker
         '14:'
         '15:'
       )
-      OnChange = ComboBox1Change
+      OnChange = InstrumentComboBoxChange
       Style = csDropDownList
       TabOrder = 1
       Text = '(no instrument)'
@@ -2025,13 +1978,13 @@ object frmTracker: TfrmTracker
       Caption = '  Step  '
       ParentColor = False
     end
-    object SpinEdit2: TSpinEdit
+    object StepSpinEdit: TSpinEdit
       Left = 1311
       Height = 38
       Top = 0
       Width = 88
       MaxValue = 63
-      OnChange = SpinEdit2Change
+      OnChange = StepSpinEditChange
       TabOrder = 2
     end
     object ToolButton3: TToolButton
@@ -4972,5 +4925,11 @@ object frmTracker: TfrmTracker
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000
     }
+  end
+  object Timer1: TTimer
+    Interval = 10
+    OnTimer = Timer1Timer
+    left = 504
+    top = 80
   end
 end

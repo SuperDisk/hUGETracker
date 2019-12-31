@@ -15,10 +15,10 @@ type
   TEnvelopeVolume = 0..63;
   TEnvelopeSweepAmount = 0..7;
 
-  TInstrument = record
+  TInstrument = packed record
     Type_: TInstrumentType;
 
-    Name: String;
+    Name: ShortString;
     Length: Integer;
     // Highmask
     LengthEnabled: Boolean;
@@ -52,7 +52,7 @@ type
 
   TAsmInstrument = array[0..3] of Byte;
 
-    TRegisters = record
+  TRegisters = record
     case Type_: TInstrumentType of
       Square: (NR10, NR11, NR12, NR13, NR14: Byte);
       Wave: (NR30, NR31, NR32, NR33, NR34: Byte);

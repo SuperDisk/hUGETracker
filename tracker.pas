@@ -16,7 +16,7 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
-    ComboBox1: TComboBox;
+    InstrumentComboBox: TComboBox;
     CutAction: TAction;
     ImageList2: TImageList;
     Label22: TLabel;
@@ -24,8 +24,6 @@ type
     Label24: TLabel;
     LEDMeter1: TLEDMeter;
     LEDMeter2: TLEDMeter;
-    LEDMeter3: TLEDMeter;
-    LEDMeter4: TLEDMeter;
     OrderEditStringGrid: TStringGrid;
     EditCut1: TEditCut;
     HeaderControl1: THeaderControl;
@@ -34,8 +32,9 @@ type
     MenuItem19: TMenuItem;
     MenuItem20: TMenuItem;
     Duty1Visualizer: TPaintBox;
-    SpinEdit1: TSpinEdit;
-    SpinEdit2: TSpinEdit;
+    OctaveSpinEdit: TSpinEdit;
+    StepSpinEdit: TSpinEdit;
+    Timer1: TTimer;
     ToolButton3: TToolButton;
     ToolButton9: TToolButton;
     WaveVisualizer: TPaintBox;
@@ -165,13 +164,14 @@ type
     DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
-    procedure ComboBox1Change(Sender: TObject);
+    procedure InstrumentComboBoxChange(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
     procedure CutActionExecute(Sender: TObject);
     procedure Duty1VisualizerPaint(Sender: TObject);
     procedure Duty2VisualizerPaint(Sender: TObject);
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure HeaderControl1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure HeaderControl1SectionClick(HeaderControl: TCustomHeaderControl;
@@ -218,9 +218,10 @@ type
       Shift: TShiftState);
     procedure PanicToolButtonClick(Sender: TObject);
     procedure PasteActionExecute(Sender: TObject);
-    procedure SpinEdit1Change(Sender: TObject);
-    procedure SpinEdit2Change(Sender: TObject);
+    procedure OctaveSpinEditChange(Sender: TObject);
+    procedure StepSpinEditChange(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
     procedure ToolButton2Click(Sender: TObject);
     procedure ToolButton3Click(Sender: TObject);
     procedure ToolButton4Click(Sender: TObject);
@@ -278,7 +279,7 @@ type
     procedure WordPokeSymbol(Symbol: String; Value: Word);
     function PeekSymbol(Symbol: String): Integer;
     procedure PokeSymbol(Symbol: String; Value: Byte);
-    procedure OnFD;
+    procedure OnFD(var msg: TLMessage); message LM_FD;
 
     procedure RecreateTrackerGrid;
     procedure UpdateUIAfterLoad;
@@ -301,6 +302,8 @@ implementation
 { TfrmTracker }
 
 procedure TfrmTracker.UpdateUIAfterLoad;
+var
+  I: Integer;
 begin
   LoadingFile := True; // HACK!!!!!
   LoadInstrument(1);
@@ -314,6 +317,9 @@ begin
 
   RecreateTrackerGrid;
   CopyOrderMatrixToOrderGrid;
+
+  for I := Low(Song.Instruments) to High(song.Instruments) do
+    InstrumentComboBox.Items[I] := IntToStr(I)+': '+Song.Instruments[I].Name;
 
   LoadingFile := False; // HACK!!!!
 
@@ -357,8 +363,34 @@ begin
 end;
 
 procedure TfrmTracker.DrawVizualizer(PB: TPaintBox; Channel: Integer);
+var
+  I, J, X: Integer;
 begin
+  with PB.Canvas do begin
+    MoveTo(0, PB.Height div 2);
 
+    Brush.Color := clBlack;
+    Clear;
+
+    Pen.Color := clGray;
+    Rectangle(0, 0, PB.Width, PB.Height);
+
+    Pen.Color := clLime;
+    Pen.Width := 2;
+
+    X := 0;
+    I := 0;
+    J := SampleBuffers[Channel].Cursor;
+    while I < SAMPLE_BUFFER_SIZE-1 do begin
+      LineTo(X, (PB.Height div 2) +
+        Trunc((SampleBuffers[Channel].BufferL[J]/512)*PB.Height) +
+        Trunc((SampleBuffers[Channel].BufferR[J]/512)*PB.Height));
+      J := (J+1) mod SAMPLE_BUFFER_SIZE;
+
+      X := Trunc((I/SAMPLE_BUFFER_SIZE)*PB.Width);
+      Inc(I, 2);
+    end;
+  end;
 end;
 
 procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer);
@@ -542,9 +574,9 @@ begin
   EmulationThread.Start;
 end;
 
-procedure TfrmTracker.OnFD;
+procedure TfrmTracker.OnFD(var Msg: TLMessage);
 begin
-  TrackerGrid.HighlightedRow:=PeekSymbol(SYM_ROW);
+  TrackerGrid.HighlightedRow := PeekSymbol(SYM_ROW);
   OrderEditStringGrid.Row := (PeekSymbol(SYM_CURRENT_ORDER) div 2) + 1;
 end;
 
@@ -562,7 +594,7 @@ begin
   CI := CurrentInstrument;
 
   InstrumentNumberSpinner.Value := Instr;
-  InstrumentNameEdit.Text := CI^.Name;
+  //InstrumentNameEdit.Text := CI^.Name;
   LengthEnabledCheckbox.Checked := CI^.LengthEnabled;
   LengthSpinner.Position := CI^.Length;
 
@@ -656,7 +688,7 @@ end;
 
 procedure TfrmTracker.WaveVisualizerPaint(Sender: TObject);
 begin
-
+    DrawVizualizer(WaveVisualizer, 3);
 end;
 
 procedure TfrmTracker.WaveVolumeComboboxChange(Sender: TObject);
@@ -760,8 +792,6 @@ begin
   // Fix the size of the channel headers
   for Section in HeaderControl1.Sections do
     (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
-
-  FDCallback := @Self.OnFD;
 
   for I := Low(Song.Instruments) to High(Song.Instruments) do
     with Song.Instruments[I] do begin
@@ -884,6 +914,11 @@ begin
   end;
 end;
 
+procedure TfrmTracker.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+
+end;
+
 procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
 var
   Stream: TStream;
@@ -945,12 +980,12 @@ end;
 
 procedure TfrmTracker.Duty1VisualizerPaint(Sender: TObject);
 begin
-
+  DrawVizualizer(Duty1Visualizer, 1);
 end;
 
 procedure TfrmTracker.Duty2VisualizerPaint(Sender: TObject);
 begin
-
+  DrawVizualizer(Duty2Visualizer, 2);
 end;
 
 procedure TfrmTracker.CopyActionExecute(Sender: TObject);
@@ -958,9 +993,9 @@ begin
   PostMessage(Screen.ActiveControl.Handle, LM_COPY, 0, 0);
 end;
 
-procedure TfrmTracker.ComboBox1Change(Sender: TObject);
+procedure TfrmTracker.InstrumentComboBoxChange(Sender: TObject);
 begin
-  TrackerGrid.SelectedInstrument := ComboBox1.ItemIndex;
+  TrackerGrid.SelectedInstrument := InstrumentComboBox.ItemIndex;
 end;
 
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
@@ -968,14 +1003,14 @@ begin
   PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
 end;
 
-procedure TfrmTracker.SpinEdit1Change(Sender: TObject);
+procedure TfrmTracker.OctaveSpinEditChange(Sender: TObject);
 begin
-  TrackerGrid.SelectedOctave := SpinEdit1.Value;
+  TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
 
-procedure TfrmTracker.SpinEdit2Change(Sender: TObject);
+procedure TfrmTracker.StepSpinEditChange(Sender: TObject);
 begin
-  TrackerGrid.Step := SpinEdit2.Value;
+  TrackerGrid.Step := StepSpinEdit.Value;
 end;
 
 procedure TfrmTracker.DivRatioSpinnerChange(Sender: TObject);
@@ -1015,6 +1050,8 @@ end;
 procedure TfrmTracker.InstrumentNameEditChange(Sender: TObject);
 begin
   CurrentInstrument^.Name := InstrumentNameEdit.Text;
+  InstrumentComboBox.Items[InstrumentNumberSpinner.Value] :=
+    IntToStr(InstrumentNumberSpinner.Value) + ': ' + InstrumentNameEdit.Text;
 end;
 
 procedure TfrmTracker.InstrumentNumberSpinnerChange(Sender: TObject);
@@ -1084,7 +1121,7 @@ end;
 
 procedure TfrmTracker.NoiseVisualizerPaint(Sender: TObject);
 begin
-
+  DrawVizualizer(NoiseVisualizer, 4);
 end;
 
 procedure TfrmTracker.OrderEditStringGridAfterSelection(Sender: TObject; aCol,
@@ -1174,6 +1211,35 @@ end;
 procedure TfrmTracker.TicksPerRowSpinEditChange(Sender: TObject);
 begin
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
+end;
+
+procedure TfrmTracker.Timer1Timer(Sender: TObject);
+var
+  Max1, Max2: Integer;
+  I: Integer;
+  Samp: Integer;
+begin
+  Max1 := -1;
+  Max2 := -1;
+  for I := 0 to SAMPLE_BUFFER_SIZE do begin
+    Samp := Abs(SampleBuffers[0].BufferL[I] div 2);
+    if Samp > Max1 then Max1 := Samp;
+    Samp := Abs(SampleBuffers[0].BufferR[I] div 2);
+    if Samp > Max2 then Max2 := Samp;
+  end;
+
+  Duty1Visualizer.Invalidate;
+  Duty2Visualizer.Invalidate;
+  NoiseVisualizer.Invalidate;
+  WaveVisualizer.Invalidate;
+
+  LEDMeter1.Position := LEDMeter1.Position-2;
+  LEDMeter2.Position := LEDMeter2.Position-2;
+
+  Max1 := Trunc((Max1/512)*100);
+  Max2 := Trunc((Max2/512)*100);
+  if Max1 > LEDMeter1.Position then LEDMeter1.Position := Max1;
+  if Max2 > LEDMeter2.Position then LEDMeter2.Position := Max2;
 end;
 
 procedure TfrmTracker.ToolButton2Click(Sender: TObject);

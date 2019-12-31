@@ -9,7 +9,7 @@ uses Classes, HugeDatatypes;
 type
   { TSong }
 
-  TSong = record
+  TSong = packed record
     Name: ShortString;
     Artist: ShortString;
     Comment: ShortString;

@@ -10,8 +10,8 @@ uses
 type
   Nibble = $0..$F;
 
-  TInstrumentBank = array[1..15] of TInstrument;
-  TWaveBank = array[0..15] of TWave;
+  TInstrumentBank = packed array[1..15] of TInstrument;
+  TWaveBank = packed array[0..15] of TWave;
 
   TEffectParams = bitpacked record
     case Boolean of
@@ -19,18 +19,18 @@ type
       False: (Value: Byte);
   end;
 
-  TCell = record
+  TCell = packed record
     Note: Integer;
     Instrument: Integer;
     EffectCode: Integer;
     EffectParams: TEffectParams;
   end;
 
-  TPattern = array[0..63] of TCell;
+  TPattern = packed array[0..63] of TCell;
   PPattern = ^TPattern;
 
   TPatternMap = specialize TFPGMap<Integer, PPattern>;
-  TOrderMatrix = array[0..3] of array of Integer;
+  TOrderMatrix = packed array[0..3] of array of Integer;
 
   TCellPart = (
     cpNote = 0,

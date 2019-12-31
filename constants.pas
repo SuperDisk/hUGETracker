@@ -5,7 +5,7 @@ unit Constants;
 interface
 
 uses
-  fgl;
+  fgl, LMessages;
 
 type
   TNoteMap = specialize TFPGMap<Integer, String>;
@@ -14,6 +14,8 @@ type
   TNoteToFreqMap = specialize TFPGMap<Integer, Integer>;
 
 const
+  LM_FD = LM_USER + 0;
+
   SYM_ROW = 'row';
   SYM_CURRENT_ORDER = 'current_order';
   SYM_TICKS_PER_ROW = 'ticks_per_row';

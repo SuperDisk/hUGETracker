@@ -126,6 +126,15 @@ Bit0  Sound 1 on[1]/off[0]
 
 *)
 
+const
+  SAMPLE_BUFFER_SIZE = 1024;
+
+type
+  TSampleBuffer = record
+    BufferL, BufferR: array[0..SAMPLE_BUFFER_SIZE] of Integer;
+    Cursor: Integer;
+  end;
+
 procedure EnableSound;
 procedure DisableSound;
 procedure ResetSound;
@@ -151,6 +160,7 @@ var
     bit: byte;
     cnt: integer;
   end;
+  SampleBuffers: array[0..4] of TSampleBuffer;
 
 implementation
 
@@ -267,14 +277,20 @@ const
 
 var
   swpClk, envClk, lenClk, freqClk, freq4Clk: longint;
-  l, r: integer;
 
 procedure SoundUpdate(cycles: integer);
 var
   n, stage: integer;
+  ls: array[1..4] of Integer = (0, 0, 0, 0);
+  rs: array[1..4] of Integer = (0, 0, 0, 0);
+  l, r: Integer;
+  I: Integer;
 begin
   if (not soundEnable) then
     exit;
+
+  l := 0;
+  r := 0;
   if sndRegChange then
   begin
     snd[1].Freq := m_iram[$FF13] or ((m_iram[$FF14] and 7) shl 8);
@@ -496,15 +512,15 @@ begin
     end;
     if m_iram[$FF25] and 1 > 0 then
       if snd[1].Bit > 0 then
-        Inc(l, vol[snd[1].Vol])
+        Inc(ls[1], vol[snd[1].Vol])
       else
-        Dec(l, vol[snd[1].Vol]);
+        Dec(ls[1], vol[snd[1].Vol]);
 
     if m_iram[$FF25] and $10 > 0 then
       if snd[1].bit > 0 then
-        Inc(r, vol[snd[1].Vol])
+        Inc(rs[1], vol[snd[1].Vol])
       else
-        Dec(r, vol[snd[1].Vol]);
+        Dec(rs[1], vol[snd[1].Vol]);
   end;
 
   if not snd[2].channelOFF then
@@ -519,15 +535,15 @@ begin
     end;
     if m_iram[$FF25] and 2 > 0 then
       if snd[2].bit > 0 then
-        Inc(l, vol[snd[2].Vol])
+        Inc(ls[2], vol[snd[2].Vol])
       else
-        Dec(l, vol[snd[2].Vol]);
+        Dec(ls[2], vol[snd[2].Vol]);
 
     if m_iram[$FF25] and $20 > 0 then
       if snd[2].Bit > 0 then
-        Inc(r, vol[snd[2].Vol])
+        Inc(rs[2], vol[snd[2].Vol])
       else
-        Dec(r, vol[snd[2].Vol]);
+        Dec(rs[2], vol[snd[2].Vol]);
   end;
 
   if not snd[3].channelOFF then
@@ -552,9 +568,9 @@ begin
       end;
     end;
     if m_iram[$FF25] and 4 > 0 then
-      Inc(l, (snd[3].Bit shl 4) - $80);
+      Inc(ls[3], (snd[3].Bit shl 4) - $80);
     if m_iram[$FF25] and $40 > 0 then
-      Inc(r, (snd[3].Bit shl 4) - $80);
+      Inc(rs[3], (snd[3].Bit shl 4) - $80);
   end;
   if not snd[4].channelOFF then
   begin
@@ -571,20 +587,30 @@ begin
     end;
     if (m_iram[$FF25] and 8) > 0 then
       if snd[4].Bit > 0 then
-        Inc(l, vol[snd[4].Vol])
+        Inc(ls[4], vol[snd[4].Vol])
       else
-        Dec(l, vol[snd[4].Vol]);
+        Dec(ls[4], vol[snd[4].Vol]);
     if (m_iram[$FF25] and $80) > 0 then
       if snd[4].Bit > 0 then
-        Inc(r, vol[snd[4].Vol])
+        Inc(rs[4], vol[snd[4].Vol])
       else
-        Dec(r, vol[snd[4].Vol]);
+        Dec(rs[4], vol[snd[4].Vol]);
   end;
 
-  SoundOutBits(l, r, cycles);
+  for I := 1 to 4 do begin
+    SampleBuffers[I].BufferL[SampleBuffers[I].Cursor] := ls[I];
+    SampleBuffers[I].BufferR[SampleBuffers[I].Cursor] := rs[I];
+    SampleBuffers[I].Cursor := (SampleBuffers[I].Cursor + 1) mod SAMPLE_BUFFER_SIZE;
+  end;
 
-  l := 0;
-  r := 0
+  l := ls[1] + ls[2] + ls[3] + ls[4];
+  r := rs[1] + rs[2] + rs[3] + rs[4];
+
+  SampleBuffers[0].BufferL[SampleBuffers[0].Cursor] := l;
+  SampleBuffers[0].BufferR[SampleBuffers[0].Cursor] := r;
+  SampleBuffers[0].Cursor := (SampleBuffers[0].Cursor + 1) mod SAMPLE_BUFFER_SIZE;
+
+  SoundOutBits(l, r, cycles);
 end;
 
 procedure SoundSetCycles(n: integer);

@@ -13,13 +13,14 @@ type
   TEmulationThread = class(TThread)
   protected
     procedure Execute; override;
+    procedure OnFD;
   public
     Constructor Create(ROM: String);
   end;
 
 implementation
 
-uses sound, mainloop, vars, machine;
+uses sound, mainloop, vars, machine, LCLIntf, constants, Tracker;
 
 var
   ET: TEpikTimer;
@@ -61,12 +62,19 @@ begin
   until Terminated;
 end;
 
+procedure TEmulationThread.OnFD;
+begin
+  PostMessage(frmTracker.Handle, LM_FD, 0, 0);
+end;
+
 constructor TEmulationThread.Create(ROM: String);
 begin
   inherited Create(True);
   z80_reset;
   ResetSound;
   enablesound;
+
+  FDCallback := OnFD;
 
   load(ROM);
 end;

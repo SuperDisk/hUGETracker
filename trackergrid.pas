@@ -786,9 +786,28 @@ begin
 end;
 
 procedure TTrackerGrid.SetHighlightedRow(Row: Integer);
+var
+  R: TRect;
+  OldRow: Integer;
 begin
+  OldRow := FHighlightedRow;
   FHighlightedRow := Row;
-  if FHighlightedRow >= 0 then Invalidate;
+
+  // An optimization to redraw the pattern faster. This function gets called
+  // a lot (every time the FD callback happens) so it needs to be fast. It can
+  // sort of lag out the main thread if it just does a full invalidate.
+
+  RenderRow(OldRow);
+  RenderRow(Row);
+
+  R.Left:=0;
+  R.Width:=ColumnWidth*4;
+  R.Height:=RowHeight*2;
+
+  R.Top:=(Row-1)*RowHeight;
+  InvalidateRect(Self.Handle, @R, True);
+  R.Top:=(OldRow-1)*RowHeight;
+  InvalidateRect(Self.Handle, @R, True);
 end;
 
 procedure TTrackerGrid.SetSelectionGridRect(R: TRect);
