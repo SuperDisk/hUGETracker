@@ -179,7 +179,7 @@ procedure ResetSound;
 var
   i: Integer;
 begin
-  for i := 0 to High(snd) do begin
+  for i := Low(Snd) to High(snd) do begin
     with snd[i] do begin
       ChannelOFF := False;
       enable := False;
