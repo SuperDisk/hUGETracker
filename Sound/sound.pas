@@ -5,6 +5,8 @@
  | Stand: 15.12.2000
  |
  | http://www.tu-ilmenau.de/~hackbart
+ |
+ | Translated from VGBC's Sound.cpp, written by Rusty Wagner
  +----------------------------------------------------------------------------+}
 
 unit sound;
@@ -277,6 +279,30 @@ const
 
 var
   swpClk, envClk, lenClk, freqClk, freq4Clk: longint;
+  lfsr: Integer = 0;
+
+// Yanked from SameBoy: https://github.com/LIJI32/SameBoy/blob/master/Core/apu.c#L489
+// carrying on the tradition of translating existing C audio code
+function NextLFSRBit(Narrow: Boolean): Integer;
+var
+  HighBitMask: Integer;
+  NewHighBit: Integer;
+begin
+  if Narrow then
+    HighBitMask := $4040
+  else
+    HighBitMask := $4000;
+
+  NewHighBit := ((lfsr xor (lfsr shr 1)) xor 1) and 1;
+  lfsr := lfsr shr 1;
+
+  if NewHighBit <> 0 then
+    lfsr := lfsr or HighBitMask
+  else
+    lfsr := lfsr and not HighBitMask;
+
+  Result := (lfsr and 1);
+end;
 
 procedure SoundUpdate(cycles: integer);
 var
@@ -582,7 +608,7 @@ begin
       if (freq4Clk >= snd[4].Freq) then
       begin
         freq4Clk := freq4Clk mod snd[4].Freq;
-        snd[4].Bit := random(255) and 1; // white noise
+        snd[4].Bit := NextLFSRBit((m_iram[$FF22] and %1000) <> 0);// random(255) and 1; // white noise
       end;
     end;
     if (m_iram[$FF25] and 8) > 0 then

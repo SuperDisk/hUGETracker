@@ -1279,10 +1279,7 @@ var
 begin
   if DrawingWave then begin
     Idx := Trunc((X / WaveEditPaintBox.Width)*32);
-    CurrentWave^[Idx] :=
-      Min($F,
-        Max(0,
-          Trunc((Y / WaveEditPaintBox.Height)*$F)));
+    CurrentWave^[Idx] := EnsureRange(Trunc((Y / WaveEditPaintBox.Height)*$F), 0, $F);
     WaveEditPaintBox.Invalidate;
   end;
 end;

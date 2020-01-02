@@ -576,10 +576,10 @@ end;
 
 procedure TTrackerGrid.ClampCursors;
 begin
-  Cursor.Y := Min(High(TPattern), Max(Low(TPattern), Cursor.Y));
-  Cursor.X := Min(High(Patterns), Max(Low(Patterns), Cursor.X));
-  Other.Y := Min(High(TPattern), Max(Low(TPattern), Other.Y));
-  Other.X := Min(High(Patterns), Max(Low(Patterns), Other.X));
+  Cursor.Y := EnsureRange(Cursor.Y, Low(TPattern), High(TPattern));
+  Cursor.X := EnsureRange(Cursor.X, Low(TPattern), High(TPattern));
+  Other.Y := EnsureRange(Other.Y, Low(TPattern), High(TPattern));
+  Other.X := EnsureRange(Other.X, Low(TPattern), High(TPattern));
 end;
 
 procedure TTrackerGrid.NormalizeCursors;
@@ -616,7 +616,7 @@ begin
     for C := Cursor.X to Other.X do
       if Patterns[C]^[R].Note <> NO_NOTE then
         Patterns[C]^[R].Note :=
-          Max(LOWEST_NOTE, Min(HIGHEST_NOTE, Patterns[C]^[R].Note + Semitones));
+          EnsureRange(Patterns[C]^[R].Note + Semitones, LOWEST_NOTE, HIGHEST_NOTE);
 
   Invalidate;
   SaveUndoState;
@@ -894,8 +894,8 @@ end;
 
 function TTrackerGrid.MousePosToSelection(X, Y: Integer): TSelectionPos;
 begin
-  X := Max(0, Min(Width-1, X));
-  Y := Max(0, Min(Height-1, Y));
+  X := EnsureRange(Width-1, 0, X);
+  Y := EnsureRange(Height-1, 0, Y);
 
   Result.X := Trunc((X/Width)*NUM_COLUMNS);
   Result.Y := Trunc((Y/Height)*NUM_ROWS);
