@@ -24,6 +24,7 @@ type
     Label24: TLabel;
     LEDMeter1: TLEDMeter;
     LEDMeter2: TLEDMeter;
+    MenuItem21: TMenuItem;
     OrderEditStringGrid: TStringGrid;
     EditCut1: TEditCut;
     HeaderControl1: THeaderControl;
@@ -199,6 +200,7 @@ type
     procedure MenuItem17Click(Sender: TObject);
     procedure MenuItem18Click(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
+    procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -1086,7 +1088,16 @@ end;
 
 procedure TfrmTracker.MenuItem19Click(Sender: TObject);
 begin
-  OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
+  if OrderEditStringGrid.RowCount > 2 then
+    OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
+end;
+
+procedure TfrmTracker.MenuItem21Click(Sender: TObject);
+begin
+  with OrderEditStringGrid do begin
+    InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
+    Rows[Row-1] := Rows[Row];
+  end;
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
@@ -1117,6 +1128,7 @@ end;
 procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
+  OrderEditStringGrid.Row := OrderEditStringGrid.Row-1;
   ReloadPatterns;
 end;
 

@@ -15,14 +15,12 @@ DB "NF"
 
 SECTION "code", ROM0
 yeah:
-	ld a, 0
-	ld [rAUD3LEVEL], a
-    ;ld a, $80
-    ;ld [rAUDENA], a
+    ld a, $80
+    ld [rAUDENA], a
     ; Enable all channels in stereo
-    ;ld a, $FF
-    ;ld [rAUDTERM], a
+    ld a, $FF
+    ld [rAUDTERM], a
     ; Set volume
-    ;ld a, $77
-    ;ld [rAUDVOL], a
+    ld a, $77
+    ld [rAUDVOL], a
     halt

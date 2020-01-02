@@ -355,9 +355,11 @@ begin
 
     if m_iram[$FF1e] and $80 > 0 then
     begin
-      snd[3].Len := (256 - byte(m_iram[$FF1b])) shl 7;
+      snd[3].Len := (256 - byte(m_iram[$FF1b]));// shl 7;
       snd[3].Cnt := 0;
       m_iram[$FF1e] := m_iram[$FF1e] and $7f;
+      snd[3].Enable := True;
+      m_iram[$ff1a] := m_iram[$ff1a] or %10000000;
     end;
 
     if m_iram[$FF23] and $80 > 0 then
