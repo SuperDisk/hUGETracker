@@ -22,7 +22,7 @@ procedure z80_reset;
 
 implementation
 
-uses vars, gfx, machine, z80cpu, sound;
+uses vars, machine, z80cpu, sound;
 
 procedure TimerControl;
 (*
@@ -170,7 +170,7 @@ begin
       end;
       0:
       begin
-        make_line_finish(m_iram[$ff44]);
+        //make_line_finish(m_iram[$ff44]);
         make_line_count := -1;
         if hdma > 0 then
         begin
@@ -209,7 +209,7 @@ begin
           set_ff0f(2);
         if (old_mode = 0) then
         begin
-          make_line_finish(143);
+          //make_line_finish(143);
           //if (m_iram[$ff40] and 128) > 0 then
              //PaintBox.Repaint;
           vbi_count := vbi_latency;
@@ -330,7 +330,7 @@ begin
     Inc(make_line_ccount, cnumber);
     if make_line_ccount >= 8 then
     begin
-      make_line_tile(m_iram[$ff44], make_line_count);
+      //make_line_tile(m_iram[$ff44], make_line_count);
       Inc(make_line_count);
       Dec(make_line_ccount, 8);
     end;

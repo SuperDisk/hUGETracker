@@ -10,7 +10,6 @@ uses
   Forms,
   Interfaces,
   Tracker in 'Tracker.pas',
-  gfx in 'GPU\gfx.pas',
   Z80CPU in 'CPU\z80cpu.pas',
   sound in 'Sound\sound.pas',
   vars in 'Global\vars.pas',
