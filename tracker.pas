@@ -281,7 +281,8 @@ type
     procedure WordPokeSymbol(Symbol: String; Value: Word);
     function PeekSymbol(Symbol: String): Integer;
     procedure PokeSymbol(Symbol: String; Value: Byte);
-    procedure OnFD(var msg: TLMessage); message LM_FD;
+    procedure OnFD(var Msg: TLMessage); message LM_FD;
+    procedure OnUndoOccured(var Msg: TLMessage); message LM_UNDO_OCCURED;
 
     procedure RecreateTrackerGrid;
     procedure UpdateUIAfterLoad;
@@ -584,6 +585,16 @@ procedure TfrmTracker.OnFD(var Msg: TLMessage);
 begin
   TrackerGrid.HighlightedRow := PeekSymbol(SYM_ROW);
   OrderEditStringGrid.Row := (PeekSymbol(SYM_CURRENT_ORDER) div 2) + 1;
+end;
+
+procedure TfrmTracker.OnUndoOccured(var Msg: TLMessage);
+begin
+  with OrderEditStringGrid do
+    {if (Msg.lParamhi <> StrToInt(Rows[Row][0])) or
+       (Msg.lParamhi <> StrToInt(Rows[Row][1])) or
+       (Msg.lParamhi <> StrToInt(Rows[Row][2])) or
+       (Msg.lParamhi <> StrToInt(Rows[Row][3])) then}
+         Row := -1;
 end;
 
 procedure TfrmTracker.RecreateTrackerGrid;
@@ -1122,7 +1133,8 @@ end;
 procedure TfrmTracker.OrderEditStringGridAfterSelection(Sender: TObject; aCol,
   aRow: Integer);
 begin
-  ReloadPatterns;
+  if OrderEditStringGrid.Row > -1 then
+    ReloadPatterns;
 end;
 
 procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;

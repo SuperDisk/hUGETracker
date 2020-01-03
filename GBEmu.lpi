@@ -81,7 +81,7 @@
         <PackageName Value="LCL"/>
       </Item12>
     </RequiredPackages>
-    <Units Count="22">
+    <Units Count="23">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -193,6 +193,12 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="SymParser"/>
       </Unit21>
+      <Unit22>
+        <Filename Value="effecteditor.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit22>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -17,6 +17,7 @@ const
   UGE_FORMAT_VERSION = 1;
 
   LM_FD = LM_USER + 0;
+  LM_UNDO_OCCURED = LM_USER + 1;
 
   SYM_ROW = 'row';
   SYM_CURRENT_ORDER = 'current_order';
