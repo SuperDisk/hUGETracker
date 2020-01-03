@@ -166,15 +166,15 @@ var
 
 implementation
 
-uses vars, bass;
+uses vars, sdl2;
 
 const
   playbackFrequency = 44100;
   sampleCycles: longint = (8192 * 1024) div playbackFrequency;
-  TooFullThreshold: DWORD = (playbackFrequency div 10)*sizeof(single); //0.1s
+  TooFullThreshold: Integer = (playbackFrequency div 10)*sizeof(single); //0.1s
 
 var
-  playStream: HStream;
+  playStream: TSDL_AudioDeviceID;
   bufCycles, bufLVal, bufRVal: integer;
 
 procedure ResetSound;
@@ -198,27 +198,34 @@ end;
 
 function SoundBufferTooFull: Boolean;
 begin
-  Result := BASS_ChannelGetData(PlayStream, nil, BASS_DATA_AVAILABLE) > TooFullThreshold;
+  Result := SoundBufferSize > TooFullThreshold
 end;
 
 function SoundBufferSize: Integer;
 begin
-  Result := BASS_ChannelGetData(PlayStream, nil, BASS_DATA_AVAILABLE);
+  Result := SDL_GetQueuedAudioSize(playStream)
 end;
 
 procedure EnableSound;
+var
+  Want, Have: TSDL_AudioSpec;
 begin
   if soundEnable then
     exit;
 
-  BASS_Init(-1, playbackFrequency, 0, 0, nil);
-  PlayStream := BASS_StreamCreate(
-    playbackFrequency,
-    2,
-    BASS_SAMPLE_FLOAT,
-    StreamProc(STREAMPROC_PUSH),
-    nil);
-  BASS_ChannelPlay(PlayStream, True);
+  Want := Default(TSDL_AudioSpec);
+  Have := Default(TSDL_AudioSpec);
+
+  SDL_Init(SDL_INIT_AUDIO);
+
+  Want.freq := playbackFrequency;
+  Want.format := AUDIO_F32;
+  Want.channels := 2;
+  Want.samples := 512; //????
+  Want.callback := nil;
+
+  PlayStream := SDL_OpenAudioDevice(nil, 0, @Want, @Have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
+  SDL_PauseAudioDevice(playStream, 0);
 
   soundEnable := True;
   bufCycles := 0;
@@ -231,7 +238,8 @@ begin
   if not soundEnable then
     exit;
 
-  BASS_Free;
+  SDL_CloseAudioDevice(playStream);
+  SDL_Quit;
 
   soundEnable := False;
 end;
@@ -250,7 +258,7 @@ begin
     bufCycles := 0;
     bufLVal := 0;
     bufRVal := 0;
-    BASS_StreamPutData(PlayStream, @buf, 8 {2 32-bit float samples});
+    SDL_QueueAudio(playStream, @buf, 8);
   end;
 end;
 
