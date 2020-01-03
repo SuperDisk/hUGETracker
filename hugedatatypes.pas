@@ -25,6 +25,7 @@ type
     EffectCode: Integer;
     EffectParams: TEffectParams;
   end;
+  PCell = ^TCell;
 
   TPattern = packed array[0..63] of TCell;
   PPattern = ^TPattern;

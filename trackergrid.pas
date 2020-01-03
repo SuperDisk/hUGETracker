@@ -141,8 +141,6 @@ type
 
 implementation
 
-uses Tracker; // hack
-
 { TSelectionEnumerator }
 
 constructor TSelectionEnumerator.Create(Grid: TPatternGrid; Cursor,
