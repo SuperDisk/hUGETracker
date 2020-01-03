@@ -5,8 +5,9 @@ unit TrackerGrid;
 interface
 
 uses
-  Classes, SysUtils, Controls, Graphics, Constants, LCLType, math,
-  LCLIntf, LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils;
+  Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, LCLIntf,
+  LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor,
+  About;
 
 // TODO: Maybe read these from a config file
 const
@@ -64,7 +65,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
-
+    procedure DblClick; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
   private
     procedure PerformPaste(Paste: TSelection);
@@ -322,6 +323,21 @@ begin
 
   MouseButtonDown := False;
   DigitInputting := False;
+end;
+
+procedure TTrackerGrid.DblClick;
+var
+  FXEditor: TfrmEffectEditor;
+begin
+  inherited DblClick;
+
+  FXEditor := TfrmEffectEditor.Create(@Patterns[Cursor.X]^[Cursor.Y]);
+  try
+    FXEditor.ShowModal;
+    Invalidate;
+  finally
+    FXEditor.Free;
+  end;
 end;
 
 procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);

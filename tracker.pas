@@ -10,7 +10,7 @@ uses
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   ECProgressBar, HugeDatatypes, LCLType, RackCtls, Codegen,
-  SymParser, effecteditor;
+  SymParser;
 
 type
   { TfrmTracker }

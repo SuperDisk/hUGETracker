@@ -3,10 +3,16 @@ object frmEffectEditor: TfrmEffectEditor
   Height = 416
   Top = 226
   Width = 684
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsDialog
   Caption = 'Effect Editor'
   ClientHeight = 416
   ClientWidth = 684
   DesignTimePPI = 168
+  FormStyle = fsStayOnTop
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  ShowInTaskBar = stNever
   LCLVersion = '2.0.6.0'
   object ComboBox1: TComboBox
     Left = 136
@@ -51,7 +57,7 @@ object frmEffectEditor: TfrmEffectEditor
     Height = 320
     Top = 80
     Width = 642
-    PageIndex = 5
+    PageIndex = 1
     TabOrder = 1
     object OneParamPage: TPage
       object OneParamTrackBar: TTrackBar
@@ -82,7 +88,7 @@ object frmEffectEditor: TfrmEffectEditor
         Top = 72
         Width = 584
         Max = 15
-        OnChange = OneParamTrackBarChange
+        OnChange = TwoParamsTrackBar1Change
         Position = 0
         TabOrder = 0
       end
@@ -92,7 +98,7 @@ object frmEffectEditor: TfrmEffectEditor
         Top = 136
         Width = 584
         Max = 15
-        OnChange = OneParamTrackBarChange
+        OnChange = TwoParamsTrackBar2Change
         Position = 0
         TabOrder = 1
       end
@@ -105,6 +111,15 @@ object frmEffectEditor: TfrmEffectEditor
         AutoSize = False
         Caption = 'Value1'
         ParentColor = False
+      end
+      object Button1: TButton
+        Left = 280
+        Height = 44
+        Top = 224
+        Width = 131
+        Caption = 'Button1'
+        OnClick = Button1Click
+        TabOrder = 2
       end
     end
     object VibratoPage: TPage
@@ -131,6 +146,7 @@ object frmEffectEditor: TfrmEffectEditor
           '0.125'
           '0.0625'
         )
+        OnSelectionChanged = VibratoRateRadioGroupSelectionChanged
         TabOrder = 0
       end
       object VibratoDepthTrackBar: TTrackBar
@@ -139,6 +155,7 @@ object frmEffectEditor: TfrmEffectEditor
         Top = 48
         Width = 448
         Max = 15
+        OnChange = VibratoDepthTrackBarChange
         Position = 0
         TabOrder = 1
       end
@@ -201,6 +218,7 @@ object frmEffectEditor: TfrmEffectEditor
         ChildSizing.ControlsPerLine = 1
         ClientHeight = 285
         ClientWidth = 312
+        OnItemClick = LeftPanCheckGroupItemClick
         TabOrder = 0
         object CheckBox1: TCheckBox
           Left = 6
@@ -252,6 +270,7 @@ object frmEffectEditor: TfrmEffectEditor
         ChildSizing.ControlsPerLine = 1
         ClientHeight = 285
         ClientWidth = 312
+        OnItemClick = LeftPanCheckGroupItemClick
         TabOrder = 1
         object CheckBox5: TCheckBox
           Left = 6
@@ -310,6 +329,7 @@ object frmEffectEditor: TfrmEffectEditor
           '50%   ( ____----____----____---- ) (Square)'
           '75%   ( ______--______--______-- )'
         )
+        OnSelectionChanged = DutyRadioGroupSelectionChanged
         TabOrder = 0
       end
     end

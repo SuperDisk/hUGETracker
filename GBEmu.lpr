@@ -10,6 +10,7 @@ uses
   Forms,
   Interfaces,
   Tracker in 'Tracker.pas',
+  EffectEditor in 'effecteditor.pas',
   Z80CPU in 'CPU\z80cpu.pas',
   sound in 'Sound\sound.pas',
   vars in 'Global\vars.pas',
@@ -21,9 +22,6 @@ uses
 
 begin
   Application.Initialize;
-  {Application.CreateForm(TfrmGameboy, frmGameboy);
-  Application.CreateForm(TfrmDebug, frmDebug);
-  Application.CreateForm(TfrmMapview, frmMapview);}
   Application.CreateForm(TfrmTracker, frmTracker);
   Application.Run;
 end.

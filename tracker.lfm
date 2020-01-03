@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1098
+  Left = 842
   Height = 1376
-  Top = 199
+  Top = 192
   Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1342
@@ -13,6 +13,7 @@ object frmTracker: TfrmTracker
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
+  Position = poDefault
   ShowHint = True
   LCLVersion = '2.0.6.0'
   object TreeView1: TTreeView
@@ -55,10 +56,10 @@ object frmTracker: TfrmTracker
       Height = 946
       Top = 0
       Width = 1865
-      ActivePage = PatternTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
