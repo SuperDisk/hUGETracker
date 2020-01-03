@@ -55,10 +55,10 @@ object frmTracker: TfrmTracker
       Height = 946
       Top = 0
       Width = 1865
-      ActivePage = WavesTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 3
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -4699,6 +4699,10 @@ object frmTracker: TfrmTracker
     object MenuItem21: TMenuItem
       Caption = 'Duplicate row'
       OnClick = MenuItem21Click
+    end
+    object MenuItem22: TMenuItem
+      Caption = 'Replicate row'
+      OnClick = MenuItem22Click
     end
     object MenuItem20: TMenuItem
       Caption = '-'

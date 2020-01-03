@@ -27,6 +27,7 @@ type
     LEDMeter1: TLEDMeter;
     LEDMeter2: TLEDMeter;
     MenuItem21: TMenuItem;
+    MenuItem22: TMenuItem;
     OrderEditStringGrid: TStringGrid;
     EditCut1: TEditCut;
     HeaderControl1: THeaderControl;
@@ -205,6 +206,7 @@ type
     procedure MenuItem18Click(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem21Click(Sender: TObject);
+    procedure MenuItem22Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure NoiseFreqSpinnerChange(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -1172,6 +1174,28 @@ begin
   with OrderEditStringGrid do begin
     InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
     Rows[Row-1] := Rows[Row];
+  end;
+end;
+
+procedure TfrmTracker.MenuItem22Click(Sender: TObject);
+var
+  X, Highest: Integer;
+begin
+  Highest := Song.Patterns.MaxKey;
+
+  with OrderEditStringGrid do begin
+    InsertRowWithValues(
+      Row,
+      ['',
+      IntToStr(Highest),
+      IntToStr(Highest+1),
+      IntToStr(Highest+2),
+      IntToStr(Highest+3)]
+    );
+
+    for X := 0 to 3 do
+      Song.Patterns.CreateNewPattern(Highest+X)^ :=
+        Song.Patterns.KeyData[StrToInt(Rows[Row][X+1])]^;
   end;
 end;
 

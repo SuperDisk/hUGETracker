@@ -12,7 +12,7 @@ type
 
   TOrderMapHelper = class helper for TPatternMap
     function GetOrCreateNew(Key: Integer): PPattern;
-    procedure CreateNewPattern(Key: Integer);
+    function CreateNewPattern(Key: Integer): PPattern;
     function MaxKey: Integer;
   end;
 
@@ -36,15 +36,13 @@ begin
   end;
 end;
 
-procedure TOrderMapHelper.CreateNewPattern(Key: Integer);
-var
-  NewPat: PPattern;
+function TOrderMapHelper.CreateNewPattern(Key: Integer): PPattern;
 begin
   if IndexOf(Key) <> -1 then Exit;
 
-  New(NewPat);
-  BlankPattern(NewPat);
-  Self.Add(Key, NewPat);
+  New(Result);
+  BlankPattern(Result);
+  Self.Add(Key, Result);
 end;
 
 function TOrderMapHelper.MaxKey: Integer;

@@ -21,6 +21,8 @@ procedure RenderSongToFile(Song: TSong; Filename: String);
 
 implementation
 
+uses process;
+
 function RenderOrderTable(OrderMatrix: TOrderMatrix): String;
 function ArrayHelper(Ints: array of Integer): String;
 var
@@ -144,6 +146,8 @@ function RenderPreviewROM(Song: TSong): Boolean;
 var
   OutFile: Text;
   I: Integer;
+  Proc: TProcess;
+  OutSL: TStringList;
 label AssemblyError, Cleanup;
 begin
   AssignFile(OutFile, './hUGEDriver/wave.htt');
@@ -172,17 +176,33 @@ begin
   // Assemble the ROM
   Chdir('hUGEDriver');
 
-  if ExecuteProcess(('rgbasm'),
-    '-opreview.obj driverLite.z80', []) <> 0 then
-    goto AssemblyError;
+  OutSL := TStringList.Create;
+  Proc := TProcess.Create(nil);
+  Proc.Options := Proc.Options + [poWaitOnExit, poUsePipes, poStdErrToOutput];
 
-  if ExecuteProcess(('rgblink'),
-    '-mpreview.map -npreview.sym -opreview.gb preview.obj', []) <> 0 then
-    goto AssemblyError;
+  Proc.Executable := 'rgbasm';
+  Proc.Parameters.Clear;
+  Proc.Parameters.add('-opreview.obj');
+  Proc.Parameters.add('driverLite.z80');
+  Proc.Execute;
+  if Proc.ExitCode <> 0 then goto AssemblyError;
 
-  if ExecuteProcess(('rgbfix'),
-    '-p0 -v preview.gb', []) <> 0 then
-    goto AssemblyError;
+  Proc.Executable := 'rgblink';
+  Proc.Parameters.Clear;
+  Proc.Parameters.add('-mpreview.map');
+  Proc.Parameters.add('-npreview.sym');
+  Proc.Parameters.add('-opreview.gb');
+  Proc.Parameters.add('preview.obj');
+  Proc.Execute;
+  if Proc.ExitCode <> 0 then goto AssemblyError;
+
+  Proc.Executable := 'rgbfix';
+  Proc.Parameters.Clear;
+  Proc.Parameters.add('-p0');
+  Proc.Parameters.add('-v');
+  Proc.Parameters.add('preview.gb');
+  Proc.Execute;
+  if Proc.ExitCode <> 0 then goto AssemblyError;
 
   Result := True;
   goto Cleanup;
@@ -190,9 +210,19 @@ begin
   // Eh, screw good practice. How bad can it be?
   AssemblyError:
   Result := False;
-  MessageDlg('Error!', 'There was an error assembling the song for playback. Write the rest of this dialog.', mtError, [mbOK], 0);
+  OutSL.LoadFromStream(Proc.Output);
+  MessageDlg(
+    'Error!',
+    'There was an error assembling the song for playback.'+LineEnding+LineEnding+
+      Proc.Executable+' output:'+LineEnding+
+      OutSL.Text,
+    mtError,
+    [mbOK],
+    0);
 
   Cleanup:
+  Proc.Free;
+  OutSL.Free;
   Chdir('..');
 end;
 
