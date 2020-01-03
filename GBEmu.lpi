@@ -187,8 +187,8 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="SDL2_headers;GPU;CPU;Sound;Global;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="GPU;CPU;Sound;Global"/>
+      <IncludeFiles Value="GPU;CPU;Sound;Global;$(ProjOutDir)"/>
+      <OtherUnitFiles Value="GPU;CPU;Sound;Global;SDL2_headers"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

@@ -169,6 +169,7 @@ implementation
 uses vars, sdl2;
 
 const
+  SampleSize = SizeOf(Single)*2;
   playbackFrequency = 44100;
   sampleCycles: longint = (8192 * 1024) div playbackFrequency;
   TooFullThreshold: Integer = (playbackFrequency div 10)*sizeof(single); //0.1s
@@ -258,7 +259,7 @@ begin
     bufCycles := 0;
     bufLVal := 0;
     bufRVal := 0;
-    SDL_QueueAudio(playStream, @buf, 8);
+    SDL_QueueAudio(playStream, @buf, SampleSize);
   end;
 end;
 

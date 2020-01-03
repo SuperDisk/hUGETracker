@@ -1,12 +1,13 @@
 object frmTracker: TfrmTracker
-  Left = 843
+  Left = 1098
   Height = 1376
-  Top = 190
+  Top = 199
   Width = 2212
   Caption = 'hUGETracker'
   ClientHeight = 1342
   ClientWidth = 2212
   DesignTimePPI = 168
+  KeyPreview = True
   Menu = MainMenu1
   OnClose = FormClose
   OnCreate = FormCreate
@@ -54,10 +55,10 @@ object frmTracker: TfrmTracker
       Height = 946
       Top = 0
       Width = 1865
-      ActivePage = InstrumentTabSheet
+      ActivePage = WavesTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 3
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -288,9 +289,9 @@ object frmTracker: TfrmTracker
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 321
+          Height = 249
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
-          Top = 582
+          Top = 654
           Width = 1857
           Align = alClient
           Color = clBlack
@@ -300,7 +301,7 @@ object frmTracker: TfrmTracker
         end
         object FlowPanel1: TFlowPanel
           Left = 0
-          Height = 582
+          Height = 654
           Top = 0
           Width = 1857
           Align = alTop
@@ -338,7 +339,7 @@ object frmTracker: TfrmTracker
           TabOrder = 0
           object InstrumentGroupBox: TGroupBox
             Left = 12
-            Height = 238
+            Height = 310
             Top = 12
             Width = 474
             Anchors = []
@@ -347,7 +348,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 12
             BorderSpacing.Bottom = 12
             Caption = 'Instrument'
-            ClientHeight = 203
+            ClientHeight = 275
             ClientWidth = 470
             ParentFont = False
             TabOrder = 0
@@ -479,6 +480,24 @@ object frmTracker: TfrmTracker
               ScaleFontOptions.FontSize = 7
               ScaleFontOptions.FontStyles = []
               OnChange = LengthSpinnerChange
+            end
+            object InstrumentImportButton: TButton
+              Left = 24
+              Height = 44
+              Top = 200
+              Width = 203
+              Caption = 'Import'
+              OnClick = InstrumentImportButtonClick
+              TabOrder = 5
+            end
+            object InstrumentExportButton: TButton
+              Left = 245
+              Height = 44
+              Top = 200
+              Width = 203
+              Caption = 'Export'
+              OnClick = InstrumentExportButtonClick
+              TabOrder = 6
             end
           end
           object EnvelopeGroupBox: TGroupBox
@@ -662,7 +681,7 @@ object frmTracker: TfrmTracker
           object SquareGroupBox: TGroupBox
             Left = 12
             Height = 296
-            Top = 274
+            Top = 346
             Width = 558
             Anchors = []
             BorderSpacing.Left = 12
@@ -830,7 +849,7 @@ object frmTracker: TfrmTracker
           object WaveGroupBox: TGroupBox
             Left = 594
             Height = 296
-            Top = 274
+            Top = 346
             Width = 520
             Anchors = []
             BorderSpacing.Left = 12
@@ -940,7 +959,7 @@ object frmTracker: TfrmTracker
           object NoiseGroupBox: TGroupBox
             Left = 1138
             Height = 296
-            Top = 274
+            Top = 346
             Width = 462
             Anchors = []
             BorderSpacing.Left = 12
@@ -1150,13 +1169,13 @@ object frmTracker: TfrmTracker
             ParentFont = False
             TabOrder = 1
           end
-          object ExportButton: TButton
+          object ExportWaveButton: TButton
             Left = 28
             Height = 44
             Top = 140
             Width = 257
             Caption = 'Export'
-            OnClick = ExportButtonClick
+            OnClick = ExportWaveButtonClick
             ParentFont = False
             TabOrder = 2
           end
@@ -2090,6 +2109,7 @@ object frmTracker: TfrmTracker
     object FileOpen1: TFileOpen
       Category = 'File'
       Caption = '&Open ...'
+      Dialog.Filter = 'hUGETracker Modules|*.uge'
       Hint = 'Open'
       ImageIndex = 42
       ShortCut = 16463
@@ -4654,10 +4674,12 @@ object frmTracker: TfrmTracker
     }
   end
   object OpenDialog1: TOpenDialog
+    Filter = 'hUGETracker Instruments|*.ugi'
     left = 737
     top = 75
   end
   object SaveDialog1: TSaveDialog
+    Filter = 'hUGETracker Instruments|*.ugi'
     left = 868
     top = 75
   end

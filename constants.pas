@@ -18,6 +18,7 @@ const
 
   LM_FD = LM_USER + 0;
   LM_UNDO_OCCURED = LM_USER + 1;
+  LM_PREVIEW_NOTE = LM_USER + 2;
 
   SYM_ROW = 'row';
   SYM_CURRENT_ORDER = 'current_order';
@@ -221,6 +222,82 @@ begin
   NotesToFreqs := TNoteToFreqMap.Create;
   NoteToCodeMap := TNoteToCodeMap.Create;
 
+  {%Region Notes->Freqs}
+  NotesToFreqs.Add(C_3, 44);
+  NotesToFreqs.Add(CS3, 156);
+  NotesToFreqs.Add(D_3, 262);
+  NotesToFreqs.Add(DS3, 363);
+  NotesToFreqs.Add(E_3, 457);
+  NotesToFreqs.Add(F_3, 547);
+  NotesToFreqs.Add(FS3, 631);
+  NotesToFreqs.Add(G_3, 710);
+  NotesToFreqs.Add(GS3, 786);
+  NotesToFreqs.Add(A_3, 854);
+  NotesToFreqs.Add(AS3, 923);
+  NotesToFreqs.Add(B_3, 986);
+  NotesToFreqs.Add(C_4, 1046);
+  NotesToFreqs.Add(CS4, 1102);
+  NotesToFreqs.Add(D_4, 1155);
+  NotesToFreqs.Add(DS4, 1205);
+  NotesToFreqs.Add(E_4, 1253);
+  NotesToFreqs.Add(F_4, 1297);
+  NotesToFreqs.Add(FS4, 1339);
+  NotesToFreqs.Add(G_4, 1379);
+  NotesToFreqs.Add(GS4, 1417);
+  NotesToFreqs.Add(A_4, 1452);
+  NotesToFreqs.Add(AS4, 1486);
+  NotesToFreqs.Add(B_4, 1517);
+  NotesToFreqs.Add(C_5, 1546);
+  NotesToFreqs.Add(CS5, 1575);
+  NotesToFreqs.Add(D_5, 1602);
+  NotesToFreqs.Add(DS5, 1627);
+  NotesToFreqs.Add(E_5, 1650);
+  NotesToFreqs.Add(F_5, 1673);
+  NotesToFreqs.Add(FS5, 1694);
+  NotesToFreqs.Add(G_5, 1714);
+  NotesToFreqs.Add(GS5, 1732);
+  NotesToFreqs.Add(A_5, 1750);
+  NotesToFreqs.Add(AS5, 1767);
+  NotesToFreqs.Add(B_5, 1783);
+  NotesToFreqs.Add(C_6, 1798);
+  NotesToFreqs.Add(CS6, 1812);
+  NotesToFreqs.Add(D_6, 1825);
+  NotesToFreqs.Add(DS6, 1837);
+  NotesToFreqs.Add(E_6, 1849);
+  NotesToFreqs.Add(F_6, 1860);
+  NotesToFreqs.Add(FS6, 1871);
+  NotesToFreqs.Add(G_6, 1881);
+  NotesToFreqs.Add(GS6, 1890);
+  NotesToFreqs.Add(A_6, 1899);
+  NotesToFreqs.Add(AS6, 1907);
+  NotesToFreqs.Add(B_6, 1915);
+  NotesToFreqs.Add(C_7, 1923);
+  NotesToFreqs.Add(CS7, 1930);
+  NotesToFreqs.Add(D_7, 1936);
+  NotesToFreqs.Add(DS7, 1943);
+  NotesToFreqs.Add(E_7, 1949);
+  NotesToFreqs.Add(F_7, 1954);
+  NotesToFreqs.Add(FS7, 1959);
+  NotesToFreqs.Add(G_7, 1964);
+  NotesToFreqs.Add(GS7, 1969);
+  NotesToFreqs.Add(A_7, 1974);
+  NotesToFreqs.Add(AS7, 1978);
+  NotesToFreqs.Add(B_7, 1982);
+  NotesToFreqs.Add(C_8, 1985);
+  NotesToFreqs.Add(CS8, 1988);
+  NotesToFreqs.Add(D_8, 1992);
+  NotesToFreqs.Add(DS8, 1995);
+  NotesToFreqs.Add(E_8, 1998);
+  NotesToFreqs.Add(F_8, 2001);
+  NotesToFreqs.Add(FS8, 2004);
+  NotesToFreqs.Add(G_8, 2006);
+  NotesToFreqs.Add(GS8, 2009);
+  NotesToFreqs.Add(A_8, 2011);
+  NotesToFreqs.Add(AS8, 2013);
+  NotesToFreqs.Add(B_8, 2015);
+  {%Endregion}
+
+  {%Region}
   Keybindings.Add(VK_Q, C_3);
   Keybindings.Add(VK_W, CS3);
   Keybindings.Add(VK_E, D_3);
@@ -255,7 +332,9 @@ begin
   Keybindings.Add(VK_OEM_COMMA, G_5);
   Keybindings.Add(VK_OEM_PERIOD, GS5);
   Keybindings.Add(VK_OEM_2, A_5);
+  {%EndRegion Keycodes->Notes}
 
+  {%Region Note names -> Notes}
   NoteToCodeMap.add('C-3', C_3);
   NoteToCodeMap.add('C#3', Cs3);
   NoteToCodeMap.add('D-3', D_3);
@@ -328,7 +407,9 @@ begin
   NoteToCodeMap.add('A-8', A_8);
   NoteToCodeMap.add('A#8', As8);
   NoteToCodeMap.add('B-8', B_8);
+  {%EndRegion}
 
+  {%Region Notes -> Note names}
   NoteMap.add(C_3, 'C-3');
   NoteMap.add(Cs3, 'C#3');
   NoteMap.add(D_3, 'D-3');
@@ -401,7 +482,9 @@ begin
   NoteMap.add(A_8, 'A-8');
   NoteMap.add(As8, 'A#8');
   NoteMap.add(B_8, 'B-8');
+  {%EndRegion}
 
+  {%Region Notes -> Driver constants}
   NoteToDriverMap.add(C_3, 'C_3');
   NoteToDriverMap.add(Cs3, 'C#3');
   NoteToDriverMap.add(D_3, 'D_3');
@@ -474,6 +557,6 @@ begin
   NoteToDriverMap.add(A_8, 'A_8');
   NoteToDriverMap.add(As8, 'A#8');
   NoteToDriverMap.add(B_8, 'B_8');
-
+  {%EndRegion}
 
 end.

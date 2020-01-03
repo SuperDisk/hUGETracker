@@ -16,6 +16,8 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    InstrumentExportButton: TButton;
+    InstrumentImportButton: TButton;
     InstrumentComboBox: TComboBox;
     CutAction: TAction;
     ImageList2: TImageList;
@@ -52,7 +54,7 @@ type
     EditPaste1: TEditPaste;
     EditSelectAll1: TEditSelectAll;
     EditUndo1: TEditUndo;
-    ExportButton: TButton;
+    ExportWaveButton: TButton;
     FileExit1: TFileExit;
     FileOpen1: TFileOpen;
     FileSaveAs1: TFileSaveAs;
@@ -187,11 +189,13 @@ type
     procedure DutyComboboxChange(Sender: TObject);
     procedure EnvChangeSpinnerChange(Sender: TObject);
     procedure EnvelopePaintboxPaint(Sender: TObject);
-    procedure ExportButtonClick(Sender: TObject);
+    procedure ExportWaveButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ImportWaveButtonClick(Sender: TObject);
+    procedure InstrumentExportButtonClick(Sender: TObject);
+    procedure InstrumentImportButtonClick(Sender: TObject);
     procedure InstrumentNameEditChange(Sender: TObject);
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
@@ -257,7 +261,7 @@ type
 
     EmulationThread: TThread;
 
-    PreviewingInstrument: Boolean;
+    PreviewingInstrument: Integer;
     DrawingWave: Boolean;
     Playing: Boolean;
     LoadingFile: Boolean;
@@ -283,6 +287,7 @@ type
     procedure PokeSymbol(Symbol: String; Value: Byte);
     procedure OnFD(var Msg: TLMessage); message LM_FD;
     procedure OnUndoOccured(var Msg: TLMessage); message LM_UNDO_OCCURED;
+    procedure OnNotePlaced(var Msg: TLMessage); message LM_PREVIEW_NOTE;
 
     procedure RecreateTrackerGrid;
     procedure UpdateUIAfterLoad;
@@ -291,6 +296,7 @@ type
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
     procedure PreviewInstrument(Freq: Integer; Instr: Integer);
+    procedure Panic;
   public
 
   end;
@@ -444,6 +450,24 @@ begin
   end;
 end;
 
+procedure TfrmTracker.Panic;
+begin
+  // Silence CH1
+  Spokeb(NR12, 0);
+  Spokeb(NR14, %10000000);
+
+  // Silence CH2
+  Spokeb(NR22, 0);
+  Spokeb(NR24, %10000000);
+
+  // Silence CH3
+  Spokeb(NR30, 0);
+
+  // Silence CH4
+  Spokeb(NR42, 0);
+  Spokeb(NR44, %10000000);
+end;
+
 procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
@@ -595,6 +619,11 @@ begin
        (Msg.lParamhi <> StrToInt(Rows[Row][2])) or
        (Msg.lParamhi <> StrToInt(Rows[Row][3])) then}
          Row := -1;
+end;
+
+procedure TfrmTracker.OnNotePlaced(var Msg: TLMessage);
+begin
+  PreviewInstrument(NotesToFreqs.KeyData[msg.wParam], msg.lParam);
 end;
 
 procedure TfrmTracker.RecreateTrackerGrid;
@@ -799,6 +828,7 @@ var
   Section: TCollectionItem;
 begin
   ReturnNilIfGrowHeapFails := False;
+  PreviewingInstrument := -1;
 
   InitializeSong(Song);
 
@@ -841,38 +871,83 @@ end;
 procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
+  Note: Integer;
   Freq: Integer;
 begin
-    if PreviewingInstrument then exit;
+    if not Keybindings.TryGetData(Key, Note) then Exit;
+    Inc(Note, OctaveSpinEdit.Value*12);
+    EnsureRange(Note, LOWEST_NOTE, HIGHEST_NOTE);
 
-    Keybindings.TryGetData(Key, Freq);
-    if Freq <> 0 then
-      PreviewInstrument(Freq, InstrumentNumberSpinner.Value);
+    if PreviewingInstrument <> Note then
+      PreviewingInstrument := -1;
 
-    PreviewingInstrument := True;
+    if (PreviewingInstrument > 0) or
+       (not (ActiveControl = TrackerGrid)) or
+       (InstrumentComboBox.ItemIndex <= 0)
+    then exit;
+
+    if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
+
+    PreviewInstrument(Freq, InstrumentNumberSpinner.Value);
+    PreviewingInstrument := Note;
 end;
 
 procedure TfrmTracker.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  PreviewingInstrument := False;
-
-  // Silence channel 1
-  Spokeb(NR12, 0);
-  Spokeb(NR14, %10000000);
+  PreviewingInstrument := -1;
+  Panic;
 end;
 
 procedure TfrmTracker.ImportWaveButtonClick(Sender: TObject);
 var
   F: file of TWave;
 begin
-  OpenDialog1.DefaultExt := '*.pcm';
+  OpenDialog1.Filter := 'hUGETracker waves|*.ugw';
   if OpenDialog1.Execute then begin
     assignfile(F, OpenDialog1.FileName);
     reset(F);
     Read(F, Song.Waves[WaveEditNumberSpinner.Value]);
     CloseFile(F);
     WaveEditPaintBox.Invalidate;
+  end;
+end;
+
+procedure TfrmTracker.ExportWaveButtonClick(Sender: TObject);
+var F: file of TWave;
+begin
+  SaveDialog1.Filter := 'hUGETracker waves|*.ugw';
+  if SaveDialog1.Execute then begin
+    AssignFile(F, OpenDialog1.FileName);
+    Rewrite(F);
+    Write(F, CurrentWave^);
+    CloseFile(F);
+  end;
+end;
+
+procedure TfrmTracker.InstrumentExportButtonClick(Sender: TObject);
+var
+  F: file of TInstrument;
+begin
+  OpenDialog1.Filter := 'hUGETracker instruments|*.ugi';
+  if SaveDialog1.Execute then begin
+    AssignFile(F, SaveDialog1.FileName);
+    Rewrite(F);
+    Write(F, CurrentInstrument^);
+    CloseFile(F);
+  end;
+end;
+
+procedure TfrmTracker.InstrumentImportButtonClick(Sender: TObject);
+var
+  F: file of TInstrument;
+begin
+  OpenDialog1.Filter := 'hUGETracker instruments|*.ugi';
+  if OpenDialog1.Execute then begin
+    AssignFile(F, OpenDialog1.FileName);
+    Reset(F);
+    Read(F, CurrentInstrument^);
+    CloseFile(F);
   end;
 end;
 
@@ -1033,17 +1108,6 @@ begin
   end;
 end;
 
-procedure TfrmTracker.ExportButtonClick(Sender: TObject);
-var F: file of TWave;
-begin
-  if SaveDialog1.Execute then begin
-    AssignFile(F, OpenDialog1.FileName);
-    Rewrite(F);
-    Write(F, CurrentWave^);
-    CloseFile(F);
-  end;
-end;
-
 procedure TfrmTracker.InstrumentNameEditChange(Sender: TObject);
 begin
   CurrentInstrument^.Name := InstrumentNameEdit.Text;
@@ -1200,20 +1264,7 @@ end;
 
 procedure TfrmTracker.PanicToolButtonClick(Sender: TObject);
 begin
-  // Silence CH1
-  Spokeb(NR12, 0);
-  Spokeb(NR14, %10000000);
-
-  // Silence CH2
-  Spokeb(NR22, 0);
-  Spokeb(NR24, %10000000);
-
-  // Silence CH3
-  Spokeb(NR30, 0);
-
-  // Silence CH4
-  Spokeb(NR42, 0);
-  Spokeb(NR44, %10000000);
+  Panic;
 end;
 
 procedure TfrmTracker.TicksPerRowSpinEditChange(Sender: TObject);

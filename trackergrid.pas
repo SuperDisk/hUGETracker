@@ -61,8 +61,7 @@ type
 
   TTrackerGrid = class(TCustomControl)
     procedure Paint; override;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
 
@@ -141,6 +140,8 @@ type
   end;
 
 implementation
+
+uses Tracker; // hack
 
 { TSelectionEnumerator }
 
@@ -655,11 +656,13 @@ begin
       Keybindings.TryGetData(Key, Temp);
       if Temp <> -1 then begin
         Note := Min(HIGHEST_NOTE, Temp+(SelectedOctave*12));
-        if Instrument = 0 then
-          Instrument := SelectedInstrument;
+        Instrument := SelectedInstrument;
 
         Inc(Cursor.Y, Step);
         ClampCursors;
+
+        {if Instrument > 0 then
+          SendMessage(frmTracker.Handle, LM_PREVIEW_NOTE, Note, Instrument);}
       end;
     end;
 
