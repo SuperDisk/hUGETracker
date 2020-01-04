@@ -334,10 +334,16 @@ begin
   FXEditor := TfrmEffectEditor.Create(@Patterns[Cursor.X]^[Cursor.Y]);
   try
     FXEditor.ShowModal;
-    Invalidate;
   finally
     FXEditor.Free;
   end;
+
+  NormalizeCursors;
+
+  MouseButtonDown := False;
+  DigitInputting := False;
+
+  Invalidate;
 end;
 
 procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);

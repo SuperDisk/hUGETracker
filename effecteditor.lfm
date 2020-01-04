@@ -1,7 +1,7 @@
 object frmEffectEditor: TfrmEffectEditor
-  Left = 825
+  Left = 474
   Height = 416
-  Top = 226
+  Top = 532
   Width = 684
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
@@ -19,6 +19,7 @@ object frmEffectEditor: TfrmEffectEditor
     Height = 38
     Top = 16
     Width = 530
+    DropDownCount = 99
     ItemHeight = 30
     ItemIndex = 0
     Items.Strings = (
@@ -57,7 +58,7 @@ object frmEffectEditor: TfrmEffectEditor
     Height = 320
     Top = 80
     Width = 642
-    PageIndex = 1
+    PageIndex = 5
     TabOrder = 1
     object OneParamPage: TPage
       object OneParamTrackBar: TTrackBar
@@ -111,15 +112,6 @@ object frmEffectEditor: TfrmEffectEditor
         AutoSize = False
         Caption = 'Value1'
         ParentColor = False
-      end
-      object Button1: TButton
-        Left = 280
-        Height = 44
-        Top = 224
-        Width = 131
-        Caption = 'Button1'
-        OnClick = Button1Click
-        TabOrder = 2
       end
     end
     object VibratoPage: TPage

@@ -1,11 +1,11 @@
 object frmTracker: TfrmTracker
-  Left = 842
-  Height = 1376
-  Top = 192
-  Width = 2212
+  Left = 839
+  Height = 1275
+  Top = 187
+  Width = 2056
   Caption = 'hUGETracker'
-  ClientHeight = 1342
-  ClientWidth = 2212
+  ClientHeight = 1241
+  ClientWidth = 2056
   DesignTimePPI = 168
   KeyPreview = True
   Menu = MainMenu1
@@ -13,12 +13,11 @@ object frmTracker: TfrmTracker
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
-  Position = poDefault
   ShowHint = True
   LCLVersion = '2.0.6.0'
   object TreeView1: TTreeView
     Left = 0
-    Height = 946
+    Height = 845
     Top = 353
     Width = 338
     Align = alLeft
@@ -36,26 +35,26 @@ object frmTracker: TfrmTracker
   end
   object Splitter1: TSplitter
     Left = 338
-    Height = 946
+    Height = 845
     Top = 353
     Width = 9
   end
   object Panel1: TPanel
     Left = 347
-    Height = 946
+    Height = 845
     Top = 353
-    Width = 1865
+    Width = 1709
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 946
-    ClientWidth = 1865
+    ClientHeight = 845
+    ClientWidth = 1709
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 946
+      Height = 845
       Top = 0
-      Width = 1865
+      Width = 1709
       ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
@@ -282,18 +281,18 @@ object frmTracker: TfrmTracker
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
-        ClientHeight = 903
-        ClientWidth = 1857
+        ClientHeight = 802
+        ClientWidth = 1701
         ParentFont = False
         object PaintBox1: TPaintBox
           AnchorSideTop.Control = FlowPanel1
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 249
+          Height = 148
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
           Top = 654
-          Width = 1857
+          Width = 1701
           Align = alClient
           Color = clBlack
           ParentColor = False
@@ -304,7 +303,7 @@ object frmTracker: TfrmTracker
           Left = 0
           Height = 654
           Top = 0
-          Width = 1857
+          Width = 1701
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
@@ -1757,16 +1756,16 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 312
     Top = 41
-    Width = 2212
+    Width = 2056
     Align = alTop
     BevelOuter = bvNone
     ChildSizing.HorizontalSpacing = 10
     ClientHeight = 312
-    ClientWidth = 2212
+    ClientWidth = 2056
     ParentFont = False
     TabOrder = 3
     object Panel6: TPanel
-      Left = 1522
+      Left = 1366
       Height = 312
       Top = 0
       Width = 690
@@ -1806,7 +1805,7 @@ object frmTracker: TfrmTracker
     end
     object LEDMeter1: TLEDMeter
       AnchorSideRight.Side = asrBottom
-      Left = 1432
+      Left = 1276
       Height = 312
       Top = 0
       Width = 88
@@ -1830,7 +1829,7 @@ object frmTracker: TfrmTracker
     end
     object LEDMeter2: TLEDMeter
       AnchorSideRight.Side = asrBottom
-      Left = 1344
+      Left = 1188
       Height = 312
       Top = 0
       Width = 88
@@ -1856,8 +1855,8 @@ object frmTracker: TfrmTracker
   object StatusBar1: TStatusBar
     Left = 0
     Height = 43
-    Top = 1299
-    Width = 2212
+    Top = 1198
+    Width = 2056
     AutoHint = True
     Panels = <    
       item
@@ -1878,7 +1877,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 41
     Top = 0
-    Width = 2212
+    Width = 2056
     AutoSize = True
     Caption = 'ToolBar1'
     EdgeBorders = [ebBottom]
@@ -4980,7 +4979,7 @@ object frmTracker: TfrmTracker
     }
   end
   object Timer1: TTimer
-    Interval = 10
+    Interval = 20
     OnTimer = Timer1Timer
     left = 504
     top = 80

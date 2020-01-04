@@ -177,6 +177,7 @@ const
 var
   playStream: TSDL_AudioDeviceID;
   bufCycles, bufLVal, bufRVal: integer;
+  lfsr: Cardinal = 0;
 
 procedure ResetSound;
 var
@@ -288,24 +289,24 @@ const
 
 var
   swpClk, envClk, lenClk, freqClk, freq4Clk: longint;
-  lfsr: Integer = 0;
+
 
 // Yanked from SameBoy: https://github.com/LIJI32/SameBoy/blob/master/Core/apu.c#L489
 // carrying on the tradition of translating existing C audio code
-function NextLFSRBit(Narrow: Boolean): Integer;
+function NextLFSRBit(Narrow: Boolean): Byte;
 var
-  HighBitMask: Integer;
-  NewHighBit: Integer;
+  HighBitMask: Cardinal;
+  NewHighBit: Boolean;
 begin
   if Narrow then
     HighBitMask := $4040
   else
     HighBitMask := $4000;
 
-  NewHighBit := ((lfsr xor (lfsr shr 1)) xor 1) and 1;
+  NewHighBit := (((lfsr xor (lfsr shr 1)) xor 1) and 1) <> 0;
   lfsr := lfsr shr 1;
 
-  if NewHighBit <> 0 then
+  if NewHighBit then
     lfsr := lfsr or HighBitMask
   else
     lfsr := lfsr and not HighBitMask;
@@ -377,6 +378,7 @@ begin
       snd[4].Len := 64 - (m_iram[$FF20] and 63);
       m_iram[$FF23] := m_iram[$FF23] and $7f;
       snd[4].Enable := True;
+      lfsr := 0;
     end;
 
     sndRegChange := False;

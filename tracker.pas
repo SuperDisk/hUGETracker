@@ -463,7 +463,7 @@ begin
   Spokeb(NR24, %10000000);
 
   // Silence CH3
-  Spokeb(NR30, 0);
+  Spokeb(NR32, 0);
 
   // Silence CH4
   Spokeb(NR42, 0);
@@ -1134,7 +1134,6 @@ end;
 
 procedure TfrmTracker.MenuItem16Click(Sender: TObject);
 begin
-  PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
 end;
 
 procedure TfrmTracker.MenuItem17Click(Sender: TObject);

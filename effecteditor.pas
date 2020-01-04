@@ -13,7 +13,6 @@ type
   { TfrmEffectEditor }
 
   TfrmEffectEditor = class(TForm)
-    Button1: TButton;
     CheckBox1: TCheckBox;
     CheckBox2: TCheckBox;
     CheckBox3: TCheckBox;
@@ -61,6 +60,12 @@ type
     Cell: PCell;
 
     procedure LoadEffect;
+    procedure LoadOneParamData;
+    procedure LoadTwoParamData;
+    procedure LoadVibratoData;
+    procedure LoadMasterVolumeData;
+    procedure LoadPanningData;
+    procedure LoadDutyCycleData;
 
     procedure fx0;
     procedure fx1;
@@ -112,14 +117,12 @@ end;
 procedure TfrmEffectEditor.FormClose(Sender: TObject;
   var CloseAction: TCloseAction);
 begin
-  writeln('ok');
 end;
 
 procedure TfrmEffectEditor.FormCloseQuery(Sender: TObject; var CanClose: boolean
   );
 begin
   ModalResult:=mrClose;
-  writeln('hi');
 end;
 
 procedure TfrmEffectEditor.FormCreate(Sender: TObject);
@@ -155,7 +158,6 @@ end;
 procedure TfrmEffectEditor.TwoParamsTrackBar1Change(Sender: TObject);
 begin
   Cell^.EffectParams.Param1 := TwoParamsTrackBar1.Position;
-  writeln('test');
 end;
 
 procedure TfrmEffectEditor.TwoParamsTrackBar2Change(Sender: TObject);
@@ -202,91 +204,157 @@ begin
   end;
 end;
 
+procedure TfrmEffectEditor.LoadOneParamData;
+begin
+  OneParamTrackBar.Position := Cell^.EffectParams.Value;
+end;
+
+procedure TfrmEffectEditor.LoadTwoParamData;
+begin
+  TwoParamsTrackBar1.Position := Cell^.EffectParams.Param1;
+  TwoParamsTrackBar2.Position := Cell^.EffectParams.Param2;
+end;
+
+procedure TfrmEffectEditor.LoadVibratoData;
+begin
+  case Cell^.EffectParams.Param1 of
+    $0: VibratoRateRadioGroup.ItemIndex := 0;
+    $1: VibratoRateRadioGroup.ItemIndex := 1;
+    $3: VibratoRateRadioGroup.ItemIndex := 2;
+    $7: VibratoRateRadioGroup.ItemIndex := 3;
+    $F: VibratoRateRadioGroup.ItemIndex := 4;
+  end;
+  VibratoDepthTrackBar.Position := Cell^.EffectParams.Param2;
+end;
+
+procedure TfrmEffectEditor.LoadMasterVolumeData;
+begin
+  LeftVolumeTrackBar.Position := Cell^.EffectParams.Param1;
+  RightVolumeTrackBar.Position := Cell^.EffectParams.Param2;
+end;
+
+procedure TfrmEffectEditor.LoadPanningData;
+begin
+  CheckBox1.Checked := (Cell^.EffectParams.Value and %00000001) <> 0;
+  CheckBox2.Checked := (Cell^.EffectParams.Value and %00000010) <> 0;
+  CheckBox3.Checked := (Cell^.EffectParams.Value and %00000100) <> 0;
+  CheckBox4.Checked := (Cell^.EffectParams.Value and %00001000) <> 0;
+  CheckBox5.Checked := (Cell^.EffectParams.Value and %00010000) <> 0;
+  CheckBox6.Checked := (Cell^.EffectParams.Value and %00100000) <> 0;
+  CheckBox7.Checked := (Cell^.EffectParams.Value and %01000000) <> 0;
+  CheckBox8.Checked := (Cell^.EffectParams.Value and %10000000) <> 0;
+end;
+
+procedure TfrmEffectEditor.LoadDutyCycleData;
+begin
+  case Cell^.EffectParams.Value of
+    $00: DutyRadioGroup.ItemIndex := 0;
+    $40: DutyRadioGroup.ItemIndex := 1;
+    $80: DutyRadioGroup.ItemIndex := 2;
+    $C0: DutyRadioGroup.ItemIndex := 3;
+  end;
+end;
+
 procedure TfrmEffectEditor.fx0;
 begin
   Notebook1.PageIndex := 1;
+  LoadTwoParamData;
 end;
 
 procedure TfrmEffectEditor.fx1;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fx2;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fx3;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fx4;
 begin
   Notebook1.PageIndex := 2;
+  LoadVibratoData;
 end;
 
 procedure TfrmEffectEditor.fx5;
 begin
   Notebook1.PageIndex := 3;
+  LoadMasterVolumeData;
 end;
 
 procedure TfrmEffectEditor.fx6;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fx7;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fx8;
 begin
   Notebook1.PageIndex := 4;
+  LoadPanningData;
 end;
 
 procedure TfrmEffectEditor.fx9;
 begin
   Notebook1.PageIndex := 5;
+  LoadDutyCycleData;
 end;
 
 procedure TfrmEffectEditor.fxA;
 begin
   Notebook1.PageIndex := 1;
+  LoadTwoParamData;
 end;
 
 procedure TfrmEffectEditor.fxB;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fxC;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fxD;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fxE;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fxF;
 begin
   Notebook1.PageIndex := 0;
+  LoadOneParamData;
 end;
 
 constructor TfrmEffectEditor.Create(Cell_: PCell);
 begin
   inherited Create(nil);
   Self.Cell := Cell_;
-  writeln('created');
 end;
 
 end.
