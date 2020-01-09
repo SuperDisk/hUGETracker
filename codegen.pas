@@ -5,19 +5,14 @@ unit Codegen;
 interface
 
 uses
-  Classes, SysUtils, math,
-  Waves, Instruments, Song, Utils,
-  HugeDatatypes, Constants, dialogs;
+  Classes, SysUtils, math, Instruments, Song, Utils,
+  HugeDatatypes, Constants, dialogs, strutils, FileUtil, LazFileUtils;
 
-function RenderOrderTable(OrderMatrix: TOrderMatrix): String;
-function RenderInstruments(Instruments: TInstrumentBank): String;
-function RenderPattern(Name: String; Pattern: TPattern): String;
-function RenderWaveforms(Waves: TWaveBank): String;
+type
+  TExportMode = (emNormal, emPreview, emGBS);
 
 function RenderPreviewRom(Song: TSong): Boolean;
-procedure RenderSongToFile(Song: TSong; Filename: String);
-
-//TODO: RenderRoutines
+function RenderSongToFile(Song: TSong; Filename: String; Mode: TExportMode = emNormal): Boolean;
 
 implementation
 
@@ -142,14 +137,48 @@ begin
   ResultSL.Free;
 end;
 
+function RenderConstants(Song: TSong; Mode: TExportMode): String;
+var
+  SL: TStringList;
+begin
+  SL := TSTringList.Create;
+
+  if Mode = emPreview then
+    SL.Add('PREVIEW_MODE EQU 1')
+  else if Mode = emGBS then begin
+    SL.Add('GBS_MODE EQU 1');
+    SL.Add('GBS_TITLE EQUS "\"' + PadRight(Song.Name, 32) + '\""');
+    SL.Add('GBS_AUTHOR EQUS "\"' + PadRight(Song.Artist, 32) + '\""');
+    SL.Add('GBS_COPYRIGHT EQUS "\"' + PadRight(IntToStr(CurrentYear), 32) + '\""');
+  end;
+  SL.Add('TICKS EQU '+IntToStr(Song.TicksPerRow));
+
+  Result := SL.Text;
+  SL.Free;
+end;
+
 function RenderPreviewROM(Song: TSong): Boolean;
+begin
+  Result := RenderSongToFile(Song, 'preview.gb', emPreview);
+end;
+
+function RenderSongToFile(Song: TSong; Filename: String; Mode: TExportMode = emNormal): Boolean;
 var
   OutFile: Text;
   I: Integer;
   Proc: TProcess;
   OutSL: TStringList;
+  FilePath: String;
 label AssemblyError, Cleanup;
 begin
+  FilePath := Filename;
+  Filename := ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename));
+
+  AssignFile(OutFile, './hUGEDriver/constants.htt');
+  Rewrite(OutFile);
+  Write(OutFile, RenderConstants(Song, Mode));
+  CloseFile(OutFile);
+
   AssignFile(OutFile, './hUGEDriver/wave.htt');
   Rewrite(OutFile);
   Write(OutFile, RenderWaveforms(Song.Waves));
@@ -182,27 +211,42 @@ begin
 
   Proc.Executable := 'rgbasm';
   Proc.Parameters.Clear;
-  Proc.Parameters.add('-opreview.obj');
+  Proc.Parameters.add('-o'+Filename+'.obj');
   Proc.Parameters.add('driverLite.z80');
   Proc.Execute;
   if Proc.ExitCode <> 0 then goto AssemblyError;
 
   Proc.Executable := 'rgblink';
   Proc.Parameters.Clear;
-  Proc.Parameters.add('-mpreview.map');
-  Proc.Parameters.add('-npreview.sym');
-  Proc.Parameters.add('-opreview.gb');
-  Proc.Parameters.add('preview.obj');
+  Proc.Parameters.add('-m'+Filename+'.map');
+  Proc.Parameters.add('-n'+Filename+'.sym');
+  if Mode = emGBS then
+    Proc.Parameters.add('-o'+Filename+'.gbs')
+  else
+    Proc.Parameters.add('-o'+Filename+'.gb');
+  Proc.Parameters.add(Filename+'.obj');
   Proc.Execute;
   if Proc.ExitCode <> 0 then goto AssemblyError;
 
-  Proc.Executable := 'rgbfix';
-  Proc.Parameters.Clear;
-  Proc.Parameters.add('-p0');
-  Proc.Parameters.add('-v');
-  Proc.Parameters.add('preview.gb');
-  Proc.Execute;
-  if Proc.ExitCode <> 0 then goto AssemblyError;
+  if Mode <> emGBS then begin
+    Proc.Executable := 'rgbfix';
+    Proc.Parameters.Clear;
+    Proc.Parameters.add('-p0');
+    Proc.Parameters.add('-v');
+    Proc.Parameters.add(Filename+'.gb');
+    Proc.Execute;
+    if Proc.ExitCode <> 0 then goto AssemblyError;
+  end;
+
+  if not CopyFile(Filename+IfThen(Mode = emGBS, '.gbs', '.gb'), FilePath) then begin
+    MessageDlg('Error!',
+               'Couldn''t move the file to its new location. Make sure your path is correct!',
+               mtError,
+               [mbOk],
+               0);
+    Result := False;
+    goto Cleanup;
+  end;
 
   Result := True;
   goto Cleanup;
@@ -224,10 +268,6 @@ begin
   Proc.Free;
   OutSL.Free;
   Chdir('..');
-end;
-
-procedure RenderSongToFile(Song: TSong; Filename: String);
-begin
 end;
 
 end.

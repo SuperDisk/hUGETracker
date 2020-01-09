@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 839
+  Left = 634
   Height = 1275
-  Top = 187
+  Top = 354
   Width = 2056
   Caption = 'hUGETracker'
   ClientHeight = 1241
@@ -55,15 +55,15 @@ object frmTracker: TfrmTracker
       Height = 845
       Top = 0
       Width = 1709
-      ActivePage = InstrumentTabSheet
+      ActivePage = CommentsTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 4
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 903
-        ClientWidth = 1857
+        ClientHeight = 802
+        ClientWidth = 1701
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
           Left = 14
@@ -139,17 +139,17 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
-        ClientHeight = 903
-        ClientWidth = 1857
+        ClientHeight = 802
+        ClientWidth = 1701
         ParentFont = False
         object Panel3: TPanel
           Left = 392
-          Height = 903
+          Height = 802
           Top = 0
-          Width = 1465
+          Width = 1309
           Align = alClient
-          ClientHeight = 903
-          ClientWidth = 1465
+          ClientHeight = 802
+          ClientWidth = 1309
           ParentFont = False
           TabOrder = 0
           object HeaderControl1: THeaderControl
@@ -157,7 +157,7 @@ object frmTracker: TfrmTracker
             Height = 52
             Hint = 'Left click to mute, right click to solo'
             Top = 1
-            Width = 1463
+            Width = 1307
             DragReorder = False
             Images = ImageList2
             Sections = <            
@@ -197,9 +197,9 @@ object frmTracker: TfrmTracker
           end
           object ScrollBox1: TScrollBox
             Left = 1
-            Height = 849
+            Height = 748
             Top = 53
-            Width = 1463
+            Width = 1307
             HorzScrollBar.Increment = 1
             HorzScrollBar.Page = 1
             HorzScrollBar.Smooth = True
@@ -216,7 +216,7 @@ object frmTracker: TfrmTracker
         end
         object OrderEditStringGrid: TStringGrid
           Left = 0
-          Height = 903
+          Height = 802
           Top = 0
           Width = 392
           Align = alLeft
@@ -1111,16 +1111,16 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 903
-        ClientWidth = 1857
+        ClientHeight = 802
+        ClientWidth = 1701
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 623
+          Height = 522
           Top = 280
-          Width = 1857
+          Width = 1701
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 23
@@ -1183,16 +1183,16 @@ object frmTracker: TfrmTracker
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 903
-        ClientWidth = 1857
+        ClientHeight = 802
+        ClientWidth = 1701
         ParentFont = False
         object CommentMemo: TMemo
           AnchorSideTop.Control = Label17
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 836
+          Height = 735
           Top = 67
-          Width = 1857
+          Width = 1701
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 23
@@ -1894,7 +1894,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 428
+      Left = 547
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1918,13 +1918,13 @@ object frmTracker: TfrmTracker
       ImageIndex = 73
       OnClick = ToolButton4Click
     end
-    object ToolButton5: TToolButton
+    object ExportGBButton: TToolButton
       Left = 284
       Top = 0
       AutoSize = True
-      Caption = 'Export song'
+      Caption = 'Export .GB'
       ImageIndex = 76
-      OnClick = ToolButton5Click
+      OnClick = ExportGBButtonClick
     end
     object ToolButton8: TToolButton
       Left = 120
@@ -1941,14 +1941,14 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 420
+      Left = 539
       Height = 39
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object OctaveSpinEdit: TSpinEdit
-      Left = 589
+      Left = 708
       Height = 38
       Top = 0
       Width = 158
@@ -1957,14 +1957,14 @@ object frmTracker: TfrmTracker
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 504
+      Left = 623
       Height = 39
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 512
+      Left = 631
       Height = 30
       Top = 0
       Width = 77
@@ -1972,7 +1972,7 @@ object frmTracker: TfrmTracker
       ParentColor = False
     end
     object Label23: TLabel
-      Left = 747
+      Left = 866
       Height = 30
       Top = 0
       Width = 125
@@ -1980,7 +1980,7 @@ object frmTracker: TfrmTracker
       ParentColor = False
     end
     object InstrumentComboBox: TComboBox
-      Left = 872
+      Left = 991
       Height = 38
       Top = 0
       Width = 375
@@ -2010,7 +2010,7 @@ object frmTracker: TfrmTracker
       Text = '(no instrument)'
     end
     object Label24: TLabel
-      Left = 1247
+      Left = 1366
       Height = 30
       Top = 0
       Width = 64
@@ -2018,7 +2018,7 @@ object frmTracker: TfrmTracker
       ParentColor = False
     end
     object StepSpinEdit: TSpinEdit
-      Left = 1311
+      Left = 1430
       Height = 38
       Top = 0
       Width = 88
@@ -2032,6 +2032,13 @@ object frmTracker: TfrmTracker
       Caption = '▶️'
       ImageIndex = 74
       OnClick = ToolButton3Click
+    end
+    object ExportGBSButton: TToolButton
+      Left = 406
+      Top = 0
+      Caption = 'Export .GBS'
+      ImageIndex = 77
+      OnClick = ExportGBSButtonClick
     end
   end
   object MainMenu1: TMainMenu
@@ -2206,7 +2213,7 @@ object frmTracker: TfrmTracker
     left = 232
     top = 80
     Bitmap = {
-      4C694D0000001000000010000000000000000000000000000000000000000000
+      4C694E0000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4670,7 +4677,39 @@ object frmTracker: TfrmTracker
       0B6600000026000000260000002600000026000000260000002600000B660000
       12D1000012D100000B660000001E0000000F000000170000001A0000001A0000
       001A0000001A0000001A0000001A0000001A0000001A0000001A0000001A0000
-      001A0000001A000000170000000F
+      001A0000001A000000170000000FFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFBB5500FFBB5500FFBB5500FFBB5500FFBB
+      5500FFBB55FFFFBB5513FFBB5500FFBB5500FFBB5500FFBB5500402F16000000
+      0000000000000000000000000000FFBB5500FFBB5500FFBB5500FFBB5500FFBB
+      5500FFBB55FFFFBB5584FFBB5500FEB14B00FDAB4500FDAB4500FDAB4500BE81
+      3400744F2000704A1C0069441700FFBB5500FFBB5500FFBB5500FFBB5500FFBB
+      5500FFBB55FFFFBB55FDFFBB554EFEB14B00FDAB4500FDAB4500FDAB4500FDAB
+      4500E89D3F00DF943800D2872E00FEB14B00FEB14B00FEB14B00FEB14B00FEB1
+      4B00FEB14BFFE5942ED9FEB14BF4FEAE4835FDAB4500FDAB4500FDAB4500FDAB
+      4500E89D3F00DF943800D2872E00FA952F00FA952F00FA952F00FA952F00FA95
+      2F00FA952FFFFB9D370EE48620C6FA952FE9F887211AF7801A00F7801A00F190
+      2D00E89D3F00DF943800D2872E00F77C1600F77C1600F77C1600F77C1600F77C
+      1600F77C16FFF8831D00F8872107E27A14C9F77C16A2F77C1600F77C1600F18E
+      2B00E89D3F00DF943800D2872E00EC862300EF892500F97B1500F97B1500F97B
+      1500F97B15FFF97B1500F9831D00F97B1524EE7B15F1F97B1500F97B1500E89D
+      3F00E89D3F00DF943800D2872E00E0943300E7993700F2993500FF8F2800FF8F
+      2800FF8F28FFFF8F2800FF973100FF922B0CFF8F28F4FF8F2800F3953300E89D
+      3F00E89D3F00DF943800D2872E00E0943300E7993700EE9E3B00F39F3B00FFA4
+      3D00FFA43DFFFFA53E00FFA84200FFA43DFFFF9B3420EA903000E69B3D00E79C
+      3E99E79C3E5CDF943800D2872E00E0943300E7993700EE9E3B00EE9E3B00F3A1
+      3E00FCA843FFFCA84300FCA843FFF5A23F20D58A3100D58A3100D98E3400DF94
+      38CCDF9438CCDE93375CD2872E00E0943300E4973540E79937CAE79937FCE799
+      37FFE79937FCEA9B3900EE9E3C00D0852D99D2872ECCD2872ECCD2872ECCD287
+      2ECCFFE597FFD2872ECCD0852D5CCB812400CB8124E7E8A745FFFAC25DFFEDB1
+      4EFFCB8124DBCB812400C3792300C37923CCFFE392FFFFD56AFFFFD15DFFFFD1
+      5DFFFFD15DFFFFD873FFC37923CC2D1C0500AE680FF2E19A38FFDF9837FFB671
+      17FF844F0D6C2D1C05002E1C070089501399B56A18CCB56A18CCB56A18CCB56A
+      18CCFFC538FFB56A18CCB76C195C00000020683B02879B5702F29A5702E56137
+      02850000003300000031000000230000001300000004854D1000AE631300A75C
+      0DCCA75C0DCCA95E0E5CB56A1800000000100000001A0000001A0000001A0000
+      001A0000001A00000019000000120000000A00000002000000009D5206009C51
+      06999C51065CA75C0D00B56A1800
     }
   end
   object OpenDialog1: TOpenDialog
@@ -4678,10 +4717,10 @@ object frmTracker: TfrmTracker
     left = 737
     top = 75
   end
-  object SaveDialog1: TSaveDialog
+  object InstrumentSaveDialog: TSaveDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 868
-    top = 75
+    left = 632
+    top = 192
   end
   object OrderEditPopup: TPopupMenu
     left = 376
@@ -4983,5 +5022,20 @@ object frmTracker: TfrmTracker
     OnTimer = Timer1Timer
     left = 504
     top = 80
+  end
+  object GBSSaveDialog: TSaveDialog
+    Filter = 'Gameboy Soundtrack|*.gbs'
+    left = 920
+    top = 200
+  end
+  object WaveSaveDialog: TSaveDialog
+    Filter = 'hUGETracker Waves|*.ugw'
+    left = 784
+    top = 168
+  end
+  object GBSaveDialog: TSaveDialog
+    Filter = 'Gameboy ROM|*.GB'
+    left = 456
+    top = 184
   end
 end

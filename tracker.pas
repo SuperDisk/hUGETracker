@@ -21,6 +21,8 @@ type
     InstrumentComboBox: TComboBox;
     CutAction: TAction;
     ImageList2: TImageList;
+    GBSaveDialog: TSaveDialog;
+    WaveSaveDialog: TSaveDialog;
     Label22: TLabel;
     Label23: TLabel;
     Label24: TLabel;
@@ -37,8 +39,10 @@ type
     MenuItem20: TMenuItem;
     Duty1Visualizer: TPaintBox;
     OctaveSpinEdit: TSpinEdit;
+    GBSSaveDialog: TSaveDialog;
     StepSpinEdit: TSpinEdit;
     Timer1: TTimer;
+    ExportGBSButton: TToolButton;
     ToolButton3: TToolButton;
     ToolButton9: TToolButton;
     WaveVisualizer: TPaintBox;
@@ -81,7 +85,7 @@ type
     MenuItem9: TMenuItem;
     OpenDialog1: TOpenDialog;
     OrderEditPopup: TPopupMenu;
-    SaveDialog1: TSaveDialog;
+    InstrumentSaveDialog: TSaveDialog;
     ScrollBox1: TScrollBox;
     TicksPerRowSpinEdit: TSpinEdit;
     ToolBar1: TToolBar;
@@ -89,7 +93,7 @@ type
     PanicToolButton: TToolButton;
     ToolButton2: TToolButton;
     ToolButton4: TToolButton;
-    ToolButton5: TToolButton;
+    ExportGBButton: TToolButton;
     ToolButton6: TToolButton;
     ToolButton7: TToolButton;
     ToolButton8: TToolButton;
@@ -230,10 +234,11 @@ type
     procedure StepSpinEditChange(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
+    procedure ExportGBSButtonClick(Sender: TObject);
     procedure ToolButton2Click(Sender: TObject);
     procedure ToolButton3Click(Sender: TObject);
     procedure ToolButton4Click(Sender: TObject);
-    procedure ToolButton5Click(Sender: TObject);
+    procedure ExportGBButtonClick(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
     procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -918,9 +923,8 @@ end;
 procedure TfrmTracker.ExportWaveButtonClick(Sender: TObject);
 var F: file of TWave;
 begin
-  SaveDialog1.Filter := 'hUGETracker waves|*.ugw';
-  if SaveDialog1.Execute then begin
-    AssignFile(F, OpenDialog1.FileName);
+  if WaveSaveDialog.Execute then begin
+    AssignFile(F, WaveSaveDialog.FileName);
     Rewrite(F);
     Write(F, CurrentWave^);
     CloseFile(F);
@@ -931,9 +935,8 @@ procedure TfrmTracker.InstrumentExportButtonClick(Sender: TObject);
 var
   F: file of TInstrument;
 begin
-  OpenDialog1.Filter := 'hUGETracker instruments|*.ugi';
-  if SaveDialog1.Execute then begin
-    AssignFile(F, SaveDialog1.FileName);
+  if InstrumentSaveDialog.Execute then begin
+    AssignFile(F, InstrumentSaveDialog.FileName);
     Rewrite(F);
     Write(F, CurrentInstrument^);
     CloseFile(F);
@@ -1134,6 +1137,7 @@ end;
 
 procedure TfrmTracker.MenuItem16Click(Sender: TObject);
 begin
+  RenderSongToFile(Song, 'song');
 end;
 
 procedure TfrmTracker.MenuItem17Click(Sender: TObject);
@@ -1324,6 +1328,12 @@ begin
   if Max2 > LEDMeter2.Position then LEDMeter2.Position := Max2;
 end;
 
+procedure TfrmTracker.ExportGBSButtonClick(Sender: TObject);
+begin
+  if GBSSaveDialog.Execute then
+    RenderSongToFile(Song, GBSSaveDialog.FileName, emGBS);
+end;
+
 procedure TfrmTracker.ToolButton2Click(Sender: TObject);
 begin
   if Playing then ResetEmulationThread;
@@ -1352,10 +1362,10 @@ begin
   ResetEmulationThread;
 end;
 
-procedure TfrmTracker.ToolButton5Click(Sender: TObject);
+procedure TfrmTracker.ExportGBButtonClick(Sender: TObject);
 begin
-  if SaveDialog1.Execute then begin
-    RenderSongToFile(Song, SaveDialog1.FileName);
+  if GBSaveDialog.Execute then begin
+    RenderSongToFile(Song, GBSaveDialog.FileName);
   end;
 end;
 
