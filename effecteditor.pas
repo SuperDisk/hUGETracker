@@ -6,9 +6,16 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, hugeDatatypes;
+  ComCtrls, hugeDatatypes, utils;
 
 type
+
+  { TCheckBoxHelper }
+
+  // What a hack.
+  TCheckBoxHelper = class helper for TCheckBox
+    procedure SetCheckedWithoutClick(AChecked: Boolean);
+  end;
 
   { TfrmEffectEditor }
 
@@ -45,13 +52,14 @@ type
     VibratoPage: TPage;
     TwoParamsPage: TPage;
     procedure Button1Click(Sender: TObject);
+    procedure CheckBox1Change(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
     procedure DutyRadioGroupSelectionChanged(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
-    procedure LeftPanCheckGroupItemClick(Sender: TObject; Index: integer);
     procedure OneParamTrackBarChange(Sender: TObject);
+    procedure RightVolumeTrackBarChange(Sender: TObject);
     procedure TwoParamsTrackBar1Change(Sender: TObject);
     procedure TwoParamsTrackBar2Change(Sender: TObject);
     procedure VibratoDepthTrackBarChange(Sender: TObject);
@@ -91,6 +99,18 @@ implementation
 
 {$R *.lfm}
 
+{ TCheckBoxHelper }
+
+procedure TCheckBoxHelper.SetCheckedWithoutClick(AChecked: Boolean);
+begin
+  ClicksDisabled := True;
+  try
+    Checked := AChecked;
+  finally
+    ClicksDisabled := False;
+  end;
+end;
+
 { TfrmEffectEditor }
 
 procedure TfrmEffectEditor.ComboBox1Change(Sender: TObject);
@@ -102,6 +122,25 @@ end;
 procedure TfrmEffectEditor.Button1Click(Sender: TObject);
 begin
   Close;
+end;
+
+procedure TfrmEffectEditor.CheckBox1Change(Sender: TObject);
+var
+  Val: Integer;
+begin
+  Val := %00000000;
+
+  if CheckBox4.Checked then Val := Val or %00001000;
+  if CheckBox3.Checked then Val := Val or %00000100;
+  if CheckBox2.Checked then Val := Val or %00000010;
+  if CheckBox1.Checked then Val := Val or %00000001;
+
+  if CheckBox8.Checked then Val := Val or %10000000;
+  if CheckBox7.Checked then Val := Val or %01000000;
+  if CheckBox6.Checked then Val := Val or %00100000;
+  if CheckBox5.Checked then Val := Val or %00010000;
+
+  Cell^.EffectParams.Value := Val;
 end;
 
 procedure TfrmEffectEditor.DutyRadioGroupSelectionChanged(Sender: TObject);
@@ -129,40 +168,32 @@ procedure TfrmEffectEditor.FormCreate(Sender: TObject);
 begin
   ComboBox1.ItemIndex := Cell^.EffectCode;
   LoadEffect;
-end;
-
-procedure TfrmEffectEditor.LeftPanCheckGroupItemClick(Sender: TObject;
-  Index: integer);
-var
-  Val: Integer;
-begin
-  Val := %00000000;
-  if CheckBox4.Checked then Val := Val or %00001000;
-  if CheckBox3.Checked then Val := Val or %00000100;
-  if CheckBox2.Checked then Val := Val or %00000010;
-  if CheckBox1.Checked then Val := Val or %00000001;
-
-  if CheckBox8.Checked then Val := Val or %10000000;
-  if CheckBox7.Checked then Val := Val or %01000000;
-  if CheckBox6.Checked then Val := Val or %00100000;
-  if CheckBox5.Checked then Val := Val or %00010000;
-
-  Cell^.EffectParams.Value := Val;
+  Value.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 
 procedure TfrmEffectEditor.OneParamTrackBarChange(Sender: TObject);
 begin
   Cell^.EffectParams.Value := OneParamTrackBar.Position;
+  Value.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
+end;
+
+procedure TfrmEffectEditor.RightVolumeTrackBarChange(Sender: TObject);
+begin
+  Cell^.EffectParams.Param1 := LeftVolumeTrackBar.Position;
+  Cell^.EffectParams.Param2 := RightVolumeTrackBar.Position;
+  Value2.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 
 procedure TfrmEffectEditor.TwoParamsTrackBar1Change(Sender: TObject);
 begin
   Cell^.EffectParams.Param1 := TwoParamsTrackBar1.Position;
+  Value1.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 
 procedure TfrmEffectEditor.TwoParamsTrackBar2Change(Sender: TObject);
 begin
   Cell^.EffectParams.Param1 := TwoParamsTrackBar2.Position;
+  Value1.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 
 procedure TfrmEffectEditor.VibratoDepthTrackBarChange(Sender: TObject);
@@ -207,12 +238,14 @@ end;
 procedure TfrmEffectEditor.LoadOneParamData;
 begin
   OneParamTrackBar.Position := Cell^.EffectParams.Value;
+  Value.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 
 procedure TfrmEffectEditor.LoadTwoParamData;
 begin
   TwoParamsTrackBar1.Position := Cell^.EffectParams.Param1;
   TwoParamsTrackBar2.Position := Cell^.EffectParams.Param2;
+  Value1.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 
 procedure TfrmEffectEditor.LoadVibratoData;
@@ -231,18 +264,19 @@ procedure TfrmEffectEditor.LoadMasterVolumeData;
 begin
   LeftVolumeTrackBar.Position := Cell^.EffectParams.Param1;
   RightVolumeTrackBar.Position := Cell^.EffectParams.Param2;
+  Value2.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 
 procedure TfrmEffectEditor.LoadPanningData;
 begin
-  CheckBox1.Checked := (Cell^.EffectParams.Value and %00000001) <> 0;
-  CheckBox2.Checked := (Cell^.EffectParams.Value and %00000010) <> 0;
-  CheckBox3.Checked := (Cell^.EffectParams.Value and %00000100) <> 0;
-  CheckBox4.Checked := (Cell^.EffectParams.Value and %00001000) <> 0;
-  CheckBox5.Checked := (Cell^.EffectParams.Value and %00010000) <> 0;
-  CheckBox6.Checked := (Cell^.EffectParams.Value and %00100000) <> 0;
-  CheckBox7.Checked := (Cell^.EffectParams.Value and %01000000) <> 0;
-  CheckBox8.Checked := (Cell^.EffectParams.Value and %10000000) <> 0;
+  CheckBox1.SetCheckedWithoutClick((Cell^.EffectParams.Value and %00000001) <> 0);
+  CheckBox2.SetCheckedWithoutClick((Cell^.EffectParams.Value and %00000010) <> 0);
+  CheckBox3.SetCheckedWithoutClick((Cell^.EffectParams.Value and %00000100) <> 0);
+  CheckBox4.SetCheckedWithoutClick((Cell^.EffectParams.Value and %00001000) <> 0);
+  CheckBox5.SetCheckedWithoutClick((Cell^.EffectParams.Value and %00010000) <> 0);
+  CheckBox6.SetCheckedWithoutClick((Cell^.EffectParams.Value and %00100000) <> 0);
+  CheckBox7.SetCheckedWithoutClick((Cell^.EffectParams.Value and %01000000) <> 0);
+  CheckBox8.SetCheckedWithoutClick((Cell^.EffectParams.Value and %10000000) <> 0);
 end;
 
 procedure TfrmEffectEditor.LoadDutyCycleData;
@@ -264,18 +298,21 @@ end;
 procedure TfrmEffectEditor.fx1;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fx2;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fx3;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 
@@ -294,12 +331,14 @@ end;
 procedure TfrmEffectEditor.fx6;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fx7;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 
@@ -324,30 +363,35 @@ end;
 procedure TfrmEffectEditor.fxB;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fxC;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $F;
   LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fxD;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fxE;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 
 procedure TfrmEffectEditor.fxF;
 begin
   Notebook1.PageIndex := 0;
+  OneParamTrackBar.Max := $FF;
   LoadOneParamData;
 end;
 

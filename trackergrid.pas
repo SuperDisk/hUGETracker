@@ -916,21 +916,28 @@ begin
 end;
 
 function TTrackerGrid.MousePosToSelection(X, Y: Integer): TSelectionPos;
+var
+  OrigX: Integer;
 begin
+  OrigX := X;
   X := EnsureRange(Width-1, 0, X);
   Y := EnsureRange(Height-1, 0, Y);
 
   Result.X := Trunc((X/Width)*NUM_COLUMNS);
   Result.Y := Trunc((Y/Height)*NUM_ROWS);
 
-  X := X mod ColumnWidth;
-  X := Trunc((X/ColumnWidth)*13);
-  case X of
-    0..3: Result.SelectedPart := cpNote;
-    4..5: Result.SelectedPart := cpInstrument;
-    6..8: Result.SelectedPart := cpVolume;
-    9:   Result.SelectedPart := cpEffectCode;
-    10..12: Result.SelectedPart := cpEffectParams;
+  if OrigX <= 0 then
+    Result.SelectedPart := cpNote
+  else begin
+    X := X mod ColumnWidth;
+    X := Trunc((X/ColumnWidth)*13);
+    case X of
+      0..3: Result.SelectedPart := cpNote;
+      4..5: Result.SelectedPart := cpInstrument;
+      6..8: Result.SelectedPart := cpVolume;
+      9:   Result.SelectedPart := cpEffectCode;
+      10..12: Result.SelectedPart := cpEffectParams;
+    end;
   end;
 end;
 

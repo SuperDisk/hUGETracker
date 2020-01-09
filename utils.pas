@@ -20,6 +20,7 @@ function ConvertWaveform(Waveform: TWave): T4bitWave;
 procedure BlankPattern(Pat: PPattern);
 procedure BlankCell(var Cell: TCell);
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
+function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
 
 implementation
 
@@ -85,6 +86,29 @@ end;
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 begin
   Result := HexStr((Code shl 8) or Params.Value, 3);
+end;
+
+function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
+var
+  P: String;
+begin
+  Result := 'No explanation';
+  P := IntToStr(Params.Value);
+  case Code of
+    $0: Result := 'Arpeggiate by +'+IntToStr(Params.Param1)+', +'+IntToStr(Params.Param2)+' semitones';
+    $1: Result := 'Slide up by '+P+' units';
+    $2: Result := 'Slide down by '+P+' units';
+    $3: Result := 'Tone portamento by '+P+' units';
+    $5: Result := 'Set Left speaker vol to '+IntToStr(Params.Param1)+', Right speaker vol to '+IntToStr(Params.Param2);
+    $6: Result := 'Call routine #'+P;
+    $7: Result := 'Delay note by '+P+' ticks';
+    $A: Result := 'Increase volume by '+IntToStr(Params.Param1)+' units, decrease volume by '+IntToStr(Params.Param2)+' units';
+    $B: Result := 'Jump to order '+P;
+    $C: Result := 'Set volume to '+P+'/15';
+    $D: Result := 'Jump to row '+P+' on the next pattern';
+    $E: Result := 'Cut note after '+P+' ticks';
+    $F: Result := 'Set speed to '+P+' ticks';
+  end;
 end;
 
 end.

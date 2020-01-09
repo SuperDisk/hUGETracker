@@ -169,7 +169,7 @@ var
   Proc: TProcess;
   OutSL: TStringList;
   FilePath: String;
-label AssemblyError, Cleanup;
+label AssemblyError, Cleanup; // Eh, screw good practice. How bad can it be?
 begin
   FilePath := Filename;
   Filename := ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename));
@@ -238,20 +238,20 @@ begin
     if Proc.ExitCode <> 0 then goto AssemblyError;
   end;
 
-  if not CopyFile(Filename+IfThen(Mode = emGBS, '.gbs', '.gb'), FilePath) then begin
-    MessageDlg('Error!',
-               'Couldn''t move the file to its new location. Make sure your path is correct!',
-               mtError,
-               [mbOk],
-               0);
-    Result := False;
-    goto Cleanup;
-  end;
+  if Mode <> emPreview then
+    if not CopyFile(Filename+IfThen(Mode = emGBS, '.gbs', '.gb'), FilePath) then begin
+      MessageDlg('Error!',
+                 'Couldn''t move the file to its new location. Make sure your path is correct!',
+                 mtError,
+                 [mbOk],
+                 0);
+      Result := False;
+      goto Cleanup;
+    end;
 
   Result := True;
   goto Cleanup;
 
-  // Eh, screw good practice. How bad can it be?
   AssemblyError:
   Result := False;
   OutSL.LoadFromStream(Proc.Output);

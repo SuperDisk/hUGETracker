@@ -129,7 +129,6 @@ type
     Label10: TLabel;
     Label11: TLabel;
     Label12: TLabel;
-    Label13: TLabel;
     Label14: TLabel;
     Label7: TLabel;
     Label8: TLabel;
@@ -168,7 +167,6 @@ type
     StatusBar1: TStatusBar;
     StartVolSpinner: TECSpinPosition;
     EnvChangeSpinner: TECSpinPosition;
-    NoiseFreqSpinner: TECSpinPosition;
     DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
@@ -212,7 +210,6 @@ type
     procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem22Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
-    procedure NoiseFreqSpinnerChange(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
     procedure OrderEditStringGridAfterSelection(Sender: TObject; aCol,
       aRow: Integer);
@@ -434,20 +431,15 @@ begin
           Spokeb($FF30+I, NewWaveform[I]);
 
         Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
-        {writeln(inttobin(Regs.NR30, 8, 20));
-        writeln(inttobin(Regs.NR31, 8, 20));
-        writeln(inttobin(Regs.NR32, 8, 20));
-        writeln(inttobin(Regs.NR33, 8, 20));
-        writeln(inttobin(Regs.NR34, 8, 20));}
 
         Spokeb(NR30, Regs.NR30);
-        Spokeb(NR31, Regs.NR31); // TODO: Figure out why this isn't working?
+        Spokeb(NR31, Regs.NR31);
         Spokeb(NR32, Regs.NR32);
         Spokeb(NR33, Regs.NR33);
         Spokeb(NR34, Regs.NR34)
       end;
       Noise: begin
-        Regs := NoiseInstrumentToRegisters(True, Song.Instruments[Instr]);
+        Regs := NoiseInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
         Spokeb(NR41, Regs.NR41);
         Spokeb(NR42, Regs.NR42);
         Spokeb(NR43, Regs.NR43);
@@ -690,7 +682,6 @@ begin
     end;
 
     Noise: begin
-      NoiseFreqSpinner.Position := CI^.ShiftClockFreq;
       DivRatioSpinner.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = Seven;
     end;
@@ -820,7 +811,6 @@ end;
 
 procedure TfrmTracker.RandomizeNoiseButtonClick(Sender: TObject);
 begin
-  NoiseFreqSpinner.Position := Random(Round(NoiseFreqSpinner.Max));
   DivRatioSpinner.Position := Random(Round(DivRatioSpinner.Max));
   SevenBitCounterCheckbox.Checked := Random <= 0.5;
   LengthEnabledCheckbox.Checked := Random <= 0.5;
@@ -873,6 +863,7 @@ begin
   // Get the emulator ready to make sound...
   EmulationThread := TEmulationThread.Create('halt.gb');
   EmulationThread.Start;
+  ResetEmulationThread; //TODO: remove this hack
 end;
 
 procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
@@ -1211,11 +1202,6 @@ begin
   AboutForm.Free;
 end;
 
-procedure TfrmTracker.NoiseFreqSpinnerChange(Sender: TObject);
-begin
-  CurrentInstrument^.ShiftClockFreq := Round(NoiseFreqSpinner.Position);
-end;
-
 procedure TfrmTracker.NoiseVisualizerPaint(Sender: TObject);
 begin
   DrawVizualizer(NoiseVisualizer, 4);
@@ -1336,10 +1322,12 @@ end;
 
 procedure TfrmTracker.ToolButton2Click(Sender: TObject);
 begin
-  if Playing then ResetEmulationThread;
-
   if PreparePreview then begin
     Playing := True;
+
+    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
+
     EmulationThread.Start;
   end;
 end;
@@ -1348,10 +1336,6 @@ procedure TfrmTracker.ToolButton3Click(Sender: TObject);
 begin
   if PreparePreview then begin
     Playing := True;
-
-    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
-    PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
-
     EmulationThread.Start;
   end;
 end;

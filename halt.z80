@@ -15,6 +15,13 @@ DB "NF"
 
 SECTION "code", ROM0
 yeah:
+_addr = _AUD3WAVERAM
+    REPT 16
+    ld a, $FF
+    ld [_addr], a
+_addr = _addr + 1
+    ENDR
+
     ld a, $80
     ld [rAUDENA], a
     ; Enable all channels in stereo

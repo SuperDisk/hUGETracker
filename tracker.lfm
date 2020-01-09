@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 634
+  Left = 820
   Height = 1275
-  Top = 354
+  Top = 191
   Width = 2056
   Caption = 'hUGETracker'
   ClientHeight = 1241
@@ -53,12 +53,13 @@ object frmTracker: TfrmTracker
     object PageControl1: TPageControl
       Left = 0
       Height = 845
+      Hint = 'The comments section for your song. Greetings/links/etc'
       Top = 0
       Width = 1709
-      ActivePage = CommentsTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 4
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -958,7 +959,7 @@ object frmTracker: TfrmTracker
           end
           object NoiseGroupBox: TGroupBox
             Left = 1138
-            Height = 296
+            Height = 222
             Top = 346
             Width = 462
             Anchors = []
@@ -967,24 +968,16 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 12
             BorderSpacing.Bottom = 12
             Caption = 'Noise'
-            ClientHeight = 261
+            ClientHeight = 187
             ClientWidth = 458
             Enabled = False
             ParentFont = False
             TabOrder = 4
-            object Label13: TLabel
-              Left = 14
-              Height = 30
-              Top = 28
-              Width = 95
-              Caption = 'Frequency'
-              ParentColor = False
-              ParentFont = False
-            end
             object SevenBitCounterCheckbox: TCheckBox
               Left = 14
               Height = 34
-              Top = 140
+              Hint = 'Select LFSR width. When checked, output will sound like a tone rather than noise'
+              Top = 70
               Width = 373
               Alignment = taLeftJustify
               Caption = '7 bit counter (more tone-like output)'
@@ -995,7 +988,7 @@ object frmTracker: TfrmTracker
             object Label14: TLabel
               Left = 14
               Height = 30
-              Top = 84
+              Top = 16
               Width = 124
               Caption = 'Dividing ratio'
               ParentColor = False
@@ -1005,64 +998,17 @@ object frmTracker: TfrmTracker
               Left = 14
               Height = 44
               Hint = 'Randomize the noise instrument parameters to get a random drum-like sound'
-              Top = 192
-              Width = 420
+              Top = 120
+              Width = 380
               Caption = 'Randomize'
               OnClick = RandomizeNoiseButtonClick
               ParentFont = False
               TabOrder = 1
             end
-            object NoiseFreqSpinner: TECSpinPosition
-              Left = 150
-              Height = 24
-              Top = 12
-              Width = 198
-              Buttons.BtnBigDec.BtnOrder = 1
-              Buttons.BtnBigDec.Visible = False
-              Buttons.BtnBigInc.BtnOrder = 7
-              Buttons.BtnBigInc.Visible = False
-              Buttons.BtnDec.BtnOrder = 2
-              Buttons.BtnDrag.BtnOrder = 4
-              Buttons.BtnInc.BtnOrder = 6
-              Buttons.BtnMax.BtnOrder = 8
-              Buttons.BtnMax.Visible = False
-              Buttons.BtnMenu.BtnOrder = 5
-              Buttons.BtnMenu.Visible = False
-              Buttons.BtnMiddle.BtnOrder = 3
-              Buttons.BtnMiddle.Visible = False
-              Buttons.BtnMin.BtnOrder = 0
-              Buttons.BtnMin.Visible = False
-              Buttons.DiscreteChange = 1
-              Buttons.Increment = 1
-              Buttons.Middle = 50
-              Buttons.MouseIncrementX = 0.1
-              Buttons.MouseIncrementY = 0.05
-              Buttons.PageSize = 10
-              Buttons.ParentFont = False
-              Buttons.Style = ebsSplittedBlock
-              ParentFont = False
-              Position = 0
-              ProgressFontOptions.FontSize = 0
-              ProgressFontOptions.FontStyles = [fsBold]
-              ProgressMiddlePos = 0
-              ProgressStyle = epsGradient
-              Scale.DateTimeFormat = 'hh:nn:ss'
-              Scale.LogarithmBase = 10
-              Scale.Max = 15
-              Scale.Min = 0
-              Scale.TickLongValue = 10
-              Scale.TickMiddleValue = 5
-              Scale.TickShortValue = 1
-              Scale.TickVisible = etvNone
-              Scale.ValueVisible = evvNone
-              ScaleFontOptions.FontSize = 7
-              ScaleFontOptions.FontStyles = []
-              OnChange = NoiseFreqSpinnerChange
-            end
             object DivRatioSpinner: TECSpinPosition
-              Left = 150
+              Left = 152
               Height = 24
-              Top = 68
+              Top = 16
               Width = 198
               Buttons.BtnBigDec.BtnOrder = 1
               Buttons.BtnBigDec.Visible = False
@@ -1162,6 +1108,7 @@ object frmTracker: TfrmTracker
           object ImportWaveButton: TButton
             Left = 28
             Height = 44
+            Hint = 'Import a wave'
             Top = 84
             Width = 257
             Caption = 'Import'
@@ -1172,6 +1119,7 @@ object frmTracker: TfrmTracker
           object ExportWaveButton: TButton
             Left = 28
             Height = 44
+            Hint = 'Export a wave'
             Top = 140
             Width = 257
             Caption = 'Export'
@@ -1212,16 +1160,16 @@ object frmTracker: TfrmTracker
       end
       object RoutinesTabSheet: TTabSheet
         Caption = 'Routines'
-        ClientHeight = 903
-        ClientWidth = 1857
+        ClientHeight = 802
+        ClientWidth = 1701
         ParentFont = False
         inline RoutineSynedit: TSynEdit
           AnchorSideTop.Control = Label19
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 660
+          Height = 559
           Top = 243
-          Width = 1857
+          Width = 1701
           Align = alBottom
           BorderSpacing.Top = 23
           Anchors = [akTop, akLeft, akRight, akBottom]
@@ -5018,7 +4966,7 @@ object frmTracker: TfrmTracker
     }
   end
   object Timer1: TTimer
-    Interval = 20
+    Interval = 25
     OnTimer = Timer1Timer
     left = 504
     top = 80

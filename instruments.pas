@@ -45,7 +45,7 @@ type
 
     // Noise
     // NR42
-    ShiftClockFreq: Integer;
+    ShiftClockFreq: Integer; // Unused
     CounterStep: TStepWidth;
     DividingRatio: Integer;
   end;
@@ -155,6 +155,7 @@ type
   end;
 
 function NoiseInstrumentToRegisters(
+  Frequency: Word;
   Initial: Boolean;
   Instr: TInstrument): TRegisters;
 
@@ -198,7 +199,7 @@ function NoiseInstrumentToBytes(Instrument: TInstrument): TAsmInstrument;
 var
   Regs: TRegisters;
 begin
-  Regs := NoiseInstrumentToRegisters(True, Instrument);
+  Regs := NoiseInstrumentToRegisters(0, True, Instrument);
   Result[0] :=Regs.NR41;
   Result[1] :=Regs.NR42;
   Result[2] :=Regs.NR43;
@@ -254,6 +255,7 @@ begin
 end;
 
 function NoiseInstrumentToRegisters(
+  Frequency: Word;
   Initial: Boolean;
   Instr: TInstrument): TRegisters;
 var
@@ -273,9 +275,9 @@ begin
   NR42.SweepNumber := Instr.VolSweepAmount;
   NR42.Direction := Instr.VolSweepDirection = Up;
 
+  NR43.ShiftClockFrequency := Instr.ShiftClockFreq; // Quantize CH4 note
   NR43.DividingRatio:= Instr.DividingRatio;
   NR43.SevenBitCounter:=Instr.CounterStep = Seven;
-  NR43.ShiftClockFrequency:= Instr.ShiftClockFreq;
 
   NR44.Initial:= Initial;
   NR44.UseLength:=Instr.LengthEnabled;

@@ -1,7 +1,7 @@
 object frmEffectEditor: TfrmEffectEditor
-  Left = 474
+  Left = 779
   Height = 416
-  Top = 532
+  Top = 565
   Width = 684
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
@@ -12,6 +12,7 @@ object frmEffectEditor: TfrmEffectEditor
   FormStyle = fsStayOnTop
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
   ShowInTaskBar = stNever
   LCLVersion = '2.0.6.0'
   object ComboBox1: TComboBox
@@ -58,7 +59,7 @@ object frmEffectEditor: TfrmEffectEditor
     Height = 320
     Top = 80
     Width = 642
-    PageIndex = 5
+    PageIndex = 1
     TabOrder = 1
     object OneParamPage: TPage
       object OneParamTrackBar: TTrackBar
@@ -177,7 +178,7 @@ object frmEffectEditor: TfrmEffectEditor
         Top = 88
         Width = 584
         Max = 7
-        OnChange = OneParamTrackBarChange
+        OnChange = RightVolumeTrackBarChange
         Position = 0
         TabOrder = 0
       end
@@ -187,7 +188,7 @@ object frmEffectEditor: TfrmEffectEditor
         Top = 152
         Width = 584
         Max = 7
-        OnChange = OneParamTrackBarChange
+        OnChange = RightVolumeTrackBarChange
         Position = 0
         TabOrder = 1
       end
@@ -210,7 +211,6 @@ object frmEffectEditor: TfrmEffectEditor
         ChildSizing.ControlsPerLine = 1
         ClientHeight = 285
         ClientWidth = 312
-        OnItemClick = LeftPanCheckGroupItemClick
         TabOrder = 0
         object CheckBox1: TCheckBox
           Left = 6
@@ -218,6 +218,7 @@ object frmEffectEditor: TfrmEffectEditor
           Top = 6
           Width = 300
           Caption = 'Duty 1'
+          OnClick = CheckBox1Change
           TabOrder = 0
         end
         object CheckBox2: TCheckBox
@@ -226,6 +227,7 @@ object frmEffectEditor: TfrmEffectEditor
           Top = 75
           Width = 300
           Caption = 'Duty 2'
+          OnClick = CheckBox1Change
           TabOrder = 1
         end
         object CheckBox3: TCheckBox
@@ -234,6 +236,7 @@ object frmEffectEditor: TfrmEffectEditor
           Top = 144
           Width = 300
           Caption = 'Wave'
+          OnClick = CheckBox1Change
           TabOrder = 2
         end
         object CheckBox4: TCheckBox
@@ -242,6 +245,7 @@ object frmEffectEditor: TfrmEffectEditor
           Top = 213
           Width = 300
           Caption = 'Noise'
+          OnClick = CheckBox1Change
           TabOrder = 3
         end
       end
@@ -262,7 +266,6 @@ object frmEffectEditor: TfrmEffectEditor
         ChildSizing.ControlsPerLine = 1
         ClientHeight = 285
         ClientWidth = 312
-        OnItemClick = LeftPanCheckGroupItemClick
         TabOrder = 1
         object CheckBox5: TCheckBox
           Left = 6
@@ -270,6 +273,7 @@ object frmEffectEditor: TfrmEffectEditor
           Top = 6
           Width = 300
           Caption = 'Duty 1'
+          OnClick = CheckBox1Change
           TabOrder = 0
         end
         object CheckBox6: TCheckBox
@@ -278,6 +282,7 @@ object frmEffectEditor: TfrmEffectEditor
           Top = 75
           Width = 300
           Caption = 'Duty 2'
+          OnClick = CheckBox1Change
           TabOrder = 1
         end
         object CheckBox7: TCheckBox
@@ -286,6 +291,7 @@ object frmEffectEditor: TfrmEffectEditor
           Top = 144
           Width = 300
           Caption = 'Wave'
+          OnClick = CheckBox1Change
           TabOrder = 2
         end
         object CheckBox8: TCheckBox
@@ -294,6 +300,7 @@ object frmEffectEditor: TfrmEffectEditor
           Top = 213
           Width = 300
           Caption = 'Noise'
+          OnClick = CheckBox1Change
           TabOrder = 3
         end
       end
