@@ -1,7 +1,7 @@
 unit Tracker;
 
 {$mode objfpc}{$H+}
-
+{$WARN 4055 off : Conversion between ordinals and pointers is not portable}
 interface
 
 uses
@@ -236,6 +236,7 @@ type
     procedure ToolButton3Click(Sender: TObject);
     procedure ToolButton4Click(Sender: TObject);
     procedure ExportGBButtonClick(Sender: TObject);
+    procedure TreeView1DblClick(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
     procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -333,6 +334,9 @@ begin
 
   for I := Low(Song.Instruments) to High(song.Instruments) do
     InstrumentComboBox.Items[I] := IntToStr(I)+': '+Song.Instruments[I].Name;
+
+  for I := Low(Song.Instruments) to High(song.Instruments) do
+    InstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments[I].Name;
 
   LoadingFile := False; // HACK!!!!
 
@@ -844,10 +848,18 @@ begin
 
   // Fetch the tree items
   with TreeView1 do begin
-    PatternsNode := Items[0];
-    InstrumentsNode := Items[1];
-    WavesNode := Items[2];
-    RoutinesNode := Items[3];
+    //PatternsNode := Items[0];
+    InstrumentsNode := Items[0];
+    WavesNode := Items[1];
+    RoutinesNode := Items[2];
+  end;
+
+  for I := 1 to 15 do
+    TreeView1.Items.AddChild(InstrumentsNode, IntToStr(I)+':').Data := Pointer(I);
+
+  for I := 0 to 15 do begin
+    TreeView1.Items.AddChild(WavesNode, 'Wave '+IntToStr(I)).Data := Pointer(I);
+    TreeView1.Items.AddChild(RoutinesNode, 'Routine '+IntToStr(I)).Data := Pointer(I);
   end;
 
   // Initialize order table
@@ -872,7 +884,7 @@ var
   Note: Integer;
   Freq: Integer;
 begin
-    if not Keybindings.TryGetData(Key, Note) then Exit;
+    {if not Keybindings.TryGetData(Key, Note) then Exit;
     Inc(Note, OctaveSpinEdit.Value*12);
     EnsureRange(Note, LOWEST_NOTE, HIGHEST_NOTE);
 
@@ -887,7 +899,7 @@ begin
     if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
 
     PreviewInstrument(Freq, InstrumentNumberSpinner.Value);
-    PreviewingInstrument := Note;
+    PreviewingInstrument := Note;}
 end;
 
 procedure TfrmTracker.FormKeyUp(Sender: TObject; var Key: Word;
@@ -1109,6 +1121,8 @@ begin
   CurrentInstrument^.Name := InstrumentNameEdit.Text;
   InstrumentComboBox.Items[InstrumentNumberSpinner.Value] :=
     IntToStr(InstrumentNumberSpinner.Value) + ': ' + InstrumentNameEdit.Text;
+  InstrumentsNode.Items[InstrumentNumberSpinner.Value-1].Text :=
+    InstrumentComboBox.Items[InstrumentNumberSpinner.Value];
 end;
 
 procedure TfrmTracker.InstrumentNumberSpinnerChange(Sender: TObject);
@@ -1350,6 +1364,24 @@ procedure TfrmTracker.ExportGBButtonClick(Sender: TObject);
 begin
   if GBSaveDialog.Execute then begin
     RenderSongToFile(Song, GBSaveDialog.FileName);
+  end;
+end;
+
+procedure TfrmTracker.TreeView1DblClick(Sender: TObject);
+begin
+  if TreeView1.Selected.Parent = InstrumentsNode then begin
+    InstrumentNumberSpinner.Value := PtrUInt(TreeView1.Selected.Data);
+    PageControl1.ActivePage := InstrumentTabSheet;
+  end;
+
+  if TreeView1.Selected.Parent = WavesNode then begin
+    WaveEditNumberSpinner.Value := PtrUInt(TreeView1.Selected.Data);
+    PageControl1.ActivePage := WavesTabSheet;
+  end;
+
+  if TreeView1.Selected.Parent = RoutinesNode then begin
+    RoutineNumberSpinner.Value := PtrUInt(TreeView1.Selected.Data);
+    PageControl1.ActivePage := RoutinesTabSheet;
   end;
 end;
 

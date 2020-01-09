@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 820
+  Left = 1156
   Height = 1275
-  Top = 191
+  Top = 228
   Width = 2056
   Caption = 'hUGETracker'
   ClientHeight = 1241
@@ -24,13 +24,13 @@ object frmTracker: TfrmTracker
     ParentFont = False
     ReadOnly = True
     TabOrder = 0
+    OnDblClick = TreeView1DblClick
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoThemedDraw]
     Items.Data = {
-      F9FFFFFF020004000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000
-      000000080000005061747465726E73FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00
-      00000000000000000B000000496E737472756D656E7473FFFFFFFFFFFFFFFFFF
-      FFFFFFFFFFFFFF000000000000000000050000005761766573FFFFFFFFFFFFFF
-      FFFFFFFFFFFFFFFFFF00000000000000000008000000526F7574696E6573
+      F9FFFFFF020003000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF000000000000
+      0000000B000000496E737472756D656E7473FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFF000000000000000000050000005761766573FFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFF00000000000000000008000000526F7574696E6573
     }
   end
   object Splitter1: TSplitter
@@ -53,13 +53,12 @@ object frmTracker: TfrmTracker
     object PageControl1: TPageControl
       Left = 0
       Height = 845
-      Hint = 'The comments section for your song. Greetings/links/etc'
       Top = 0
       Width = 1709
-      ActivePage = InstrumentTabSheet
+      ActivePage = WavesTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 3
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -1139,6 +1138,7 @@ object frmTracker: TfrmTracker
           AnchorSideTop.Side = asrBottom
           Left = 0
           Height = 735
+          Hint = 'The comments section for your song. Greetings/links/etc'
           Top = 67
           Width = 1701
           Align = alBottom
@@ -1162,6 +1162,7 @@ object frmTracker: TfrmTracker
         Caption = 'Routines'
         ClientHeight = 802
         ClientWidth = 1701
+        Enabled = False
         ParentFont = False
         inline RoutineSynedit: TSynEdit
           AnchorSideTop.Control = Label19
