@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1156
+  Left = 892
   Height = 1275
-  Top = 228
+  Top = 168
   Width = 2056
   Caption = 'hUGETracker'
   ClientHeight = 1241
@@ -55,10 +55,10 @@ object frmTracker: TfrmTracker
       Height = 845
       Top = 0
       Width = 1709
-      ActivePage = WavesTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 3
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -2004,6 +2004,7 @@ object frmTracker: TfrmTracker
       end
       object MenuItem14: TMenuItem
         Action = FileExit1
+        OnClick = MenuItem14Click
       end
     end
     object MenuItem2: TMenuItem
@@ -2021,41 +2022,57 @@ object frmTracker: TfrmTracker
         Caption = '-'
       end
       object MenuItem10: TMenuItem
-        Action = EditSelectAll1
+        Caption = 'Select &All'
+        Hint = 'Select All'
+        ImageIndex = 39
+        ShortCut = 16449
+        OnClick = MenuItem10Click
       end
       object MenuItem8: TMenuItem
-        Action = EditDelete1
+        Caption = '&Delete'
+        Hint = 'Delete'
+        ImageIndex = 13
+        ShortCut = 46
+        OnClick = MenuItem8Click
       end
       object N2: TMenuItem
         Caption = '-'
       end
       object MenuItem11: TMenuItem
-        Action = EditUndo1
+        Caption = '&Undo'
+        Hint = 'Undo'
+        ImageIndex = 66
+        ShortCut = 16474
+        OnClick = MenuItem11Click
       end
     end
     object MenuItem3: TMenuItem
       Caption = 'Help'
       object MenuItem15: TMenuItem
         Action = HelpLookupManual
+        Enabled = False
       end
       object N3: TMenuItem
         Caption = '-'
       end
       object MenuItem4: TMenuItem
         Caption = 'Example Songs'
+        Enabled = False
       end
       object MenuItem5: TMenuItem
         Caption = 'About hUGETracker'
         OnClick = MenuItem5Click
       end
     end
-    object DebugButton: TMenuItem
+    object DebugPlayNoteButton: TMenuItem
       Caption = 'Debug play note'
-      OnClick = DebugButtonClick
+      Visible = False
+      OnClick = DebugPlayNoteButtonClick
     end
-    object MenuItem16: TMenuItem
+    object DebugShiteButton: TMenuItem
       Caption = 'Debug shite'
-      OnClick = MenuItem16Click
+      Visible = False
+      OnClick = DebugShiteButtonClick
     end
   end
   object ActionList1: TActionList
@@ -2133,6 +2150,7 @@ object frmTracker: TfrmTracker
     object EditUndo1: TEditUndo
       Category = 'Edit'
       Caption = '&Undo'
+      DisableIfNoHandler = False
       Hint = 'Undo'
       ImageIndex = 66
       ShortCut = 16474
@@ -2140,13 +2158,16 @@ object frmTracker: TfrmTracker
     object EditDelete1: TEditDelete
       Category = 'Edit'
       Caption = '&Delete'
+      DisableIfNoHandler = False
       Hint = 'Delete'
       ImageIndex = 13
+      OnExecute = EditDelete1Execute
       ShortCut = 46
     end
     object EditSelectAll1: TEditSelectAll
       Category = 'Edit'
       Caption = 'Select &All'
+      DisableIfNoHandler = False
       Hint = 'Select All'
       ImageIndex = 39
       ShortCut = 16449
@@ -2154,6 +2175,7 @@ object frmTracker: TfrmTracker
     object EditCut1: TEditCut
       Category = 'Edit'
       Caption = 'Cu&t'
+      DisableIfNoHandler = False
       Hint = 'Cut'
       ShortCut = 16472
     end

@@ -83,7 +83,6 @@ type
     procedure NormalizeCursors;
 
     procedure TransposeSelection(Semitones: Integer);
-    procedure EraseSelection;
     procedure InputNote(Key: Word);
     procedure InputInstrument(Key: Word);
     procedure InputVolume(Key: Word);
@@ -132,6 +131,9 @@ type
     function GetAt(SelectionPos: TSelectionPos): Integer;
     procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
     procedure ClearAt(SelectionPos: TSelectionPos);
+
+    procedure SelectAll;
+    procedure EraseSelection;
 
     constructor Create(
       AOwner: TComponent;
@@ -1008,6 +1010,18 @@ begin
       cpEffectCode: EffectCode := 0;
       cpEffectParams: EffectParams.Value := 0;
     end;
+end;
+
+procedure TTrackerGrid.SelectAll;
+begin
+  Cursor.X := 0;
+  Cursor.Y := 0;
+  Cursor.SelectedPart := cpNote;
+  Other.X := High(Patterns);
+  Other.Y := High(TPattern);
+  Other.SelectedPart := cpEffectParams;
+
+  Invalidate;
 end;
 
 procedure TTrackerGrid.LoadPattern(Idx: Integer; PatternNumber: Integer);

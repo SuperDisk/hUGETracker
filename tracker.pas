@@ -75,7 +75,7 @@ type
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
-    MenuItem16: TMenuItem;
+    DebugShiteButton: TMenuItem;
     N3: TMenuItem;
     N2: TMenuItem;
     N1: TMenuItem;
@@ -100,7 +100,7 @@ type
     WaveEditNumberSpinner: TSpinEdit;
     WaveEditGroupBox: TGroupBox;
     Label19: TLabel;
-    DebugButton: TMenuItem;
+    DebugPlayNoteButton: TMenuItem;
     WaveEditPaintBox: TPaintBox;
     RoutineNumberSpinner: TSpinEdit;
     Label17: TLabel;
@@ -170,6 +170,7 @@ type
     DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
+    procedure EditDelete1Execute(Sender: TObject);
     procedure InstrumentComboBoxChange(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
     procedure CutActionExecute(Sender: TObject);
@@ -202,14 +203,18 @@ type
     procedure InstrumentNameEditChange(Sender: TObject);
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
-    procedure DebugButtonClick(Sender: TObject);
-    procedure MenuItem16Click(Sender: TObject);
+    procedure DebugPlayNoteButtonClick(Sender: TObject);
+    procedure DebugShiteButtonClick(Sender: TObject);
+    procedure MenuItem10Click(Sender: TObject);
+    procedure MenuItem11Click(Sender: TObject);
+    procedure MenuItem14Click(Sender: TObject);
     procedure MenuItem17Click(Sender: TObject);
     procedure MenuItem18Click(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem22Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
+    procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
     procedure OrderEditStringGridAfterSelection(Sender: TObject; aCol,
       aRow: Integer);
@@ -580,7 +585,7 @@ begin
 
     // Start emulation on the rendered preview binary
     EmulationThread.Terminate;
-    EmulationThread.WaitFor;
+    //EmulationThread.WaitFor;
     EmulationThread.Free;
     EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
     PokeSymbol(SYM_TICKS_PER_ROW, Song.TicksPerRow);
@@ -602,7 +607,7 @@ begin
   ToolButton2.ImageIndex := 74;
 
   EmulationThread.Terminate;
-  EmulationThread.WaitFor;
+  //EmulationThread.WaitFor;
   EmulationThread.Free;
   EmulationThread := TEmulationThread.Create('halt.gb');
   EmulationThread.Start;
@@ -1078,6 +1083,11 @@ begin
   TrackerGrid.SelectedInstrument := InstrumentComboBox.ItemIndex;
 end;
 
+procedure TfrmTracker.EditDelete1Execute(Sender: TObject);
+begin
+
+end;
+
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
 begin
   PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
@@ -1135,14 +1145,32 @@ begin
   CurrentInstrument^.Length := Round(LengthSpinner.Position);
 end;
 
-procedure TfrmTracker.DebugButtonClick(Sender: TObject);
+procedure TfrmTracker.DebugPlayNoteButtonClick(Sender: TObject);
 begin
   PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
 end;
 
-procedure TfrmTracker.MenuItem16Click(Sender: TObject);
+procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
 begin
   RenderSongToFile(Song, 'song');
+end;
+
+procedure TfrmTracker.MenuItem10Click(Sender: TObject);
+begin
+  if (Screen.ActiveControl is TEdit) then
+    (Screen.ActiveControl as TEdit).SelectAll
+  else if (Screen.ActiveControl is TTrackerGrid) then
+    (Screen.ActiveControl as TTrackerGrid).SelectAll;
+end;
+
+procedure TfrmTracker.MenuItem11Click(Sender: TObject);
+begin
+
+end;
+
+procedure TfrmTracker.MenuItem14Click(Sender: TObject);
+begin
+  Halt;
 end;
 
 procedure TfrmTracker.MenuItem17Click(Sender: TObject);
@@ -1214,6 +1242,14 @@ begin
   AboutForm := TfrmAboutHugetracker.Create(Self);
   AboutForm.ShowModal;
   AboutForm.Free;
+end;
+
+procedure TfrmTracker.MenuItem8Click(Sender: TObject);
+begin
+  if (Screen.ActiveControl is TEdit) then
+    (Screen.ActiveControl as TEdit).ClearSelection
+  else if (Screen.ActiveControl is TTrackerGrid) then
+    (Screen.ActiveControl as TTrackerGrid).EraseSelection;
 end;
 
 procedure TfrmTracker.NoiseVisualizerPaint(Sender: TObject);
