@@ -33,7 +33,7 @@ procedure TEmulationThread.Execute;
 var
   tickFreq, cycles: Extended;
   frameStart, frameEnd: Extended;
-  frameElapsedInSec: Double;
+  frameElapsedInSec: Extended;
 function GetCounter: Integer;
 begin
   Result := Trunc(ET.Elapsed*1000000); // Convert to microseconds
@@ -52,6 +52,7 @@ begin
 
     cycles -= CyclesPerFrame;
 
+    // TODO: Replace this with an actual timing mechanism. This devours CPU.
     repeat
       FrameEnd := GetCounter;
 

@@ -277,7 +277,7 @@ type
     Playing: Boolean;
     LoadingFile: Boolean;
 
-    PatternsNode, InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
+    {PatternsNode, }InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
     SymbolTable: TSymbolMap;
 

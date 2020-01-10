@@ -113,8 +113,6 @@ type
     Performed: TUndoDeque;
     Recall: TRedoStack;
 
-    DigitInputting: Boolean;
-
     FHighlightedRow: Integer;
   public
     Cursor, Other: TSelectionPos;
@@ -290,7 +288,6 @@ begin
   if Button = mbLeft then
     MouseButtonDown := True;
   Selecting := False;
-  DigitInputting := False;
 
   if not (csDesigning in ComponentState) and CanFocus then
     SetFocus;
@@ -324,7 +321,6 @@ begin
   NormalizeCursors;
 
   MouseButtonDown := False;
-  DigitInputting := False;
 end;
 
 procedure TTrackerGrid.DblClick;
@@ -343,7 +339,6 @@ begin
   NormalizeCursors;
 
   MouseButtonDown := False;
-  DigitInputting := False;
 
   Invalidate;
 end;
@@ -385,28 +380,24 @@ begin
       EraseSelection;
     end;
     VK_UP: begin
-      Cursor.Y -= 1;
-      DigitInputting := False;
+      Dec(Cursor.Y);
     end;
     VK_DOWN: begin
-      Cursor.Y += 1;
-      DigitInputting := False;
+      Inc(Cursor.Y);
     end;
     VK_LEFT: begin
       if ssCtrl in Shift then
-        Cursor.X -= 1
+        Dec(Cursor.X)
       else if Cursor.SelectedPart > Low(TCellPart) then begin
         Cursor.SelectedPart := Pred(Cursor.SelectedPart);
       end;
-      DigitInputting := False;
     end;
     VK_RIGHT: begin
       if ssCtrl in Shift then
-        Cursor.X += 1
+        Inc(Cursor.X)
       else if Cursor.SelectedPart < High(TCellPart) then begin
         Cursor.SelectedPart := Succ(Cursor.SelectedPart);
       end;
-      DigitInputting := False;
     end;
     else begin
       if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
@@ -698,7 +689,7 @@ var
 begin
   with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then Instrument := 0
-    else if KeycodeToHexNumber(Key, Temp) and (Temp <= 9) then
+    else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
       Instrument := ((Instrument mod 10) * 10) + Temp;
 
   Invalidate;
@@ -732,17 +723,8 @@ begin
       EffectCode := 0;
       EffectParams.Value := 0;
     end
-    else if not DigitInputting then begin
-      if KeycodeToHexNumber(Key, Temp) then begin
-        EffectParams.Param2 := EffectParams.Param1;
-        EffectParams.Param1 := Temp;
-        DigitInputting := True;
-      end;
-    end
-    else if KeycodeToHexNumber(Key, Temp) then begin
-      EffectParams.Param2 := Temp;
-      DigitInputting := False;
-    end;
+    else if KeycodeToHexNumber(Key, Temp) then
+      EffectParams.Value := ((EffectParams.Value mod $10) * $10) + Temp;
 
   Invalidate;
   SaveUndoState;
