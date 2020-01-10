@@ -238,7 +238,7 @@ begin
 
   NR32.OutputLevel := Instr.OutputLevel;
 
-  NR33 := Frequency and $11111111;
+  NR33 := Frequency and %11111111;
 
   NR34.Initial := Initial;
   NR34.FrequencyBits := (Frequency and %0000011100000000) shr 8;

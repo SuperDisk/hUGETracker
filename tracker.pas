@@ -446,7 +446,7 @@ begin
 
         Spokeb(NR30, Regs.NR30);
         Spokeb(NR31, Regs.NR31);
-        Spokeb(NR32, %00100000); //Regs.NR32);
+        Spokeb(NR32, Regs.NR32);
         Spokeb(NR33, Regs.NR33);
         Spokeb(NR34, Regs.NR34)
       end;
