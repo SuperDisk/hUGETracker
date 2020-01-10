@@ -200,10 +200,10 @@ var
   Regs: TRegisters;
 begin
   Regs := NoiseInstrumentToRegisters(0, True, Instrument);
-  Result[0] :=Regs.NR41;
-  Result[1] :=Regs.NR42;
-  Result[2] :=Regs.NR43;
-  Result[3] :=Regs.NR44
+  Result[0] := Regs.NR41;
+  Result[1] := Regs.NR42;
+  Result[2] := Regs.NR43 and %00001111; // remove shift clock freq
+  Result[3] := Regs.NR44;
 end;
 
 function InstrumentToBytes(Instrument: TInstrument): TAsmInstrument;
@@ -244,8 +244,6 @@ begin
   NR34.FrequencyBits := (Frequency and %0000011100000000) shr 8;
   NR34.UseLength := Instr.LengthEnabled;
 
-  // Copy to wave ram
-
   Result.Type_ := Wave;
   Result.NR30 := NR30.ByteValue;
   Result.NR31 := NR31;
@@ -275,7 +273,7 @@ begin
   NR42.SweepNumber := Instr.VolSweepAmount;
   NR42.Direction := Instr.VolSweepDirection = Up;
 
-  NR43.ShiftClockFrequency := Instr.ShiftClockFreq; // Quantize CH4 note
+  NR43.ShiftClockFrequency := $F - (Frequency shr 7); // Quantize CH4 note
   NR43.DividingRatio:= Instr.DividingRatio;
   NR43.SevenBitCounter:=Instr.CounterStep = Seven;
 

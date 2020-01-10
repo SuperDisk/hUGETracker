@@ -30,7 +30,10 @@ _addr = _addr + 1
     ; Set volume
     ld a, $77
     ld [rAUDVOL], a
-	; silence ch3
-	ld a, 0
-	ld [rAUD3LEVEL], a
-    halt
+	  ; silence ch3
+	  ld a, 0
+	  ld [rAUD3LEVEL], a
+bing:
+    jr bing ; the same as a halt on an emulator, yet
+            ; allows for ch3 playback. it's a hack.
+    ; halt

@@ -43,6 +43,7 @@ const
   NR42 = $FF21;
   NR43 = $FF22;
   NR44 = $FF23;
+  AUD3_WAVE_RAM = $FF30;
 
   LOWEST_NOTE = 0;
   C_3 = 0;

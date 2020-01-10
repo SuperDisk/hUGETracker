@@ -75,8 +75,6 @@ type
     procedure DoCopy(var Msg: TLMessage); message LM_COPY;
     procedure DoCut(var Msg: TLMessage); message LM_CUT;
     procedure SaveUndoState;
-    procedure DoUndo;
-    procedure DoRedo;
 
     procedure RenderSelectedArea;
     procedure ClampCursors;
@@ -134,6 +132,8 @@ type
 
     procedure SelectAll;
     procedure EraseSelection;
+    procedure DoUndo;
+    procedure DoRedo;
 
     constructor Create(
       AOwner: TComponent;

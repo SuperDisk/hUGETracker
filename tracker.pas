@@ -22,6 +22,10 @@ type
     CutAction: TAction;
     ImageList2: TImageList;
     GBSaveDialog: TSaveDialog;
+    MenuItem16: TMenuItem;
+    MenuItem23: TMenuItem;
+    MenuItem24: TMenuItem;
+    MenuItem8: TMenuItem;
     WaveSaveDialog: TSaveDialog;
     Label22: TLabel;
     Label23: TLabel;
@@ -69,7 +73,6 @@ type
     CommentMemo: TMemo;
     Label20: TLabel;
     Label21: TLabel;
-    MenuItem10: TMenuItem;
     MenuItem11: TMenuItem;
     MenuItem12: TMenuItem;
     MenuItem13: TMenuItem;
@@ -78,10 +81,8 @@ type
     DebugShiteButton: TMenuItem;
     N3: TMenuItem;
     N2: TMenuItem;
-    N1: TMenuItem;
     MenuItem6: TMenuItem;
     MenuItem7: TMenuItem;
-    MenuItem8: TMenuItem;
     MenuItem9: TMenuItem;
     OpenDialog1: TOpenDialog;
     OrderEditPopup: TPopupMenu;
@@ -421,6 +422,9 @@ var
   I: Integer;
   NewWaveform: T4bitWave;
 begin
+  // TODO: Find some way to synchronize with the playback thread, so it doesn't
+  // fail sometimes.
+
   with Song.Instruments[Instr] do
   begin
     case Type_ of
@@ -433,17 +437,16 @@ begin
         Spokeb(NR14, Regs.NR14);
       end;
       Wave: begin
-        Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
         NewWaveform := ConvertWaveform(Song.Waves[Waveform]);
         // Fill Wave RAM with the waveform
-        for I := 0 to 15 do
-          Spokeb($FF30+I, NewWaveform[I]);
+        for I := Low(NewWaveform) to High(NewWaveform) do
+          Spokeb(AUD3_WAVE_RAM+I, NewWaveform[I]);
 
         Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
 
         Spokeb(NR30, Regs.NR30);
         Spokeb(NR31, Regs.NR31);
-        Spokeb(NR32, Regs.NR32);
+        Spokeb(NR32, %00100000); //Regs.NR32);
         Spokeb(NR33, Regs.NR33);
         Spokeb(NR34, Regs.NR34)
       end;
@@ -889,29 +892,31 @@ var
   Note: Integer;
   Freq: Integer;
 begin
-    {if not Keybindings.TryGetData(Key, Note) then Exit;
-    Inc(Note, OctaveSpinEdit.Value*12);
-    EnsureRange(Note, LOWEST_NOTE, HIGHEST_NOTE);
+  if Shift <> [] then Exit;
+  if not Keybindings.TryGetData(Key, Note) then Exit;
+  Inc(Note, OctaveSpinEdit.Value*12);
+  EnsureRange(Note, LOWEST_NOTE, HIGHEST_NOTE);
 
-    if PreviewingInstrument <> Note then
-      PreviewingInstrument := -1;
+  if PreviewingInstrument <> Note then
+    PreviewingInstrument := -1;
 
-    if (PreviewingInstrument > 0) or
-       (not (ActiveControl = TrackerGrid)) or
-       (InstrumentComboBox.ItemIndex <= 0)
-    then exit;
+  if (PreviewingInstrument > 0) or
+     (not (ActiveControl = TrackerGrid)) or
+     (InstrumentComboBox.ItemIndex <= 0)
+  then exit;
 
-    if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
+  if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
 
-    PreviewInstrument(Freq, InstrumentNumberSpinner.Value);
-    PreviewingInstrument := Note;}
+  PreviewInstrument(Freq, InstrumentNumberSpinner.Value);
+  PreviewingInstrument := Note;
 end;
 
 procedure TfrmTracker.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
+  if PreviewingInstrument <> -1 then
+    Panic;
   PreviewingInstrument := -1;
-  Panic;
 end;
 
 procedure TfrmTracker.ImportWaveButtonClick(Sender: TObject);
@@ -1157,15 +1162,12 @@ end;
 
 procedure TfrmTracker.MenuItem10Click(Sender: TObject);
 begin
-  if (Screen.ActiveControl is TEdit) then
-    (Screen.ActiveControl as TEdit).SelectAll
-  else if (Screen.ActiveControl is TTrackerGrid) then
-    (Screen.ActiveControl as TTrackerGrid).SelectAll;
+
 end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
 begin
-
+  TrackerGrid.DoUndo;
 end;
 
 procedure TfrmTracker.MenuItem14Click(Sender: TObject);
@@ -1246,10 +1248,7 @@ end;
 
 procedure TfrmTracker.MenuItem8Click(Sender: TObject);
 begin
-  if (Screen.ActiveControl is TEdit) then
-    (Screen.ActiveControl as TEdit).ClearSelection
-  else if (Screen.ActiveControl is TTrackerGrid) then
-    (Screen.ActiveControl as TTrackerGrid).EraseSelection;
+  TrackerGrid.DoRedo;
 end;
 
 procedure TfrmTracker.NoiseVisualizerPaint(Sender: TObject);

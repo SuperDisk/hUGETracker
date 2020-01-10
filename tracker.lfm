@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 892
+  Left = 717
   Height = 1275
-  Top = 168
+  Top = 265
   Width = 2056
   Caption = 'hUGETracker'
   ClientHeight = 1241
@@ -55,10 +55,10 @@ object frmTracker: TfrmTracker
       Height = 845
       Top = 0
       Width = 1709
-      ActivePage = PatternTabSheet
+      ActivePage = GeneralTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -2018,23 +2018,6 @@ object frmTracker: TfrmTracker
       object MenuItem9: TMenuItem
         Action = PasteAction
       end
-      object N1: TMenuItem
-        Caption = '-'
-      end
-      object MenuItem10: TMenuItem
-        Caption = 'Select &All'
-        Hint = 'Select All'
-        ImageIndex = 39
-        ShortCut = 16449
-        OnClick = MenuItem10Click
-      end
-      object MenuItem8: TMenuItem
-        Caption = '&Delete'
-        Hint = 'Delete'
-        ImageIndex = 13
-        ShortCut = 46
-        OnClick = MenuItem8Click
-      end
       object N2: TMenuItem
         Caption = '-'
       end
@@ -2044,6 +2027,12 @@ object frmTracker: TfrmTracker
         ImageIndex = 66
         ShortCut = 16474
         OnClick = MenuItem11Click
+      end
+      object MenuItem8: TMenuItem
+        Caption = 'Redo'
+        ImageIndex = 56
+        ShortCut = 16473
+        OnClick = MenuItem8Click
       end
     end
     object MenuItem3: TMenuItem
@@ -2064,9 +2053,19 @@ object frmTracker: TfrmTracker
         OnClick = MenuItem5Click
       end
     end
+    object MenuItem16: TMenuItem
+      Caption = 'Tools'
+      object MenuItem24: TMenuItem
+        Caption = 'Remove unused patterns'
+        Enabled = False
+      end
+      object MenuItem23: TMenuItem
+        Caption = 'Find problems in song'
+        Enabled = False
+      end
+    end
     object DebugPlayNoteButton: TMenuItem
       Caption = 'Debug play note'
-      Visible = False
       OnClick = DebugPlayNoteButtonClick
     end
     object DebugShiteButton: TMenuItem

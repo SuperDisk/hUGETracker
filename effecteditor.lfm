@@ -1,7 +1,7 @@
 object frmEffectEditor: TfrmEffectEditor
-  Left = 517
+  Left = 583
   Height = 416
-  Top = 493
+  Top = 421
   Width = 684
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
