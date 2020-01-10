@@ -274,6 +274,7 @@ begin
   NR42.Direction := Instr.VolSweepDirection = Up;
 
   NR43.ShiftClockFrequency := $F - (Frequency shr 7); // Quantize CH4 note
+
   NR43.DividingRatio:= Instr.DividingRatio;
   NR43.SevenBitCounter:=Instr.CounterStep = Seven;
 

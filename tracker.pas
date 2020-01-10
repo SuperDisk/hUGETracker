@@ -472,7 +472,7 @@ begin
   Spokeb(NR24, %10000000);
 
   // Silence CH3
-  Spokeb(NR32, 0);
+  Spokeb(NR30, 0);
 
   // Silence CH4
   Spokeb(NR42, 0);
@@ -828,7 +828,8 @@ begin
   LengthEnabledCheckbox.Checked := Random <= 0.5;
   LengthSpinner.Position := Random(Round(LengthSpinner.Max));
 
-  PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
+  PreviewInstrument(NotesToFreqs.KeyData[RandomRange(LOWEST_NOTE, HIGHEST_NOTE)],
+    InstrumentNumberSpinner.Value);
 end;
 
 procedure TfrmTracker.FormCreate(Sender: TObject);

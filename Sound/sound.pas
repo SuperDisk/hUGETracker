@@ -605,35 +605,36 @@ begin
         2: snd[3].Bit := 8 or (snd[3].Bit shr 1);
         3: snd[3].Bit := $c or (snd[3].Bit shr 2);
       end;
+
+      if m_iram[$FF25] and 4 > 0 then
+        Inc(ls[3], (snd[3].Bit shl 4) - $80);
+      if m_iram[$FF25] and $40 > 0 then
+        Inc(rs[3], (snd[3].Bit shl 4) - $80);
     end;
-    if m_iram[$FF25] and 4 > 0 then
-      Inc(ls[3], (snd[3].Bit shl 4) - $80);
-    if m_iram[$FF25] and $40 > 0 then
-      Inc(rs[3], (snd[3].Bit shl 4) - $80);
   end;
   if not snd[4].channelOFF then
   begin
 
     if snd[4].Enable then
     begin
-
       Inc(freq4Clk, cycles);
       if (freq4Clk >= snd[4].Freq) then
       begin
         freq4Clk := freq4Clk mod snd[4].Freq;
-        snd[4].Bit := NextLFSRBit((m_iram[$FF22] and %1000) <> 0);// random(255) and 1; // white noise
+        snd[4].Bit := NextLFSRBit((m_iram[$FF22] and %1000) <> 0);
       end;
+
+      if (m_iram[$FF25] and 8) > 0 then
+        if snd[4].Bit > 0 then
+          Inc(ls[4], vol[snd[4].Vol])
+        else
+          Dec(ls[4], vol[snd[4].Vol]);
+      if (m_iram[$FF25] and $80) > 0 then
+        if snd[4].Bit > 0 then
+          Inc(rs[4], vol[snd[4].Vol])
+        else
+          Dec(rs[4], vol[snd[4].Vol]);
     end;
-    if (m_iram[$FF25] and 8) > 0 then
-      if snd[4].Bit > 0 then
-        Inc(ls[4], vol[snd[4].Vol])
-      else
-        Dec(ls[4], vol[snd[4].Vol]);
-    if (m_iram[$FF25] and $80) > 0 then
-      if snd[4].Bit > 0 then
-        Inc(rs[4], vol[snd[4].Vol])
-      else
-        Dec(rs[4], vol[snd[4].Vol]);
   end;
 
   for I := 1 to 4 do begin

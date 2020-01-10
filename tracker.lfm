@@ -55,10 +55,10 @@ object frmTracker: TfrmTracker
       Height = 845
       Top = 0
       Width = 1709
-      ActivePage = GeneralTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
