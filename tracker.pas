@@ -697,6 +697,7 @@ begin
     end;
 
     Noise: begin
+      ShiftClockSpinner.Position := CI^.ShiftClockFreq;
       DivRatioSpinner.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = Seven;
     end;
@@ -826,6 +827,7 @@ end;
 
 procedure TfrmTracker.RandomizeNoiseButtonClick(Sender: TObject);
 begin
+  ShiftClockSpinner.Position := 0;
   DivRatioSpinner.Position := Random(Round(DivRatioSpinner.Max));
   SevenBitCounterCheckbox.Checked := Random <= 0.5;
   LengthEnabledCheckbox.Checked := Random <= 0.5;

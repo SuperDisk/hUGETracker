@@ -198,11 +198,17 @@ end;
 function NoiseInstrumentToBytes(Instrument: TInstrument): TAsmInstrument;
 var
   Regs: TRegisters;
+  Poly: TPolynomialCounterRegister absolute Result[2];
 begin
   Regs := NoiseInstrumentToRegisters(0, True, Instrument);
   Result[0] := Regs.NR41;
   Result[1] := Regs.NR42;
-  Result[2] := Regs.NR43 and %00001111; // remove shift clock freq
+  Result[2] := Regs.NR43;
+
+  // Because *InstrumentToRegisters is meant for previewing, it puts in
+  // a value for shift clock freq, so we have to remove it and put in the mask
+  // instead.
+  Poly.ShiftClockFrequency := Instrument.ShiftClockFreq;
   Result[3] := Regs.NR44;
 end;
 

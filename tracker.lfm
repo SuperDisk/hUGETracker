@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 899
+  Left = 550
   Height = 1275
-  Top = 236
+  Top = 338
   Width = 2056
   Caption = 'hUGETracker'
   ClientHeight = 1241
@@ -55,10 +55,10 @@ object frmTracker: TfrmTracker
       Height = 845
       Top = 0
       Width = 1709
-      ActivePage = InstrumentTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -297,6 +297,7 @@ object frmTracker: TfrmTracker
           Color = clBlack
           ParentColor = False
           ParentFont = False
+          Visible = False
           OnPaint = PaintBox1Paint
         end
         object FlowPanel1: TFlowPanel
@@ -1105,7 +1106,7 @@ object frmTracker: TfrmTracker
               ProgressStyle = epsGradient
               Scale.DateTimeFormat = 'hh:nn:ss'
               Scale.LogarithmBase = 10
-              Scale.Max = 7
+              Scale.Max = 15
               Scale.Min = 0
               Scale.TickLongValue = 10
               Scale.TickMiddleValue = 5
@@ -1119,7 +1120,7 @@ object frmTracker: TfrmTracker
             object Label25: TLabel
               Left = 16
               Height = 30
-              Top = 22
+              Top = 28
               Width = 149
               Caption = 'Shift clock mask'
               ParentColor = False
