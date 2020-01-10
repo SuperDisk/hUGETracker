@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 717
+  Left = 899
   Height = 1275
-  Top = 265
+  Top = 236
   Width = 2056
   Caption = 'hUGETracker'
   ClientHeight = 1241
@@ -436,15 +436,18 @@ object frmTracker: TfrmTracker
               Left = 140
               Height = 24
               Hint = 'Units of length to cut the sound after'
-              Top = 140
-              Width = 174
+              Top = 147
+              Width = 310
               Buttons.BtnBigDec.BtnOrder = 1
               Buttons.BtnBigDec.Visible = False
               Buttons.BtnBigInc.BtnOrder = 7
               Buttons.BtnBigInc.Visible = False
               Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDec.Visible = False
               Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnDrag.Visible = False
               Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnInc.Visible = False
               Buttons.BtnMax.BtnOrder = 8
               Buttons.BtnMax.Visible = False
               Buttons.BtnMenu.BtnOrder = 5
@@ -537,7 +540,7 @@ object frmTracker: TfrmTracker
               Left = 144
               Height = 38
               Hint = 'Whether to fade the sound in or out'
-              Top = 70
+              Top = 80
               Width = 346
               ItemHeight = 30
               ItemIndex = 1
@@ -564,15 +567,18 @@ object frmTracker: TfrmTracker
               Left = 144
               Height = 24
               Hint = 'The initial volume when the note is retriggered'
-              Top = -2
-              Width = 198
+              Top = 16
+              Width = 344
               Buttons.BtnBigDec.BtnOrder = 1
               Buttons.BtnBigDec.Visible = False
               Buttons.BtnBigInc.BtnOrder = 7
               Buttons.BtnBigInc.Visible = False
               Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDec.Visible = False
               Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnDrag.Visible = False
               Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnInc.Visible = False
               Buttons.BtnMax.BtnOrder = 8
               Buttons.BtnMax.Visible = False
               Buttons.BtnMenu.BtnOrder = 5
@@ -612,15 +618,18 @@ object frmTracker: TfrmTracker
               Left = 144
               Height = 24
               Hint = 'How much to change the volume each time'
-              Top = 140
-              Width = 198
+              Top = 157
+              Width = 344
               Buttons.BtnBigDec.BtnOrder = 1
               Buttons.BtnBigDec.Visible = False
               Buttons.BtnBigInc.BtnOrder = 7
               Buttons.BtnBigInc.Visible = False
               Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDec.Visible = False
               Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnDrag.Visible = False
               Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnInc.Visible = False
               Buttons.BtnMax.BtnOrder = 8
               Buttons.BtnMax.Visible = False
               Buttons.BtnMenu.BtnOrder = 5
@@ -801,15 +810,18 @@ object frmTracker: TfrmTracker
               Left = 182
               Height = 24
               Hint = 'Change by this amount each sweep tick'
-              Top = 131
-              Width = 198
+              Top = 144
+              Width = 350
               Buttons.BtnBigDec.BtnOrder = 1
               Buttons.BtnBigDec.Visible = False
               Buttons.BtnBigInc.BtnOrder = 7
               Buttons.BtnBigInc.Visible = False
               Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDec.Visible = False
               Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnDrag.Visible = False
               Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnInc.Visible = False
               Buttons.BtnMax.BtnOrder = 8
               Buttons.BtnMax.Visible = False
               Buttons.BtnMenu.BtnOrder = 5
@@ -958,7 +970,7 @@ object frmTracker: TfrmTracker
           end
           object NoiseGroupBox: TGroupBox
             Left = 1138
-            Height = 222
+            Height = 296
             Top = 346
             Width = 462
             Anchors = []
@@ -967,7 +979,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 12
             BorderSpacing.Bottom = 12
             Caption = 'Noise'
-            ClientHeight = 187
+            ClientHeight = 261
             ClientWidth = 458
             Enabled = False
             ParentFont = False
@@ -976,7 +988,7 @@ object frmTracker: TfrmTracker
               Left = 14
               Height = 34
               Hint = 'Select LFSR width. When checked, output will sound like a tone rather than noise'
-              Top = 70
+              Top = 140
               Width = 373
               Alignment = taLeftJustify
               Caption = '7 bit counter (more tone-like output)'
@@ -985,37 +997,40 @@ object frmTracker: TfrmTracker
               TabOrder = 0
             end
             object Label14: TLabel
-              Left = 14
+              Left = 16
               Height = 30
-              Top = 16
+              Top = 90
               Width = 124
               Caption = 'Dividing ratio'
               ParentColor = False
               ParentFont = False
             end
             object RandomizeNoiseButton: TButton
-              Left = 14
+              Left = 16
               Height = 44
               Hint = 'Randomize the noise instrument parameters to get a random drum-like sound'
-              Top = 120
-              Width = 380
+              Top = 196
+              Width = 424
               Caption = 'Randomize'
               OnClick = RandomizeNoiseButtonClick
               ParentFont = False
               TabOrder = 1
             end
             object DivRatioSpinner: TECSpinPosition
-              Left = 152
+              Left = 192
               Height = 24
-              Top = 16
-              Width = 198
+              Top = 96
+              Width = 240
               Buttons.BtnBigDec.BtnOrder = 1
               Buttons.BtnBigDec.Visible = False
               Buttons.BtnBigInc.BtnOrder = 7
               Buttons.BtnBigInc.Visible = False
               Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDec.Visible = False
               Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnDrag.Visible = False
               Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnInc.Visible = False
               Buttons.BtnMax.BtnOrder = 8
               Buttons.BtnMax.Visible = False
               Buttons.BtnMenu.BtnOrder = 5
@@ -1050,6 +1065,65 @@ object frmTracker: TfrmTracker
               ScaleFontOptions.FontSize = 7
               ScaleFontOptions.FontStyles = []
               OnChange = DivRatioSpinnerChange
+            end
+            object ShiftClockSpinner: TECSpinPosition
+              Left = 192
+              Height = 24
+              Top = 28
+              Width = 240
+              Buttons.BtnBigDec.BtnOrder = 1
+              Buttons.BtnBigDec.Visible = False
+              Buttons.BtnBigInc.BtnOrder = 7
+              Buttons.BtnBigInc.Visible = False
+              Buttons.BtnDec.BtnOrder = 2
+              Buttons.BtnDec.Visible = False
+              Buttons.BtnDrag.BtnOrder = 4
+              Buttons.BtnDrag.Visible = False
+              Buttons.BtnInc.BtnOrder = 6
+              Buttons.BtnInc.Visible = False
+              Buttons.BtnMax.BtnOrder = 8
+              Buttons.BtnMax.Visible = False
+              Buttons.BtnMenu.BtnOrder = 5
+              Buttons.BtnMenu.Visible = False
+              Buttons.BtnMiddle.BtnOrder = 3
+              Buttons.BtnMiddle.Visible = False
+              Buttons.BtnMin.BtnOrder = 0
+              Buttons.BtnMin.Visible = False
+              Buttons.DiscreteChange = 1
+              Buttons.Increment = 1
+              Buttons.Middle = 50
+              Buttons.MouseIncrementX = 0.1
+              Buttons.MouseIncrementY = 0.05
+              Buttons.PageSize = 10
+              Buttons.ParentFont = False
+              Buttons.Style = ebsSplittedBlock
+              ParentFont = False
+              Position = 0
+              ProgressFontOptions.FontSize = 0
+              ProgressFontOptions.FontStyles = [fsBold]
+              ProgressMiddlePos = 0
+              ProgressStyle = epsGradient
+              Scale.DateTimeFormat = 'hh:nn:ss'
+              Scale.LogarithmBase = 10
+              Scale.Max = 7
+              Scale.Min = 0
+              Scale.TickLongValue = 10
+              Scale.TickMiddleValue = 5
+              Scale.TickShortValue = 1
+              Scale.TickVisible = etvNone
+              Scale.ValueVisible = evvNone
+              ScaleFontOptions.FontSize = 7
+              ScaleFontOptions.FontStyles = []
+              OnChange = ShiftClockSpinnerChange
+            end
+            object Label25: TLabel
+              Left = 16
+              Height = 30
+              Top = 22
+              Width = 149
+              Caption = 'Shift clock mask'
+              ParentColor = False
+              ParentFont = False
             end
           end
         end

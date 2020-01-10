@@ -16,12 +16,14 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    ShiftClockSpinner: TECSpinPosition;
     InstrumentExportButton: TButton;
     InstrumentImportButton: TButton;
     InstrumentComboBox: TComboBox;
     CutAction: TAction;
     ImageList2: TImageList;
     GBSaveDialog: TSaveDialog;
+    Label25: TLabel;
     MenuItem16: TMenuItem;
     MenuItem23: TMenuItem;
     MenuItem24: TMenuItem;
@@ -234,6 +236,7 @@ type
     procedure PanicToolButtonClick(Sender: TObject);
     procedure PasteActionExecute(Sender: TObject);
     procedure OctaveSpinEditChange(Sender: TObject);
+    procedure ShiftClockSpinnerChange(Sender: TObject);
     procedure StepSpinEditChange(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
@@ -1102,6 +1105,11 @@ end;
 procedure TfrmTracker.OctaveSpinEditChange(Sender: TObject);
 begin
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+end;
+
+procedure TfrmTracker.ShiftClockSpinnerChange(Sender: TObject);
+begin
+  CurrentInstrument^.ShiftClockFreq := Round(ShiftClockSpinner.Position);
 end;
 
 procedure TfrmTracker.StepSpinEditChange(Sender: TObject);
