@@ -24,9 +24,11 @@ type
     ImageList2: TImageList;
     GBSaveDialog: TSaveDialog;
     Label25: TLabel;
+    MenuItem10: TMenuItem;
     MenuItem16: TMenuItem;
     MenuItem23: TMenuItem;
     MenuItem24: TMenuItem;
+    FontSizeToggleMenuItem: TMenuItem;
     MenuItem8: TMenuItem;
     NoteHaltTimer: TTimer;
     StartVolTrackbar: TTrackBar;
@@ -35,6 +37,7 @@ type
     DivRatioTrackbar: TTrackBar;
     LengthTrackbar: TTrackBar;
     SweepSizeTrackbar: TTrackBar;
+    ToolButton5: TToolButton;
     WaveSaveDialog: TSaveDialog;
     Label22: TLabel;
     Label23: TLabel;
@@ -220,6 +223,7 @@ type
     procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem22Click(Sender: TObject);
+    procedure FontSizeToggleMenuItemClick(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -656,9 +660,15 @@ begin
 end;
 
 procedure TfrmTracker.RecreateTrackerGrid;
+var
+  Section: TCollectionItem;
 begin
   if Assigned(TrackerGrid) then TrackerGrid.Free;
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
+
+  // Fix the size of the channel headers
+  for Section in HeaderControl1.Sections do
+    (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
 end;
 
 procedure TfrmTracker.LoadInstrument(Instr: Integer);
@@ -855,7 +865,6 @@ end;
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   I: Integer;
-  Section: TCollectionItem;
   F: file;
   Stream: TStream;
 begin
@@ -874,10 +883,6 @@ begin
 
   // Initialize ticks per row
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
-
-  // Fix the size of the channel headers
-  for Section in HeaderControl1.Sections do
-    (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
 
   LoadInstrument(1);
   LoadWave(0);
@@ -1309,6 +1314,11 @@ begin
   ReloadPatterns;
 end;
 
+procedure TfrmTracker.FontSizeToggleMenuItemClick(Sender: TObject);
+begin
+
+end;
+
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
 var
   AboutForm: TfrmAboutHugeTracker;
@@ -1463,7 +1473,7 @@ begin
     PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
 
     EmulationThread.Start;
-  end;
+  end
 end;
 
 procedure TfrmTracker.ToolButton3Click(Sender: TObject);

@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 796
+  Left = 825
   Height = 1250
-  Top = 758
+  Top = 233
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -14,6 +14,7 @@ object frmTracker: TfrmTracker
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
   OnShow = FormShow
+  Position = poDefault
   ShowHint = True
   LCLVersion = '2.0.6.0'
   object TreeView1: TTreeView
@@ -1697,7 +1698,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 547
+      Left = 694
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1708,21 +1709,21 @@ object frmTracker: TfrmTracker
       ShowHint = True
     end
     object ToolButton2: TToolButton
-      Left = 169
+      Left = 217
       Top = 0
-      Caption = '⏯'
+      Caption = '▶️ Cursor'
       ImageIndex = 75
       OnClick = ToolButton2Click
     end
     object ToolButton4: TToolButton
-      Left = 224
+      Left = 327
       Top = 0
-      Caption = '⏹️'
+      Caption = '⏹ Stop'
       ImageIndex = 73
       OnClick = ToolButton4Click
     end
     object ExportGBButton: TToolButton
-      Left = 284
+      Left = 434
       Top = 0
       AutoSize = True
       Caption = 'Export .GB'
@@ -1737,21 +1738,21 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 279
+      Left = 429
       Height = 39
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 539
+      Left = 1664
       Height = 39
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object OctaveSpinEdit: TSpinEdit
-      Left = 708
+      Left = 855
       Height = 38
       Top = 0
       Width = 158
@@ -1761,14 +1762,14 @@ object frmTracker: TfrmTracker
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 623
+      Left = 770
       Height = 39
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 631
+      Left = 778
       Height = 30
       Top = 0
       Width = 77
@@ -1777,7 +1778,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object Label23: TLabel
-      Left = 866
+      Left = 1013
       Height = 30
       Top = 0
       Width = 125
@@ -1786,7 +1787,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object InstrumentComboBox: TComboBox
-      Left = 991
+      Left = 1138
       Height = 38
       Top = 0
       Width = 374
@@ -1817,7 +1818,7 @@ object frmTracker: TfrmTracker
       Text = '(no instrument)'
     end
     object Label24: TLabel
-      Left = 1365
+      Left = 1512
       Height = 30
       Top = 0
       Width = 64
@@ -1826,7 +1827,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object StepSpinEdit: TSpinEdit
-      Left = 1429
+      Left = 1576
       Height = 38
       Top = 0
       Width = 88
@@ -1838,16 +1839,23 @@ object frmTracker: TfrmTracker
     object ToolButton3: TToolButton
       Left = 125
       Top = 0
-      Caption = '▶️'
+      Caption = '▶️ Start'
       ImageIndex = 74
       OnClick = ToolButton3Click
     end
     object ExportGBSButton: TToolButton
-      Left = 406
+      Left = 556
       Top = 0
       Caption = 'Export .GBS'
       ImageIndex = 77
       OnClick = ExportGBSButtonClick
+    end
+    object ToolButton5: TToolButton
+      Left = 689
+      Height = 39
+      Top = 0
+      Caption = 'ToolButton5'
+      Style = tbsDivider
     end
   end
   object MainMenu1: TMainMenu
@@ -1895,6 +1903,15 @@ object frmTracker: TfrmTracker
         OnClick = MenuItem8Click
       end
     end
+    object MenuItem10: TMenuItem
+      Caption = 'View'
+      Visible = False
+      object FontSizeToggleMenuItem: TMenuItem
+        AutoCheck = True
+        Caption = 'Pattern grid small font'
+        OnClick = FontSizeToggleMenuItemClick
+      end
+    end
     object MenuItem3: TMenuItem
       Caption = 'Help'
       object MenuItem15: TMenuItem
@@ -1931,6 +1948,7 @@ object frmTracker: TfrmTracker
     end
     object DebugShiteButton: TMenuItem
       Caption = 'Debug shite'
+      Visible = False
       OnClick = DebugShiteButtonClick
     end
   end
