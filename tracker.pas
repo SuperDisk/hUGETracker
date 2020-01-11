@@ -856,6 +856,11 @@ var
   I: Integer;
   Section: TCollectionItem;
 begin
+  if Screen.Fonts.IndexOf('Pixelite') < 0 then
+    MessageDlg('Warning', 'You don''t have the Pixelite .FON file installed, '+
+      'which means the tracker view will be messed up. Please install the font and restart!',
+      mtWarning, [mbOk], 0);
+
   ReturnNilIfGrowHeapFails := False;
   PreviewingInstrument := -1;
 
@@ -1387,6 +1392,8 @@ var
   I: Integer;
   Samp: Integer;
 begin
+  if not Playing then Exit;
+
   Max1 := -1;
   Max2 := -1;
   for I := 0 to SAMPLE_BUFFER_SIZE do begin

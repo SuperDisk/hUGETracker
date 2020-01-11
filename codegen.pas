@@ -211,7 +211,8 @@ begin
 
   OutSL := TStringList.Create;
   Proc := TProcess.Create(nil);
-  Proc.Options := Proc.Options + [poWaitOnExit, poUsePipes, poStdErrToOutput];
+  Proc.Options := Proc.Options + [poWaitOnExit, poUsePipes, poStdErrToOutput,
+                                  poNoConsole];
 
   Proc.Executable := 'rgbasm';
   Proc.Parameters.Clear;
