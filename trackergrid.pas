@@ -687,10 +687,13 @@ procedure TTrackerGrid.InputInstrument(Key: Word);
 var
   Temp: Nibble;
 begin
-  with Patterns[Cursor.X]^[Cursor.Y] do
+  with Patterns[Cursor.X]^[Cursor.Y] do begin
     if Key = VK_DELETE then Instrument := 0
     else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
       Instrument := ((Instrument mod 10) * 10) + Temp;
+
+    Instrument := EnsureRange(Instrument, 0, 15);
+  end;
 
   Invalidate;
   SaveUndoState;

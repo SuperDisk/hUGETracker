@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 550
+  Left = 861
   Height = 1275
-  Top = 338
+  Top = 189
   Width = 2056
   Caption = 'hUGETracker'
   ClientHeight = 1241
@@ -55,10 +55,10 @@ object frmTracker: TfrmTracker
       Height = 845
       Top = 0
       Width = 1709
-      ActivePage = PatternTabSheet
+      ActivePage = WavesTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 3
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -289,9 +289,9 @@ object frmTracker: TfrmTracker
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 148
+          Height = 102
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
-          Top = 654
+          Top = 700
           Width = 1701
           Align = alClient
           Color = clBlack
@@ -302,7 +302,7 @@ object frmTracker: TfrmTracker
         end
         object FlowPanel1: TFlowPanel
           Left = 0
-          Height = 654
+          Height = 700
           Top = 0
           Width = 1701
           Align = alTop
@@ -340,7 +340,7 @@ object frmTracker: TfrmTracker
           TabOrder = 0
           object InstrumentGroupBox: TGroupBox
             Left = 12
-            Height = 310
+            Height = 356
             Top = 12
             Width = 474
             Anchors = []
@@ -349,7 +349,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 12
             BorderSpacing.Bottom = 12
             Caption = 'Instrument'
-            ClientHeight = 275
+            ClientHeight = 321
             ClientWidth = 470
             ParentFont = False
             TabOrder = 0
@@ -488,7 +488,7 @@ object frmTracker: TfrmTracker
             object InstrumentImportButton: TButton
               Left = 24
               Height = 44
-              Top = 200
+              Top = 256
               Width = 203
               Caption = 'Import'
               OnClick = InstrumentImportButtonClick
@@ -497,11 +497,20 @@ object frmTracker: TfrmTracker
             object InstrumentExportButton: TButton
               Left = 245
               Height = 44
-              Top = 200
+              Top = 256
               Width = 203
               Caption = 'Export'
               OnClick = InstrumentExportButtonClick
               TabOrder = 6
+            end
+            object Button1: TButton
+              Left = 24
+              Height = 44
+              Top = 192
+              Width = 424
+              Caption = 'Test C-5'
+              OnClick = Button1Click
+              TabOrder = 7
             end
           end
           object EnvelopeGroupBox: TGroupBox
@@ -619,7 +628,7 @@ object frmTracker: TfrmTracker
               Left = 144
               Height = 24
               Hint = 'How much to change the volume each time'
-              Top = 157
+              Top = 152
               Width = 344
               Buttons.BtnBigDec.BtnOrder = 1
               Buttons.BtnBigDec.Visible = False
@@ -691,7 +700,7 @@ object frmTracker: TfrmTracker
           object SquareGroupBox: TGroupBox
             Left = 12
             Height = 296
-            Top = 346
+            Top = 392
             Width = 558
             Anchors = []
             BorderSpacing.Left = 12
@@ -862,7 +871,7 @@ object frmTracker: TfrmTracker
           object WaveGroupBox: TGroupBox
             Left = 594
             Height = 296
-            Top = 346
+            Top = 392
             Width = 520
             Anchors = []
             BorderSpacing.Left = 12
@@ -972,7 +981,7 @@ object frmTracker: TfrmTracker
           object NoiseGroupBox: TGroupBox
             Left = 1138
             Height = 296
-            Top = 346
+            Top = 392
             Width = 462
             Anchors = []
             BorderSpacing.Left = 12
@@ -2141,6 +2150,7 @@ object frmTracker: TfrmTracker
     end
     object DebugPlayNoteButton: TMenuItem
       Caption = 'Debug play note'
+      Visible = False
       OnClick = DebugPlayNoteButtonClick
     end
     object DebugShiteButton: TMenuItem
@@ -5062,9 +5072,9 @@ object frmTracker: TfrmTracker
       0000000000000000000000000000
     }
   end
-  object Timer1: TTimer
+  object OscilloscopeUpdateTimer: TTimer
     Interval = 25
-    OnTimer = Timer1Timer
+    OnTimer = OscilloscopeUpdateTimerTimer
     left = 504
     top = 80
   end
@@ -5082,5 +5092,11 @@ object frmTracker: TfrmTracker
     Filter = 'Gameboy ROM|*.GB'
     left = 456
     top = 184
+  end
+  object NoteHaltTimer: TTimer
+    Enabled = False
+    OnTimer = NoteHaltTimerTimer
+    left = 344
+    top = 176
   end
 end

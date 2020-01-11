@@ -89,7 +89,11 @@ begin
   else
     SL.Add(NoteToDriverMap.KeyData[Cell.Note]);
 
-  SL.Add(IntToStr(Cell.Instrument));
+  if InRange(Cell.Instrument, 0, 15) then
+    SL.Add(IntToStr(Cell.Instrument))
+  else
+    SL.Add('0');
+
   SL.Add('$' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
 
   // RGBDS thinks you're defining a new macro if you don't have a space first.
@@ -259,7 +263,9 @@ begin
     'Error!',
     'There was an error assembling the song for playback.'+LineEnding+LineEnding+
       Proc.Executable+' output:'+LineEnding+
-      OutSL.Text,
+      OutSL.Text+LineEnding+LineEnding+
+      'Please report this issue on the hUGETracker GitHub issues page, and '+
+      'post your song file!',
     mtError,
     [mbOK],
     0);

@@ -16,6 +16,7 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    Button1: TButton;
     ShiftClockSpinner: TECSpinPosition;
     InstrumentExportButton: TButton;
     InstrumentImportButton: TButton;
@@ -28,6 +29,7 @@ type
     MenuItem23: TMenuItem;
     MenuItem24: TMenuItem;
     MenuItem8: TMenuItem;
+    NoteHaltTimer: TTimer;
     WaveSaveDialog: TSaveDialog;
     Label22: TLabel;
     Label23: TLabel;
@@ -47,7 +49,7 @@ type
     OctaveSpinEdit: TSpinEdit;
     GBSSaveDialog: TSaveDialog;
     StepSpinEdit: TSpinEdit;
-    Timer1: TTimer;
+    OscilloscopeUpdateTimer: TTimer;
     ExportGBSButton: TToolButton;
     ToolButton3: TToolButton;
     ToolButton9: TToolButton;
@@ -173,6 +175,7 @@ type
     DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
+    procedure Button1Click(Sender: TObject);
     procedure EditDelete1Execute(Sender: TObject);
     procedure InstrumentComboBoxChange(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
@@ -219,6 +222,7 @@ type
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
+    procedure NoteHaltTimerTimer(Sender: TObject);
     procedure OrderEditStringGridAfterSelection(Sender: TObject; aCol,
       aRow: Integer);
     procedure OrderEditStringGridColRowDeleted(Sender: TObject;
@@ -239,7 +243,7 @@ type
     procedure ShiftClockSpinnerChange(Sender: TObject);
     procedure StepSpinEditChange(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
-    procedure Timer1Timer(Sender: TObject);
+    procedure OscilloscopeUpdateTimerTimer(Sender: TObject);
     procedure ExportGBSButtonClick(Sender: TObject);
     procedure ToolButton2Click(Sender: TObject);
     procedure ToolButton3Click(Sender: TObject);
@@ -310,6 +314,7 @@ type
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
     procedure PreviewInstrument(Freq: Integer; Instr: Integer);
+    procedure PreviewC5;
     procedure Panic;
   public
 
@@ -461,6 +466,15 @@ begin
         Spokeb(NR44, Regs.NR44);
       end;
     end;
+  end;
+end;
+
+procedure TfrmTracker.PreviewC5;
+begin
+  if not LoadingFile then begin
+    PreviewInstrument(NotesToFreqs.Data[C_5], InstrumentNumberSpinner.Value);
+    NoteHaltTimer.Enabled := False;
+    NoteHaltTimer.Enabled := True
   end;
 end;
 
@@ -1099,6 +1113,11 @@ begin
 
 end;
 
+procedure TfrmTracker.Button1Click(Sender: TObject);
+begin
+  PreviewC5;
+end;
+
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
 begin
   PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
@@ -1204,18 +1223,24 @@ begin
 
   for X := 0 to 3 do
     Song.Patterns.CreateNewPattern(Highest+X);
+
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem18Click(Sender: TObject);
 begin
   with OrderEditStringGrid do
     InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
+
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem19Click(Sender: TObject);
 begin
   if OrderEditStringGrid.RowCount > 2 then
     OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
+
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem21Click(Sender: TObject);
@@ -1224,6 +1249,8 @@ begin
     InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
     Rows[Row-1] := Rows[Row];
   end;
+
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem22Click(Sender: TObject);
@@ -1246,6 +1273,8 @@ begin
       Song.Patterns.CreateNewPattern(Highest+X)^ :=
         Song.Patterns.KeyData[StrToInt(Rows[Row][X+1])]^;
   end;
+
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
@@ -1265,6 +1294,12 @@ end;
 procedure TfrmTracker.NoiseVisualizerPaint(Sender: TObject);
 begin
   DrawVizualizer(NoiseVisualizer, 4);
+end;
+
+procedure TfrmTracker.NoteHaltTimerTimer(Sender: TObject);
+begin
+  Panic;
+  NoteHaltTimer.Enabled := False;
 end;
 
 procedure TfrmTracker.OrderEditStringGridAfterSelection(Sender: TObject; aCol,
@@ -1332,6 +1367,7 @@ begin
   if Key = VK_DELETE then begin
     // TODO: Make this stop the editor from showing
     OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
+    ReloadPatterns;
   end;
 end;
 
@@ -1345,7 +1381,7 @@ begin
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
 end;
 
-procedure TfrmTracker.Timer1Timer(Sender: TObject);
+procedure TfrmTracker.OscilloscopeUpdateTimerTimer(Sender: TObject);
 var
   Max1, Max2: Integer;
   I: Integer;
