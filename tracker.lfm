@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 2989
+  Left = 796
   Height = 1250
-  Top = 496
+  Top = 758
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -13,6 +13,7 @@ object frmTracker: TfrmTracker
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
+  OnShow = FormShow
   ShowHint = True
   LCLVersion = '2.0.6.0'
   object TreeView1: TTreeView
@@ -1930,7 +1931,6 @@ object frmTracker: TfrmTracker
     end
     object DebugShiteButton: TMenuItem
       Caption = 'Debug shite'
-      Visible = False
       OnClick = DebugShiteButtonClick
     end
   end

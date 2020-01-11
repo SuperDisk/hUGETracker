@@ -177,6 +177,7 @@ type
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
     procedure EditDelete1Execute(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure InstrumentComboBoxChange(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
     procedure CutActionExecute(Sender: TObject);
@@ -1135,6 +1136,13 @@ end;
 procedure TfrmTracker.EditDelete1Execute(Sender: TObject);
 begin
 
+end;
+
+procedure TfrmTracker.FormShow(Sender: TObject);
+begin
+  // HACK: This needs to be done due to a scaling bug in the LCL.
+  RecreateTrackerGrid;
+  ReloadPatterns
 end;
 
 procedure TfrmTracker.Button1Click(Sender: TObject);
