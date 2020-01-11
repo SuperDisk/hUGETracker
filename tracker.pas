@@ -9,7 +9,7 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, HugeDatatypes, LCLType, BCTrackbarUpdown, RackCtls, Codegen,
+  HugeDatatypes, LCLType, RackCtls, Codegen,
   SymParser;
 
 type
@@ -17,7 +17,6 @@ type
 
   TfrmTracker = class(TForm)
     Button1: TButton;
-    ShiftClockSpinner: TECSpinPosition;
     InstrumentExportButton: TButton;
     InstrumentImportButton: TButton;
     InstrumentComboBox: TComboBox;
@@ -30,6 +29,12 @@ type
     MenuItem24: TMenuItem;
     MenuItem8: TMenuItem;
     NoteHaltTimer: TTimer;
+    StartVolTrackbar: TTrackBar;
+    EnvChangeTrackbar: TTrackBar;
+    ShiftClockTrackbar: TTrackBar;
+    DivRatioTrackbar: TTrackBar;
+    LengthTrackbar: TTrackBar;
+    SweepSizeTrackbar: TTrackBar;
     WaveSaveDialog: TSaveDialog;
     Label22: TLabel;
     Label23: TLabel;
@@ -126,8 +131,6 @@ type
     WaveVolumeCombobox: TComboBox;
     SweepDirectionCombobox: TComboBox;
     DutyCombobox: TComboBox;
-    SweepSizeSpinner: TECSpinPosition;
-    LengthSpinner: TECSpinPosition;
     SquareGroupBox: TGroupBox;
     WaveGroupBox: TGroupBox;
     NoiseGroupBox: TGroupBox;
@@ -170,9 +173,6 @@ type
     CommentsTabSheet: TTabSheet;
     RoutinesTabSheet: TTabSheet;
     StatusBar1: TStatusBar;
-    StartVolSpinner: TECSpinPosition;
-    EnvChangeSpinner: TECSpinPosition;
-    DivRatioSpinner: TECSpinPosition;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
@@ -573,7 +573,7 @@ end;
 
 function TfrmTracker.PeekSymbol(Symbol: String): Integer;
 begin
-  if SymbolTable = nil then exit;
+  if SymbolTable = nil then exit(0);
   Result := speekb(SymbolTable.KeyData[Symbol]);
 end;
 
@@ -585,7 +585,7 @@ end;
 
 function TfrmTracker.WordPeekSymbol(Symbol: String): Integer;
 begin
-  if SymbolTable = nil then exit;
+  if SymbolTable = nil then exit(0);
   Result := wordpeek(SymbolTable.KeyData[Symbol]);
 end;
 
@@ -670,7 +670,7 @@ begin
   InstrumentNumberSpinner.Value := Instr;
   InstrumentNameEdit.Text := CI^.Name;
   LengthEnabledCheckbox.Checked := CI^.LengthEnabled;
-  LengthSpinner.Position := CI^.Length;
+  LengthTrackbar.Position := CI^.Length;
 
   case CI^.Type_ of
     Square: begin
@@ -687,12 +687,12 @@ begin
     end;
   end;
 
-  StartVolSpinner.Position := CI^.InitialVolume;
+  StartVolTrackbar.Position := CI^.InitialVolume;
   case CI^.VolSweepDirection of
     Up: DirectionComboBox.Text := 'Up';
     Down: DirectionComboBox.Text := 'Down';
   end;
-  EnvChangeSpinner.Position := CI^.VolSweepAmount;
+  EnvChangeTrackbar.Position := CI^.VolSweepAmount;
 
   case CI^.Type_ of
     Square: begin
@@ -701,7 +701,7 @@ begin
         Up: SweepDirectionCombobox.Text := 'Up';
         Down: SweepDirectionCombobox.Text := 'Down';
       end;
-      SweepSizeSpinner.Position := CI^.SweepShift;
+      SweepSizeTrackbar.Position := CI^.SweepShift;
       DutyCombobox.ItemIndex := CI^.Duty;
     end;
 
@@ -711,8 +711,8 @@ begin
     end;
 
     Noise: begin
-      ShiftClockSpinner.Position := CI^.ShiftClockFreq;
-      DivRatioSpinner.Position := CI^.DividingRatio;
+      ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
+      DivRatioTrackbar.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = Seven;
     end;
   end;
@@ -725,7 +725,7 @@ begin
   WaveGroupBox.Enabled := False;
   NoiseGroupBox.Enabled := False;
 
-  LengthSpinner.Max := 63;
+  LengthTrackbar.Max := 63;
 end;
 
 procedure TfrmTracker.ChangeToWave;
@@ -735,7 +735,7 @@ begin
   WaveGroupBox.Enabled := True;
   NoiseGroupBox.Enabled := False;
 
-  LengthSpinner.Max := 255;
+  LengthTrackbar.Max := 255;
 end;
 
 procedure TfrmTracker.ChangeToNoise;
@@ -745,7 +745,7 @@ begin
   WaveGroupBox.Enabled := False;
   NoiseGroupBox.Enabled := True;
 
-  LengthSpinner.Max := 63;
+  LengthTrackbar.Max := 63;
 end;
 
 procedure TfrmTracker.WavePaintboxPaint(Sender: TObject);
@@ -794,7 +794,7 @@ end;
 
 procedure TfrmTracker.StartVolSpinnerChange(Sender: TObject);
 begin
-  CurrentInstrument^.InitialVolume := Round(StartVolSpinner.Position);
+  CurrentInstrument^.InitialVolume := Round(StartVolTrackbar.Position);
 end;
 
 procedure TfrmTracker.SweepDirectionComboboxChange(Sender: TObject);
@@ -807,7 +807,7 @@ end;
 
 procedure TfrmTracker.SweepSizeSpinnerChange(Sender: TObject);
 begin
-  CurrentInstrument^.SweepShift := Round(SweepSizeSpinner.Position);
+  CurrentInstrument^.SweepShift := Round(SweepSizeTrackbar.Position);
 end;
 
 procedure TfrmTracker.SweepTimeComboboxChange(Sender: TObject);
@@ -841,11 +841,11 @@ end;
 
 procedure TfrmTracker.RandomizeNoiseButtonClick(Sender: TObject);
 begin
-  ShiftClockSpinner.Position := 0;
-  DivRatioSpinner.Position := Random(Round(DivRatioSpinner.Max));
+  ShiftClockTrackbar.Position := 0;
+  DivRatioTrackbar.Position := Random(Round(DivRatioTrackbar.Max));
   SevenBitCounterCheckbox.Checked := Random <= 0.5;
   LengthEnabledCheckbox.Checked := Random <= 0.5;
-  LengthSpinner.Position := Random(Round(LengthSpinner.Max));
+  LengthTrackbar.Position := Random(Round(LengthTrackbar.Max));
 
   PreviewInstrument(NotesToFreqs.KeyData[RandomRange(LOWEST_NOTE, HIGHEST_NOTE)],
     InstrumentNumberSpinner.Value);
@@ -1154,7 +1154,7 @@ end;
 
 procedure TfrmTracker.ShiftClockSpinnerChange(Sender: TObject);
 begin
-  CurrentInstrument^.ShiftClockFreq := Round(ShiftClockSpinner.Position);
+  CurrentInstrument^.ShiftClockFreq := Round(ShiftClockTrackbar.Position);
 end;
 
 procedure TfrmTracker.StepSpinEditChange(Sender: TObject);
@@ -1164,7 +1164,7 @@ end;
 
 procedure TfrmTracker.DivRatioSpinnerChange(Sender: TObject);
 begin
-  CurrentInstrument^.DividingRatio := Round(DivRatioSpinner.Position);
+  CurrentInstrument^.DividingRatio := Round(DivRatioTrackbar.Position);
 end;
 
 procedure TfrmTracker.DutyComboboxChange(Sender: TObject);
@@ -1174,7 +1174,7 @@ end;
 
 procedure TfrmTracker.EnvChangeSpinnerChange(Sender: TObject);
 begin
-  CurrentInstrument^.VolSweepAmount := Round(EnvChangeSpinner.Position);
+  CurrentInstrument^.VolSweepAmount := Round(EnvChangeTrackbar.Position);
 end;
 
 procedure TfrmTracker.EnvelopePaintboxPaint(Sender: TObject);
@@ -1201,7 +1201,7 @@ end;
 
 procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
 begin
-  CurrentInstrument^.Length := Round(LengthSpinner.Position);
+  CurrentInstrument^.Length := Round(LengthTrackbar.Position);
 end;
 
 procedure TfrmTracker.DebugPlayNoteButtonClick(Sender: TObject);
@@ -1533,7 +1533,7 @@ end;
 
 procedure TfrmTracker.LengthEnabledCheckboxChange(Sender: TObject);
 begin
-  LengthSpinner.Enabled := LengthEnabledCheckbox.Checked;
+  LengthTrackbar.Enabled := LengthEnabledCheckbox.Checked;
   CurrentInstrument^.LengthEnabled := LengthEnabledCheckbox.Checked;
 end;
 

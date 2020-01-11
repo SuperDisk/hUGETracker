@@ -4,17 +4,10 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <General>
-      <Flags>
-        <MainUnitHasUsesSectionForAllUnits Value="False"/>
-        <MainUnitHasCreateFormStatements Value="False"/>
-        <MainUnitHasTitleStatement Value="False"/>
-        <MainUnitHasScaledStatement Value="False"/>
-      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
       <Title Value="hUGETracker"/>
       <Scaled Value="True"/>
-      <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <XPManifest>
@@ -30,6 +23,9 @@
         <CompilerOptions>
           <Version Value="11"/>
           <PathDelim Value="\"/>
+          <Target>
+            <Filename Value="Release\hUGETracker"/>
+          </Target>
           <SearchPaths>
             <IncludeFiles Value="GPU;CPU;Sound;Global;$(ProjOutDir)"/>
             <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
@@ -84,7 +80,7 @@
         </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="6">
+    <RequiredPackages Count="5">
       <Item1>
         <PackageName Value="etpackage"/>
       </Item1>
@@ -95,14 +91,11 @@
         <PackageName Value="SynEdit"/>
       </Item3>
       <Item4>
-        <PackageName Value="eccontrols"/>
+        <PackageName Value="LazControls"/>
       </Item4>
       <Item5>
-        <PackageName Value="LazControls"/>
-      </Item5>
-      <Item6>
         <PackageName Value="LCL"/>
-      </Item6>
+      </Item5>
     </RequiredPackages>
     <Units Count="22">
       <Unit0>

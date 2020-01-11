@@ -666,8 +666,7 @@ begin
     if Key = VK_DELETE then
       Note := NO_NOTE
     else begin
-      Keybindings.TryGetData(Key, Temp);
-      if Temp <> -1 then begin
+      if Keybindings.TryGetData(Key, Temp) then begin
         Note := Min(HIGHEST_NOTE, Temp+(SelectedOctave*12));
         Instrument := SelectedInstrument;
 

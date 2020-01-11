@@ -21,6 +21,8 @@ uses
 {$R *.res}
 
 begin
+  Application.Scaled:=True;
+  Application.Title:='hUGETracker';
   Application.Initialize;
   Application.CreateForm(TfrmTracker, frmTracker);
   Application.Run;
