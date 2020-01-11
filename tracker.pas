@@ -917,15 +917,18 @@ var
   Note: Integer;
   Freq: Integer;
 begin
+  // Guard conditions
+  if TrackerGrid.Cursor.SelectedPart <> cpNote then Exit;
   if Shift <> [] then Exit;
   if not Keybindings.TryGetData(Key, Note) then Exit;
+
   Inc(Note, OctaveSpinEdit.Value*12);
   EnsureRange(Note, LOWEST_NOTE, HIGHEST_NOTE);
 
   if PreviewingInstrument <> Note then
     PreviewingInstrument := -1;
 
-  if (PreviewingInstrument > 0) or
+  if (PreviewingInstrument > -1) or
      (not (ActiveControl = TrackerGrid)) or
      (InstrumentComboBox.ItemIndex <= 0)
   then exit;
@@ -1393,7 +1396,6 @@ var
   Samp: Integer;
 begin
   if not Playing then Exit;
-
   Max1 := -1;
   Max2 := -1;
   for I := 0 to SAMPLE_BUFFER_SIZE do begin
