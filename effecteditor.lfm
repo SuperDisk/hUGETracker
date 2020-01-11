@@ -59,7 +59,7 @@ object frmEffectEditor: TfrmEffectEditor
     Height = 320
     Top = 80
     Width = 642
-    PageIndex = 0
+    PageIndex = 2
     TabOrder = 1
     object OneParamPage: TPage
       object OneParamTrackBar: TTrackBar

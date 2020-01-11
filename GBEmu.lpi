@@ -12,7 +12,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="GBEmu"/>
+      <Title Value="hUGETracker"/>
       <Scaled Value="True"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
@@ -32,8 +32,8 @@
           <PathDelim Value="\"/>
           <SearchPaths>
             <IncludeFiles Value="GPU;CPU;Sound;Global;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="CPU;Sound;Global;SDL2_headers"/>
-            <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+            <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+            <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
             <SyntaxOptions>
@@ -51,6 +51,7 @@
           </CodeGeneration>
           <Linking>
             <Debugging>
+              <GenerateDebugInfo Value="False"/>
               <UseLineInfoUnit Value="False"/>
               <StripSymbols Value="True"/>
             </Debugging>
@@ -225,8 +226,8 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="GPU;CPU;Sound;Global;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="CPU;Sound;Global;SDL2_headers"/>
-      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+      <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+      <UnitOutputDirectory Value="lib\Development\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>

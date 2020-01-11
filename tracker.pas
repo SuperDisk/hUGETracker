@@ -9,7 +9,7 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  ECProgressBar, HugeDatatypes, LCLType, RackCtls, Codegen,
+  ECProgressBar, HugeDatatypes, LCLType, BCTrackbarUpdown, RackCtls, Codegen,
   SymParser;
 
 type
@@ -855,6 +855,8 @@ procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   I: Integer;
   Section: TCollectionItem;
+  F: file;
+  Stream: TStream;
 begin
   if Screen.Fonts.IndexOf('Pixelite') < 0 then
     MessageDlg('Warning', 'You don''t have the Pixelite .FON file installed, '+
@@ -909,6 +911,20 @@ begin
   EmulationThread := TEmulationThread.Create('halt.gb');
   EmulationThread.Start;
   ResetEmulationThread; //TODO: remove this hack
+
+  if (not FileExists('firstrun')) and FileExists('Sample Songs\Cognition.uge') then begin
+    stream := TFileStream.Create('Sample Songs\Cognition.uge', fmOpenRead);
+    try
+      ReadSongFromStream(stream, Song);
+    finally
+      stream.Free;
+    end;
+    UpdateUIAfterLoad;
+
+    AssignFile(F, 'firstrun');
+    Rewrite(F);
+    CloseFile(F);
+  end;
 end;
 
 procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
@@ -1395,7 +1411,12 @@ var
   I: Integer;
   Samp: Integer;
 begin
-  if not Playing then Exit;
+  // Hack to prevent the effect editor from choking when it's trying to close.
+  if Playing then
+    OscilloscopeUpdateTimer.Interval := 25
+  else
+    OscilloscopeUpdateTimer.Interval := 200;
+
   Max1 := -1;
   Max2 := -1;
   for I := 0 to SAMPLE_BUFFER_SIZE do begin

@@ -1,3 +1,6 @@
 [submodule "hUGEDriver"]
 	path = hUGEDriver
 	url = http://github.com/SuperDisk/hUGEDriver
+[submodule "Pascal-SDL-2-Headers"]
+	path = Pascal-SDL-2-Headers
+	url = https://github.com/ev1313/Pascal-SDL-2-Headers

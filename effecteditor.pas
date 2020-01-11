@@ -199,6 +199,7 @@ end;
 procedure TfrmEffectEditor.VibratoDepthTrackBarChange(Sender: TObject);
 begin
   Cell^.EffectParams.Param2 := VibratoDepthTrackBar.Position;
+  Label2.Caption := 'Depth: '+IntToStr(VibratoDepthTrackBar.Position);
 end;
 
 procedure TfrmEffectEditor.VibratoRateRadioGroupSelectionChanged(Sender: TObject
@@ -258,6 +259,7 @@ begin
     $F: VibratoRateRadioGroup.ItemIndex := 4;
   end;
   VibratoDepthTrackBar.Position := Cell^.EffectParams.Param2;
+  Label2.Caption := IntToStr(VibratoDepthTrackBar.Position);
 end;
 
 procedure TfrmEffectEditor.LoadMasterVolumeData;
