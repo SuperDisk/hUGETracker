@@ -32,6 +32,13 @@ uses
 
 {$R *.res}
 
+{$ifdef MSWINDOWS}
+procedure WindowsExitProc;
+begin
+  RemoveFontResource('PixeliteTTF.ttf');
+end;
+{$endif}
+
 begin
   { Before the LCL starts, embed Pixelite so users dont have to install it.
     Unfortunately there isn't really a cross-platform way to do it, so here's an
@@ -40,6 +47,8 @@ begin
   {$ifdef MSWINDOWS}
     if AddFontResource('PixeliteTTF.ttf') = 0 then
       Writeln(StdErr, 'Couldn''t load Pixelite!!!');
+
+    ExitProc := @WindowsExitProc;
   {$endif}
 
   Application.Scaled:=True;
