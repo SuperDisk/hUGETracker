@@ -886,9 +886,10 @@ var
   Stream: TStream;
 begin
   if Screen.Fonts.IndexOf('Pixelite') < 0 then
-    MessageDlg('Warning', 'You don''t have the Pixelite .FON file installed, '+
-      'which means the tracker view will be messed up. Please install the font and restart!',
-      mtWarning, [mbOk], 0);
+    MessageDlg('Warning', 'You don''t have the Pixelite .TTF file in the same '+
+    'directory as the program, which means you likely didn''t extract the program before running.'+
+    LineEnding+LineEnding+'Please extract, and restart!',
+    mtWarning, [mbOk], 0);
 
   ReturnNilIfGrowHeapFails := False;
   PreviewingInstrument := -1;
