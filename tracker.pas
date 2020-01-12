@@ -9,8 +9,8 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  HugeDatatypes, LCLType, RackCtls, Codegen,
-  SymParser;
+  HugeDatatypes, LCLType, IniPropStorage, RackCtls, Codegen,
+  SymParser, options, IniFiles;
 
 type
   { TfrmTracker }
@@ -29,6 +29,8 @@ type
     MenuItem23: TMenuItem;
     MenuItem24: TMenuItem;
     FontSizeToggleMenuItem: TMenuItem;
+    MenuItem25: TMenuItem;
+    MenuItem26: TMenuItem;
     MenuItem8: TMenuItem;
     NoteHaltTimer: TTimer;
     StartVolTrackbar: TTrackBar;
@@ -224,6 +226,7 @@ type
     procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem22Click(Sender: TObject);
     procedure FontSizeToggleMenuItemClick(Sender: TObject);
+    procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -292,6 +295,7 @@ type
     {PatternsNode, }InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
     SymbolTable: TSymbolMap;
+    OptionsFile: TIniFile;
 
     procedure ChangeToSquare;
     procedure ChangeToWave;
@@ -322,6 +326,7 @@ type
     procedure PreviewC5;
     procedure Panic;
   public
+    procedure OnTrackerGridResize(Sender: TObject);
 
   end;
 
@@ -501,6 +506,15 @@ begin
   Spokeb(NR44, %10000000);
 end;
 
+procedure TfrmTracker.OnTrackerGridResize(Sender: TObject);
+var
+  Section: TCollectionItem;
+begin
+  // Fix the size of the channel headers
+  for Section in HeaderControl1.Sections do
+    (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
+end;
+
 procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
@@ -665,6 +679,9 @@ var
 begin
   if Assigned(TrackerGrid) then TrackerGrid.Free;
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
+  TrackerGrid.OnResize:=@OnTrackerGridResize;
+
+  TrackerGrid.FontSize := OptionsFile.ReadInteger('hUGETracker', 'fontsize', 12);
 
   // Fix the size of the channel headers
   for Section in HeaderControl1.Sections do
@@ -875,6 +892,7 @@ begin
 
   ReturnNilIfGrowHeapFails := False;
   PreviewingInstrument := -1;
+  OptionsFile := TINIFile.Create('options.ini');
 
   InitializeSong(Song);
 
@@ -918,7 +936,7 @@ begin
   EmulationThread.Start;
   ResetEmulationThread; //TODO: remove this hack
 
-  if (not FileExists('firstrun')) and FileExists('Sample Songs\Cognition.uge') then begin
+  if (not OptionsFile.ReadBool('hUGETracker', 'firstrun', False)) and FileExists('Sample Songs\Cognition.uge') then begin
     stream := TFileStream.Create('Sample Songs\Cognition.uge', fmOpenRead);
     try
       ReadSongFromStream(stream, Song);
@@ -927,9 +945,7 @@ begin
     end;
     UpdateUIAfterLoad;
 
-    AssignFile(F, 'firstrun');
-    Rewrite(F);
-    CloseFile(F);
+    OptionsFile.WriteBool('hUGETracker', 'firstrun', True);
   end;
 end;
 
@@ -1317,6 +1333,15 @@ end;
 procedure TfrmTracker.FontSizeToggleMenuItemClick(Sender: TObject);
 begin
 
+end;
+
+procedure TfrmTracker.MenuItem26Click(Sender: TObject);
+begin
+  frmOptions.FontSizeSpinner.Value := TrackerGrid.FontSize;
+  frmOptions.ShowModal;
+  TrackerGrid.FontSize := frmOptions.FontSizeSpinner.Value;
+
+  OptionsFile.WriteInteger('hUGETracker', 'fontsize', TrackerGrid.FontSize);
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);

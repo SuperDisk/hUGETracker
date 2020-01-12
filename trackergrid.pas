@@ -99,6 +99,8 @@ type
     function MousePosToSelection(X, Y: Integer): TSelectionPos;
     function KeycodeToHexNumber(Key: Word; out Num: Nibble): Boolean; overload;
     function KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean; overload;
+
+    procedure ChangeFontSize;
   private
     PatternMap: TPatternMap;
     Patterns: TPatternGrid;
@@ -114,6 +116,8 @@ type
     Recall: TRedoStack;
 
     FHighlightedRow: Integer;
+    FFontSize: Integer;
+    procedure SetFontSize(AValue: Integer);
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
@@ -122,6 +126,7 @@ type
 
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
+    property FontSize: Integer read FFontSize write SetFontSize;
     procedure LoadPattern(Idx: Integer; PatternNumber: Integer);
 
     function GetAt(SelectionPos: TSelectionPos): Integer;
@@ -200,6 +205,8 @@ constructor TTrackerGrid.Create(
 begin
   inherited Create(AOwner);
 
+  FFontSize := 12;
+
   Self.PatternMap := PatternMap;
 
   Performed := TUndoDeque.Create;
@@ -209,19 +216,7 @@ begin
   ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents, csDoubleClicks];
   Self.Parent := Parent;
 
-  // Kind of a hack
-  with Canvas.Font do begin
-    Name := 'Pixelite';
-    Size := 12;
-    ColumnWidth := GetTextWidth('C-5 01v64C01 ');
-    RowHeight := GetTextHeight('C-5 01v64C01 ');
-
-    CharHeight := RowHeight;
-    CharWidth := GetTextWidth('C');
-  end;
-
-  Width := ColumnWidth*4;
-  Height := RowHeight*64;
+  ChangeFontSize;
 
   SelectedInstrument := 0;
   SelectedOctave := 0;
@@ -958,6 +953,32 @@ var
 begin
   Result := KeycodeToHexNumber(Key, X);
   Num := X;
+end;
+
+procedure TTrackerGrid.ChangeFontSize;
+begin
+  // Kind of a hack
+  with Canvas.Font do begin
+    Name := 'PixeliteTTF';
+    Size := FontSize;
+    ColumnWidth := GetTextWidth('C-5 01v64C01 ');
+    RowHeight := GetTextHeight('C-5 01v64C01 ');
+
+    CharHeight := RowHeight;
+    CharWidth := GetTextWidth('C');
+  end;
+
+  Width := ColumnWidth*4;
+  Height := RowHeight*64;
+end;
+
+procedure TTrackerGrid.SetFontSize(AValue: Integer);
+begin
+  if FFontSize=AValue then Exit;
+  FFontSize:=AValue;
+
+  ChangeFontSize;
+  Invalidate;
 end;
 
 function TTrackerGrid.GetAt(SelectionPos: TSelectionPos): Integer;

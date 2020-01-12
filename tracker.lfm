@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 825
+  Left = 998
   Height = 1250
-  Top = 233
+  Top = 237
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -57,10 +57,10 @@ object frmTracker: TfrmTracker
       Height = 820
       Top = 0
       Width = 1720
-      ActivePage = GeneralTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -906,16 +906,16 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 802
-        ClientWidth = 1701
+        ClientHeight = 777
+        ClientWidth = 1712
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 522
+          Height = 497
           Top = 280
-          Width = 1701
+          Width = 1712
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 23
@@ -980,17 +980,17 @@ object frmTracker: TfrmTracker
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 802
-        ClientWidth = 1701
+        ClientHeight = 777
+        ClientWidth = 1712
         ParentFont = False
         object CommentMemo: TMemo
           AnchorSideTop.Control = Label17
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 735
+          Height = 710
           Hint = 'The comments section for your song. Greetings/links/etc'
           Top = 67
-          Width = 1701
+          Width = 1712
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 23
@@ -1010,17 +1010,16 @@ object frmTracker: TfrmTracker
       end
       object RoutinesTabSheet: TTabSheet
         Caption = 'Routines'
-        ClientHeight = 802
-        ClientWidth = 1701
-        Enabled = False
+        ClientHeight = 777
+        ClientWidth = 1712
         ParentFont = False
         inline RoutineSynedit: TSynEdit
           AnchorSideTop.Control = Label19
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 559
+          Height = 534
           Top = 243
-          Width = 1701
+          Width = 1712
           Align = alBottom
           BorderSpacing.Top = 23
           Anchors = [akTop, akLeft, akRight, akBottom]
@@ -1901,6 +1900,13 @@ object frmTracker: TfrmTracker
         ImageIndex = 56
         ShortCut = 16473
         OnClick = MenuItem8Click
+      end
+      object MenuItem25: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem26: TMenuItem
+        Caption = 'Options ...'
+        OnClick = MenuItem26Click
       end
     end
     object MenuItem10: TMenuItem

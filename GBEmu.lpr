@@ -14,7 +14,7 @@ uses
   Z80CPU in 'CPU\z80cpu.pas',
   sound in 'Sound\sound.pas',
   vars in 'Global\vars.pas',
-  mainloop in 'mainloop.pas';
+  mainloop in 'mainloop.pas', options;
 
 {.$R *.RES}
 
@@ -25,5 +25,6 @@ begin
   Application.Title:='hUGETracker';
   Application.Initialize;
   Application.CreateForm(TfrmTracker, frmTracker);
+  Application.CreateForm(TfrmOptions, frmOptions);
   Application.Run;
 end.

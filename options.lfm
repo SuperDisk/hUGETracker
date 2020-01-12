@@ -1,0 +1,37 @@
+object frmOptions: TfrmOptions
+  Left = 739
+  Height = 300
+  Top = 371
+  Width = 614
+  BorderStyle = bsDialog
+  Caption = 'Options'
+  ClientHeight = 300
+  ClientWidth = 614
+  DesignTimePPI = 168
+  LCLVersion = '2.0.6.0'
+  object Label1: TLabel
+    Left = 24
+    Height = 30
+    Top = 24
+    Width = 211
+    Caption = 'Pattern editor font size'
+    ParentColor = False
+  end
+  object Button1: TButton
+    Left = 200
+    Height = 44
+    Top = 224
+    Width = 216
+    Caption = 'OK'
+    OnClick = Button1Click
+    TabOrder = 0
+  end
+  object FontSizeSpinner: TSpinEdit
+    Left = 272
+    Height = 38
+    Top = 16
+    Width = 216
+    TabOrder = 1
+    Value = 12
+  end
+end
