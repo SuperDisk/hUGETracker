@@ -12,6 +12,4 @@ lib
 *.lnk
 *.map
 ~*
-Pascal-SDL2*
 Release
-Pascal-SDL-2-Headers
