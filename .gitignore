@@ -11,5 +11,6 @@ lib
 *.sym
 *.lnk
 *.map
+*.so
 ~*
 Release
