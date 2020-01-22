@@ -885,10 +885,11 @@ var
   F: file;
   Stream: TStream;
 begin
-  if Screen.Fonts.IndexOf('Pixelite') < 0 then
-    MessageDlg('Warning', 'You don''t have the Pixelite .TTF file in the same '+
-    'directory as the program, which means you likely didn''t extract the program before running.'+
-    LineEnding+LineEnding+'Please extract, and restart!',
+  if Screen.Fonts.IndexOf('PixeliteTTF') < 0 then
+    MessageDlg('Warning', 'You don''t have the Pixelite font installed. '+
+    'On Windows, this probably means you didn''t extract hUGETracker before running it, '+
+    'so please extract the .zip and run again! On Linux, you need to manually install the '+
+    'font file, so please install PixeliteTTF.ttf and relaunch! Thanks.',
     mtWarning, [mbOk], 0);
 
   ReturnNilIfGrowHeapFails := False;
