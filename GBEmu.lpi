@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
-    <Version Value="12"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <General>
-      <Flags>
-        <CompatibilityMode Value="True"/>
-      </Flags>
       <SessionStorage Value="InProjectDir"/>
+      <MainUnit Value="0"/>
       <Title Value="hUGETracker"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
@@ -73,9 +71,9 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="GPU;CPU;Sound;Global;$(ProjOutDir)"/>
-            <Libraries Value="linuxlibs"/>
-            <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+            <IncludeFiles Value="Cpu;Sound;Global;$(ProjOutDir)"/>
+            <Libraries Value="\usr\lib\i386-linux-gnu\"/>
+            <OtherUnitFiles Value="Cpu;Sound;Global;Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
