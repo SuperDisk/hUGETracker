@@ -39,6 +39,8 @@ begin
   Result := Trunc(ET.Elapsed*1000000); // Convert to microseconds
 end;
 begin
+  writeln('starting that thread up');
+
   lastTime := 0;
 
   cycles := 0;
@@ -47,20 +49,37 @@ begin
   FrameStart := GetCounter;
 
   repeat
+    writeln('thread loop begin');
+    Flush(Output);
+
     while (cycles < CyclesPerFrame) do
       cycles += z80_decode;
+    writeln('cycles part done');
+    Flush(Output);
 
     cycles -= CyclesPerFrame;
+    writeln('subbing cycles');
+    Flush(Output);
 
     // TODO: Replace this with an actual timing mechanism. This devours CPU.
-    repeat
+    {repeat
       FrameEnd := GetCounter;
 
       frameElapsedInSec := (frameEnd - frameStart) / tickFreq;
-    until (frameElapsedInSec > TimePerFrame) and (not SoundBufferTooFull);
+    until (frameElapsedInSec > TimePerFrame) and (not SoundBufferTooFull);  }
 
-    frameStart := frameEnd;
+    //sleep(15);
+    //writeln('sleep done');
+
+    //frameStart := frameEnd;
+
+    writeln('thread loop completed');
+    Flush(Output);
+    Flush(Stdout);
   until Terminated;
+
+  writeln('thread dying');
+  Flush(Output);
 end;
 
 procedure TEmulationThread.OnFD;

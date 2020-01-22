@@ -3,6 +3,11 @@ program GBEmu;
 {$MODE Delphi}
 
 uses
+{$ifdef unix}
+  cthreads,
+  cmem, // the c memory manager is on some systems much faster for multi-threading
+{$endif}
+
 {$ifdef MSWINDOWS}
   windows,
 {$endif}
@@ -15,10 +20,6 @@ uses
 // font includes here
 {$endif}
 
-{$ifdef unix}
-  cthreads,
-  cmem, // the c memory manager is on some systems much faster for multi-threading
-{$endif}
   Forms,
   Interfaces,
   Tracker in 'Tracker.pas',
