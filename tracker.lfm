@@ -16,7 +16,7 @@ object frmTracker: TfrmTracker
   OnShow = FormShow
   Position = poDefault
   ShowHint = True
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.1.0.0'
   object TreeView1: TTreeView
     Left = 0
     Height = 820
@@ -1859,8 +1859,8 @@ object frmTracker: TfrmTracker
   end
   object MainMenu1: TMainMenu
     Images = ImageList1
-    left = 616
-    top = 75
+    Left = 616
+    Top = 75
     object MenuItem1: TMenuItem
       Caption = 'File'
       object MenuItem12: TMenuItem
@@ -1960,8 +1960,8 @@ object frmTracker: TfrmTracker
   end
   object ActionList1: TActionList
     Images = ImageList1
-    left = 999
-    top = 75
+    Left = 999
+    Top = 75
     object FileOpen1: TFileOpen
       Category = 'File'
       Caption = '&Open ...'
@@ -2064,8 +2064,8 @@ object frmTracker: TfrmTracker
     end
   end
   object ImageList1: TImageList
-    left = 233
-    top = 81
+    Left = 233
+    Top = 81
     Bitmap = {
       4C694E0000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4568,17 +4568,17 @@ object frmTracker: TfrmTracker
   end
   object OpenDialog1: TOpenDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 737
-    top = 75
+    Left = 737
+    Top = 75
   end
   object InstrumentSaveDialog: TSaveDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 600
-    top = 177
+    Left = 600
+    Top = 177
   end
   object OrderEditPopup: TPopupMenu
-    left = 376
-    top = 81
+    Left = 376
+    Top = 81
     object MenuItem17: TMenuItem
       Caption = 'Insert new row'
       Hint = 'Insert a new row filled with brand new patterns'
@@ -4609,8 +4609,8 @@ object frmTracker: TfrmTracker
   object ImageList2: TImageList
     Height = 32
     Width = 32
-    left = 233
-    top = 168
+    Left = 233
+    Top = 168
     Bitmap = {
       4C69020000002000000020000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4874,28 +4874,28 @@ object frmTracker: TfrmTracker
   object OscilloscopeUpdateTimer: TTimer
     Interval = 25
     OnTimer = OscilloscopeUpdateTimerTimer
-    left = 504
-    top = 81
+    Left = 504
+    Top = 81
   end
   object GBSSaveDialog: TSaveDialog
     Filter = 'Gameboy Soundtrack|*.gbs'
-    left = 920
-    top = 177
+    Left = 920
+    Top = 177
   end
   object WaveSaveDialog: TSaveDialog
     Filter = 'hUGETracker Waves|*.ugw'
-    left = 784
-    top = 168
+    Left = 784
+    Top = 168
   end
   object GBSaveDialog: TSaveDialog
     Filter = 'Gameboy ROM|*.GB'
-    left = 457
-    top = 184
+    Left = 457
+    Top = 184
   end
   object NoteHaltTimer: TTimer
     Enabled = False
     OnTimer = NoteHaltTimerTimer
-    left = 345
-    top = 177
+    Left = 345
+    Top = 177
   end
 end

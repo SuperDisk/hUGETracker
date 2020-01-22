@@ -974,7 +974,7 @@ begin
 
   if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
 
-  PreviewInstrument(Freq, InstrumentNumberSpinner.Value);
+  PreviewInstrument(Freq, InstrumentComboBox.ItemIndex-1);
   PreviewingInstrument := Note;
 end;
 
