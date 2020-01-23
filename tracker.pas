@@ -975,7 +975,7 @@ begin
 
   if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
 
-  PreviewInstrument(Freq, InstrumentComboBox.ItemIndex-1);
+  PreviewInstrument(Freq, InstrumentComboBox.ItemIndex);
   PreviewingInstrument := Note;
 end;
 
@@ -1238,6 +1238,7 @@ end;
 procedure TfrmTracker.DebugPlayNoteButtonClick(Sender: TObject);
 begin
   PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
+  //PreviewInstrument(NotesToFreqs.KeyData[C_5], InstrumentComboBox.ItemIndex);
 end;
 
 procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
