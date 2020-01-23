@@ -27,7 +27,8 @@ uses
   Z80CPU in 'CPU\z80cpu.pas',
   sound in 'Sound\sound.pas',
   vars in 'Global\vars.pas',
-  mainloop in 'mainloop.pas', options;
+  mainloop in 'mainloop.pas',
+  options in 'options.pas';
 
 {.$R *.RES}
 

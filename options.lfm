@@ -1,12 +1,12 @@
 object frmOptions: TfrmOptions
-  Left = 739
-  Height = 300
-  Top = 371
-  Width = 614
+  Left = 1762
+  Height = 849
+  Top = 212
+  Width = 762
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 300
-  ClientWidth = 614
+  ClientHeight = 849
+  ClientWidth = 762
   DesignTimePPI = 168
   LCLVersion = '2.0.6.0'
   object Label1: TLabel
@@ -18,9 +18,9 @@ object frmOptions: TfrmOptions
     ParentColor = False
   end
   object Button1: TButton
-    Left = 200
+    Left = 520
     Height = 44
-    Top = 224
+    Top = 784
     Width = 216
     Caption = 'OK'
     OnClick = Button1Click

@@ -27,7 +27,7 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="GPU;CPU;Sound;Global;$(ProjOutDir)"/>
+            <IncludeFiles Value="CPU;Sound;Global;$(ProjOutDir)"/>
             <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
@@ -83,8 +83,8 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="GPU;CPU;Sound;Global;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+            <IncludeFiles Value="Cpu;Sound;Global;$(ProjOutDir)"/>
+            <OtherUnitFiles Value="Cpu;Sound;Global;Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -284,6 +284,7 @@
         <Filename Value="options.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmOptions"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit22>
     </Units>
@@ -292,7 +293,7 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="GPU;CPU;Sound;Global;$(ProjOutDir)"/>
+      <IncludeFiles Value="CPU;Sound;Global;$(ProjOutDir)"/>
       <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
       <UnitOutputDirectory Value="lib\Development\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>

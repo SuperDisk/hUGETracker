@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 998
+  Left = 966
   Height = 1250
-  Top = 237
+  Top = 361
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -57,10 +57,10 @@ object frmTracker: TfrmTracker
       Height = 820
       Top = 0
       Width = 1720
-      ActivePage = PatternTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -1533,7 +1533,6 @@ object frmTracker: TfrmTracker
           Width = 308
           MaxValue = 15
           MinValue = 1
-          OnChange = InstrumentNumberSpinnerChange
           ParentFont = False
           TabOrder = 1
           Value = 1
@@ -1949,7 +1948,6 @@ object frmTracker: TfrmTracker
     end
     object DebugPlayNoteButton: TMenuItem
       Caption = 'Debug play note'
-      Visible = False
       OnClick = DebugPlayNoteButtonClick
     end
     object DebugShiteButton: TMenuItem
@@ -4872,7 +4870,7 @@ object frmTracker: TfrmTracker
     }
   end
   object OscilloscopeUpdateTimer: TTimer
-    Interval = 25
+    Interval = 200
     OnTimer = OscilloscopeUpdateTimerTimer
     left = 504
     top = 81

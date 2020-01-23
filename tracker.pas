@@ -1491,6 +1491,7 @@ begin
   if Max1 > LEDMeter1.Position then LEDMeter1.Position := Max1;
   if Max2 > LEDMeter2.Position then LEDMeter2.Position := Max2;
 
+  Application.ProcessMessages;
   PerformingOscilloscopeUpdate := False;
 end;
 
