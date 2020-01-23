@@ -297,6 +297,8 @@ type
     SymbolTable: TSymbolMap;
     OptionsFile: TIniFile;
 
+    PerformingOscilloscopeUpdate: Boolean;
+
     procedure ChangeToSquare;
     procedure ChangeToWave;
     procedure ChangeToNoise;
@@ -1457,6 +1459,9 @@ var
   I: Integer;
   Samp: Integer;
 begin
+  if PerformingOscilloscopeUpdate then Exit;
+  PerformingOscilloscopeUpdate := True;
+
   Application.ProcessMessages;
   // Hack to prevent the effect editor from choking when it's trying to close.
   if Playing then
@@ -1485,6 +1490,8 @@ begin
   Max2 := Trunc((Max2/512)*100);
   if Max1 > LEDMeter1.Position then LEDMeter1.Position := Max1;
   if Max2 > LEDMeter2.Position then LEDMeter2.Position := Max2;
+
+  PerformingOscilloscopeUpdate := False;
 end;
 
 procedure TfrmTracker.ExportGBSButtonClick(Sender: TObject);
