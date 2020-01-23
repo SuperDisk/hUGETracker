@@ -192,7 +192,7 @@ end;
 
 procedure TfrmEffectEditor.TwoParamsTrackBar2Change(Sender: TObject);
 begin
-  Cell^.EffectParams.Param1 := TwoParamsTrackBar2.Position;
+  Cell^.EffectParams.Param2 := TwoParamsTrackBar2.Position;
   Value1.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 

@@ -5,7 +5,7 @@ program GBEmu;
 uses
 {$ifdef unix}
   cthreads,
-  cmem, // the c memory manager is on some systems much faster for multi-threading
+  // cmem, // the c memory manager is on some systems much faster for multi-threading
 {$endif}
 
 {$ifdef MSWINDOWS}
@@ -19,6 +19,10 @@ uses
 {$ifdef DARWIN}
 // font includes here
 {$endif}
+
+{$IFDEF debug}
+ SysUtils,
+{$ENDIF}
 
   Forms,
   Interfaces,
@@ -42,6 +46,16 @@ end;
 {$endif}
 
 begin
+  {$IFDEF DEBUG}
+  // Assuming your build mode sets -dDEBUG in Project Options/Other when defining -gh
+  // This avoids interference when running a production/default build without -gh
+
+  // Set up -gh output for the Leakview package:
+  {if FileExists('heap.trc') then
+    DeleteFile('heap.trc');
+  SetHeapTraceOutput('heap.trc');}
+  {$ENDIF DEBUG}
+
   { Before the LCL starts, embed Pixelite so users dont have to install it.
     Unfortunately there isn't really a cross-platform way to do it, so here's an
     ifdef mess. }

@@ -1,7 +1,7 @@
 object frmEffectEditor: TfrmEffectEditor
-  Left = 583
+  Left = 621
   Height = 416
-  Top = 421
+  Top = 389
   Width = 684
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
@@ -59,7 +59,7 @@ object frmEffectEditor: TfrmEffectEditor
     Height = 320
     Top = 80
     Width = 642
-    PageIndex = 2
+    PageIndex = 1
     TabOrder = 1
     object OneParamPage: TPage
       object OneParamTrackBar: TTrackBar

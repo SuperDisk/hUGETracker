@@ -112,7 +112,7 @@ begin
       Type_ := Square;
       Length := 0;
       LengthEnabled := False;
-      InitialVolume := 63;
+      InitialVolume := High(TEnvelopeVolume);
       VolSweepDirection := Down;
       VolSweepAmount := 0;
 

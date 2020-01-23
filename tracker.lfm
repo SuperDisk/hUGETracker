@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 966
+  Left = 800
   Height = 1250
-  Top = 361
+  Top = 202
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -57,10 +57,10 @@ object frmTracker: TfrmTracker
       Height = 820
       Top = 0
       Width = 1720
-      ActivePage = InstrumentTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -1858,7 +1858,7 @@ object frmTracker: TfrmTracker
   end
   object MainMenu1: TMainMenu
     Images = ImageList1
-    left = 616
+    left = 704
     top = 75
     object MenuItem1: TMenuItem
       Caption = 'File'
@@ -1948,6 +1948,7 @@ object frmTracker: TfrmTracker
     end
     object DebugPlayNoteButton: TMenuItem
       Caption = 'Debug play note'
+      Visible = False
       OnClick = DebugPlayNoteButtonClick
     end
     object DebugShiteButton: TMenuItem
@@ -2062,7 +2063,7 @@ object frmTracker: TfrmTracker
     end
   end
   object ImageList1: TImageList
-    left = 233
+    left = 168
     top = 81
     Bitmap = {
       4C694E0000001000000010000000000000000000000000000000000000000000
@@ -4566,17 +4567,17 @@ object frmTracker: TfrmTracker
   end
   object OpenDialog1: TOpenDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 737
+    left = 872
     top = 75
   end
   object InstrumentSaveDialog: TSaveDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 600
-    top = 177
+    left = 608
+    top = 232
   end
   object OrderEditPopup: TPopupMenu
-    left = 376
-    top = 81
+    left = 328
+    top = 80
     object MenuItem17: TMenuItem
       Caption = 'Insert new row'
       Hint = 'Insert a new row filled with brand new patterns'
@@ -4607,8 +4608,8 @@ object frmTracker: TfrmTracker
   object ImageList2: TImageList
     Height = 32
     Width = 32
-    left = 233
-    top = 168
+    left = 192
+    top = 184
     Bitmap = {
       4C69020000002000000020000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4872,8 +4873,8 @@ object frmTracker: TfrmTracker
   object OscilloscopeUpdateTimer: TTimer
     Interval = 200
     OnTimer = OscilloscopeUpdateTimerTimer
-    left = 504
-    top = 81
+    left = 512
+    top = 64
   end
   object GBSSaveDialog: TSaveDialog
     Filter = 'Gameboy Soundtrack|*.gbs'
@@ -4887,13 +4888,67 @@ object frmTracker: TfrmTracker
   end
   object GBSaveDialog: TSaveDialog
     Filter = 'Gameboy ROM|*.GB'
-    left = 457
-    top = 184
+    left = 480
+    top = 177
   end
   object NoteHaltTimer: TTimer
     Enabled = False
     OnTimer = NoteHaltTimerTimer
-    left = 345
-    top = 177
+    left = 328
+    top = 200
+  end
+  object TrackerGridPopup: TPopupMenu
+    left = 1093
+    top = 191
+    object TrackerPopupSelectAll: TMenuItem
+      Caption = 'Select all'
+      OnClick = TrackerPopupSelectAllClick
+    end
+    object TrackerPopupSelectChannel: TMenuItem
+      Caption = 'Select channel'
+      ShortCut = 16460
+      OnClick = TrackerPopupSelectChannelClick
+    end
+    object MenuItem29: TMenuItem
+      Caption = '-'
+    end
+    object TrackerPopupCut: TMenuItem
+      Caption = 'Cut'
+      ShortCut = 16472
+      OnClick = TrackerPopupCutClick
+    end
+    object TrackerPopupCopy: TMenuItem
+      Caption = 'Copy'
+      ShortCut = 16451
+      OnClick = TrackerPopupCopyClick
+    end
+    object TrackerPopupPaste: TMenuItem
+      Caption = 'Paste'
+      ShortCut = 16470
+      OnClick = TrackerPopupPasteClick
+    end
+    object TrackerPopupFloodPaste: TMenuItem
+      Caption = 'Flood paste'
+      ShortCut = 8278
+      OnClick = TrackerPopupFloodPasteClick
+    end
+    object TrackerPopupErase: TMenuItem
+      Caption = 'Erase'
+      ShortCut = 46
+      OnClick = TrackerPopupEraseClick
+    end
+    object MenuItem27: TMenuItem
+      Caption = '-'
+    end
+    object TrackerPopupUndo: TMenuItem
+      Caption = 'Undo'
+      ShortCut = 16474
+      OnClick = TrackerPopupUndoClick
+    end
+    object TrackerPopupRedo: TMenuItem
+      Caption = 'Redo'
+      ShortCut = 16473
+      OnClick = TrackerPopupRedoClick
+    end
   end
 end

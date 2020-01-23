@@ -70,7 +70,6 @@ type
   private
     procedure PerformPaste(Paste: TSelection);
     procedure PerformCopy;
-    procedure DoRepeatPaste;
     procedure DoPaste(var Msg: TLMessage); message LM_PASTE;
     procedure DoCopy(var Msg: TLMessage); message LM_COPY;
     procedure DoCut(var Msg: TLMessage); message LM_CUT;
@@ -134,9 +133,11 @@ type
     procedure ClearAt(SelectionPos: TSelectionPos);
 
     procedure SelectAll;
+    procedure SelectColumn;
     procedure EraseSelection;
     procedure DoUndo;
     procedure DoRedo;
+    procedure DoRepeatPaste;
 
     constructor Create(
       AOwner: TComponent;
@@ -279,6 +280,7 @@ procedure TTrackerGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
 begin
   inherited MouseDown(Button, Shift, X, Y);
+  if (Button = mbRight) and Selecting then Exit;
 
   if Button = mbLeft then
     MouseButtonDown := True;
@@ -356,12 +358,7 @@ begin
         VK_A: TransposeSelection(-1);
         VK_Z: DoUndo;
         VK_Y: DoRedo;
-        VK_L: begin
-          Cursor.Y := 0;
-          Other.Y := High(TPattern);
-          Cursor.SelectedPart := Low(TCellPart);
-          Other.SelectedPart := High(TCellPart);
-        end;
+        VK_L: SelectColumn;
       end;
 
     if ssShift in Shift then
@@ -1013,6 +1010,16 @@ begin
   Other.X := High(Patterns);
   Other.Y := High(TPattern);
   Other.SelectedPart := cpEffectParams;
+
+  Invalidate;
+end;
+
+procedure TTrackerGrid.SelectColumn;
+begin
+  Cursor.Y := 0;
+  Other.Y := High(TPattern);
+  Cursor.SelectedPart := Low(TCellPart);
+  Other.SelectedPart := High(TCellPart);
 
   Invalidate;
 end;

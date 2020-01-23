@@ -12,7 +12,7 @@ type
   TDutyType = 0..3;
   TSweepType = (Up, Down);
   TStepWidth = (Fifteen, Seven);
-  TEnvelopeVolume = 0..63;
+  TEnvelopeVolume = 0..15;
   TEnvelopeSweepAmount = 0..7;
 
   TInstrument = packed record

@@ -342,7 +342,6 @@ begin
   if (n_ff04 > 255) then
   begin
     Dec(m_iram[$ff04]); // DIVIDER [RW] Divider
-
     // This register is incremented 16384 times
     // a second. Writing any value sets it to $00.
 

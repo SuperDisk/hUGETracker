@@ -71,7 +71,7 @@
               <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
-            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -CfAVX2 -CpCOREAVX2 OpCOREAVX2 -Si -Sv"/>
+            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -CfAVX2 -CpCOREAVX2 OpCOREAVX2 -Si -Sv -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -127,7 +127,7 @@
               <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
-            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -CfAVX2 -CpCOREAVX2 OpCOREAVX2 -Si -Sv"/>
+            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -CfAVX2 -CpCOREAVX2 OpCOREAVX2 -Si -Sv -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
       </Item3>
@@ -300,17 +300,22 @@
     <Parsing>
       <SyntaxOptions>
         <CStyleOperator Value="False"/>
+        <IncludeAssertionCode Value="True"/>
         <CPPInline Value="False"/>
       </SyntaxOptions>
     </Parsing>
     <CodeGeneration>
+      <Checks>
+        <IOChecks Value="True"/>
+        <StackChecks Value="True"/>
+      </Checks>
       <TargetCPU Value="i386"/>
       <Optimizations>
         <OptimizationLevel Value="0"/>
       </Optimizations>
     </CodeGeneration>
     <Other>
-      <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL"/>
+      <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dDEVELOPMENT"/>
     </Other>
   </CompilerOptions>
   <Debugging>

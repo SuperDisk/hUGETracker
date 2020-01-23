@@ -31,8 +31,20 @@ type
     FontSizeToggleMenuItem: TMenuItem;
     MenuItem25: TMenuItem;
     MenuItem26: TMenuItem;
+    MenuItem27: TMenuItem;
+    TrackerPopupUndo: TMenuItem;
+    TrackerPopupRedo: TMenuItem;
+    TrackerPopupSelectAll: TMenuItem;
+    TrackerPopupSelectChannel: TMenuItem;
+    TrackerPopupCut: TMenuItem;
+    MenuItem29: TMenuItem;
+    TrackerPopupCopy: TMenuItem;
+    TrackerPopupPaste: TMenuItem;
+    TrackerPopupErase: TMenuItem;
+    TrackerPopupFloodPaste: TMenuItem;
     MenuItem8: TMenuItem;
     NoteHaltTimer: TTimer;
+    TrackerGridPopup: TPopupMenu;
     StartVolTrackbar: TTrackBar;
     EnvChangeTrackbar: TTrackBar;
     ShiftClockTrackbar: TTrackBar;
@@ -257,6 +269,15 @@ type
     procedure ToolButton3Click(Sender: TObject);
     procedure ToolButton4Click(Sender: TObject);
     procedure ExportGBButtonClick(Sender: TObject);
+    procedure TrackerPopupCopyClick(Sender: TObject);
+    procedure TrackerPopupCutClick(Sender: TObject);
+    procedure TrackerPopupEraseClick(Sender: TObject);
+    procedure TrackerPopupFloodPasteClick(Sender: TObject);
+    procedure TrackerPopupPasteClick(Sender: TObject);
+    procedure TrackerPopupRedoClick(Sender: TObject);
+    procedure TrackerPopupSelectAllClick(Sender: TObject);
+    procedure TrackerPopupSelectChannelClick(Sender: TObject);
+    procedure TrackerPopupUndoClick(Sender: TObject);
     procedure TreeView1DblClick(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
     procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
@@ -688,6 +709,8 @@ begin
   // Fix the size of the channel headers
   for Section in HeaderControl1.Sections do
     (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
+
+  TrackerGrid.PopupMenu := TrackerGridPopup;
 end;
 
 procedure TfrmTracker.LoadInstrument(Instr: Integer);
@@ -951,6 +974,11 @@ begin
 
     OptionsFile.WriteBool('hUGETracker', 'firstrun', True);
   end;
+
+  {$ifdef DEVELOPMENT}
+  DebugShiteButton.Visible := True;
+  DebugPlayNoteButton.Visible := True;
+  {$endif}
 end;
 
 procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
@@ -1532,6 +1560,51 @@ begin
   if GBSaveDialog.Execute then begin
     RenderSongToFile(Song, GBSaveDialog.FileName);
   end;
+end;
+
+procedure TfrmTracker.TrackerPopupCopyClick(Sender: TObject);
+begin
+  SendMessage(TrackerGrid.Handle, LM_COPY, 0, 0)
+end;
+
+procedure TfrmTracker.TrackerPopupCutClick(Sender: TObject);
+begin
+  SendMessage(TrackerGrid.Handle, LM_CUT, 0, 0)
+end;
+
+procedure TfrmTracker.TrackerPopupEraseClick(Sender: TObject);
+begin
+  TrackerGrid.EraseSelection
+end;
+
+procedure TfrmTracker.TrackerPopupFloodPasteClick(Sender: TObject);
+begin
+  TrackerGrid.DoRepeatPaste
+end;
+
+procedure TfrmTracker.TrackerPopupPasteClick(Sender: TObject);
+begin
+  SendMessage(TrackerGrid.Handle, LM_PASTE, 0, 0)
+end;
+
+procedure TfrmTracker.TrackerPopupRedoClick(Sender: TObject);
+begin
+  TrackerGrid.DoRedo
+end;
+
+procedure TfrmTracker.TrackerPopupSelectAllClick(Sender: TObject);
+begin
+  TrackerGrid.SelectAll
+end;
+
+procedure TfrmTracker.TrackerPopupSelectChannelClick(Sender: TObject);
+begin
+  TrackerGrid.SelectColumn
+end;
+
+procedure TfrmTracker.TrackerPopupUndoClick(Sender: TObject);
+begin
+  TrackerGrid.DoUndo
 end;
 
 procedure TfrmTracker.TreeView1DblClick(Sender: TObject);
