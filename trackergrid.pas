@@ -380,20 +380,8 @@ begin
     VK_DOWN: begin
       Inc(Cursor.Y);
     end;
-    VK_LEFT: begin
-      if ssCtrl in Shift then
-        Dec(Cursor.X)
-      else if Cursor.SelectedPart > Low(TCellPart) then begin
-        Cursor.SelectedPart := Pred(Cursor.SelectedPart);
-      end;
-    end;
-    VK_RIGHT: begin
-      if ssCtrl in Shift then
-        Inc(Cursor.X)
-      else if Cursor.SelectedPart < High(TCellPart) then begin
-        Cursor.SelectedPart := Succ(Cursor.SelectedPart);
-      end;
-    end;
+    VK_LEFT: DecSelectionPos(Cursor);
+    VK_RIGHT: IncSelectionPos(Cursor);
     else begin
       if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
         case Cursor.SelectedPart of
