@@ -4912,6 +4912,29 @@ object frmTracker: TfrmTracker
     object MenuItem29: TMenuItem
       Caption = '-'
     end
+    object TrackerPopupTransposeSemiUp: TMenuItem
+      Caption = 'Transpose +1 semitone'
+      ShortCut = 16465
+      OnClick = TrackerPopupTransposeSemiUpClick
+    end
+    object TrackerPopupTransposeSemiDown: TMenuItem
+      Caption = 'Transpose -1 semitone'
+      ShortCut = 16449
+      OnClick = TrackerPopupTransposeSemiDownClick
+    end
+    object TrackerPopupTransposeOctaveUp: TMenuItem
+      Caption = 'Transpose +1 octave'
+      ShortCut = 24657
+      OnClick = TrackerPopupTransposeOctaveUpClick
+    end
+    object TrackerPopupTransposeOctaveDown: TMenuItem
+      Caption = 'Transpose -1 octave'
+      ShortCut = 24641
+      OnClick = TrackerPopupTransposeOctaveDownClick
+    end
+    object MenuItem30: TMenuItem
+      Caption = '-'
+    end
     object TrackerPopupCut: TMenuItem
       Caption = 'Cut'
       ShortCut = 16472

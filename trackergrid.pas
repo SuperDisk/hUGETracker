@@ -79,7 +79,6 @@ type
     procedure ClampCursors;
     procedure NormalizeCursors;
 
-    procedure TransposeSelection(Semitones: Integer);
     procedure InputNote(Key: Word);
     procedure InputInstrument(Key: Word);
     procedure InputVolume(Key: Word);
@@ -138,6 +137,7 @@ type
     procedure DoUndo;
     procedure DoRedo;
     procedure DoRepeatPaste;
+    procedure TransposeSelection(Semitones: Integer);
 
     constructor Create(
       AOwner: TComponent;
@@ -345,41 +345,14 @@ begin
   inherited KeyDown(Key, Shift);
 
   if Key in [VK_CONTROL, VK_SHIFT] then Exit;
-
-  if [ssCtrl, ssShift] <= Shift then
-    case Key of
-      VK_Q: TransposeSelection(12);
-      VK_A: TransposeSelection(-12);
-    end
-  else begin
-    if ssCtrl in Shift then
-      case Key of
-        VK_Q: TransposeSelection(1);
-        VK_A: TransposeSelection(-1);
-        VK_Z: DoUndo;
-        VK_Y: DoRedo;
-        VK_L: SelectColumn;
-      end;
-
-    if ssShift in Shift then
-      case Key of
-        VK_V: DoRepeatPaste;
-      end;
-  end;
+  if Key in [VK_DELETE] then Exit;
 
   case Key of
-    VK_DELETE: begin
-      EraseSelection;
-    end;
-    VK_UP: begin
-      Dec(Cursor.Y);
-    end;
-    VK_DOWN: begin
-      Inc(Cursor.Y);
-    end;
+    VK_UP: Dec(Cursor.Y);
+    VK_DOWN: Inc(Cursor.Y);
     VK_LEFT: DecSelectionPos(Cursor);
     VK_RIGHT: IncSelectionPos(Cursor);
-    else begin
+    else
       if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
         case Cursor.SelectedPart of
           cpNote:         InputNote(Key);
@@ -388,7 +361,6 @@ begin
           cpEffectCode:   InputEffectCode(Key);
           cpEffectParams: InputEffectParams(Key);
         end;
-    end;
   end;
 
   if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then

@@ -32,6 +32,11 @@ type
     MenuItem25: TMenuItem;
     MenuItem26: TMenuItem;
     MenuItem27: TMenuItem;
+    TrackerPopupTransposeOctaveUp: TMenuItem;
+    TrackerPopupTransposeOctaveDown: TMenuItem;
+    TrackerPopupTransposeSemiUp: TMenuItem;
+    MenuItem30: TMenuItem;
+    TrackerPopupTransposeSemiDown: TMenuItem;
     TrackerPopupUndo: TMenuItem;
     TrackerPopupRedo: TMenuItem;
     TrackerPopupSelectAll: TMenuItem;
@@ -277,6 +282,10 @@ type
     procedure TrackerPopupRedoClick(Sender: TObject);
     procedure TrackerPopupSelectAllClick(Sender: TObject);
     procedure TrackerPopupSelectChannelClick(Sender: TObject);
+    procedure TrackerPopupTransposeOctaveDownClick(Sender: TObject);
+    procedure TrackerPopupTransposeOctaveUpClick(Sender: TObject);
+    procedure TrackerPopupTransposeSemiDownClick(Sender: TObject);
+    procedure TrackerPopupTransposeSemiUpClick(Sender: TObject);
     procedure TrackerPopupUndoClick(Sender: TObject);
     procedure TreeView1DblClick(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
@@ -1600,6 +1609,26 @@ end;
 procedure TfrmTracker.TrackerPopupSelectChannelClick(Sender: TObject);
 begin
   TrackerGrid.SelectColumn
+end;
+
+procedure TfrmTracker.TrackerPopupTransposeOctaveDownClick(Sender: TObject);
+begin
+    TrackerGrid.TransposeSelection(-12)
+end;
+
+procedure TfrmTracker.TrackerPopupTransposeOctaveUpClick(Sender: TObject);
+begin
+    TrackerGrid.TransposeSelection(12)
+end;
+
+procedure TfrmTracker.TrackerPopupTransposeSemiDownClick(Sender: TObject);
+begin
+  TrackerGrid.TransposeSelection(-1)
+end;
+
+procedure TfrmTracker.TrackerPopupTransposeSemiUpClick(Sender: TObject);
+begin
+  TrackerGrid.TransposeSelection(1)
 end;
 
 procedure TfrmTracker.TrackerPopupUndoClick(Sender: TObject);
