@@ -1457,6 +1457,7 @@ var
   I: Integer;
   Samp: Integer;
 begin
+  Application.ProcessMessages;
   // Hack to prevent the effect editor from choking when it's trying to close.
   if Playing then
     OscilloscopeUpdateTimer.Interval := 25
