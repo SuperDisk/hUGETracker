@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 800
+  Left = 199
   Height = 1250
-  Top = 202
+  Top = 245
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -1578,6 +1578,7 @@ object frmTracker: TfrmTracker
         Top = 1
         Width = 345
         ParentFont = False
+        OnClick = Duty1VisualizerClick
         OnPaint = Duty1VisualizerPaint
       end
       object WaveVisualizer: TPaintBox
@@ -1586,6 +1587,7 @@ object frmTracker: TfrmTracker
         Top = 149
         Width = 345
         ParentFont = False
+        OnClick = Duty1VisualizerClick
         OnPaint = WaveVisualizerPaint
       end
       object Duty2Visualizer: TPaintBox
@@ -1594,6 +1596,7 @@ object frmTracker: TfrmTracker
         Top = 1
         Width = 345
         ParentFont = False
+        OnClick = Duty1VisualizerClick
         OnPaint = Duty2VisualizerPaint
       end
       object NoiseVisualizer: TPaintBox
@@ -1602,6 +1605,7 @@ object frmTracker: TfrmTracker
         Top = 149
         Width = 345
         ParentFont = False
+        OnClick = Duty1VisualizerClick
         OnPaint = NoiseVisualizerPaint
       end
     end

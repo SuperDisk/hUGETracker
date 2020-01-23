@@ -46,15 +46,12 @@ end;
 {$endif}
 
 begin
-  {$IFDEF DEBUG}
-  // Assuming your build mode sets -dDEBUG in Project Options/Other when defining -gh
-  // This avoids interference when running a production/default build without -gh
-
+  //{$IFDEF DEBUG}
   // Set up -gh output for the Leakview package:
   {if FileExists('heap.trc') then
     DeleteFile('heap.trc');
   SetHeapTraceOutput('heap.trc');}
-  {$ENDIF DEBUG}
+  //{$ENDIF DEBUG}
 
   { Before the LCL starts, embed Pixelite so users dont have to install it.
     Unfortunately there isn't really a cross-platform way to do it, so here's an

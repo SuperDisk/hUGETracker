@@ -198,6 +198,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
+    procedure Duty1VisualizerClick(Sender: TObject);
     procedure EditDelete1Execute(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure InstrumentComboBoxChange(Sender: TObject);
@@ -1210,6 +1211,19 @@ end;
 procedure TfrmTracker.Button1Click(Sender: TObject);
 begin
   PreviewC5;
+end;
+
+procedure TfrmTracker.Duty1VisualizerClick(Sender: TObject);
+var
+  Section: THeaderSection;
+begin
+  if Sender = Duty1Visualizer then Section := HeaderControl1.Sections.Items[0]
+  else if Sender = Duty2Visualizer then Section := HeaderControl1.Sections.Items[1]
+  else if Sender = WaveVisualizer then Section := HeaderControl1.Sections.Items[2]
+  else {if Sender = NoiseVisualizer then} Section := HeaderControl1.Sections.Items[3];
+
+  Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
+  snd[HeaderControl1.Sections.Items[0].OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;
 end;
 
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
