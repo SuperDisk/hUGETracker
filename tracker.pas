@@ -17,6 +17,9 @@ type
 
   TfrmTracker = class(TForm)
     Button1: TButton;
+    Duty1Visualizer: TPaintBox;
+    Duty2Visualizer: TPaintBox;
+    FlowPanel2: TFlowPanel;
     InstrumentExportButton: TButton;
     InstrumentImportButton: TButton;
     InstrumentComboBox: TComboBox;
@@ -33,6 +36,7 @@ type
     MenuItem26: TMenuItem;
     MenuItem27: TMenuItem;
     MenuItem28: TMenuItem;
+    NoiseVisualizer: TPaintBox;
     TrackerPopupEditEffect: TMenuItem;
     TrackerPopupTransposeOctaveUp: TMenuItem;
     TrackerPopupTransposeOctaveDown: TMenuItem;
@@ -74,7 +78,6 @@ type
     MenuItem18: TMenuItem;
     MenuItem19: TMenuItem;
     MenuItem20: TMenuItem;
-    Duty1Visualizer: TPaintBox;
     OctaveSpinEdit: TSpinEdit;
     GBSSaveDialog: TSaveDialog;
     StepSpinEdit: TSpinEdit;
@@ -82,11 +85,7 @@ type
     ExportGBSButton: TToolButton;
     ToolButton3: TToolButton;
     ToolButton9: TToolButton;
-    WaveVisualizer: TPaintBox;
-    Duty2Visualizer: TPaintBox;
-    NoiseVisualizer: TPaintBox;
     Panel3: TPanel;
-    Panel6: TPanel;
     PasteAction: TAction;
     CopyAction: TAction;
     HelpLookupManual: TAction;
@@ -152,6 +151,7 @@ type
     RoutineSynedit: TSynEdit;
     WavesTabSheet: TTabSheet;
     WaveformCombobox: TComboBox;
+    WaveVisualizer: TPaintBox;
     WaveVolumeCombobox: TComboBox;
     SweepDirectionCombobox: TComboBox;
     DutyCombobox: TComboBox;

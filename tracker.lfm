@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 789
+  Left = 877
   Height = 1250
-  Top = 314
+  Top = 202
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -1561,54 +1561,6 @@ object frmTracker: TfrmTracker
     ClientWidth = 2067
     ParentFont = False
     TabOrder = 3
-    object Panel6: TPanel
-      Left = 1372
-      Height = 312
-      Top = 0
-      Width = 695
-      Align = alRight
-      AutoSize = True
-      ClientHeight = 312
-      ClientWidth = 695
-      ParentFont = False
-      TabOrder = 0
-      object Duty1Visualizer: TPaintBox
-        Left = 1
-        Height = 156
-        Top = 1
-        Width = 345
-        ParentFont = False
-        OnClick = Duty1VisualizerClick
-        OnPaint = Duty1VisualizerPaint
-      end
-      object WaveVisualizer: TPaintBox
-        Left = 2
-        Height = 156
-        Top = 152
-        Width = 345
-        ParentFont = False
-        OnClick = Duty1VisualizerClick
-        OnPaint = WaveVisualizerPaint
-      end
-      object Duty2Visualizer: TPaintBox
-        Left = 349
-        Height = 156
-        Top = 1
-        Width = 345
-        ParentFont = False
-        OnClick = Duty1VisualizerClick
-        OnPaint = Duty2VisualizerPaint
-      end
-      object NoiseVisualizer: TPaintBox
-        Left = 349
-        Height = 156
-        Top = 152
-        Width = 345
-        ParentFont = False
-        OnClick = Duty1VisualizerClick
-        OnPaint = NoiseVisualizerPaint
-      end
-    end
     object LEDMeter1: TLEDMeter
       AnchorSideRight.Side = asrBottom
       Left = 1288
@@ -1656,6 +1608,77 @@ object frmTracker: TfrmTracker
       SingleLED = False
       Section2Value = 60
       Section3Value = 80
+    end
+    object FlowPanel2: TFlowPanel
+      Left = 1374
+      Height = 312
+      Top = 0
+      Width = 693
+      Align = alRight
+      ControlList = <      
+        item
+          Control = Duty1Visualizer
+          WrapAfter = waAuto
+          Index = 0
+        end      
+        item
+          Control = Duty2Visualizer
+          WrapAfter = waAuto
+          Index = 1
+        end      
+        item
+          Control = WaveVisualizer
+          WrapAfter = waAuto
+          Index = 2
+        end      
+        item
+          Control = NoiseVisualizer
+          WrapAfter = waAuto
+          Index = 3
+        end>
+      FlowLayout = tlTop
+      FlowStyle = fsLeftRightTopBottom
+      TabOrder = 0
+      object Duty1Visualizer: TPaintBox
+        Left = 1
+        Height = 156
+        Top = 1
+        Width = 345
+        Anchors = []
+        ParentFont = False
+        OnClick = Duty1VisualizerClick
+        OnPaint = Duty1VisualizerPaint
+      end
+      object Duty2Visualizer: TPaintBox
+        Left = 346
+        Height = 156
+        Top = 1
+        Width = 345
+        Anchors = []
+        ParentFont = False
+        OnClick = Duty1VisualizerClick
+        OnPaint = Duty2VisualizerPaint
+      end
+      object WaveVisualizer: TPaintBox
+        Left = 1
+        Height = 156
+        Top = 157
+        Width = 345
+        Anchors = []
+        ParentFont = False
+        OnClick = Duty1VisualizerClick
+        OnPaint = WaveVisualizerPaint
+      end
+      object NoiseVisualizer: TPaintBox
+        Left = 346
+        Height = 156
+        Top = 157
+        Width = 345
+        Anchors = []
+        ParentFont = False
+        OnClick = Duty1VisualizerClick
+        OnPaint = NoiseVisualizerPaint
+      end
     end
   end
   object StatusBar1: TStatusBar
