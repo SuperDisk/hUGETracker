@@ -1145,6 +1145,7 @@ begin
   finally
     stream.Free;
   end;
+  FileSaveAs1.Dialog.FileName := FileOpen1.Dialog.FileName;
 
   UpdateUIAfterLoad;
 end;
@@ -1526,10 +1527,10 @@ var
 begin
   // HACK: Avoid LCL bug where modal windows can't close.
   if frmOptions.Visible or frmEffectEditor.Visible then Exit;
-  {if Playing then
+  if Playing then
     OscilloscopeUpdateTimer.Interval := 25
   else
-    OscilloscopeUpdateTimer.Interval := 200;}
+    OscilloscopeUpdateTimer.Interval := 200;
 
   Max1 := -1;
   Max2 := -1;
