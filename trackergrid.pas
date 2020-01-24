@@ -322,7 +322,11 @@ end;
 
 procedure TTrackerGrid.DblClick;
 begin
-  OpenEffectEditor
+  OpenEffectEditor;
+
+  NormalizeCursors;
+  MouseButtonDown := False;
+  Invalidate;
 end;
 
 procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);
@@ -574,23 +578,11 @@ begin
 end;
 
 procedure TTrackerGrid.OpenEffectEditor;
-var
-  FXEditor: TfrmEffectEditor;
 begin
   inherited DblClick;
 
-  FXEditor := TfrmEffectEditor.Create(@Patterns[Cursor.X]^[Cursor.Y]);
-  try
-    FXEditor.ShowModal;
-  finally
-    FXEditor.Free;
-  end;
-
-  NormalizeCursors;
-
-  MouseButtonDown := False;
-
-  Invalidate;
+  frmEffectEditor.Cell := @Patterns[Cursor.X]^[Cursor.Y];
+  frmEffectEditor.ShowModal;
 end;
 
 procedure TTrackerGrid.EraseSelection;

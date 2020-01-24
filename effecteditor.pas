@@ -65,8 +65,6 @@ type
     procedure VibratoDepthTrackBarChange(Sender: TObject);
     procedure VibratoRateRadioGroupSelectionChanged(Sender: TObject);
   private
-    Cell: PCell;
-
     procedure LoadEffect;
     procedure LoadOneParamData;
     procedure LoadTwoParamData;
@@ -92,8 +90,11 @@ type
     procedure fxE;
     procedure fxF;
   public
-    constructor Create(Cell_: PCell); reintroduce;
+    Cell: PCell;
   end;
+
+var
+  frmEffectEditor: TfrmEffectEditor;
 
 implementation
 
@@ -166,9 +167,11 @@ end;
 
 procedure TfrmEffectEditor.FormCreate(Sender: TObject);
 begin
-  ComboBox1.ItemIndex := Cell^.EffectCode;
-  LoadEffect;
-  Value.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
+  if Assigned(Cell) then begin
+    ComboBox1.ItemIndex := Cell^.EffectCode;
+    LoadEffect;
+    Value.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
+  end;
 end;
 
 procedure TfrmEffectEditor.OneParamTrackBarChange(Sender: TObject);
@@ -395,12 +398,6 @@ begin
   Notebook1.PageIndex := 0;
   OneParamTrackBar.Max := $FF;
   LoadOneParamData;
-end;
-
-constructor TfrmEffectEditor.Create(Cell_: PCell);
-begin
-  inherited Create(nil);
-  Self.Cell := Cell_;
 end;
 
 end.

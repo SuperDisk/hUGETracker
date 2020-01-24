@@ -71,5 +71,6 @@ begin
   Application.CreateForm(TfrmTracker, frmTracker);
   Application.CreateForm(TfrmOptions, frmOptions);
   Application.CreateForm(TfrmAboutHugeTracker, frmAboutHugetracker);
+  Application.CreateForm(TfrmEffectEditor, frmEffectEditor);
   Application.Run;
 end.

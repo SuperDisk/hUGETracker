@@ -10,7 +10,7 @@ uses
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, RackCtls, Codegen, SymParser, options, IniFiles,
-  bgrabitmap;
+  bgrabitmap, effecteditor;
 
 type
   { TfrmTracker }
@@ -325,7 +325,6 @@ type
     DrawingWave: Boolean;
     Playing: Boolean;
     LoadingFile: Boolean;
-    RedrawingOscillators: Boolean;
 
     {PatternsNode, }InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
@@ -1525,8 +1524,8 @@ var
   I: Integer;
   Samp: Integer;
 begin
-  //if RedrawingOscillators then Exit;
-  //RedrawingOscillators := True;
+  // HACK: Avoid LCL bug where modal windows can't close.
+  if frmOptions.Visible or frmEffectEditor.Visible then Exit;
   {if Playing then
     OscilloscopeUpdateTimer.Interval := 25
   else
@@ -1553,9 +1552,6 @@ begin
   Max2 := Trunc((Max2/512)*100);
   if Max1 > LEDMeter1.Position then LEDMeter1.Position := Max1;
   if Max2 > LEDMeter2.Position then LEDMeter2.Position := Max2;
-
-  //Application.ProcessMessages;
-  //RedrawingOscillators := False;
 end;
 
 procedure TfrmTracker.ExportGBSButtonClick(Sender: TObject);
