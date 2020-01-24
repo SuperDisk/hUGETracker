@@ -32,7 +32,8 @@ uses
   sound in 'Sound\sound.pas',
   vars in 'Global\vars.pas',
   mainloop in 'mainloop.pas',
-  options in 'options.pas';
+  options in 'options.pas',
+  about_hugetracker in 'about_hugetracker.pas';
 
 {.$R *.RES}
 
@@ -69,5 +70,6 @@ begin
   Application.Initialize;
   Application.CreateForm(TfrmTracker, frmTracker);
   Application.CreateForm(TfrmOptions, frmOptions);
+  Application.CreateForm(TfrmAboutHugeTracker, frmAboutHugetracker);
   Application.Run;
 end.

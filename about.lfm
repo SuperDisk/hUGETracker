@@ -1,9 +1,0 @@
-object frmAbout: TfrmAbout
-  Left = 1143
-  Height = 350
-  Top = 371
-  Width = 420
-  Caption = 'About'
-  Position = poScreenCenter
-  LCLVersion = '2.0.2.0'
-end

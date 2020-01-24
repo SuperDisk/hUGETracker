@@ -9,8 +9,8 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  HugeDatatypes, LCLType, RackCtls, Codegen,
-  SymParser, options, IniFiles;
+  HugeDatatypes, LCLType, RackCtls, Codegen, SymParser, options, IniFiles,
+  bgrabitmap;
 
 type
   { TfrmTracker }
@@ -32,6 +32,8 @@ type
     MenuItem25: TMenuItem;
     MenuItem26: TMenuItem;
     MenuItem27: TMenuItem;
+    MenuItem28: TMenuItem;
+    TrackerPopupEditEffect: TMenuItem;
     TrackerPopupTransposeOctaveUp: TMenuItem;
     TrackerPopupTransposeOctaveDown: TMenuItem;
     TrackerPopupTransposeSemiUp: TMenuItem;
@@ -277,6 +279,7 @@ type
     procedure ExportGBButtonClick(Sender: TObject);
     procedure TrackerPopupCopyClick(Sender: TObject);
     procedure TrackerPopupCutClick(Sender: TObject);
+    procedure TrackerPopupEditEffectClick(Sender: TObject);
     procedure TrackerPopupEraseClick(Sender: TObject);
     procedure TrackerPopupFloodPasteClick(Sender: TObject);
     procedure TrackerPopupPasteClick(Sender: TObject);
@@ -322,13 +325,14 @@ type
     DrawingWave: Boolean;
     Playing: Boolean;
     LoadingFile: Boolean;
+    RedrawingOscillators: Boolean;
 
     {PatternsNode, }InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
     SymbolTable: TSymbolMap;
     OptionsFile: TIniFile;
 
-    VisualizerBuffer: TBitmap;
+    VisualizerBuffer: TBGRABitmap;
 
     procedure ChangeToSquare;
     procedure ChangeToWave;
@@ -477,7 +481,8 @@ begin
       Line(0, PB.Height, PB.Width, 0);
     end;
   end;
-  PB.Canvas.Draw(0, 0, VisualizerBuffer);
+  VisualizerBuffer.Draw(PB.Canvas, 0, 0, True);
+  //PB.Canvas.Draw(0, 0, VisualizerBuffer);
 end;
 
 procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer);
@@ -939,9 +944,7 @@ begin
     'font file, so please install PixeliteTTF.ttf and relaunch! Thanks.',
     mtWarning, [mbOk], 0);
 
-  VisualizerBuffer := TBitmap.Create;
-  VisualizerBuffer.Height := Duty1Visualizer.Height;
-  VisualizerBuffer.Width  := Duty1Visualizer.Width;
+  VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
 
   ReturnNilIfGrowHeapFails := False;
   PreviewingInstrument := -1;
@@ -1417,12 +1420,8 @@ begin
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
-var
-  AboutForm: TfrmAboutHugeTracker;
 begin
-  AboutForm := TfrmAboutHugetracker.Create(Self);
-  AboutForm.ShowModal;
-  AboutForm.Free;
+  frmAboutHugetracker.Show;
 end;
 
 procedure TfrmTracker.MenuItem8Click(Sender: TObject);
@@ -1526,10 +1525,12 @@ var
   I: Integer;
   Samp: Integer;
 begin
-  if Playing then
+  //if RedrawingOscillators then Exit;
+  //RedrawingOscillators := True;
+  {if Playing then
     OscilloscopeUpdateTimer.Interval := 25
   else
-    OscilloscopeUpdateTimer.Interval := 200;
+    OscilloscopeUpdateTimer.Interval := 200;}
 
   Max1 := -1;
   Max2 := -1;
@@ -1552,6 +1553,9 @@ begin
   Max2 := Trunc((Max2/512)*100);
   if Max1 > LEDMeter1.Position then LEDMeter1.Position := Max1;
   if Max2 > LEDMeter2.Position then LEDMeter2.Position := Max2;
+
+  //Application.ProcessMessages;
+  //RedrawingOscillators := False;
 end;
 
 procedure TfrmTracker.ExportGBSButtonClick(Sender: TObject);
@@ -1601,6 +1605,11 @@ end;
 procedure TfrmTracker.TrackerPopupCutClick(Sender: TObject);
 begin
   SendMessage(TrackerGrid.Handle, LM_CUT, 0, 0)
+end;
+
+procedure TfrmTracker.TrackerPopupEditEffectClick(Sender: TObject);
+begin
+  TrackerGrid.OpenEffectEditor;
 end;
 
 procedure TfrmTracker.TrackerPopupEraseClick(Sender: TObject);

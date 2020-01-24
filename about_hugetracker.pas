@@ -16,6 +16,7 @@ type
     Label1: TLabel;
     Panel1: TPanel;
     procedure Button1Click(Sender: TObject);
+    procedure FormDeactivate(Sender: TObject);
   private
 
   public
@@ -32,6 +33,11 @@ implementation
 { TfrmAboutHugetracker }
 
 procedure TfrmAboutHugetracker.Button1Click(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TfrmAboutHugetracker.FormDeactivate(Sender: TObject);
 begin
   Close;
 end;

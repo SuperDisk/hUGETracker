@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 621
+  Left = 514
   Height = 1250
-  Top = 297
+  Top = 188
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -4875,7 +4875,7 @@ object frmTracker: TfrmTracker
     }
   end
   object OscilloscopeUpdateTimer: TTimer
-    Interval = 200
+    Interval = 15
     OnTimer = OscilloscopeUpdateTimerTimer
     left = 512
     top = 64
@@ -4904,6 +4904,13 @@ object frmTracker: TfrmTracker
   object TrackerGridPopup: TPopupMenu
     left = 1093
     top = 191
+    object TrackerPopupEditEffect: TMenuItem
+      Caption = 'Edit effect ...'
+      OnClick = TrackerPopupEditEffectClick
+    end
+    object MenuItem28: TMenuItem
+      Caption = '-'
+    end
     object TrackerPopupSelectAll: TMenuItem
       Caption = 'Select all'
       OnClick = TrackerPopupSelectAllClick

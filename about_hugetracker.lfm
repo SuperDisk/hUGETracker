@@ -1,7 +1,7 @@
 object frmAboutHugetracker: TfrmAboutHugetracker
-  Left = 710
+  Left = 849
   Height = 502
-  Top = 325
+  Top = 334
   Width = 917
   BorderStyle = bsNone
   Caption = 'About hUGETracker'
@@ -9,6 +9,7 @@ object frmAboutHugetracker: TfrmAboutHugetracker
   ClientWidth = 917
   Color = clMoneyGreen
   DesignTimePPI = 168
+  OnDeactivate = FormDeactivate
   Position = poDesktopCenter
   LCLVersion = '2.0.6.0'
   object Panel1: TPanel

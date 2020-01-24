@@ -137,6 +137,7 @@ type
     procedure DoRedo;
     procedure DoRepeatPaste;
     procedure TransposeSelection(Semitones: Integer);
+    procedure OpenEffectEditor;
 
     constructor Create(
       AOwner: TComponent;
@@ -320,23 +321,8 @@ begin
 end;
 
 procedure TTrackerGrid.DblClick;
-var
-  FXEditor: TfrmEffectEditor;
 begin
-  inherited DblClick;
-
-  FXEditor := TfrmEffectEditor.Create(@Patterns[Cursor.X]^[Cursor.Y]);
-  try
-    FXEditor.ShowModal;
-  finally
-    FXEditor.Free;
-  end;
-
-  NormalizeCursors;
-
-  MouseButtonDown := False;
-
-  Invalidate;
+  OpenEffectEditor
 end;
 
 procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);
@@ -585,6 +571,26 @@ begin
 
   Invalidate;
   SaveUndoState;
+end;
+
+procedure TTrackerGrid.OpenEffectEditor;
+var
+  FXEditor: TfrmEffectEditor;
+begin
+  inherited DblClick;
+
+  FXEditor := TfrmEffectEditor.Create(@Patterns[Cursor.X]^[Cursor.Y]);
+  try
+    FXEditor.ShowModal;
+  finally
+    FXEditor.Free;
+  end;
+
+  NormalizeCursors;
+
+  MouseButtonDown := False;
+
+  Invalidate;
 end;
 
 procedure TTrackerGrid.EraseSelection;
