@@ -9,7 +9,7 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  HugeDatatypes, LCLType, IniPropStorage, RackCtls, Codegen,
+  HugeDatatypes, LCLType, RackCtls, Codegen,
   SymParser, options, IniFiles;
 
 type
@@ -329,7 +329,6 @@ type
     OptionsFile: TIniFile;
 
     VisualizerBuffer: TBitmap;
-    PerformingOscilloscopeUpdate: Boolean;
 
     procedure ChangeToSquare;
     procedure ChangeToWave;
@@ -377,6 +376,8 @@ procedure TfrmTracker.UpdateUIAfterLoad;
 var
   I: Integer;
 begin
+  ResetEmulationThread;
+
   LoadingFile := True; // HACK!!!!!
   LoadInstrument(1);
   LoadWave(0);
@@ -929,7 +930,6 @@ end;
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   I: Integer;
-  F: file;
   Stream: TStream;
 begin
   if Screen.Fonts.IndexOf('PixeliteTTF') < 0 then
