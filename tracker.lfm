@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 199
+  Left = 621
   Height = 1250
-  Top = 245
+  Top = 297
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216

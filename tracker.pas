@@ -328,6 +328,7 @@ type
     SymbolTable: TSymbolMap;
     OptionsFile: TIniFile;
 
+    VisualizerBuffer: TBitmap;
     PerformingOscilloscopeUpdate: Boolean;
 
     procedure ChangeToSquare;
@@ -440,7 +441,9 @@ procedure TfrmTracker.DrawVizualizer(PB: TPaintBox; Channel: Integer);
 var
   I, J, X: Integer;
 begin
-  with PB.Canvas do begin
+  // Thanks to Handoko on the Lazarus forums for this repainting tip!
+  // https://forum.lazarus.freepascal.org/index.php/topic,48231.msg347235.html#msg347235
+  with VisualizerBuffer.Canvas do begin
     MoveTo(0, PB.Height div 2);
 
     Brush.Color := clBlack;
@@ -449,22 +452,31 @@ begin
     Pen.Color := clGray;
     Rectangle(0, 0, PB.Width, PB.Height);
 
-    Pen.Color := clLime;
     Pen.Width := 2;
 
-    X := 0;
-    I := 0;
-    J := SampleBuffers[Channel].Cursor;
-    while I < SAMPLE_BUFFER_SIZE-1 do begin
-      LineTo(X, (PB.Height div 2) +
-        Trunc((SampleBuffers[Channel].BufferL[J]/512)*PB.Height) +
-        Trunc((SampleBuffers[Channel].BufferR[J]/512)*PB.Height));
-      J := (J+1) mod SAMPLE_BUFFER_SIZE;
+    if not snd[Channel].ChannelOFF then begin
+      Pen.Color := clLime;
 
-      X := Trunc((I/SAMPLE_BUFFER_SIZE)*PB.Width);
-      Inc(I, 2);
+      X := 0;
+      I := 0;
+      J := SampleBuffers[Channel].Cursor;
+      while I < SAMPLE_BUFFER_SIZE-1 do begin
+        LineTo(X, (PB.Height div 2) +
+          Trunc((SampleBuffers[Channel].BufferL[J]/512)*PB.Height) +
+          Trunc((SampleBuffers[Channel].BufferR[J]/512)*PB.Height));
+        J := (J+1) mod SAMPLE_BUFFER_SIZE;
+
+        X := Trunc((I/SAMPLE_BUFFER_SIZE)*PB.Width);
+        Inc(I, 2);
+      end;
+    end
+    else begin
+      Pen.Color := TColor($0C0094);
+      Line(0, 0, PB.Width, PB.Height);
+      Line(0, PB.Height, PB.Width, 0);
     end;
   end;
+  PB.Canvas.Draw(0, 0, VisualizerBuffer);
 end;
 
 procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer);
@@ -927,6 +939,10 @@ begin
     'font file, so please install PixeliteTTF.ttf and relaunch! Thanks.',
     mtWarning, [mbOk], 0);
 
+  VisualizerBuffer := TBitmap.Create;
+  VisualizerBuffer.Height := Duty1Visualizer.Height;
+  VisualizerBuffer.Width  := Duty1Visualizer.Width;
+
   ReturnNilIfGrowHeapFails := False;
   PreviewingInstrument := -1;
   OptionsFile := TINIFile.Create('options.ini');
@@ -1223,7 +1239,7 @@ begin
   else {if Sender = NoiseVisualizer then} Section := HeaderControl1.Sections.Items[3];
 
   Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
-  snd[HeaderControl1.Sections.Items[0].OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;
+  snd[Section.OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;
 end;
 
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
@@ -1510,11 +1526,6 @@ var
   I: Integer;
   Samp: Integer;
 begin
-  if PerformingOscilloscopeUpdate then Exit;
-  PerformingOscilloscopeUpdate := True;
-
-  Application.ProcessMessages;
-  // Hack to prevent the effect editor from choking when it's trying to close.
   if Playing then
     OscilloscopeUpdateTimer.Interval := 25
   else
@@ -1541,9 +1552,6 @@ begin
   Max2 := Trunc((Max2/512)*100);
   if Max1 > LEDMeter1.Position then LEDMeter1.Position := Max1;
   if Max2 > LEDMeter2.Position then LEDMeter2.Position := Max2;
-
-  Application.ProcessMessages;
-  PerformingOscilloscopeUpdate := False;
 end;
 
 procedure TfrmTracker.ExportGBSButtonClick(Sender: TObject);
