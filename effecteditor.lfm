@@ -13,6 +13,7 @@ object frmEffectEditor: TfrmEffectEditor
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnShow = FormCreate
+  Position = poMainFormCenter
   ShowInTaskBar = stNever
   LCLVersion = '2.0.6.0'
   object ComboBox1: TComboBox
