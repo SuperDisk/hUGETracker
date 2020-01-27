@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 958
+  Left = 860
   Height = 1250
-  Top = 750
+  Top = 209
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -1590,7 +1590,7 @@ object frmTracker: TfrmTracker
     end
     object LEDMeter2: TLEDMeter
       AnchorSideRight.Side = asrBottom
-      Left = 1199
+      Left = 1200
       Height = 312
       Top = 0
       Width = 88
@@ -1612,72 +1612,50 @@ object frmTracker: TfrmTracker
       Section2Value = 60
       Section3Value = 80
     end
-    object FlowPanel2: TFlowPanel
-      Left = 1374
+    object Panel6: TPanel
+      Left = 1378
       Height = 312
       Top = 0
-      Width = 693
+      Width = 689
       Align = alRight
-      ControlList = <      
-        item
-          Control = Duty1Visualizer
-          WrapAfter = waAuto
-          Index = 0
-        end      
-        item
-          Control = Duty2Visualizer
-          WrapAfter = waAuto
-          Index = 1
-        end      
-        item
-          Control = WaveVisualizer
-          WrapAfter = waAuto
-          Index = 2
-        end      
-        item
-          Control = NoiseVisualizer
-          WrapAfter = waAuto
-          Index = 3
-        end>
-      FlowLayout = tlTop
-      FlowStyle = fsLeftRightTopBottom
+      AutoSize = True
+      BevelOuter = bvNone
+      Caption = 'Panel6'
+      ClientHeight = 312
+      ClientWidth = 689
       TabOrder = 0
       object Duty1Visualizer: TPaintBox
-        Left = 1
+        Left = 0
         Height = 156
-        Top = 1
+        Top = 0
         Width = 345
-        Anchors = []
         ParentFont = False
         OnClick = Duty1VisualizerClick
         OnPaint = Duty1VisualizerPaint
       end
       object Duty2Visualizer: TPaintBox
-        Left = 346
+        Left = 344
         Height = 156
-        Top = 1
+        Top = 0
         Width = 345
-        Anchors = []
         ParentFont = False
         OnClick = Duty1VisualizerClick
         OnPaint = Duty2VisualizerPaint
       end
       object WaveVisualizer: TPaintBox
-        Left = 1
+        Left = 0
         Height = 156
-        Top = 157
+        Top = 152
         Width = 345
-        Anchors = []
         ParentFont = False
         OnClick = Duty1VisualizerClick
         OnPaint = WaveVisualizerPaint
       end
       object NoiseVisualizer: TPaintBox
-        Left = 346
+        Left = 344
         Height = 156
-        Top = 157
+        Top = 152
         Width = 345
-        Anchors = []
         ParentFont = False
         OnClick = Duty1VisualizerClick
         OnPaint = NoiseVisualizerPaint
@@ -1888,8 +1866,8 @@ object frmTracker: TfrmTracker
   end
   object MainMenu1: TMainMenu
     Images = ImageList1
-    left = 704
-    top = 75
+    left = 952
+    top = 64
     object MenuItem1: TMenuItem
       Caption = 'File'
       object MenuItem12: TMenuItem
@@ -1991,8 +1969,8 @@ object frmTracker: TfrmTracker
   end
   object ActionList1: TActionList
     Images = ImageList1
-    left = 999
-    top = 75
+    left = 1120
+    top = 64
     object FileOpen1: TFileOpen
       Category = 'File'
       Caption = '&Open ...'
@@ -2096,8 +2074,8 @@ object frmTracker: TfrmTracker
     end
   end
   object ImageList1: TImageList
-    left = 168
-    top = 81
+    left = 536
+    top = 72
     Bitmap = {
       4C694E0000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4600,16 +4578,16 @@ object frmTracker: TfrmTracker
   end
   object OpenDialog1: TOpenDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 872
-    top = 75
+    left = 1032
+    top = 160
   end
   object InstrumentSaveDialog: TSaveDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 608
-    top = 232
+    left = 864
+    top = 72
   end
   object OrderEditPopup: TPopupMenu
-    left = 328
+    left = 640
     top = 80
     object MenuItem17: TMenuItem
       Caption = 'Insert new row'
@@ -4641,8 +4619,8 @@ object frmTracker: TfrmTracker
   object ImageList2: TImageList
     Height = 32
     Width = 32
-    left = 192
-    top = 184
+    left = 528
+    top = 200
     Bitmap = {
       4C69020000002000000020000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4907,33 +4885,33 @@ object frmTracker: TfrmTracker
     Enabled = False
     Interval = 200
     OnTimer = OscilloscopeUpdateTimerTimer
-    left = 512
-    top = 64
+    left = 760
+    top = 72
   end
   object GBSSaveDialog: TSaveDialog
     Filter = 'Gameboy Soundtrack|*.gbs'
-    left = 920
-    top = 177
+    left = 1032
+    top = 64
   end
   object WaveSaveDialog: TSaveDialog
     Filter = 'hUGETracker Waves|*.ugw'
-    left = 784
+    left = 952
     top = 168
   end
   object GBSaveDialog: TSaveDialog
     Filter = 'Gameboy ROM|*.GB'
-    left = 480
+    left = 760
     top = 177
   end
   object NoteHaltTimer: TTimer
     Enabled = False
     OnTimer = NoteHaltTimerTimer
-    left = 328
+    left = 640
     top = 200
   end
   object TrackerGridPopup: TPopupMenu
-    left = 1093
-    top = 191
+    left = 1120
+    top = 160
     object TrackerPopupEditEffect: TMenuItem
       Caption = 'Edit effect ...'
       OnClick = TrackerPopupEditEffectClick

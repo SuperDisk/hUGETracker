@@ -19,7 +19,6 @@ type
     Button1: TButton;
     Duty1Visualizer: TPaintBox;
     Duty2Visualizer: TPaintBox;
-    FlowPanel2: TFlowPanel;
     InstrumentExportButton: TButton;
     InstrumentImportButton: TButton;
     InstrumentComboBox: TComboBox;
@@ -37,6 +36,7 @@ type
     MenuItem27: TMenuItem;
     MenuItem28: TMenuItem;
     NoiseVisualizer: TPaintBox;
+    Panel6: TPanel;
     TrackerPopupEditEffect: TMenuItem;
     TrackerPopupTransposeOctaveUp: TMenuItem;
     TrackerPopupTransposeOctaveDown: TMenuItem;
