@@ -415,6 +415,8 @@ end;
 
 function TfrmTracker.CheckUnsavedChanges: Boolean;
 begin
+  Result := True;
+
   case MessageDlg('Save?', 'Do you want to save your work before closing this file?',
   mtWarning, [mbYes, mbNo, mbCancel], 0) of
     mrYes: begin

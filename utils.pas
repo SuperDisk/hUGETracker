@@ -39,7 +39,7 @@ end;
 
 function TOrderMapHelper.CreateNewPattern(Key: Integer): PPattern;
 begin
-  if IndexOf(Key) <> -1 then Exit;
+  if IndexOf(Key) <> -1 then Exit(KeyData[Key]);
 
   New(Result);
   BlankPattern(Result);

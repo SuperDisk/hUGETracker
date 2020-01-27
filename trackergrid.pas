@@ -457,6 +457,7 @@ begin
     Recall.Pop;
 
   // Create the state we need to save
+  Actn := Default(TUndoRedoAction);
   for I := Low(Patterns) to High(Patterns) do
     with Actn[I] do begin
       Pattern := Patterns[I]^;
@@ -937,6 +938,8 @@ end;
 
 function TTrackerGrid.GetAt(SelectionPos: TSelectionPos): Integer;
 begin
+  Result := 0;
+
   with Patterns[SelectionPos.X]^[SelectionPos.Y] do
     case SelectionPos.SelectedPart of
       cpNote: Result := Note;
