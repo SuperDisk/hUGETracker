@@ -1491,6 +1491,10 @@ end;
 procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
+  if OrderEditStringGrid.RowCount = 1 then
+    with OrderEditStringGrid do
+      InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
+
   OrderEditStringGrid.Row := OrderEditStringGrid.Row-1;
   ReloadPatterns;
 end;
