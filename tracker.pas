@@ -202,6 +202,8 @@ type
     procedure Button1Click(Sender: TObject);
     procedure Duty1VisualizerClick(Sender: TObject);
     procedure EditDelete1Execute(Sender: TObject);
+    procedure FileSaveAs1BeforeExecute(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormShow(Sender: TObject);
     procedure InstrumentComboBoxChange(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
@@ -239,6 +241,7 @@ type
     procedure DebugShiteButtonClick(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
+    procedure MenuItem12Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
     procedure MenuItem17Click(Sender: TObject);
     procedure MenuItem18Click(Sender: TObject);
@@ -325,6 +328,7 @@ type
     DrawingWave: Boolean;
     Playing: Boolean;
     LoadingFile: Boolean;
+    SaveSucceeded: Boolean;
 
     {PatternsNode, }InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
@@ -354,6 +358,7 @@ type
 
     procedure RecreateTrackerGrid;
     procedure UpdateUIAfterLoad;
+    function CheckUnsavedChanges: Boolean;
 
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
@@ -406,6 +411,19 @@ begin
   ReloadPatterns;
 
   PageControl1.ActivePageIndex := 0;
+end;
+
+function TfrmTracker.CheckUnsavedChanges: Boolean;
+begin
+  case MessageDlg('Save?', 'Do you want to save your work before closing this file?',
+  mtWarning, [mbYes, mbNo, mbCancel], 0) of
+    mrYes: begin
+      FileSaveAs1.Execute;
+      Exit(SaveSucceeded)
+    end;
+    mrNo: Exit(True);
+    mrCancel: Exit(False)
+  end;
 end;
 
 procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
@@ -1125,6 +1143,7 @@ begin
   stream := TFileStream.Create(FileSaveAs1.Dialog.FileName, fmCreate);
   try
     WriteSongToStream(stream, Song);
+    SaveSucceeded := True;
   finally
     stream.Free;
   end;
@@ -1218,6 +1237,16 @@ end;
 procedure TfrmTracker.EditDelete1Execute(Sender: TObject);
 begin
 
+end;
+
+procedure TfrmTracker.FileSaveAs1BeforeExecute(Sender: TObject);
+begin
+  SaveSucceeded := False;
+end;
+
+procedure TfrmTracker.FormCloseQuery(Sender: TObject; var CanClose: boolean);
+begin
+  CanClose := CheckUnsavedChanges;
 end;
 
 procedure TfrmTracker.FormShow(Sender: TObject);
@@ -1328,9 +1357,15 @@ begin
   TrackerGrid.DoUndo;
 end;
 
+procedure TfrmTracker.MenuItem12Click(Sender: TObject);
+begin
+  CheckUnsavedChanges;
+end;
+
 procedure TfrmTracker.MenuItem14Click(Sender: TObject);
 begin
-  Halt;
+  if CheckUnsavedChanges then
+    Halt;
 end;
 
 procedure TfrmTracker.MenuItem17Click(Sender: TObject);

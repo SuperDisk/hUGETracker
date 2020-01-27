@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1063
+  Left = 593
   Height = 1250
-  Top = 283
+  Top = 627
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -10,6 +10,7 @@ object frmTracker: TfrmTracker
   KeyPreview = True
   Menu = MainMenu1
   OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   OnKeyUp = FormKeyUp
@@ -1891,12 +1892,14 @@ object frmTracker: TfrmTracker
       Caption = 'File'
       object MenuItem12: TMenuItem
         Action = FileOpen1
+        OnClick = MenuItem12Click
       end
       object MenuItem13: TMenuItem
         Action = FileSaveAs1
       end
       object MenuItem14: TMenuItem
-        Action = FileExit1
+        Caption = 'E&xit'
+        Hint = 'Exit'
         OnClick = MenuItem14Click
       end
     end
@@ -2005,6 +2008,7 @@ object frmTracker: TfrmTracker
       Hint = 'Save As'
       ImageIndex = 59
       ShortCut = 16467
+      BeforeExecute = FileSaveAs1BeforeExecute
       OnAccept = FileSaveAs1Accept
     end
     object FileExit1: TFileExit
