@@ -1020,6 +1020,9 @@ begin
   // Start the Oscilloscope repaint timer
   OscilloscopeUpdateTimer.Enabled := True;
 
+  // Switch to general tab sheet
+  PageControl1.ActivePageIndex := 0;
+
   {$ifdef DEVELOPMENT}
   DebugShiteButton.Visible := True;
   DebugPlayNoteButton.Visible := True;
