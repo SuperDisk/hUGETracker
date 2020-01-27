@@ -952,14 +952,22 @@ end;
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   I: Integer;
-  Stream: TStream;
 begin
-  if Screen.Fonts.IndexOf('PixeliteTTF') < 0 then
+  if Screen.Fonts.IndexOf('PixeliteTTF') = -1 then
     MessageDlg('Warning', 'You don''t have the Pixelite font installed. '+
     'On Windows, this probably means you didn''t extract hUGETracker before running it, '+
     'so please extract the .zip and run again! On Linux, you need to manually install the '+
-    'font file, so please install PixeliteTTF.ttf and relaunch! Thanks.',
+    'font file, so please install PixeliteTTF.ttf and relaunch. Thanks!',
     mtWarning, [mbOk], 0);
+
+  if (not FileExists('halt.gb')) or (not DirectoryExists('hUGEDriver')) then begin
+    MessageDlg('Error',
+      'hUGETracker can''t load a required file which comes with '+
+      'the tracker. This likely means that you haven''t extracted the program ' +
+      'before running it. Please do so, and relaunch. Thanks!',
+      mtError, [mbOk], 0);
+    Halt;
+  end;
 
   VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
 
@@ -1009,17 +1017,8 @@ begin
   EmulationThread.Start;
   ResetEmulationThread; //TODO: remove this hack
 
-  if (not OptionsFile.ReadBool('hUGETracker', 'firstrun', False)) and FileExists('Sample Songs\Cognition.uge') then begin
-    stream := TFileStream.Create('Sample Songs\Cognition.uge', fmOpenRead);
-    try
-      ReadSongFromStream(stream, Song);
-    finally
-      stream.Free;
-    end;
-    UpdateUIAfterLoad;
-
-    OptionsFile.WriteBool('hUGETracker', 'firstrun', True);
-  end;
+  // Start the Oscilloscope repaint timer
+  OscilloscopeUpdateTimer.Enabled := True;
 
   {$ifdef DEVELOPMENT}
   DebugShiteButton.Visible := True;

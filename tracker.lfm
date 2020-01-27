@@ -4902,7 +4902,8 @@ object frmTracker: TfrmTracker
     }
   end
   object OscilloscopeUpdateTimer: TTimer
-    Interval = 1
+    Enabled = False
+    Interval = 200
     OnTimer = OscilloscopeUpdateTimerTimer
     left = 512
     top = 64
