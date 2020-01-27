@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 860
+  Left = 470
   Height = 1250
-  Top = 209
+  Top = 291
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -1620,7 +1620,6 @@ object frmTracker: TfrmTracker
       Align = alRight
       AutoSize = True
       BevelOuter = bvNone
-      Caption = 'Panel6'
       ClientHeight = 312
       ClientWidth = 689
       TabOrder = 0
