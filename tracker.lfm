@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 712
+  Left = 878
   Height = 1250
-  Top = 247
+  Top = 196
   Width = 2067
   Caption = 'hUGETracker'
   ClientHeight = 1216
@@ -58,10 +58,10 @@ object frmTracker: TfrmTracker
       Height = 820
       Top = 0
       Width = 1720
-      ActivePage = InstrumentTabSheet
+      ActivePage = RoutinesTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 5
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -1024,6 +1024,7 @@ object frmTracker: TfrmTracker
           Align = alBottom
           BorderSpacing.Top = 23
           Anchors = [akTop, akLeft, akRight, akBottom]
+          Enabled = False
           Font.Height = -23
           Font.Name = 'Courier New'
           Font.Pitch = fpFixed
@@ -1532,6 +1533,7 @@ object frmTracker: TfrmTracker
           Height = 38
           Top = 14
           Width = 308
+          Enabled = False
           MaxValue = 15
           MinValue = 1
           ParentFont = False
