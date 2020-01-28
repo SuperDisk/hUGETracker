@@ -693,8 +693,6 @@ begin
     SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
 
     // Start emulation on the rendered preview binary
-    EmulationThread.Terminate;
-    //EmulationThread.WaitFor;
     EmulationThread.Free;
     EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
     PokeSymbol(SYM_TICKS_PER_ROW, Song.TicksPerRow);
@@ -715,8 +713,6 @@ begin
   TrackerGrid.HighlightedRow := -1;
   ToolButton2.ImageIndex := 74;
 
-  EmulationThread.Terminate;
-  //EmulationThread.WaitFor;
   EmulationThread.Free;
   EmulationThread := TEmulationThread.Create('halt.gb');
   EmulationThread.Start;

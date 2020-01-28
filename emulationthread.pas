@@ -57,7 +57,11 @@ begin
       FrameEnd := GetCounter;
 
       frameElapsedInSec := (frameEnd - frameStart) / tickFreq;
-    until (frameElapsedInSec > TimePerFrame) and (not SoundBufferTooFull);
+    until ((frameElapsedInSec > TimePerFrame) and (not SoundBufferTooFull))
+          or (frameElapsedInSec > 1); // HACK: Prevent lockups from happening.
+
+    // Find out why this (super rarely) locks up and never stops looping. I think
+    // it has to do something with the SoundBufferTooFull call, but I really don't know.
 
     frameStart := frameEnd;
   until Terminated;
