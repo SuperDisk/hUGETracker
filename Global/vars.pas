@@ -365,7 +365,7 @@ var
 begin
   assignfile(cf, Name);
   reset(cf, 1);
-  blockread(cf, m_rom, $180);
+  blockread(cf, {%H-}m_rom, $180);
   closefile(cf);
   buffer := '                ';
   for i := 0 to 15 do
@@ -608,7 +608,7 @@ begin
     Result := False;
     exit;
   end;
-  blockwrite(f, m_ram, fsize, numwritten);
+  blockwrite(f, m_ram, fsize, {%H-}numwritten);
   closefile(f);
   Result := fsize = numwritten;
 end;

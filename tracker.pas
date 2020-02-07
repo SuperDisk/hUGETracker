@@ -950,6 +950,7 @@ end;
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   I: Integer;
+  PUI: PtrUint;
 begin
   {if Screen.Fonts.IndexOf('PixeliteTTF') = -1 then
     MessageDlg('Warning', 'You don''t have the Pixelite font installed. '+
@@ -994,12 +995,12 @@ begin
     RoutinesNode := Items[2];
   end;
 
-  for I := 1 to 15 do
-    TreeView1.Items.AddChild(InstrumentsNode, IntToStr(I)+':').Data := Pointer(I);
+  for PUI := 1 to 15 do
+    TreeView1.Items.AddChild(InstrumentsNode, IntToStr(PUI)+':').Data := {%H-}Pointer(PUI);
 
-  for I := 0 to 15 do begin
-    TreeView1.Items.AddChild(WavesNode, 'Wave '+IntToStr(I)).Data := Pointer(I);
-    TreeView1.Items.AddChild(RoutinesNode, 'Routine '+IntToStr(I)).Data := Pointer(I);
+  for PUI := 0 to 15 do begin
+    TreeView1.Items.AddChild(WavesNode, 'Wave '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
+    TreeView1.Items.AddChild(RoutinesNode, 'Routine '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
   end;
 
   // Initialize order table
@@ -1708,17 +1709,17 @@ end;
 procedure TfrmTracker.TreeView1DblClick(Sender: TObject);
 begin
   if TreeView1.Selected.Parent = InstrumentsNode then begin
-    InstrumentNumberSpinner.Value := PtrUInt(TreeView1.Selected.Data);
+    InstrumentNumberSpinner.Value := {%H-}PtrUInt(TreeView1.Selected.Data);
     PageControl1.ActivePage := InstrumentTabSheet;
   end;
 
   if TreeView1.Selected.Parent = WavesNode then begin
-    WaveEditNumberSpinner.Value := PtrUInt(TreeView1.Selected.Data);
+    WaveEditNumberSpinner.Value := {%H-}PtrUInt(TreeView1.Selected.Data);
     PageControl1.ActivePage := WavesTabSheet;
   end;
 
   if TreeView1.Selected.Parent = RoutinesNode then begin
-    RoutineNumberSpinner.Value := PtrUInt(TreeView1.Selected.Data);
+    RoutineNumberSpinner.Value := {%H-}PtrUInt(TreeView1.Selected.Data);
     PageControl1.ActivePage := RoutinesTabSheet;
   end;
 end;
