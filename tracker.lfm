@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 2122
+  Left = 2081
   Height = 714
-  Top = 119
+  Top = 140
   Width = 1181
   Caption = 'hUGETracker'
   ClientHeight = 694
@@ -69,12 +69,12 @@ object frmTracker: TfrmTracker
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
           Left = 8
-          Height = 231
+          Height = 136
           Top = 8
-          Width = 729
+          Width = 305
           Caption = 'Song information'
-          ClientHeight = 211
-          ClientWidth = 725
+          ClientHeight = 116
+          ClientWidth = 301
           ParentFont = False
           TabOrder = 0
           object Label15: TLabel

@@ -6,9 +6,14 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, EditBtn,
-  ExtCtrls, Spin, ComCtrls, constants;
+  ExtCtrls, Spin, ComCtrls, constants, fgl;
 
 type
+  TOrdersSeenSet = specialize TFPGMap<Integer, Boolean>;
+
+  { EHaltingProblem }
+
+  EHaltingProblem = class(Exception);
 
   { TfrmRenderToWave }
 
@@ -36,6 +41,8 @@ type
   private
     CurrentSeenPattern: Integer;
     TimesSeenTargetPattern: Integer;
+
+    OrdersSeen: TOrdersSeenSet;
 
     procedure ExportWaveToFile(Filename: String; Seconds: Integer); overload;
     procedure ExportWaveToFile(Filename: String; OrderNum: Integer; Loops: Integer); overload;
@@ -93,6 +100,8 @@ var
   CompletedCycles: QWord = 0;
   CyclesToDo: QWord;
 begin
+  Button1.Enabled := False;
+
   CyclesToDo := (70224*60)*Seconds;
   ProgressBar1.Position := 0;
 
@@ -113,6 +122,8 @@ begin
   end;
 
   EndWritingSoundToFile;
+
+  Button1.Enabled:=True;
 end;
 
 procedure TfrmRenderToWave.ExportWaveToFile(Filename: String;
@@ -120,6 +131,8 @@ procedure TfrmRenderToWave.ExportWaveToFile(Filename: String;
 var
   TimesToSeePattern: Integer;
 begin
+  Button1.Enabled:=False;
+
   TimesToSeePattern := (LoopTimesSpinEdit.Value+1);
   TimesSeenTargetPattern := 0;
   CurrentSeenPattern := -1;
@@ -135,19 +148,31 @@ begin
   load('hUGEDriver/preview.gb');
   SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
 
-  while TimesSeenTargetPattern < TimesToSeePattern do begin
-    z80_decode;
-    ProgressBar1.Position := Trunc((TimesSeenTargetPattern / TimesToSeePattern)*100);
-    if Random(500) = 1 then Application.ProcessMessages;
+  try
+    while TimesSeenTargetPattern < TimesToSeePattern do begin
+      z80_decode;
+      ProgressBar1.Position := Trunc((TimesSeenTargetPattern / TimesToSeePattern)*100);
+      if Random(500) = 1 then Application.ProcessMessages;
+    end;
+  except
+    on E: EHaltingProblem do begin
+      MessageDlg('Error!', E.Message, mtError, [mbOK], '');
+    end;
   end;
 
   EndWritingSoundToFile;
+
+  Button1.Enabled:=True;
 end;
 
 procedure TfrmRenderToWave.OrderCheckFD;
 var
   Pat: Integer;
 begin
+  {if ((OrdersSeen.IndexOf(Pat) <> -1) and (OrdersSeen.KeyData[Pat])) and
+     (OrdersSeen.IndexOf(OrderSpinEdit.Value) = -1) then
+       raise EHaltingProblem.Create('The specified target order is never reached again in the song!');}
+
   Pat := (PeekSymbol(SYM_CURRENT_ORDER) div 2);
   if CurrentSeenPattern <> Pat then begin
     CurrentSeenPattern := Pat;

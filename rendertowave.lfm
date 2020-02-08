@@ -73,7 +73,7 @@ object frmRenderToWave: TfrmRenderToWave
     Height = 152
     Top = 136
     Width = 272
-    PageIndex = 1
+    PageIndex = 0
     TabOrder = 3
     object Page1: TPage
       object Label2: TLabel
@@ -89,6 +89,7 @@ object frmRenderToWave: TfrmRenderToWave
         Height = 23
         Top = 32
         Width = 192
+        MaxValue = 0
         TabOrder = 0
       end
     end
@@ -106,6 +107,7 @@ object frmRenderToWave: TfrmRenderToWave
         Height = 23
         Top = 32
         Width = 248
+        MaxValue = 0
         TabOrder = 0
       end
       object Label4: TLabel
@@ -121,6 +123,7 @@ object frmRenderToWave: TfrmRenderToWave
         Height = 23
         Top = 88
         Width = 248
+        MaxValue = 0
         TabOrder = 1
       end
       object Label5: TLabel
