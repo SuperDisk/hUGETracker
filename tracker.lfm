@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 2081
+  Left = 2040
   Height = 714
-  Top = 140
+  Top = 149
   Width = 1181
   Caption = 'hUGETracker'
   ClientHeight = 694
@@ -906,16 +906,16 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 777
-        ClientWidth = 1712
+        ClientHeight = 435
+        ClientWidth = 975
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 497
-          Top = 280
-          Width = 1712
+          Height = 275
+          Top = 160
+          Width = 975
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 13
@@ -937,16 +937,16 @@ object frmTracker: TfrmTracker
           TabOrder = 0
           object Label20: TLabel
             Left = 16
-            Height = 30
+            Height = 15
             Top = 16
-            Width = 51
+            Width = 29
             Caption = 'Wave'
             ParentColor = False
             ParentFont = False
           end
           object WaveEditNumberSpinner: TSpinEdit
             Left = 64
-            Height = 38
+            Height = 23
             Top = 8
             Width = 80
             MaxValue = 15
@@ -980,17 +980,17 @@ object frmTracker: TfrmTracker
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 777
-        ClientWidth = 1712
+        ClientHeight = 435
+        ClientWidth = 975
         ParentFont = False
         object CommentMemo: TMemo
           AnchorSideTop.Control = Label17
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 710
+          Height = 399
           Hint = 'The comments section for your song. Greetings/links/etc'
-          Top = 67
-          Width = 1712
+          Top = 36
+          Width = 975
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 13
@@ -1000,9 +1000,9 @@ object frmTracker: TfrmTracker
         end
         object Label17: TLabel
           Left = 8
-          Height = 30
+          Height = 15
           Top = 8
-          Width = 587
+          Width = 333
           Caption = 'This is an area to write comments for anyone editing your tune.'
           ParentColor = False
           ParentFont = False
@@ -4955,6 +4955,14 @@ object frmTracker: TfrmTracker
       Caption = 'Transpose -1 octave'
       ShortCut = 24641
       OnClick = TrackerPopupTransposeOctaveDownClick
+    end
+    object MenuItem32: TMenuItem
+      Caption = '-'
+    end
+    object MenuItem31: TMenuItem
+      Caption = 'Interpolate'
+      ShortCut = 16459
+      OnClick = MenuItem31Click
     end
     object MenuItem30: TMenuItem
       Caption = '-'

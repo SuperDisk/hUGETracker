@@ -292,7 +292,7 @@
       <Unit23>
         <Filename Value="htwavewriter.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="htWavWriter"/>
+        <UnitName Value="htWaveWriter"/>
       </Unit23>
     </Units>
   </ProjectOptions>

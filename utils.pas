@@ -16,6 +16,7 @@ type
     function MaxKey: Integer;
   end;
 
+function Lerp(v0, v1, t: Double): Double;
 function ConvertWaveform(Waveform: TWave): T4bitWave;
 procedure BlankPattern(Pat: PPattern);
 procedure BlankCell(var Cell: TCell);
@@ -54,6 +55,11 @@ begin
   for X := 0 to Self.Count-1 do
     if Self.Keys[X] > Result then Result := Self.Keys[X];
   Inc(Result);
+end;
+
+function Lerp(v0, v1, t: Double): Double;
+begin
+  Result := ((1 - t) * v0) + (t * v1);
 end;
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;

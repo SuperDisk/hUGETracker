@@ -137,6 +137,7 @@ type
     procedure DoRedo;
     procedure DoRepeatPaste;
     procedure TransposeSelection(Semitones: Integer);
+    procedure InterpolateSelection;
     procedure OpenEffectEditor;
 
     constructor Create(
@@ -576,6 +577,40 @@ begin
 
   Invalidate;
   SaveUndoState;
+end;
+
+procedure TTrackerGrid.InterpolateSelection;
+var
+  S, E, Len: Integer;
+  Pos: TSelectionPos;
+  StartCell: TCell;
+begin
+  NormalizeCursors;
+
+  if Cursor.Y = Other.Y then Exit;
+
+  if Cursor.SelectedPart = cpEffectCode then begin
+    Cursor.SelectedPart := cpEffectParams;
+    Other.SelectedPart := cpEffectParams;
+  end;
+
+  StartCell := Patterns[Cursor.x]^[Cursor.Y];
+
+  S := GetAt(Cursor);
+  E := GetAt(Other);
+  Len := Other.Y - Cursor.Y;
+
+  Pos := Cursor;
+  while Pos.Y <= Other.Y do begin
+    SetAt(Pos, Trunc(Lerp(S, E, ((Pos.Y - Cursor.Y) / Len))));
+
+    if Pos.SelectedPart = cpEffectParams then
+      Patterns[Pos.X]^[Pos.Y].EffectCode := StartCell.EffectCode;
+
+    Inc(Pos.Y)
+  end;
+
+  Invalidate
 end;
 
 procedure TTrackerGrid.OpenEffectEditor;

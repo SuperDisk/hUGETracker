@@ -35,6 +35,8 @@ type
     MenuItem26: TMenuItem;
     MenuItem27: TMenuItem;
     MenuItem28: TMenuItem;
+    MenuItem31: TMenuItem;
+    MenuItem32: TMenuItem;
     NoiseVisualizer: TPaintBox;
     Panel6: TPanel;
     WavSaveDialog: TSaveDialog;
@@ -252,6 +254,7 @@ type
     procedure MenuItem22Click(Sender: TObject);
     procedure FontSizeToggleMenuItemClick(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
+    procedure MenuItem31Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -1429,6 +1432,11 @@ begin
   TrackerGrid.FontSize := frmOptions.FontSizeSpinner.Value;
 
   OptionsFile.WriteInteger('hUGETracker', 'fontsize', TrackerGrid.FontSize);
+end;
+
+procedure TfrmTracker.MenuItem31Click(Sender: TObject);
+begin
+  TrackerGrid.InterpolateSelection;
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
