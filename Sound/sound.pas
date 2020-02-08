@@ -680,8 +680,8 @@ begin
     SampleBuffers[I].Cursor := (SampleBuffers[I].Cursor + 1) mod SAMPLE_BUFFER_SIZE;
   end;
 
-  l := ls[1] + ls[2] + ls[3] + ls[4];
-  r := rs[1] + rs[2] + rs[3] + rs[4];
+  l := Trunc((ls[1] + ls[2] + ls[3] + ls[4]) * (((m_iram[$FF24] and 7)+1) / 8));
+  r := Trunc((rs[1] + rs[2] + rs[3] + rs[4]) * ((((m_iram[$FF24] shr 4) and 7)+1) / 8));
 
   SampleBuffers[0].BufferL[SampleBuffers[0].Cursor] := l;
   SampleBuffers[0].BufferR[SampleBuffers[0].Cursor] := r;
