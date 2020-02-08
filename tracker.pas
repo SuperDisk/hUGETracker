@@ -10,7 +10,7 @@ uses
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, RackCtls, Codegen, SymParser, options, IniFiles,
-  bgrabitmap, effecteditor, WaveExport;
+  bgrabitmap, effecteditor, RenderToWave;
 
 type
   { TfrmTracker }
@@ -335,7 +335,6 @@ type
 
     {PatternsNode, }InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
 
-    SymbolTable: TSymbolMap;
     OptionsFile: TIniFile;
 
     VisualizerBuffer: TBGRABitmap;
@@ -351,10 +350,6 @@ type
     function PreparePreview: Boolean;
     procedure ResetEmulationThread;
 
-    function WordPeekSymbol(Symbol: String): Integer;
-    procedure WordPokeSymbol(Symbol: String; Value: Word);
-    function PeekSymbol(Symbol: String): Integer;
-    procedure PokeSymbol(Symbol: String; Value: Byte);
     procedure OnFD(var Msg: TLMessage); message LM_FD;
     procedure OnUndoOccured(var Msg: TLMessage); message LM_UNDO_OCCURED;
     procedure OnNotePlaced(var Msg: TLMessage); message LM_PREVIEW_NOTE;
@@ -661,30 +656,6 @@ begin
       for C := 1 to OrderEditStringGrid.ColCount-1 do
         if OrderEditStringGrid.Cells[C, R] = '' then
           OrderEditStringGrid.Cells[C, R] := '0';
-end;
-
-function TfrmTracker.PeekSymbol(Symbol: String): Integer;
-begin
-  if SymbolTable = nil then exit(0);
-  Result := speekb(SymbolTable.KeyData[Symbol]);
-end;
-
-procedure TfrmTracker.PokeSymbol(Symbol: String; Value: Byte);
-begin
-  if SymbolTable = nil then exit;
-  spokeb(SymbolTable.KeyData[Symbol], Value);
-end;
-
-function TfrmTracker.WordPeekSymbol(Symbol: String): Integer;
-begin
-  if SymbolTable = nil then exit(0);
-  Result := wordpeek(SymbolTable.KeyData[Symbol]);
-end;
-
-procedure TfrmTracker.WordPokeSymbol(Symbol: String; Value: Word);
-begin
-  if SymbolTable = nil then exit;
-  wordpoke(SymbolTable.KeyData[Symbol], Value);
 end;
 
 function TfrmTracker.PreparePreview: Boolean;
@@ -1571,7 +1542,11 @@ var
   Samp: Integer;
 begin
   // HACK: Avoid LCL bug where modal windows can't close.
-  if frmOptions.Visible or frmEffectEditor.Visible then Exit;
+  if frmOptions.Visible
+  or frmEffectEditor.Visible
+  or frmRenderToWave.Visible then
+    Exit;
+
   if Playing then
     OscilloscopeUpdateTimer.Interval := 25
   else
@@ -1609,8 +1584,9 @@ end;
 procedure TfrmTracker.ToolButton10Click(Sender: TObject);
 begin
   EmulationThread.Terminate;
-  if RenderPreviewROM(Song) and WavSaveDialog.Execute then begin
-    ExportWaveToFile(WavSaveDialog.Filename);
+  if RenderPreviewROM(Song) then begin
+    SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
+    frmRenderToWave.ShowModal;
     ResetEmulationThread;
   end;
 end;

@@ -32,7 +32,8 @@ uses
   sound in 'Sound\sound.pas',
   vars in 'Global\vars.pas',
   options in 'options.pas',
-  about_hugetracker in 'about_hugetracker.pas';
+  about_hugetracker in 'about_hugetracker.pas',
+  rendertowave in 'rendertowave.pas';
 
 {.$R *.RES}
 
@@ -71,5 +72,6 @@ begin
   Application.CreateForm(TfrmOptions, frmOptions);
   Application.CreateForm(TfrmAboutHugeTracker, frmAboutHugetracker);
   Application.CreateForm(TfrmEffectEditor, frmEffectEditor);
+  Application.CreateForm(TfrmRenderToWave, frmRenderToWave);
   Application.Run;
 end.

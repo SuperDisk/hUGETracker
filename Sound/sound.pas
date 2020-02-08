@@ -169,7 +169,7 @@ var
 
 implementation
 
-uses vars, sdl2, fpWavWriter;
+uses vars, sdl2, htWaveWriter;
 
 const
   SampleSize = SizeOf(Single)*2;

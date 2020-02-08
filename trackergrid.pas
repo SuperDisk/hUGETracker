@@ -745,12 +745,12 @@ begin
 end;
 
 procedure TTrackerGrid.SetHighlightedRow(Row: Integer);
-{var
-  R: TRect;
-  OldRow: Integer;}
+//var
+  //R: TRect;
+  //OldRow: Integer;
 begin
   //OldRow := FHighlightedRow;
-  //FHighlightedRow := Row;
+  FHighlightedRow := Row;
 
   Invalidate
 

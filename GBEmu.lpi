@@ -168,7 +168,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="23">
+    <Units Count="24">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -283,10 +283,17 @@
         <ResourceBaseClass Value="Form"/>
       </Unit21>
       <Unit22>
-        <Filename Value="waveexport.pas"/>
+        <Filename Value="rendertowave.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="WaveExport"/>
+        <ComponentName Value="frmRenderToWave"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="RenderToWave"/>
       </Unit22>
+      <Unit23>
+        <Filename Value="htwavewriter.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="htWavWriter"/>
+      </Unit23>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
