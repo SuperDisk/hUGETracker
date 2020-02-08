@@ -146,6 +146,9 @@ procedure SoundSetCycles(n: integer);
 function SoundBufferTooFull: Boolean;
 function SoundBufferSize: Integer;
 
+procedure BeginWritingSoundToFile(Filename: String);
+procedure EndWritingSoundToFile;
+
 var
   soundEnable: boolean;
   sndRegChange: boolean;
@@ -166,7 +169,7 @@ var
 
 implementation
 
-uses vars, sdl2;
+uses vars, sdl2, fpWavWriter;
 
 const
   SampleSize = SizeOf(Single)*2;
@@ -178,6 +181,10 @@ var
   playStream: TSDL_AudioDeviceID;
   bufCycles, bufLVal, bufRVal: integer;
   lfsr: Cardinal = 0;
+
+  WritingSoundToFile: Boolean;
+  SoundOutFile: String;
+  WaveWriter: TWavWriter;
 
 procedure ResetSound;
 var
@@ -206,6 +213,28 @@ end;
 function SoundBufferSize: Integer;
 begin
   Result := SDL_GetQueuedAudioSize(playStream)
+end;
+
+procedure BeginWritingSoundToFile(Filename: String);
+begin
+  WritingSoundToFile := True;
+  SoundOutFile := Filename;
+  WaveWriter := TWavWriter.Create;
+  WaveWriter.StoreToFile(Filename);
+  with WaveWriter.fmt do begin
+    SampleRate := playbackFrequency;
+    BitsPerSample := 16;
+    Channels := 2;
+    ByteRate := SampleRate * Channels * (BitsPerSample div 8);
+  end;
+end;
+
+procedure EndWritingSoundToFile;
+begin
+  WritingSoundToFile := False;
+
+  WaveWriter.FlushHeader;
+  WaveWriter.Free;
 end;
 
 procedure EnableSound;
@@ -249,6 +278,7 @@ end;
 procedure SoundDoOut(l, r: Integer; cycles: integer);
 var
   buf: array[0..1] of Single;
+  buf2: array[0..1] of Smallint;
 begin
   Inc(bufLVal, l * cycles);
   Inc(bufRVal, r * cycles);
@@ -260,7 +290,14 @@ begin
     bufCycles := 0;
     bufLVal := 0;
     bufRVal := 0;
-    SDL_QueueAudio(playStream, @buf, SampleSize);
+
+    if WritingSoundToFile then begin
+      buf2[0] := Trunc(buf[0]*High(Smallint));
+      buf2[1] := Trunc(buf[1]*High(Smallint));
+      WaveWriter.WriteBuf(buf2, SizeOf(Smallint)*2);
+    end
+    else
+      SDL_QueueAudio(playStream, @buf, SampleSize);
   end;
 end;
 

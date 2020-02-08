@@ -168,7 +168,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="22">
+    <Units Count="23">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -282,6 +282,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit21>
+      <Unit22>
+        <Filename Value="waveexport.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="WaveExport"/>
+      </Unit22>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

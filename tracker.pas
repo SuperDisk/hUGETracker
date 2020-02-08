@@ -10,7 +10,7 @@ uses
   Song, EmulationThread, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, RackCtls, Codegen, SymParser, options, IniFiles,
-  bgrabitmap, effecteditor;
+  bgrabitmap, effecteditor, WaveExport;
 
 type
   { TfrmTracker }
@@ -37,6 +37,8 @@ type
     MenuItem28: TMenuItem;
     NoiseVisualizer: TPaintBox;
     Panel6: TPanel;
+    WavSaveDialog: TSaveDialog;
+    ToolButton10: TToolButton;
     TrackerPopupEditEffect: TMenuItem;
     TrackerPopupTransposeOctaveUp: TMenuItem;
     TrackerPopupTransposeOctaveDown: TMenuItem;
@@ -276,6 +278,7 @@ type
     procedure TicksPerRowSpinEditChange(Sender: TObject);
     procedure OscilloscopeUpdateTimerTimer(Sender: TObject);
     procedure ExportGBSButtonClick(Sender: TObject);
+    procedure ToolButton10Click(Sender: TObject);
     procedure ToolButton2Click(Sender: TObject);
     procedure ToolButton3Click(Sender: TObject);
     procedure ToolButton4Click(Sender: TObject);
@@ -1601,6 +1604,15 @@ procedure TfrmTracker.ExportGBSButtonClick(Sender: TObject);
 begin
   if GBSSaveDialog.Execute then
     RenderSongToFile(Song, GBSSaveDialog.FileName, emGBS);
+end;
+
+procedure TfrmTracker.ToolButton10Click(Sender: TObject);
+begin
+  EmulationThread.Terminate;
+  if RenderPreviewROM(Song) and WavSaveDialog.Execute then begin
+    ExportWaveToFile(WavSaveDialog.Filename);
+    ResetEmulationThread;
+  end;
 end;
 
 procedure TfrmTracker.ToolButton2Click(Sender: TObject);
