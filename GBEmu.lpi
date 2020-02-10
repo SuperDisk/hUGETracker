@@ -286,6 +286,7 @@
         <Filename Value="rendertowave.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmRenderToWave"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="RenderToWave"/>
       </Unit22>

@@ -128,6 +128,8 @@ Bit0  Sound 1 on[1]/off[0]
 
 *)
 
+uses Classes;
+
 const
   SAMPLE_BUFFER_SIZE = 1024;
 
@@ -146,8 +148,8 @@ procedure SoundSetCycles(n: integer);
 function SoundBufferTooFull: Boolean;
 function SoundBufferSize: Integer;
 
-procedure BeginWritingSoundToFile(Filename: String);
-procedure EndWritingSoundToFile;
+procedure BeginWritingSoundToStream(Stream: TStream);
+procedure EndWritingSoundToStream;
 
 var
   soundEnable: boolean;
@@ -182,8 +184,7 @@ var
   bufCycles, bufLVal, bufRVal: integer;
   lfsr: Cardinal = 0;
 
-  WritingSoundToFile: Boolean;
-  SoundOutFile: String;
+  WritingSoundToStream: Boolean;
   WaveWriter: TWavWriter;
 
 procedure ResetSound;
@@ -215,12 +216,11 @@ begin
   Result := SDL_GetQueuedAudioSize(playStream)
 end;
 
-procedure BeginWritingSoundToFile(Filename: String);
+procedure BeginWritingSoundToStream(Stream: TStream);
 begin
-  WritingSoundToFile := True;
-  SoundOutFile := Filename;
+  WritingSoundToStream := True;
   WaveWriter := TWavWriter.Create;
-  WaveWriter.StoreToFile(Filename);
+  WaveWriter.StoreToStream(Stream);
   with WaveWriter.fmt do begin
     SampleRate := playbackFrequency;
     BitsPerSample := 16;
@@ -229,11 +229,9 @@ begin
   end;
 end;
 
-procedure EndWritingSoundToFile;
+procedure EndWritingSoundToStream;
 begin
-  WritingSoundToFile := False;
-
-  WaveWriter.FlushHeader;
+  WritingSoundToStream := False;
   WaveWriter.Free;
 end;
 
@@ -291,7 +289,7 @@ begin
     bufLVal := 0;
     bufRVal := 0;
 
-    if WritingSoundToFile then begin
+    if WritingSoundToStream then begin
       buf2[0] := Trunc(buf[0]*High(Smallint));
       buf2[1] := Trunc(buf[1]*High(Smallint));
       WaveWriter.WriteBuf(buf2, SizeOf(Smallint)*2);

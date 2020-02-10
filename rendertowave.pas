@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, EditBtn,
-  ExtCtrls, Spin, ComCtrls, constants, fgl;
+  ExtCtrls, Spin, ComCtrls, constants, process, fgl;
 
 type
   TOrdersSeenSet = specialize TFPGMap<Integer, Boolean>;
@@ -18,7 +18,9 @@ type
   { TfrmRenderToWave }
 
   TfrmRenderToWave = class(TForm)
-    Button1: TButton;
+    RenderButton: TButton;
+    CancelButton: TButton;
+    ComboBox1: TComboBox;
     FileNameEdit1: TFileNameEdit;
     Label1: TLabel;
     Label2: TLabel;
@@ -33,7 +35,9 @@ type
     SecondsSpinEdit: TSpinEdit;
     OrderSpinEdit: TSpinEdit;
     LoopTimesSpinEdit: TSpinEdit;
-    procedure Button1Click(Sender: TObject);
+    procedure CancelButtonClick(Sender: TObject);
+    procedure RenderButtonClick(Sender: TObject);
+    procedure ComboBox1Change(Sender: TObject);
     procedure FileNameEdit1AcceptFileName(Sender: TObject; var Value: String);
     procedure FileNameEdit1Change(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -43,6 +47,10 @@ type
     TimesSeenTargetPattern: Integer;
 
     OrdersSeen: TOrdersSeenSet;
+    Rendering: Boolean;
+    CancelRequested: Boolean;
+
+    procedure UpdateButtonEnabledStates;
 
     procedure ExportWaveToFile(Filename: String; Seconds: Integer); overload;
     procedure ExportWaveToFile(Filename: String; OrderNum: Integer; Loops: Integer); overload;
@@ -64,20 +72,51 @@ uses sound, machine, mainloop, vars, symparser;
 procedure TfrmRenderToWave.FileNameEdit1AcceptFileName(Sender: TObject;
   var Value: String);
 begin
-  Button1.Enabled := (FileNameEdit1.FileName <> '');
+  UpdateButtonEnabledStates;
 end;
 
-procedure TfrmRenderToWave.Button1Click(Sender: TObject);
+procedure TfrmRenderToWave.RenderButtonClick(Sender: TObject);
 begin
-  if RadioGroup1.ItemIndex = 0 then
-    ExportWaveToFile(FileNameEdit1.FileName, SecondsSpinEdit.Value)
-  else
-    ExportWaveToFile(FileNameEdit1.FileName, OrderSpinEdit.Value, LoopTimesSpinEdit.Value);
+  ProgressBar1.Position := 0;
+  Rendering := True;
+  CancelRequested := False;
+  UpdateButtonEnabledStates;
+
+  try
+    if RadioGroup1.ItemIndex = 0 then
+      ExportWaveToFile(FileNameEdit1.FileName, SecondsSpinEdit.Value)
+    else
+      ExportWaveToFile(FileNameEdit1.FileName, OrderSpinEdit.Value, LoopTimesSpinEdit.Value);
+  except
+    on E: Exception do begin
+      MessageDlg('Error!', 'Couldn''t write ' + FileNameEdit1.FileName + ' !' + LineEnding +
+                            LineEnding + E.Message, mtError, [mbOk], '');
+    end;
+  end;
+
+  ProgressBar1.Position := 0;
+  Rendering := False;
+  CancelRequested := False;
+  UpdateButtonEnabledStates;
+end;
+
+procedure TfrmRenderToWave.CancelButtonClick(Sender: TObject);
+begin
+  CancelRequested := True;
+  UpdateButtonEnabledStates;
+end;
+
+procedure TfrmRenderToWave.ComboBox1Change(Sender: TObject);
+begin
+  case ComboBox1.ItemIndex of
+    0: FileNameEdit1.Filter := 'Wave Files|*.wav';
+    1: FileNameEdit1.Filter := 'MP3 Files|*.mp3';
+  end;
 end;
 
 procedure TfrmRenderToWave.FileNameEdit1Change(Sender: TObject);
 begin
-  Button1.Enabled := (FileNameEdit1.FileName <> '');
+  UpdateButtonEnabledStates;
 end;
 
 procedure TfrmRenderToWave.FormShow(Sender: TObject);
@@ -95,13 +134,19 @@ begin
   Notebook1.PageIndex := RadioGroup1.ItemIndex;
 end;
 
+procedure TfrmRenderToWave.UpdateButtonEnabledStates;
+begin
+  RenderButton.Enabled := (FileNameEdit1.FileName <> '') and not Rendering;
+  CancelButton.Enabled := Rendering and not CancelRequested;
+end;
+
 procedure TfrmRenderToWave.ExportWaveToFile(Filename: String; Seconds: Integer);
 var
   CompletedCycles: QWord = 0;
   CyclesToDo: QWord;
+  OutStream: TStream;
+  Proc: TProcess;
 begin
-  Button1.Enabled := False;
-
   CyclesToDo := (70224*60)*Seconds;
   ProgressBar1.Position := 0;
 
@@ -109,21 +154,54 @@ begin
   ResetSound;
   enablesound;
 
-  BeginWritingSoundToFile(Filename);
-
   FDCallback := nil;
-
   load('hUGEDriver/preview.gb');
+  chdir('hUGEDriver');
 
-  while CompletedCycles < CyclesToDo do begin
-    Inc(CompletedCycles, z80_decode);
-    ProgressBar1.Position := Trunc((CompletedCycles / CyclesToDo)*100);
-    if Random(500) = 1 then Application.ProcessMessages;
+  if ComboBox1.ItemIndex = 0 then begin
+    OutStream := TFileStream.Create(Filename, fmCreate);
+  end
+  else begin
+    Proc := TProcess.Create(nil);
+    Proc.Executable := 'lame';
+    with Proc.Parameters do begin
+        Add('-');
+        Add(Filename);
+    end;
+    Proc.Options := [poUsePipes];
+    Proc.Execute;
+
+    OutStream := TMemoryStream.Create;
   end;
 
-  EndWritingSoundToFile;
+  try
+    BeginWritingSoundToStream(OutStream);
 
-  Button1.Enabled:=True;
+    while (CompletedCycles < CyclesToDo) and not CancelRequested do begin
+      Inc(CompletedCycles, z80_decode);
+      ProgressBar1.Position := Trunc((CompletedCycles / CyclesToDo)*100);
+      if Random(500) = 1 then Application.ProcessMessages;
+    end;
+
+    if CancelRequested then Exit;
+
+  finally
+    EndWritingSoundToStream;
+
+    Chdir('..');
+
+    try
+      if ComboBox1.ItemIndex = 1 then begin
+        OutStream.Seek(0, soFromBeginning);
+        Proc.Input.CopyFrom(OutStream, OutStream.Size);
+        Proc.CloseInput;
+        Proc.WaitOnExit;
+      end;
+    finally
+      if ComboBox1.ItemIndex = 1 then Proc.Free;
+      OutStream.Free
+    end;
+  end;
 end;
 
 procedure TfrmRenderToWave.ExportWaveToFile(Filename: String;
@@ -131,7 +209,7 @@ procedure TfrmRenderToWave.ExportWaveToFile(Filename: String;
 var
   TimesToSeePattern: Integer;
 begin
-  Button1.Enabled:=False;
+  RenderButton.Enabled:=False;
 
   TimesToSeePattern := (LoopTimesSpinEdit.Value+1);
   TimesSeenTargetPattern := 0;
@@ -141,7 +219,7 @@ begin
   ResetSound;
   enablesound;
 
-  BeginWritingSoundToFile(Filename);
+  //BeginWritingSoundToStream(Filename);
 
   FDCallback := @OrderCheckFD;
 
@@ -160,9 +238,9 @@ begin
     end;
   end;
 
-  EndWritingSoundToFile;
+  EndWritingSoundToStream;
 
-  Button1.Enabled:=True;
+  RenderButton.Enabled:=True;
 end;
 
 procedure TfrmRenderToWave.OrderCheckFD;

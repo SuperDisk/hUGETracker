@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 2040
+  Left = 2029
   Height = 714
-  Top = 149
+  Top = 270
   Width = 1181
   Caption = 'hUGETracker'
   ClientHeight = 694
@@ -19,7 +19,7 @@ object frmTracker: TfrmTracker
   LCLVersion = '2.0.6.0'
   object TreeView1: TTreeView
     Left = 0
-    Height = 463
+    Height = 468
     Top = 203
     Width = 193
     Align = alLeft
@@ -37,24 +37,24 @@ object frmTracker: TfrmTracker
   end
   object Splitter1: TSplitter
     Left = 193
-    Height = 463
+    Height = 468
     Top = 203
     Width = 5
   end
   object Panel1: TPanel
     Left = 198
-    Height = 463
+    Height = 468
     Top = 203
     Width = 983
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 463
+    ClientHeight = 468
     ClientWidth = 983
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 463
+      Height = 468
       Top = 0
       Width = 983
       ActivePage = PatternTabSheet
@@ -141,16 +141,16 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
-        ClientHeight = 435
+        ClientHeight = 440
         ClientWidth = 975
         ParentFont = False
         object Panel3: TPanel
           Left = 224
-          Height = 435
+          Height = 440
           Top = 0
           Width = 751
           Align = alClient
-          ClientHeight = 435
+          ClientHeight = 440
           ClientWidth = 751
           ParentFont = False
           TabOrder = 0
@@ -199,7 +199,7 @@ object frmTracker: TfrmTracker
           end
           object ScrollBox1: TScrollBox
             Left = 1
-            Height = 403
+            Height = 408
             Top = 31
             Width = 749
             HorzScrollBar.Increment = 1
@@ -218,7 +218,7 @@ object frmTracker: TfrmTracker
         end
         object OrderEditStringGrid: TStringGrid
           Left = 0
-          Height = 435
+          Height = 440
           Top = 0
           Width = 224
           Align = alLeft
@@ -1662,8 +1662,8 @@ object frmTracker: TfrmTracker
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 28
-    Top = 666
+    Height = 23
+    Top = 671
     Width = 1181
     AutoHint = True
     Panels = <    
@@ -1702,7 +1702,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 556
+      Left = 557
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1749,14 +1749,14 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 1121
+      Left = 1122
       Height = 22
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object OctaveSpinEdit: TSpinEdit
-      Left = 662
+      Left = 663
       Height = 23
       Top = 0
       Width = 90
@@ -1766,14 +1766,14 @@ object frmTracker: TfrmTracker
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 611
+      Left = 612
       Height = 22
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 619
+      Left = 620
       Height = 15
       Top = 0
       Width = 43
@@ -1782,7 +1782,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object Label23: TLabel
-      Left = 752
+      Left = 753
       Height = 15
       Top = 0
       Width = 70
@@ -1791,7 +1791,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object InstrumentComboBox: TComboBox
-      Left = 822
+      Left = 823
       Height = 23
       Top = 0
       Width = 214
@@ -1822,7 +1822,7 @@ object frmTracker: TfrmTracker
       Text = '(no instrument)'
     end
     object Label24: TLabel
-      Left = 1036
+      Left = 1037
       Height = 15
       Top = 0
       Width = 35
@@ -1831,7 +1831,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object StepSpinEdit: TSpinEdit
-      Left = 1071
+      Left = 1072
       Height = 23
       Top = 0
       Width = 50
@@ -1855,7 +1855,7 @@ object frmTracker: TfrmTracker
       OnClick = ExportGBSButtonClick
     end
     object ToolButton5: TToolButton
-      Left = 551
+      Left = 552
       Height = 22
       Top = 0
       Caption = 'ToolButton5'
@@ -1864,7 +1864,7 @@ object frmTracker: TfrmTracker
     object ToolButton10: TToolButton
       Left = 459
       Top = 0
-      Caption = 'Export .WAV'
+      Caption = 'Render Song'
       ImageIndex = 77
       OnClick = ToolButton10Click
     end
