@@ -52,8 +52,10 @@ type
 
     procedure UpdateButtonEnabledStates;
 
-    procedure ExportWaveToFile(Filename: String; Seconds: Integer); overload;
-    procedure ExportWaveToFile(Filename: String; OrderNum: Integer; Loops: Integer); overload;
+    procedure ExportWaveToFile(Filename: String); overload;
+
+    procedure RenderSeconds(Seconds: Integer);
+    procedure RenderLoops(TargetOrder: Integer; Loops: Integer);
 
     procedure OrderCheckFD;
   public
@@ -83,10 +85,11 @@ begin
   UpdateButtonEnabledStates;
 
   try
-    if RadioGroup1.ItemIndex = 0 then
+    ExportWaveToFile(FileNameEdit1.FileName);
+    {if RadioGroup1.ItemIndex = 0 then
       ExportWaveToFile(FileNameEdit1.FileName, SecondsSpinEdit.Value)
     else
-      ExportWaveToFile(FileNameEdit1.FileName, OrderSpinEdit.Value, LoopTimesSpinEdit.Value);
+      ExportWaveToFile(FileNameEdit1.FileName, OrderSpinEdit.Value, LoopTimesSpinEdit.Value);}
   except
     on E: Exception do begin
       MessageDlg('Error!', 'Couldn''t write ' + FileNameEdit1.FileName + ' !' + LineEnding +
@@ -140,14 +143,11 @@ begin
   CancelButton.Enabled := Rendering and not CancelRequested;
 end;
 
-procedure TfrmRenderToWave.ExportWaveToFile(Filename: String; Seconds: Integer);
+procedure TfrmRenderToWave.ExportWaveToFile(Filename: String);
 var
-  CompletedCycles: QWord = 0;
-  CyclesToDo: QWord;
   OutStream: TStream;
   Proc: TProcess;
 begin
-  CyclesToDo := (70224*60)*Seconds;
   ProgressBar1.Position := 0;
 
   z80_reset;
@@ -177,10 +177,10 @@ begin
   try
     BeginWritingSoundToStream(OutStream);
 
-    while (CompletedCycles < CyclesToDo) and not CancelRequested do begin
-      Inc(CompletedCycles, z80_decode);
-      ProgressBar1.Position := Trunc((CompletedCycles / CyclesToDo)*100);
-      if Random(500) = 1 then Application.ProcessMessages;
+    // Choose which rendering time strategy to use
+    case RadioGroup1.ItemIndex of
+      0: RenderSeconds(SecondsSpinEdit.Value);
+      1: RenderLoops(OrderSpinEdit.Value, LoopTimesSpinEdit.Value);
     end;
 
     if CancelRequested then Exit;
@@ -204,43 +204,37 @@ begin
   end;
 end;
 
-procedure TfrmRenderToWave.ExportWaveToFile(Filename: String;
-  OrderNum: Integer; Loops: Integer);
+procedure TfrmRenderToWave.RenderSeconds(Seconds: Integer);
+var
+  CompletedCycles: QWord = 0;
+  CyclesToDo: QWord;
+begin
+  CyclesToDo := (70224*60)*Seconds;
+  while (CompletedCycles < CyclesToDo) and not CancelRequested do begin
+    Inc(CompletedCycles, z80_decode);
+    ProgressBar1.Position := Trunc((CompletedCycles / CyclesToDo)*100);
+    if Random(500) = 1 then Application.ProcessMessages;
+  end;
+end;
+
+procedure TfrmRenderToWave.RenderLoops(TargetOrder: Integer; Loops: Integer);
 var
   TimesToSeePattern: Integer;
+  OldFD: TFDCallback;
 begin
-  RenderButton.Enabled:=False;
-
-  TimesToSeePattern := (LoopTimesSpinEdit.Value+1);
-  TimesSeenTargetPattern := 0;
-  CurrentSeenPattern := -1;
-
-  z80_reset;
-  ResetSound;
-  enablesound;
-
-  //BeginWritingSoundToStream(Filename);
-
+  OldFD := FDCallback;
   FDCallback := @OrderCheckFD;
 
-  load('hUGEDriver/preview.gb');
-  SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
-
-  try
-    while TimesSeenTargetPattern < TimesToSeePattern do begin
-      z80_decode;
-      ProgressBar1.Position := Trunc((TimesSeenTargetPattern / TimesToSeePattern)*100);
-      if Random(500) = 1 then Application.ProcessMessages;
-    end;
-  except
-    on E: EHaltingProblem do begin
-      MessageDlg('Error!', E.Message, mtError, [mbOK], '');
-    end;
+  CurrentSeenPattern := -1;
+  TimesSeenTargetPattern := 0;
+  TimesToSeePattern := (LoopTimesSpinEdit.Value+1);
+  while (TimesSeenTargetPattern < TimesToSeePattern) and not CancelRequested do begin
+    z80_decode;
+    ProgressBar1.Position := Trunc((TimesSeenTargetPattern / TimesToSeePattern)*100);
+    if Random(500) = 1 then Application.ProcessMessages;
   end;
 
-  EndWritingSoundToStream;
-
-  RenderButton.Enabled:=True;
+  FDCallback := OldFD;
 end;
 
 procedure TfrmRenderToWave.OrderCheckFD;
