@@ -23,6 +23,7 @@ const
   SYM_ROW = 'row';
   SYM_CURRENT_ORDER = 'current_order';
   SYM_TICKS_PER_ROW = 'ticks_per_row';
+  SYM_ORDER_COUNT = 'order_cnt';
 
   // Sound controller registers
   NR10 = $FF10;

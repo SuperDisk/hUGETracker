@@ -9,8 +9,6 @@ uses
   ExtCtrls, Spin, ComCtrls, constants, process, fgl;
 
 type
-  TOrdersSeenSet = specialize TFPGMap<Integer, Boolean>;
-
   { EHaltingProblem }
 
   EHaltingProblem = class(Exception);
@@ -43,10 +41,8 @@ type
     procedure FormShow(Sender: TObject);
     procedure RadioGroup1Click(Sender: TObject);
   private
-    CurrentSeenPattern: Integer;
-    TimesSeenTargetPattern: Integer;
+    PatternsSeen, CurrentSeenPattern, TimesSeenTargetPattern: Integer;
 
-    OrdersSeen: TOrdersSeenSet;
     Rendering: Boolean;
     CancelRequested: Boolean;
 
@@ -86,13 +82,9 @@ begin
 
   try
     ExportWaveToFile(FileNameEdit1.FileName);
-    {if RadioGroup1.ItemIndex = 0 then
-      ExportWaveToFile(FileNameEdit1.FileName, SecondsSpinEdit.Value)
-    else
-      ExportWaveToFile(FileNameEdit1.FileName, OrderSpinEdit.Value, LoopTimesSpinEdit.Value);}
   except
     on E: Exception do begin
-      MessageDlg('Error!', 'Couldn''t write ' + FileNameEdit1.FileName + ' !' + LineEnding +
+      MessageDlg('Error!', 'Couldn''t write ' + FileNameEdit1.FileName + '!' + LineEnding +
                             LineEnding + E.Message, mtError, [mbOk], '');
     end;
   end;
@@ -221,17 +213,25 @@ procedure TfrmRenderToWave.RenderLoops(TargetOrder: Integer; Loops: Integer);
 var
   TimesToSeePattern: Integer;
   OldFD: TFDCallback;
+  OrderCount: Integer;
 begin
   OldFD := FDCallback;
   FDCallback := @OrderCheckFD;
 
+  OrderCount := PeekSymbol(SYM_ORDER_COUNT) div 2;
+
   CurrentSeenPattern := -1;
   TimesSeenTargetPattern := 0;
+  PatternsSeen := 0;
   TimesToSeePattern := (LoopTimesSpinEdit.Value+1);
+
   while (TimesSeenTargetPattern < TimesToSeePattern) and not CancelRequested do begin
     z80_decode;
     ProgressBar1.Position := Trunc((TimesSeenTargetPattern / TimesToSeePattern)*100);
     if Random(500) = 1 then Application.ProcessMessages;
+
+    if (PatternsSeen > OrderCount) and (TimesSeenTargetPattern <= 1) then
+      raise EHaltingProblem.Create('The specified loop point cannot be reached more than once!');
   end;
 
   FDCallback := OldFD;
@@ -241,12 +241,9 @@ procedure TfrmRenderToWave.OrderCheckFD;
 var
   Pat: Integer;
 begin
-  {if ((OrdersSeen.IndexOf(Pat) <> -1) and (OrdersSeen.KeyData[Pat])) and
-     (OrdersSeen.IndexOf(OrderSpinEdit.Value) = -1) then
-       raise EHaltingProblem.Create('The specified target order is never reached again in the song!');}
-
   Pat := (PeekSymbol(SYM_CURRENT_ORDER) div 2);
   if CurrentSeenPattern <> Pat then begin
+    Inc(PatternsSeen);
     CurrentSeenPattern := Pat;
 
     if Pat = OrderSpinEdit.Value then
