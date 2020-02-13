@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, EditBtn,
-  ExtCtrls, Spin, ComCtrls, constants, process, fgl;
+  ExtCtrls, Spin, ComCtrls, constants, process;
 
 type
   { EHaltingProblem }

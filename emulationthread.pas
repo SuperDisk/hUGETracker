@@ -34,9 +34,9 @@ var
   tickFreq, cycles: Extended;
   frameStart, frameEnd: Extended;
   frameElapsedInSec: Extended;
-function GetCounter: Integer;
+function GetCounter: Extended;
 begin
-  Result := Trunc(ET.Elapsed*1000000); // Convert to microseconds
+  Result := ET.Elapsed*1000000; // Convert to microseconds
 end;
 begin
   lastTime := 0;
