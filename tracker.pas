@@ -789,6 +789,8 @@ begin
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = Seven;
     end;
   end;
+
+  WavePaintbox.Invalidate;
 end;
 
 procedure TfrmTracker.ChangeToSquare;

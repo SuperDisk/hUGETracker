@@ -9,6 +9,8 @@ uses
   ExtCtrls, Spin, ComCtrls, constants, process;
 
 type
+  TRenderFormat = (rfWave, rfMP3);
+
   { EHaltingProblem }
 
   EHaltingProblem = class(Exception);
@@ -18,7 +20,6 @@ type
   TfrmRenderToWave = class(TForm)
     RenderButton: TButton;
     CancelButton: TButton;
-    ComboBox1: TComboBox;
     FileNameEdit1: TFileNameEdit;
     Label1: TLabel;
     Label2: TLabel;
@@ -48,7 +49,7 @@ type
 
     procedure UpdateButtonEnabledStates;
 
-    procedure ExportWaveToFile(Filename: String); overload;
+    procedure ExportWaveToFile(Filename: String; Format: TRenderFormat);
 
     procedure RenderSeconds(Seconds: Integer);
     procedure RenderLoops(TargetOrder: Integer; Loops: Integer);
@@ -74,14 +75,22 @@ begin
 end;
 
 procedure TfrmRenderToWave.RenderButtonClick(Sender: TObject);
+var
+  RF: TRenderFormat;
 begin
   ProgressBar1.Position := 0;
   Rendering := True;
   CancelRequested := False;
   UpdateButtonEnabledStates;
 
+  case LowerCase(ExtractFileExt(FileNameEdit1.FileName)) of
+    '.wav': RF := rfWave;
+    '.mp3': RF := rfMP3;
+    else RF := rfWave;
+  end;
+
   try
-    ExportWaveToFile(FileNameEdit1.FileName);
+    ExportWaveToFile(FileNameEdit1.FileName, RF);
   except
     on E: Exception do begin
       MessageDlg('Error!', 'Couldn''t write ' + FileNameEdit1.FileName + '!' + LineEnding +
@@ -103,10 +112,10 @@ end;
 
 procedure TfrmRenderToWave.ComboBox1Change(Sender: TObject);
 begin
-  case ComboBox1.ItemIndex of
+  {case ComboBox1.ItemIndex of
     0: FileNameEdit1.Filter := 'Wave Files|*.wav';
     1: FileNameEdit1.Filter := 'MP3 Files|*.mp3';
-  end;
+  end;}
 end;
 
 procedure TfrmRenderToWave.FileNameEdit1Change(Sender: TObject);
@@ -135,7 +144,7 @@ begin
   CancelButton.Enabled := Rendering and not CancelRequested;
 end;
 
-procedure TfrmRenderToWave.ExportWaveToFile(Filename: String);
+procedure TfrmRenderToWave.ExportWaveToFile(Filename: String; Format: TRenderFormat);
 var
   OutStream: TStream;
   Proc: TProcess;
@@ -150,7 +159,7 @@ begin
   load('hUGEDriver/preview.gb');
   chdir('hUGEDriver');
 
-  if ComboBox1.ItemIndex = 0 then begin
+  if format = rfWave then begin
     OutStream := TFileStream.Create(Filename, fmCreate);
   end
   else begin
@@ -183,14 +192,14 @@ begin
     Chdir('..');
 
     try
-      if ComboBox1.ItemIndex = 1 then begin
+      if Format = rfMP3 then begin
         OutStream.Seek(0, soFromBeginning);
         Proc.Input.CopyFrom(OutStream, OutStream.Size);
         Proc.CloseInput;
         Proc.WaitOnExit;
       end;
     finally
-      if ComboBox1.ItemIndex = 1 then Proc.Free;
+      if Format = rfMP3 then Proc.Free;
       OutStream.Free
     end;
   end;
