@@ -37,6 +37,7 @@ type
     MenuItem28: TMenuItem;
     MenuItem31: TMenuItem;
     MenuItem32: TMenuItem;
+    MenuItem33: TMenuItem;
     NoiseVisualizer: TPaintBox;
     Panel6: TPanel;
     WavSaveDialog: TSaveDialog;
@@ -246,6 +247,7 @@ type
     procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
     procedure MenuItem12Click(Sender: TObject);
+    procedure MenuItem13Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
     procedure MenuItem17Click(Sender: TObject);
     procedure MenuItem18Click(Sender: TObject);
@@ -255,6 +257,7 @@ type
     procedure FontSizeToggleMenuItemClick(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem31Click(Sender: TObject);
+    procedure MenuItem33Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -928,7 +931,6 @@ end;
 
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
-  I: Integer;
   PUI: PtrUint;
 begin
   {if Screen.Fonts.IndexOf('PixeliteTTF') = -1 then
@@ -983,11 +985,12 @@ begin
   end;
 
   // Initialize order table
-  for I := 0 to 3 do begin
+  {for I := 0 to 3 do begin
     OrderEditStringGrid.Cells[I+1, 1] := IntToStr(I);
     TrackerGrid.LoadPattern(I, I);
-  end;
-  CopyOrderGridToOrderMatrix;
+  end;}
+  //CopyOrderGridToOrderMatrix;
+  CopyOrderMatrixToOrderGrid;
 
   // Manually resize the fixed column in the order editor
   OrderEditStringGrid.ColWidths[0]:=50;
@@ -1140,6 +1143,8 @@ procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
 var
   Stream: TStream;
 begin
+  DestroySong(Song);
+
   stream := TFileStream.Create(FileOpen1.Dialog.FileName, fmOpenRead);
   try
     ReadSongFromStream(stream, Song);
@@ -1344,6 +1349,11 @@ begin
   CheckUnsavedChanges;
 end;
 
+procedure TfrmTracker.MenuItem13Click(Sender: TObject);
+begin
+
+end;
+
 procedure TfrmTracker.MenuItem14Click(Sender: TObject);
 begin
   if CheckUnsavedChanges then
@@ -1439,6 +1449,19 @@ end;
 procedure TfrmTracker.MenuItem31Click(Sender: TObject);
 begin
   TrackerGrid.InterpolateSelection;
+end;
+
+procedure TfrmTracker.MenuItem33Click(Sender: TObject);
+begin
+  if not CheckUnsavedChanges then Exit;
+
+  FileSaveAs1.Dialog.FileName := '';
+  FileOpen1.Dialog.FileName := '';
+
+  DestroySong(Song);
+  InitializeSong(Song);
+
+  UpdateUIAfterLoad;
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);

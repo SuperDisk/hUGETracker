@@ -28,6 +28,7 @@ type
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; var ASong: TSong);
 procedure InitializeSong(var S: TSong);
+procedure DestroySong(var S: TSong);
 
 implementation
 
@@ -129,8 +130,22 @@ begin
       S.Waves[I][J] := random($F);
   end;
 
+  for I := Low(TOrderMatrix) to High(TOrderMatrix) do begin
+    SetLength(S.OrderMatrix[I], 2);
+    S.OrderMatrix[I, 0] := I;
+  end;
+
   S.TicksPerRow := 7;
   S.Patterns := TPatternMap.Create;
+end;
+
+procedure DestroySong(var S: TSong);
+var
+  I: Integer;
+begin
+  S.Patterns.Free;
+  for I := Low(TOrderMatrix) to High(TOrderMatrix) do
+    SetLength(S.OrderMatrix[I], 0);
 end;
 
 end.

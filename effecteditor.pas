@@ -28,12 +28,13 @@ type
     CheckBox6: TCheckBox;
     CheckBox7: TCheckBox;
     CheckBox8: TCheckBox;
+    VibratoComboBox: TComboBox;
+    Label3: TLabel;
     LeftPanCheckGroup: TCheckGroup;
     RightPanCheckGroup: TCheckGroup;
     ComboBox1: TComboBox;
     Label1: TLabel;
     Label2: TLabel;
-    VibratoRateRadioGroup: TRadioGroup;
     DutyRadioGroup: TRadioGroup;
     TwoParamsTrackBar1: TTrackBar;
     TwoParamsTrackBar2: TTrackBar;
@@ -208,13 +209,7 @@ end;
 procedure TfrmEffectEditor.VibratoRateRadioGroupSelectionChanged(Sender: TObject
   );
 begin
-  case VibratoRateRadioGroup.ItemIndex of
-    0: Cell^.EffectParams.Param1 := $0;
-    1: Cell^.EffectParams.Param1 := $1;
-    2: Cell^.EffectParams.Param1 := $3;
-    3: Cell^.EffectParams.Param1 := $7;
-    4: Cell^.EffectParams.Param1 := $F;
-  end;
+  Cell^.EffectParams.Param1 := VibratoComboBox.ItemIndex;
 end;
 
 procedure TfrmEffectEditor.LoadEffect;
@@ -254,13 +249,7 @@ end;
 
 procedure TfrmEffectEditor.LoadVibratoData;
 begin
-  case Cell^.EffectParams.Param1 of
-    $0: VibratoRateRadioGroup.ItemIndex := 0;
-    $1: VibratoRateRadioGroup.ItemIndex := 1;
-    $3: VibratoRateRadioGroup.ItemIndex := 2;
-    $7: VibratoRateRadioGroup.ItemIndex := 3;
-    $F: VibratoRateRadioGroup.ItemIndex := 4;
-  end;
+  VibratoComboBox.ItemIndex := Cell^.EffectParams.Param1;
   VibratoDepthTrackBar.Position := Cell^.EffectParams.Param2;
   Label2.Caption := IntToStr(VibratoDepthTrackBar.Position);
 end;
