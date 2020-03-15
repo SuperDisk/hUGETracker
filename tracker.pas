@@ -6,11 +6,11 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, math, Instruments, Waves,
-  Song, EmulationThread, Utils, Constants, sound, vars, machine,
-  about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
-  HugeDatatypes, LCLType, RackCtls, Codegen, SymParser, options, IniFiles,
-  bgrabitmap, effecteditor, RenderToWave;
+  Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, SynHighlighterAny, math,
+  Instruments, Waves, Song, EmulationThread, Utils, Constants, sound, vars,
+  machine, about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids,
+  DBCtrls, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser, options,
+  IniFiles, bgrabitmap, effecteditor, RenderToWave;
 
 type
   { TfrmTracker }
@@ -40,6 +40,7 @@ type
     MenuItem33: TMenuItem;
     NoiseVisualizer: TPaintBox;
     Panel6: TPanel;
+    SynAnySyn1: TSynAnySyn;
     WavSaveDialog: TSaveDialog;
     ToolButton10: TToolButton;
     TrackerPopupEditEffect: TMenuItem;

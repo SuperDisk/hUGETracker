@@ -610,8 +610,8 @@ begin
     Inc(Pos.Y)
   end;
 
-  Invalidate
-  SaveUndoState;
+  Invalidate;
+  SaveUndoState
 end;
 
 procedure TTrackerGrid.OpenEffectEditor;
@@ -620,7 +620,7 @@ begin
   frmEffectEditor.ShowModal;
 
   Invalidate;
-  SaveUndoState;
+  SaveUndoState
 end;
 
 procedure TTrackerGrid.EraseSelection;
