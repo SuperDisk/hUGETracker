@@ -280,6 +280,8 @@ type
     procedure PanicToolButtonClick(Sender: TObject);
     procedure PasteActionExecute(Sender: TObject);
     procedure OctaveSpinEditChange(Sender: TObject);
+    procedure RoutineNumberSpinnerChange(Sender: TObject);
+    procedure RoutineSyneditChange(Sender: TObject);
     procedure ShiftClockSpinnerChange(Sender: TObject);
     procedure StepSpinEditChange(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
@@ -1270,6 +1272,16 @@ end;
 procedure TfrmTracker.OctaveSpinEditChange(Sender: TObject);
 begin
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+end;
+
+procedure TfrmTracker.RoutineNumberSpinnerChange(Sender: TObject);
+begin
+  RoutineSynedit.Text := Song.Routines[RoutineNumberSpinner.Value];
+end;
+
+procedure TfrmTracker.RoutineSyneditChange(Sender: TObject);
+begin
+  Song.Routines[RoutineNumberSpinner.Value] := RoutineSynedit.Text;
 end;
 
 procedure TfrmTracker.ShiftClockSpinnerChange(Sender: TObject);

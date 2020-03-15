@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 807
+  Left = 1123
   Height = 1200
-  Top = 205
+  Top = 146
   Width = 2040
   Caption = 'hUGETracker'
   ClientHeight = 1166
@@ -1486,6 +1486,7 @@ object frmTracker: TfrmTracker
           MouseLinkColor.Foreground = clBlue
           LineHighlightColor.Background = clNone
           LineHighlightColor.Foreground = clNone
+          OnChange = RoutineSyneditChange
           inline SynLeftGutterPartList1: TSynGutterPartList
             object SynGutterMarks1: TSynGutterMarks
               Width = 42
@@ -1537,9 +1538,9 @@ object frmTracker: TfrmTracker
           Height = 38
           Top = 14
           Width = 308
-          Enabled = False
           MaxValue = 15
           MinValue = 1
+          OnChange = RoutineNumberSpinnerChange
           ParentFont = False
           TabOrder = 1
           Value = 1

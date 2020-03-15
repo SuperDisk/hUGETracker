@@ -533,10 +533,20 @@ end;
 
 procedure TTrackerGrid.ClampCursors;
 begin
+  if Cursor.X < Low(TPatternGrid) then
+    Cursor.SelectedPart := Low(TCellPart);
+  if Cursor.X > High(TPatternGrid) then
+    Cursor.SelectedPart := High(TCellPart);
+
+  if Other.X < Low(TPatternGrid) then
+    Other.SelectedPart := Low(TCellPart);
+  if Other.X > High(TPatternGrid) then
+    Other.SelectedPart := High(TCellPart);
+
   Cursor.Y := EnsureRange(Cursor.Y, Low(TPattern), High(TPattern));
-  Cursor.X := EnsureRange(Cursor.X, Low(TPattern), High(TPattern));
+  Cursor.X := EnsureRange(Cursor.X, Low(TPatternGrid), High(TPatternGrid));
   Other.Y := EnsureRange(Other.Y, Low(TPattern), High(TPattern));
-  Other.X := EnsureRange(Other.X, Low(TPattern), High(TPattern));
+  Other.X := EnsureRange(Other.X, Low(TPatternGrid), High(TPatternGrid));
 end;
 
 procedure TTrackerGrid.NormalizeCursors;

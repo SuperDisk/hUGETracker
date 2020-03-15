@@ -10,8 +10,11 @@ uses
 type
   Nibble = $0..$F;
 
+  TRoutine = string;
+
   TInstrumentBank = packed array[1..15] of TInstrument;
   TWaveBank = packed array[0..15] of TWave;
+  TRoutineBank = packed array[0..15] of TRoutine;
 
   TEffectParams = bitpacked record
     case Boolean of

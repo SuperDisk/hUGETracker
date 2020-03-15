@@ -161,6 +161,24 @@ begin
   SL.Free;
 end;
 
+function RenderRoutines(Routines: TRoutineBank): String;
+var
+  I: Integer;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+
+  for I := Low(TRoutineBank) to High(TRoutineBank) do begin
+    SL.Add(Format('__hUGE_Routine_%d:', [I]));
+    SL.Add(Routines[I]);
+    SL.Add(Format('__end_hUGE_Routine_%d:', [I]));
+    SL.Add(Format('ds 16 - (__end_hUGE_Routine_%d - __hUGE_Routine_%d)', [I, I]));
+  end;
+
+  Result := SL.Text;
+  SL.Free
+end;
+
 function RenderPreviewROM(Song: TSong): Boolean;
 begin
   Result := RenderSongToFile(Song, 'preview.gb', emPreview);
@@ -196,6 +214,11 @@ begin
   AssignFile(OutFile, './hUGEDriver/instrument.htt');
   Rewrite(OutFile);
   Write(OutFile, RenderInstruments(Song.Instruments));
+  CloseFile(OutFile);
+
+  AssignFile(OutFile, './hUGEDriver/routine.htt');
+  Rewrite(OutFile);
+  Write(OutFile, RenderRoutines(Song.Routines));
   CloseFile(OutFile);
 
   AssignFile(OutFile, './hUGEDriver/pattern.htt');

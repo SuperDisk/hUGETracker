@@ -6,10 +6,11 @@ interface
 
 uses Classes, HugeDatatypes, instruments;
 
-type
-  { TSong }
+const
+  CURRENT_VERSION = 2;
 
-  TSong = packed record
+type
+  TSongV1 = packed record
     Version: Integer;
 
     Name: ShortString;
@@ -25,50 +26,48 @@ type
     OrderMatrix: TOrderMatrix;
   end;
 
+  TSongV2 = packed record
+    Version: Integer;
+
+    Name: ShortString;
+    Artist: ShortString;
+    Comment: ShortString;
+
+    Instruments: TInstrumentBank;
+    Waves: TWaveBank;
+
+    TicksPerRow: Integer;
+
+    Patterns: TPatternMap;
+    OrderMatrix: TOrderMatrix;
+
+    Routines: TRoutineBank;
+  end;
+
+  { TSong }
+
+  TSong = TSongV2;
+
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
-procedure ReadSongFromStream(S: TStream; var ASong: TSong);
+procedure ReadSongFromStream(S: TStream; out ASong: TSong);
 procedure InitializeSong(var S: TSong);
 procedure DestroySong(var S: TSong);
+
+function UpgradeSong(S: TSongV1): TSong; overload;
+function UpgradeSong(S: TSongV2): TSong; overload;
 
 implementation
 
 // Thanks to WP on the FreePascal forums for this code!
 // https://forum.lazarus.freepascal.org/index.php/topic,47892.msg344152.html#msg344152
 
-procedure WriteSongToStream(S: TStream; const ASong: TSong);
-var
-  i, n: Integer;
-  pPat: PPattern;
-begin
-  // Write the fixed record elements first
-  n := SizeOf(TSong) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
-  S.Write(ASong, n);
-
-  // Write the pattern count
-  S.Write(ASong.Patterns.Count, SizeOf(Integer));
-  // Write the patterns
-  for i := 0 to ASong.Patterns.Count-1 do
-  begin
-    pPat := ASong.Patterns[i];
-    S.Write(pPat^, SizeOf(pPat^));
-  end;
-
-  // Write the OrderMatrix arrays
-  for i := 0 to 3 do
-  begin
-    n := Length(ASong.OrderMatrix[i]);
-    S.Write(n, SizeOf(Integer));
-    S.Write(ASong.OrderMatrix[i][0], n*SizeOf(Integer));
-  end;
-end;
-
-procedure ReadSongFromStream(S: TStream; var ASong: TSong);
+procedure ReadSongFromStreamV1(S: TStream; out ASong: TSongV1);
 var
   i, n: Integer;
   pat: PPattern;
 begin
   // Read the fixed elements first
-  n := SizeOf(TSong) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
+  n := SizeOf(TSongV1) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
   S.Read(ASong, n);
 
   // ASong.Patterns.Clear;
@@ -98,12 +97,71 @@ begin
   end;
 end;
 
+procedure ReadSongFromStreamV2(S: TStream; out ASong: TSongV2);
+var
+  i: Integer;
+  SongV1: TSongV1 absolute ASong;
+begin
+  ReadSongFromStreamV1(S, SongV1);
+
+  // Read routines
+  for I := Low(TRoutineBank) to High(TRoutineBank) do
+    ASong.Routines[I] := S.ReadAnsiString;
+end;
+
+procedure WriteSongToStream(S: TStream; const ASong: TSong);
+var
+  i, n: Integer;
+  pPat: PPattern;
+begin
+  // Write the fixed record elements first
+  n := SizeOf(TSong) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
+  S.Write(ASong, n);
+
+  // Write the pattern count
+  S.Write(ASong.Patterns.Count, SizeOf(Integer));
+  // Write the patterns
+  for i := 0 to ASong.Patterns.Count-1 do
+  begin
+    pPat := ASong.Patterns[i];
+    S.Write(pPat^, SizeOf(pPat^));
+  end;
+
+  // Write the OrderMatrix arrays
+  for i := 0 to 3 do
+  begin
+    n := Length(ASong.OrderMatrix[i]);
+    S.Write(n, SizeOf(Integer));
+    S.Write(ASong.OrderMatrix[i][0], n*SizeOf(Integer));
+  end;
+
+  // Write the routines
+  for i := Low(TRoutineBank) to High(TRoutineBank) do
+    S.WriteAnsiString(ASong.Routines[i]);
+end;
+
+procedure ReadSongFromStream(S: TStream; out ASong: TSong);
+var
+  Version: Integer;
+  SV1: TSongV1;
+begin
+  S.Read(Version, SizeOf(Integer));
+  S.Seek(0, soBeginning);
+  case Version of
+    0..1: begin
+      ReadSongFromStreamV1(S, SV1);
+      ASong := UpgradeSong(SV1);
+    end;
+    2: ReadSongFromStreamV2(S, ASong);
+  end;
+end;
+
 procedure InitializeSong(var S: TSong);
 var
   I, J: Integer;
 begin
   with S do begin
-    Version := 1;
+    Version := CURRENT_VERSION;
     Name := '';
     Artist := '';
     Comment := '';
@@ -146,6 +204,26 @@ begin
   S.Patterns.Free;
   for I := Low(TOrderMatrix) to High(TOrderMatrix) do
     SetLength(S.OrderMatrix[I], 0);
+end;
+
+function UpgradeSong(S: TSongV1): TSong;
+var
+  SV2: TSongV2;
+begin
+  SV2 := Default(TSongV2);
+  Move(S, SV2, SizeOf(TSongV1) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix));
+
+  // Gotta preserve reference count so can't include it in the move...
+  SV2.Patterns := S.Patterns;
+  SV2.OrderMatrix := S.OrderMatrix;
+  Inc(SV2.Version); // Bump version
+
+  Result := UpgradeSong(SV2);
+end;
+
+function UpgradeSong(S: TSongV2): TSong;
+begin
+  Result := S;
 end;
 
 end.
