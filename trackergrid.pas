@@ -611,14 +611,16 @@ begin
   end;
 
   Invalidate
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.OpenEffectEditor;
 begin
-  inherited DblClick;
-
   frmEffectEditor.Cell := @Patterns[Cursor.X]^[Cursor.Y];
   frmEffectEditor.ShowModal;
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.EraseSelection;
