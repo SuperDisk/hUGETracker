@@ -99,12 +99,43 @@ end;
 
 procedure ReadSongFromStreamV2(S: TStream; out ASong: TSongV2);
 var
-  i: Integer;
-  SongV1: TSongV1 absolute ASong;
+  i, n: Integer;
+  pat: PPattern;
 begin
-  ReadSongFromStreamV1(S, SongV1);
+  // Read the fixed elements first
+  n := SizeOf(TSongV2)
+     - SizeOf(TPatternMap)
+     - SizeOf(TOrderMatrix)
+     - SizeOf(TRoutineBank);
 
-  // Read routines
+  S.Read(ASong, n);
+
+  // ASong.Patterns.Clear;
+
+  // Create the patterns
+  ASong.Patterns := TPatternMap.Create;
+  // Read the pattern count
+  S.Read(n, SizeOf(Integer));
+  for i:=0 to n - 1 do begin
+    // Allocate memory for each pattern ...
+    New(pat);
+    // and read the pattern content
+    S.Read(pat^, SizeOf(TPattern));
+    // Add the pattern to the list
+    ASong.Patterns.Add(i, pat);
+  end;
+
+  // Read the OrderMatrix
+  for i := 0 to 3 do
+  begin
+    // Read length of each OrderMatrix array
+    S.Read(n, SizeOf(Integer));
+    // Allocate memory for it
+    SetLength(ASong.OrderMatrix[i], n);
+    // Read content of OrderMatrix array
+    S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
+  end;
+
   for I := Low(TRoutineBank) to High(TRoutineBank) do
     ASong.Routines[I] := S.ReadAnsiString;
 end;
@@ -115,7 +146,10 @@ var
   pPat: PPattern;
 begin
   // Write the fixed record elements first
-  n := SizeOf(TSong) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
+  n := SizeOf(TSongV2)
+     - SizeOf(TPatternMap)
+     - SizeOf(TOrderMatrix)
+     - SizeOf(TRoutineBank);
   S.Write(ASong, n);
 
   // Write the pattern count
