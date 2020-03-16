@@ -1887,7 +1887,10 @@ object frmTracker: TfrmTracker
         OnClick = MenuItem33Click
       end
       object MenuItem12: TMenuItem
-        Action = FileOpen1
+        Caption = '&Open ...'
+        Hint = 'Open'
+        ImageIndex = 42
+        ShortCut = 16463
         OnClick = MenuItem12Click
       end
       object MenuItem13: TMenuItem
