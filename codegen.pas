@@ -258,8 +258,8 @@ begin
     if Proc.ExitCode <> 0 then goto AssemblyError;
   end;
 
-  if Mode <> emPreview then
-    if not CopyFile(Filename+IfThen(Mode = emGBS, '.gbs', '.gb'), FilePath) then begin
+  if Mode <> emPreview then begin
+    if not RenameFile(Filename+IfThen(Mode = emGBS, '.gbs', '.gb'), FilePath) then begin
       MessageDlg('Error!',
                  'Couldn''t move the file to its new location. Make sure your path is correct!',
                  mtError,
@@ -268,6 +268,11 @@ begin
       Result := False;
       goto Cleanup;
     end;
+
+    DeleteFile(Filename+'.obj');
+    DeleteFile(Filename+'.sym');
+    DeleteFile(Filename+'.map');
+  end;
 
   Result := True;
   goto Cleanup;

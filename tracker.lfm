@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1123
+  Left = 804
   Height = 1200
-  Top = 146
+  Top = 184
   Width = 2040
   Caption = 'hUGETracker'
   ClientHeight = 1166
@@ -58,10 +58,10 @@ object frmTracker: TfrmTracker
       Height = 770
       Top = 0
       Width = 1693
-      ActivePage = RoutinesTabSheet
+      ActivePage = GeneralTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 5
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -284,18 +284,18 @@ object frmTracker: TfrmTracker
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
-        ClientHeight = 412
-        ClientWidth = 960
+        ClientHeight = 727
+        ClientWidth = 1685
         ParentFont = False
         object PaintBox1: TPaintBox
           AnchorSideTop.Control = FlowPanel1
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 7
+          Height = 19
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
-          Top = 405
-          Width = 960
+          Top = 708
+          Width = 1685
           Align = alClient
           Color = clBlack
           ParentColor = False
@@ -305,9 +305,9 @@ object frmTracker: TfrmTracker
         end
         object FlowPanel1: TFlowPanel
           Left = 0
-          Height = 405
+          Height = 708
           Top = 0
-          Width = 960
+          Width = 1685
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
@@ -342,9 +342,9 @@ object frmTracker: TfrmTracker
           ParentFont = False
           TabOrder = 0
           object InstrumentGroupBox: TGroupBox
-            Left = 7
+            Left = 12
             Height = 364
-            Top = 7
+            Top = 12
             Width = 474
             Anchors = []
             BorderSpacing.Left = 12
@@ -358,7 +358,7 @@ object frmTracker: TfrmTracker
             TabOrder = 0
             object InstrumentNumberSpinner: TSpinEdit
               Left = 140
-              Height = 23
+              Height = 38
               Hint = 'What instrument to edit'
               Top = 2
               Width = 308
@@ -371,25 +371,25 @@ object frmTracker: TfrmTracker
             end
             object Label1: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 14
-              Width = 58
+              Width = 101
               Caption = 'Instrument'
               ParentColor = False
               ParentFont = False
             end
             object Label2: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 60
-              Width = 32
+              Width = 56
               Caption = 'Name'
               ParentColor = False
               ParentFont = False
             end
             object InstrumentNameEdit: TEdit
               Left = 140
-              Height = 23
+              Height = 38
               Hint = 'The name of the instrument'
               Top = 46
               Width = 308
@@ -399,9 +399,9 @@ object frmTracker: TfrmTracker
             end
             object Label3: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 107
-              Width = 24
+              Width = 43
               Caption = 'Type'
               ParentColor = False
               ParentFont = False
@@ -427,10 +427,10 @@ object frmTracker: TfrmTracker
             end
             object LengthEnabledCheckbox: TCheckBox
               Left = 14
-              Height = 19
+              Height = 34
               Hint = 'Cut the sound after a certain length of time'
               Top = 147
-              Width = 57
+              Width = 98
               Caption = 'Length'
               OnChange = LengthEnabledCheckboxChange
               ParentFont = False
@@ -479,9 +479,9 @@ object frmTracker: TfrmTracker
             end
           end
           object EnvelopeGroupBox: TGroupBox
-            Left = 292
+            Left = 510
             Height = 238
-            Top = 7
+            Top = 12
             Width = 1153
             Anchors = []
             BorderSpacing.Left = 12
@@ -495,18 +495,18 @@ object frmTracker: TfrmTracker
             TabOrder = 1
             object Label4: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 16
-              Width = 46
+              Width = 80
               Caption = 'Start vol.'
               ParentColor = False
               ParentFont = False
             end
             object Label5: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 84
-              Width = 48
+              Width = 84
               Caption = 'Direction'
               ParentColor = False
               ParentFont = False
@@ -531,9 +531,9 @@ object frmTracker: TfrmTracker
             end
             object Label6: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 150
-              Width = 41
+              Width = 71
               Caption = 'Change'
               ParentColor = False
               ParentFont = False
@@ -550,10 +550,10 @@ object frmTracker: TfrmTracker
               TabOrder = 1
               object EnvelopePaintbox: TPaintBox
                 Left = 1
-                Height = 103
+                Height = 182
                 Hint = 'Preview of the volume envelope'
                 Top = 1
-                Width = 344
+                Width = 604
                 Align = alClient
                 ParentFont = False
                 OnPaint = EnvelopePaintboxPaint
@@ -583,9 +583,9 @@ object frmTracker: TfrmTracker
             end
           end
           object SquareGroupBox: TGroupBox
-            Left = 7
+            Left = 12
             Height = 296
-            Top = 229
+            Top = 400
             Width = 558
             Anchors = []
             BorderSpacing.Left = 12
@@ -599,9 +599,9 @@ object frmTracker: TfrmTracker
             TabOrder = 2
             object Label7: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 28
-              Width = 61
+              Width = 107
               Caption = 'Sweep time'
               ParentColor = False
               ParentFont = False
@@ -654,27 +654,27 @@ object frmTracker: TfrmTracker
             end
             object Label8: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 84
-              Width = 84
+              Width = 147
               Caption = 'Sweep direction'
               ParentColor = False
               ParentFont = False
             end
             object Label9: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 147
-              Width = 56
+              Width = 101
               Caption = 'Sweep size'
               ParentColor = False
               ParentFont = False
             end
             object Label10: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 210
-              Width = 25
+              Width = 44
               Caption = 'Duty'
               ParentColor = False
               ParentFont = False
@@ -714,9 +714,9 @@ object frmTracker: TfrmTracker
             end
           end
           object WaveGroupBox: TGroupBox
-            Left = 340
+            Left = 594
             Height = 296
-            Top = 229
+            Top = 400
             Width = 520
             Anchors = []
             BorderSpacing.Left = 12
@@ -731,18 +731,18 @@ object frmTracker: TfrmTracker
             TabOrder = 3
             object Label11: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 28
-              Width = 40
+              Width = 70
               Caption = 'Volume'
               ParentColor = False
               ParentFont = False
             end
             object Label12: TLabel
               Left = 14
-              Height = 15
+              Height = 30
               Top = 84
-              Width = 55
+              Width = 95
               Caption = 'Waveform'
               ParentColor = False
               ParentFont = False
@@ -791,10 +791,10 @@ object frmTracker: TfrmTracker
               TabOrder = 1
               object WavePaintbox: TPaintBox
                 Left = 1
-                Height = 57
+                Height = 101
                 Hint = 'Preview of the waveform associated with this instrument'
                 Top = 1
-                Width = 270
+                Width = 474
                 Align = alClient
                 Color = clBlack
                 ParentColor = False
@@ -824,9 +824,9 @@ object frmTracker: TfrmTracker
             end
           end
           object NoiseGroupBox: TGroupBox
-            Left = 651
+            Left = 1138
             Height = 296
-            Top = 229
+            Top = 400
             Width = 462
             Anchors = []
             BorderSpacing.Left = 12
@@ -841,10 +841,10 @@ object frmTracker: TfrmTracker
             TabOrder = 4
             object SevenBitCounterCheckbox: TCheckBox
               Left = 14
-              Height = 19
+              Height = 34
               Hint = 'Select LFSR width. When checked, output will sound like a tone rather than noise'
               Top = 140
-              Width = 215
+              Width = 373
               Alignment = taLeftJustify
               Caption = '7 bit counter (more tone-like output)'
               OnChange = SevenBitCounterCheckboxChange
@@ -853,9 +853,9 @@ object frmTracker: TfrmTracker
             end
             object Label14: TLabel
               Left = 16
-              Height = 15
+              Height = 30
               Top = 89
-              Width = 71
+              Width = 124
               Caption = 'Dividing ratio'
               ParentColor = False
               ParentFont = False
@@ -873,9 +873,9 @@ object frmTracker: TfrmTracker
             end
             object Label25: TLabel
               Left = 16
-              Height = 15
+              Height = 30
               Top = 28
-              Width = 86
+              Width = 149
               Caption = 'Shift clock mask'
               ParentColor = False
               ParentFont = False
@@ -907,16 +907,16 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 412
-        ClientWidth = 960
+        ClientHeight = 727
+        ClientWidth = 1685
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 252
-          Top = 160
-          Width = 960
+          Height = 447
+          Top = 280
+          Width = 1685
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 23
@@ -938,16 +938,16 @@ object frmTracker: TfrmTracker
           TabOrder = 0
           object Label20: TLabel
             Left = 28
-            Height = 15
+            Height = 30
             Top = 28
-            Width = 29
+            Width = 51
             Caption = 'Wave'
             ParentColor = False
             ParentFont = False
           end
           object WaveEditNumberSpinner: TSpinEdit
             Left = 112
-            Height = 23
+            Height = 38
             Top = 14
             Width = 140
             MaxValue = 15
