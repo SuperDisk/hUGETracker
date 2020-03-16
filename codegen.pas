@@ -161,22 +161,17 @@ begin
   SL.Free;
 end;
 
-function RenderRoutines(Routines: TRoutineBank): String;
+procedure WriteRoutinesToFile(Routines: TRoutineBank);
 var
   I: Integer;
-  SL: TStringList;
+  F: Text;
 begin
-  SL := TStringList.Create;
-
   for I := Low(TRoutineBank) to High(TRoutineBank) do begin
-    SL.Add(Format('__hUGE_Routine_%d:', [I]));
-    SL.Add(Routines[I]);
-    SL.Add(Format('__end_hUGE_Routine_%d:', [I]));
-    SL.Add(Format('ds 16 - (__end_hUGE_Routine_%d - __hUGE_Routine_%d)', [I, I]));
+    AssignFile(F, './hUGEDriver/routine'+IntToStr(I)+'.htt');
+    Rewrite(F);
+    Write(F, Routines[I]);
+    CloseFile(F);
   end;
-
-  Result := SL.Text;
-  SL.Free
 end;
 
 function RenderPreviewROM(Song: TSong): Boolean;
@@ -216,10 +211,7 @@ begin
   Write(OutFile, RenderInstruments(Song.Instruments));
   CloseFile(OutFile);
 
-  AssignFile(OutFile, './hUGEDriver/routine.htt');
-  Rewrite(OutFile);
-  Write(OutFile, RenderRoutines(Song.Routines));
-  CloseFile(OutFile);
+  WriteRoutinesToFile(Song.Routines);
 
   AssignFile(OutFile, './hUGEDriver/pattern.htt');
   Rewrite(OutFile);
@@ -283,16 +275,27 @@ begin
   AssemblyError:
   Result := False;
   OutSL.LoadFromStream(Proc.Output);
-  MessageDlg(
-    'Error!',
-    'There was an error assembling the song for playback.'+LineEnding+LineEnding+
-      Proc.Executable+' output:'+LineEnding+
-      OutSL.Text+LineEnding+LineEnding+
-      'Please report this issue on the hUGETracker GitHub issues page, and '+
-      'post your song file!',
-    mtError,
-    [mbOK],
-    0);
+
+  if OutSL.Text.Contains('routine') then
+    MessageDlg(
+      'Error!',
+      'There was an error assembling the song for playback.'+LineEnding+LineEnding+
+        Proc.Executable+' output:'+LineEnding+
+        OutSL.Text,
+      mtError,
+      [mbOK],
+      0)
+  else
+    MessageDlg(
+      'Error!',
+      'There was an error assembling the song for playback.'+LineEnding+LineEnding+
+        Proc.Executable+' output:'+LineEnding+
+        OutSL.Text+LineEnding+LineEnding+
+        'Please report this issue on the hUGETracker GitHub issues page, and '+
+        'post your song file!',
+      mtError,
+      [mbOK],
+      0);
 
   Cleanup:
   Proc.Free;
