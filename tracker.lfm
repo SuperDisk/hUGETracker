@@ -1462,9 +1462,6 @@ object frmTracker: TfrmTracker
           MouseActions = <>
           MouseTextActions = <>
           MouseSelActions = <>
-          Lines.Strings = (
-            'RoutineSynedit'
-          )
           Options = [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoSmartTabs, eoTabsToSpaces, eoTrimTrailingSpaces, eoDoubleClickSelectsLine]
           MouseOptions = [emDoubleClickSelectsLine]
           VisibleSpecialChars = [vscSpace, vscTabAtLast]

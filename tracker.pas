@@ -397,7 +397,7 @@ begin
   LoadInstrument(1);
   LoadWave(0);
 
-  RoutineSynedit.Text := '';
+  RoutineSynedit.Text := Song.Routines[0];
   RoutineNumberSpinner.Value := 0;
 
   SongEdit.Text := Song.Name;
@@ -1363,7 +1363,7 @@ end;
 procedure TfrmTracker.MenuItem12Click(Sender: TObject);
 begin
   if CheckUnsavedChanges then
-    FileOpen1.Dialog.Execute;
+    FileOpen1.Execute;
 end;
 
 procedure TfrmTracker.MenuItem13Click(Sender: TObject);
