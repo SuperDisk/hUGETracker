@@ -419,6 +419,9 @@ begin
       exit;
     end;
 
+    // Palette code has a bug which causes range check error.
+    // Commented out here because graphics related functions are unused
+
     {case address of
       $ff69:
       begin
