@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 789
+  Left = 769
   Height = 1200
-  Top = 192
+  Top = 189
   Width = 2040
   Caption = 'hUGETracker'
   ClientHeight = 1166
@@ -459,6 +459,7 @@ object frmTracker: TfrmTracker
             object Button1: TButton
               Left = 24
               Height = 44
+              Hint = 'Test out the instrument with a C-5 note'
               Top = 208
               Width = 424
               Caption = 'Test C-5'
@@ -1718,6 +1719,7 @@ object frmTracker: TfrmTracker
     end
     object ToolButton2: TToolButton
       Left = 217
+      Hint = 'Begin playback from the cursor'
       Top = 0
       Caption = '▶️ Cursor'
       ImageIndex = 75
@@ -1725,6 +1727,7 @@ object frmTracker: TfrmTracker
     end
     object ToolButton4: TToolButton
       Left = 327
+      Hint = 'Stop playback'
       Top = 0
       Caption = '⏹ Stop'
       ImageIndex = 73
@@ -1732,6 +1735,7 @@ object frmTracker: TfrmTracker
     end
     object ExportGBButton: TToolButton
       Left = 434
+      Hint = 'Export the song as a standalone ROM'
       Top = 0
       AutoSize = True
       Caption = 'Export .GB'
@@ -1762,6 +1766,7 @@ object frmTracker: TfrmTracker
     object OctaveSpinEdit: TSpinEdit
       Left = 1000
       Height = 38
+      Hint = 'The octave offset for entering new notes'
       Top = 0
       Width = 158
       MaxValue = 5
@@ -1797,6 +1802,7 @@ object frmTracker: TfrmTracker
     object InstrumentComboBox: TComboBox
       Left = 1283
       Height = 38
+      Hint = 'The selected instrument for new notes'
       Top = 0
       Width = 374
       ItemHeight = 30
@@ -1837,6 +1843,7 @@ object frmTracker: TfrmTracker
     object StepSpinEdit: TSpinEdit
       Left = 1721
       Height = 38
+      Hint = 'How many rows to step down after entering a new note'
       Top = 0
       Width = 88
       MaxValue = 63
@@ -1846,6 +1853,7 @@ object frmTracker: TfrmTracker
     end
     object ToolButton3: TToolButton
       Left = 125
+      Hint = 'Begin playback from the cursor'
       Top = 0
       Caption = '▶️ Start'
       ImageIndex = 74
@@ -1853,6 +1861,7 @@ object frmTracker: TfrmTracker
     end
     object ExportGBSButton: TToolButton
       Left = 556
+      Hint = 'Export the song as a GBS soundtrack'
       Top = 0
       Caption = 'Export .GBS'
       ImageIndex = 76
@@ -1867,6 +1876,7 @@ object frmTracker: TfrmTracker
     end
     object ToolButton10: TToolButton
       Left = 689
+      Hint = 'Export the song as WAV or MP3'
       Top = 0
       Caption = 'Render Song'
       ImageIndex = 77

@@ -69,7 +69,7 @@
               <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
-            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -CfAVX2 -CpCOREAVX2 OpCOREAVX2 -Si -Sv -dPRODUCTION"/>
+            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -318,8 +318,11 @@
     <CodeGeneration>
       <Checks>
         <IOChecks Value="True"/>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
         <StackChecks Value="True"/>
       </Checks>
+      <VerifyObjMethodCallValidity Value="True"/>
       <TargetCPU Value="i386"/>
       <TargetOS Value="win32"/>
       <Optimizations>
