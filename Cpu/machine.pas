@@ -419,7 +419,7 @@ begin
       exit;
     end;
 
-    case address of
+    {case address of
       $ff69:
       begin
         palramb[(m_iram[$ff68]) and 63] := Data;
@@ -488,7 +488,7 @@ begin
           m_iram[$ff6a] := m_iram[$ff6a] or 128;
         end;
       end;
-    end;
+    end;}
   end;
 
   if ((address >= $e000) and (address < $fe00)) then

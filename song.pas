@@ -176,7 +176,7 @@ end;
 
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
 var
-  Version: Integer;
+  Version: Integer = 1;
   SV1: TSongV1;
 begin
   S.Read(Version, SizeOf(Integer));

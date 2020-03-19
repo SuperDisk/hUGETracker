@@ -115,8 +115,8 @@ var
   sio_count: byte;
 
   m_cgbram: array[0..32767] of byte;
-  pal_b, pal_o: array[0..7, 0..3, 0..2] of byte;
-  pal_dx_b, pal_dx_o: array[0..7, 0..3] of DWord;
+  {pal_b, pal_o: array[0..7, 0..3, 0..2] of byte;
+  pal_dx_b, pal_dx_o: array[0..7, 0..3] of DWord;}
   palramb, palramo: array[0..16383] of byte;
   hdma: DWord;
   gb_speed: byte;
@@ -616,7 +616,7 @@ end;
 function ReadGameState(filename: string): byte;
 var
   f: file;
-  numread, fsize: DWord;
+  fsize: DWord;
 begin
   if gb_mode = cgb then
     fsize := 32 * 1024
