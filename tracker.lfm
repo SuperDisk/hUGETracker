@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1936
+  Left = 1889
   Height = 686
-  Top = 123
+  Top = 140
   Width = 1166
   Caption = 'hUGETracker'
   ClientHeight = 666
@@ -905,16 +905,16 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 727
-        ClientWidth = 1685
+        ClientHeight = 412
+        ClientWidth = 960
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 447
-          Top = 280
-          Width = 1685
+          Height = 252
+          Top = 160
+          Width = 960
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 13
@@ -936,16 +936,16 @@ object frmTracker: TfrmTracker
           TabOrder = 0
           object Label20: TLabel
             Left = 16
-            Height = 30
+            Height = 15
             Top = 16
-            Width = 51
+            Width = 29
             Caption = 'Wave'
             ParentColor = False
             ParentFont = False
           end
           object WaveEditNumberSpinner: TSpinEdit
             Left = 64
-            Height = 38
+            Height = 23
             Top = 8
             Width = 80
             MaxValue = 15
@@ -979,17 +979,17 @@ object frmTracker: TfrmTracker
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 727
-        ClientWidth = 1685
+        ClientHeight = 412
+        ClientWidth = 960
         ParentFont = False
         object CommentMemo: TMemo
           AnchorSideTop.Control = Label17
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 660
+          Height = 376
           Hint = 'The comments section for your song. Greetings/links/etc'
-          Top = 67
-          Width = 1685
+          Top = 36
+          Width = 960
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 13
@@ -1000,9 +1000,9 @@ object frmTracker: TfrmTracker
         end
         object Label17: TLabel
           Left = 8
-          Height = 30
+          Height = 15
           Top = 8
-          Width = 587
+          Width = 333
           Caption = 'This is an area to write comments for anyone editing your tune.'
           ParentColor = False
           ParentFont = False
@@ -1010,16 +1010,16 @@ object frmTracker: TfrmTracker
       end
       object RoutinesTabSheet: TTabSheet
         Caption = 'Routines'
-        ClientHeight = 727
-        ClientWidth = 1685
+        ClientHeight = 412
+        ClientWidth = 960
         ParentFont = False
         inline RoutineSynedit: TSynEdit
           AnchorSideTop.Control = Label19
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 484
-          Top = 243
-          Width = 1685
+          Height = 284
+          Top = 128
+          Width = 960
           Align = alBottom
           BorderSpacing.Top = 13
           Anchors = [akTop, akLeft, akRight, akBottom]
@@ -1520,16 +1520,16 @@ object frmTracker: TfrmTracker
         end
         object Label18: TLabel
           Left = 8
-          Height = 30
+          Height = 15
           Top = 16
-          Width = 71
+          Width = 41
           Caption = 'Routine'
           ParentColor = False
           ParentFont = False
         end
         object RoutineNumberSpinner: TSpinEdit
           Left = 64
-          Height = 38
+          Height = 23
           Top = 8
           Width = 176
           MaxValue = 15
@@ -1541,9 +1541,9 @@ object frmTracker: TfrmTracker
         end
         object Label19: TLabel
           Left = 8
-          Height = 150
+          Height = 75
           Top = 40
-          Width = 891
+          Width = 506
           Caption = 'Routines are an advanced feature of hUGETracker, and you likely won''t need them at all'#13#10'if you are only interested in composing music. If you want to create a custom effect, or interface'#13#10'with game code that you''re writing a soundtrack for, then routines will come in handy.'#13#10#13#10'Refer to the user manual for more information!'
           ParentColor = False
           ParentFont = False

@@ -13,6 +13,10 @@ type
   TKeybindings = specialize TFPGmap<Word, Integer>;
   TNoteToFreqMap = specialize TFPGMap<Integer, Integer>;
 
+  TInstrumentIndex = 1..15;
+  TWaveIndex = 0..15;
+  TRoutineIndex = 0..15;
+
 const
   UGE_FORMAT_VERSION = 2;
 

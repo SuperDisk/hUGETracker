@@ -1469,24 +1469,50 @@ end;
 procedure TfrmTracker.MenuItem24Click(Sender: TObject);
 var
   Report: TSongUsageReport;
+  SL: TStringList;
+  Iter: Report.UnusedPatterns.TIterator;
 begin
   Report := GetUsageReport(Song);
+  SL := TStringList.Create;
+  SL.Delimiter := ',';
 
-  case MessageDlg('Usage report',
-  Format('%d unused instruments'+LineEnding+
-         '%d unused routines'+LineEnding+
-         '%d unused patterns'+LineEnding+LineEnding+
-         'Do you want to remove the unused patterns?',
-         [INSTRUMENTS_COUNT - Report.UsedInstruments.Size,
-          ROUTINES_COUNT - Report.UsedRoutines.size,
-          Song.Patterns.Count - Report.UsedPatterns.Size]),
-  mtInformation, [mbYes, mbNo], 0) of
-    mrYes: begin
-      // do shit
+  Iter := Report.UnusedPatterns.Iterator;
+  if Iter <> nil then
+    repeat
+      SL.Add(IntToStr(Iter.GetData))
+    until not Iter.Next;
+
+  Iter.Free;
+
+  if SL.Text = '' then
+    MessageDlg('Usage report',
+      Format('%d unused instruments'+LineEnding+
+             '%d unused routines'+LineEnding+
+             '%d unused patterns'+LineEnding,
+             [INSTRUMENTS_COUNT - Report.UsedInstruments.Size,
+              ROUTINES_COUNT - Report.UsedRoutines.size,
+              Song.Patterns.Count - Report.UsedPatterns.Size]),
+             mtInformation, [mbOK], 0)
+  else
+    if MessageDlg('Usage report',
+          Format('%d unused instruments'+LineEnding+
+                 '%d unused routines'+LineEnding+
+                 '%d unused patterns'+LineEnding+LineEnding+
+                 'Patterns ' + SL.DelimitedText+' are unused.'+LineEnding+
+                 'Do you want to remove the unused patterns?',
+                 [INSTRUMENTS_COUNT - Report.UsedInstruments.Size,
+                  ROUTINES_COUNT - Report.UsedRoutines.size,
+                  Song.Patterns.Count - Report.UsedPatterns.Size]),
+                 mtInformation, [mbYes, mbNo], 0) = mrYes
+    then begin
+      Iter := Report.UnusedPatterns.Iterator;
+      if Iter <> nil then
+        repeat
+          Song.Patterns.DeletePattern(Iter.GetData);
+        until not Iter.Next;
     end;
-    mrNo: ;
-  end;
 
+  SL.Free;
   FreeUsageReport(Report);
 end;
 
