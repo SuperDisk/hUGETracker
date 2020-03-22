@@ -5,11 +5,11 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, SynHighlighterAny, math,
-  Instruments, Waves, Song, EmulationThread, Utils, Constants, sound, vars,
-  machine, about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids,
-  DBCtrls, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser, options,
-  IniFiles, bgrabitmap, effecteditor, RenderToWave;
+  Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, SynHighlighterAny,
+  FileUtil, math, Instruments, Waves, Song, EmulationThread, Utils, Constants,
+  sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
+  Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser,
+  options, IniFiles, bgrabitmap, effecteditor, RenderToWave;
 
 type
   { TfrmTracker }
@@ -186,7 +186,7 @@ type
     MenuItem1: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
-    MenuItem4: TMenuItem;
+    SampleSongsMenuItem: TMenuItem;
     MenuItem5: TMenuItem;
     PageControl1: TPageControl;
     PaintBox1: TPaintBox;
@@ -363,6 +363,7 @@ type
     procedure OnFD(var Msg: TLMessage); message LM_FD;
     procedure OnUndoOccured(var Msg: TLMessage); message LM_UNDO_OCCURED;
     procedure OnNotePlaced(var Msg: TLMessage); message LM_PREVIEW_NOTE;
+    procedure OnSampleSongMenuItemClicked(Sender: TObject);
 
     procedure RecreateTrackerGrid;
     procedure UpdateUIAfterLoad;
@@ -743,6 +744,11 @@ begin
   PreviewInstrument(NotesToFreqs.KeyData[msg.wParam], msg.lParam);
 end;
 
+procedure TfrmTracker.OnSampleSongMenuItemClicked(Sender: TObject);
+begin
+  LoadSong('Sample Songs/'+TMenuItem(Sender).Caption);
+end;
+
 procedure TfrmTracker.RecreateTrackerGrid;
 var
   Section: TCollectionItem;
@@ -956,6 +962,9 @@ end;
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   PUI: PtrUint;
+  SampleSongs: TStringList;
+  S: String;
+  MenuItem: TMenuItem;
 begin
   {if Screen.Fonts.IndexOf('PixeliteTTF') = -1 then
     MessageDlg('Warning', 'You don''t have the Pixelite font installed. '+
@@ -1034,6 +1043,18 @@ begin
   DebugShiteButton.Visible := True;
   DebugPlayNoteButton.Visible := True;
   {$endif}
+
+  // Load sample songs list
+  SampleSongs := FindAllFiles('./Sample Songs/', '*.uge', False);
+  if SampleSongs.Count > 0 then
+    for S in SampleSongs do begin
+      MenuItem := TMenuItem.Create(MainMenu1);
+      MenuItem.Caption := ExtractFileName(S);
+      MenuItem.OnClick := @OnSampleSongMenuItemClicked;
+      SampleSongsMenuItem.Add(MenuItem);
+    end
+  else
+    SampleSongsMenuItem.Enabled := False;
 
   // If a command line param was passed, try to open it
   if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then

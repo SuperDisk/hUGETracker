@@ -1959,9 +1959,8 @@ object frmTracker: TfrmTracker
       object N3: TMenuItem
         Caption = '-'
       end
-      object MenuItem4: TMenuItem
+      object SampleSongsMenuItem: TMenuItem
         Caption = 'Example Songs'
-        Enabled = False
       end
       object MenuItem5: TMenuItem
         Caption = 'About hUGETracker'
