@@ -259,9 +259,11 @@ begin
   end;
 
   if Mode <> emPreview then begin
+    if FileExists(FilePath) then DeleteFile(FilePath);
+
     if not RenameFile(Filename+IfThen(Mode = emGBS, '.gbs', '.gb'), FilePath) then begin
       MessageDlg('Error!',
-                 'Couldn''t move the file to its new location. Make sure your path is correct!',
+                 'Couldn''t create file at '+FilePath+'. Make sure your path is correct!',
                  mtError,
                  [mbOk],
                  0);

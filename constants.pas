@@ -14,7 +14,11 @@ type
   TNoteToFreqMap = specialize TFPGMap<Integer, Integer>;
 
 const
-  UGE_FORMAT_VERSION = 1;
+  UGE_FORMAT_VERSION = 2;
+
+  INSTRUMENTS_COUNT = 15;
+  ROUTINES_COUNT = 16;
+  WAVES_COUNT = 16;
 
   LM_FD = LM_USER + 0;
   LM_UNDO_OCCURED = LM_USER + 1;

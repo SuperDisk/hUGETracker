@@ -4,10 +4,7 @@ unit Song;
 
 interface
 
-uses Classes, HugeDatatypes, instruments;
-
-const
-  CURRENT_VERSION = 2;
+uses Classes, HugeDatatypes, instruments, Constants;
 
 type
   TSongV1 = packed record
@@ -195,7 +192,7 @@ var
   I, J: Integer;
 begin
   with S do begin
-    Version := CURRENT_VERSION;
+    Version := UGE_FORMAT_VERSION;
     Name := '';
     Artist := '';
     Comment := '';

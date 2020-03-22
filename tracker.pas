@@ -1,7 +1,6 @@
 unit Tracker;
 
 {$mode objfpc}{$H+}
-{$WARN 4055 off : Conversion between ordinals and pointers is not portable}
 interface
 
 uses
@@ -256,6 +255,7 @@ type
     procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem22Click(Sender: TObject);
     procedure FontSizeToggleMenuItemClick(Sender: TObject);
+    procedure MenuItem24Click(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem31Click(Sender: TObject);
     procedure MenuItem33Click(Sender: TObject);
@@ -353,6 +353,7 @@ type
     procedure ChangeToNoise;
     procedure LoadInstrument(Instr: Integer);
     procedure LoadWave(Wave: Integer);
+    procedure LoadSong(Filename: String);
     procedure ReloadPatterns;
     procedure CopyOrderGridToOrderMatrix;
     procedure CopyOrderMatrixToOrderGrid;
@@ -601,6 +602,23 @@ begin
   WaveEditPaintBox.Invalidate;
 end;
 
+procedure TfrmTracker.LoadSong(Filename: String);
+var
+  Stream: TStream;
+begin
+  DestroySong(Song);
+
+  stream := TFileStream.Create(FileName, fmOpenRead);
+  try
+    ReadSongFromStream(stream, Song);
+  finally
+    stream.Free;
+  end;
+  FileSaveAs1.Dialog.FileName := FileName;
+
+  UpdateUIAfterLoad;
+end;
+
 procedure TfrmTracker.ReloadPatterns;
 var
   I: Integer;
@@ -804,30 +822,30 @@ end;
 
 procedure TfrmTracker.ChangeToSquare;
 begin
-  EnvelopeGroupBox.Enabled := True;
-  SquareGroupBox.Enabled := True;
-  WaveGroupBox.Enabled := False;
-  NoiseGroupBox.Enabled := False;
+  EnvelopeGroupBox.Visible := True;
+  SquareGroupBox.Visible := True;
+  WaveGroupBox.Visible := False;
+  NoiseGroupBox.Visible := False;
 
   LengthTrackbar.Max := 63;
 end;
 
 procedure TfrmTracker.ChangeToWave;
 begin
-  EnvelopeGroupBox.Enabled := False;
-  SquareGroupBox.Enabled := False;
-  WaveGroupBox.Enabled := True;
-  NoiseGroupBox.Enabled := False;
+  EnvelopeGroupBox.Visible := False;
+  SquareGroupBox.Visible := False;
+  WaveGroupBox.Visible := True;
+  NoiseGroupBox.Visible := False;
 
   LengthTrackbar.Max := 255;
 end;
 
 procedure TfrmTracker.ChangeToNoise;
 begin
-  EnvelopeGroupBox.Enabled := True;
-  SquareGroupBox.Enabled := False;
-  WaveGroupBox.Enabled := False;
-  NoiseGroupBox.Enabled := True;
+  EnvelopeGroupBox.Visible := True;
+  SquareGroupBox.Visible := False;
+  WaveGroupBox.Visible := False;
+  NoiseGroupBox.Visible := True;
 
   LengthTrackbar.Max := 63;
 end;
@@ -1016,6 +1034,10 @@ begin
   DebugShiteButton.Visible := True;
   DebugPlayNoteButton.Visible := True;
   {$endif}
+
+  // If a command line param was passed, try to open it
+  if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then
+    LoadSong(ParamStr(1));
 end;
 
 procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
@@ -1146,20 +1168,8 @@ begin
 end;
 
 procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
-var
-  Stream: TStream;
 begin
-  DestroySong(Song);
-
-  stream := TFileStream.Create(FileOpen1.Dialog.FileName, fmOpenRead);
-  try
-    ReadSongFromStream(stream, Song);
-  finally
-    stream.Free;
-  end;
-  FileSaveAs1.Dialog.FileName := FileOpen1.Dialog.FileName;
-
-  UpdateUIAfterLoad;
+  LoadSong(FileOpen1.Dialog.FileName);
 end;
 
 procedure TfrmTracker.HeaderControl1MouseDown(Sender: TObject;
@@ -1347,7 +1357,9 @@ end;
 
 procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
 begin
-  RenderSongToFile(Song, 'song');
+  // If a command line param was passed, try to open it
+  if FileExists(ParamStr(0)) then
+    LoadSong(ParamStr(0));
 end;
 
 procedure TfrmTracker.MenuItem10Click(Sender: TObject);
@@ -1452,6 +1464,30 @@ end;
 procedure TfrmTracker.FontSizeToggleMenuItemClick(Sender: TObject);
 begin
 
+end;
+
+procedure TfrmTracker.MenuItem24Click(Sender: TObject);
+var
+  Report: TSongUsageReport;
+begin
+  Report := GetUsageReport(Song);
+
+  case MessageDlg('Usage report',
+  Format('%d unused instruments'+LineEnding+
+         '%d unused routines'+LineEnding+
+         '%d unused patterns'+LineEnding+LineEnding+
+         'Do you want to remove the unused patterns?',
+         [INSTRUMENTS_COUNT - Report.UsedInstruments.Size,
+          ROUTINES_COUNT - Report.UsedRoutines.size,
+          Song.Patterns.Count - Report.UsedPatterns.Size]),
+  mtInformation, [mbYes, mbNo], 0) of
+    mrYes: begin
+      // do shit
+    end;
+    mrNo: ;
+  end;
+
+  FreeUsageReport(Report);
 end;
 
 procedure TfrmTracker.MenuItem26Click(Sender: TObject);

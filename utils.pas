@@ -5,15 +5,32 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Waves, HugeDatatypes, Constants;
+  Classes, SysUtils, Song, Waves, HugeDatatypes, Constants, gHashSet;
 
 type
+
+  { TIntegerHash }
+
+  TIntegerHash = class
+    class function hash(I: Integer; N: Integer): Integer;
+  end;
+
+  TUsedMap = specialize THashSet<Integer, TIntegerHash>;
+
   { TOrderMapHelper }
 
   TOrderMapHelper = class helper for TPatternMap
     function GetOrCreateNew(Key: Integer): PPattern;
     function CreateNewPattern(Key: Integer): PPattern;
     function MaxKey: Integer;
+  end;
+
+  { TSongUsageReport }
+
+  TSongUsageReport = record
+    UsedInstruments: TUsedMap;
+    UsedRoutines: TUsedMap;
+    UsedPatterns: TUsedMap;
   end;
 
 function Lerp(v0, v1, t: Double): Double;
@@ -23,7 +40,17 @@ procedure BlankCell(var Cell: TCell);
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
 
+function GetUsageReport(Song: TSong): TSongUsageReport;
+procedure FreeUsageReport(Report: TSongUsageReport);
+
 implementation
+
+{ TIntegerHash }
+
+class function TIntegerHash.hash(I: Integer; N: Integer): Integer;
+begin
+  Result := I;
+end;
 
 { TOrderMapHelper }
 
@@ -115,6 +142,43 @@ begin
     $E: Result := 'Cut note after '+P+' ticks';
     $F: Result := 'Set speed to '+P+' ticks';
   end;
+end;
+
+function GetUsageReport(Song: TSong): TSongUsageReport;
+var
+  I, J, X, Y: Integer;
+  Pat: PPattern;
+begin
+  Result.UsedPatterns := TUsedMap.Create;
+  Result.UsedInstruments := TUsedMap.Create;
+  Result.UsedRoutines := TUsedMap.Create;
+
+  for X := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do
+    for Y := Low(Song.OrderMatrix[X]) to High(Song.OrderMatrix[X]) do begin
+      Writeln(X, ' ', Y, ' ', Song.OrderMatrix[X, Y]);
+      Result.UsedPatterns.insert(Song.OrderMatrix[X, Y]);
+    end;
+
+  for I := 0 to Song.Patterns.Count-1 do begin
+    if not Result.UsedPatterns.contains(Song.Patterns.Keys[I])
+      then Continue;
+
+    Pat := Song.Patterns[Song.Patterns.Keys[I]];
+
+    for J := Low(Pat^) to High(Pat^) do
+      with Pat^[J] do begin
+        Result.UsedInstruments.insert(Instrument);
+        if EffectCode = $6 then // Call routine
+          Result.UsedRoutines.insert(EffectParams.Value);
+      end;
+  end;
+end;
+
+procedure FreeUsageReport(Report: TSongUsageReport);
+begin
+  Report.UsedPatterns.Free;
+  Report.UsedInstruments.Free;
+  Report.UsedRoutines.Free;
 end;
 
 end.
