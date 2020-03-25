@@ -166,7 +166,7 @@
         <PackageName Value="LCL"/>
       </Item6>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="26">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -298,6 +298,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="NullStream"/>
       </Unit24>
+      <Unit25>
+        <Filename Value="modimport.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MODImport"/>
+      </Unit25>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

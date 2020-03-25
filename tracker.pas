@@ -9,7 +9,7 @@ uses
   FileUtil, math, Instruments, Waves, Song, EmulationThread, Utils, Constants,
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser,
-  options, IniFiles, bgrabitmap, effecteditor, RenderToWave;
+  options, IniFiles, bgrabitmap, effecteditor, RenderToWave, modimport;
 
 type
   { TfrmTracker }
@@ -37,7 +37,11 @@ type
     MenuItem31: TMenuItem;
     MenuItem32: TMenuItem;
     MenuItem33: TMenuItem;
+    MenuItem34: TMenuItem;
+    MenuItem35: TMenuItem;
+    MenuItem4: TMenuItem;
     NoiseVisualizer: TPaintBox;
+    MODOpenDialog: TOpenDialog;
     Panel6: TPanel;
     SynAnySyn1: TSynAnySyn;
     WavSaveDialog: TSaveDialog;
@@ -259,6 +263,7 @@ type
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem31Click(Sender: TObject);
     procedure MenuItem33Click(Sender: TObject);
+    procedure MenuItem34Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -1166,8 +1171,17 @@ begin
 end;
 
 procedure TfrmTracker.HelpLookupManualExecute(Sender: TObject);
+  procedure OpenPage(Page: Integer);
+  begin
+    OpenURL('file:///'+ExpandFileName('./Manual.pdf')+'#page='+IntToStr(Page));
+  end;
 begin
+  // TODO: This is really brittle. We need to find some way to export PDF
+  // such that headers are exported as named destinations.
+  {case LastActiveControl of
+    TreeView1: OpenPage(13);
 
+  end;}
 end;
 
 procedure TfrmTracker.FileSaveAs1Accept(Sender: TObject);
@@ -1562,6 +1576,22 @@ begin
   InitializeSong(Song);
 
   UpdateUIAfterLoad;
+end;
+
+procedure TfrmTracker.MenuItem34Click(Sender: TObject);
+var
+  Stream: TStream;
+begin
+  if MODOpenDialog.Execute then begin
+    DestroySong(Song);
+
+    Stream := TFileStream.Create(MODOpenDialog.FileName, fmOpenRead);
+    Song := LoadSongFromModStream(Stream);
+
+    Stream.Free;
+
+    UpdateUIAfterLoad;
+  end;
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);

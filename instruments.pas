@@ -60,12 +60,12 @@ type
   end;
 
   Bit = Boolean;
-  TwoBits = 0..3;
-  ThreeBits = 0..7;
-  FourBits = 0..17;
-  FiveBits = 0..31;
-  SixBits = 0..63;
-  SevenBits = 0..127;
+  TwoBits = 0..%11;
+  ThreeBits = 0..%111;
+  FourBits = 0..%1111;
+  FiveBits = 0..%11111;
+  SixBits = 0..%111111;
+  SevenBits = 0..%1111111;
   EightBits = Byte;
 
   TSweepRegister = bitpacked record
