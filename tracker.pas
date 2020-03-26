@@ -9,7 +9,7 @@ uses
   FileUtil, math, Instruments, Waves, Song, EmulationThread, Utils, Constants,
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser,
-  options, IniFiles, bgrabitmap, effecteditor, RenderToWave, modimport;
+  options, IniFiles, bgrabitmap, effecteditor, RenderToWave, modimport, Types;
 
 type
   { TfrmTracker }
@@ -218,6 +218,10 @@ type
     procedure EditDelete1Execute(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+    procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
     procedure FormShow(Sender: TObject);
     procedure InstrumentComboBoxChange(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
@@ -1294,6 +1298,34 @@ end;
 procedure TfrmTracker.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CheckUnsavedChanges;
+end;
+
+procedure TfrmTracker.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+  if ssCtrl in Shift then begin
+    Handled := True;
+    if ssShift in Shift then
+      TrackerGrid.IncrementSelection(-12, -10, -0, -0, -$10)
+    else
+      TrackerGrid.IncrementSelection(-1, -1, -0, -0, -1);
+  end
+  else
+    Handled := False;
+end;
+
+procedure TfrmTracker.ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
+  MousePos: TPoint; var Handled: Boolean);
+begin
+  if ssCtrl in Shift then begin
+    Handled := True;
+    if ssShift in Shift then
+      TrackerGrid.IncrementSelection(12, 10, 0, 0, $10)
+    else
+      TrackerGrid.IncrementSelection(1, 1, 0, 0, 1);
+  end
+  else
+    Handled := False;
 end;
 
 procedure TfrmTracker.FormShow(Sender: TObject);

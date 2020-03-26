@@ -57,10 +57,10 @@ object frmTracker: TfrmTracker
       Height = 442
       Top = 0
       Width = 968
-      ActivePage = PatternTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -214,6 +214,8 @@ object frmTracker: TfrmTracker
             BorderStyle = bsNone
             ParentFont = False
             TabOrder = 1
+            OnMouseWheelDown = ScrollBox1MouseWheelDown
+            OnMouseWheelUp = ScrollBox1MouseWheelUp
           end
         end
         object OrderEditStringGrid: TStringGrid

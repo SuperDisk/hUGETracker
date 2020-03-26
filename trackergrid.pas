@@ -1041,11 +1041,26 @@ procedure TTrackerGrid.IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
 begin
   with Patterns[SelectionPos.X]^[SelectionPos.Y] do
     case SelectionPos.SelectedPart of
-      cpNote: Note := EnsureRange(Note+Value, LOWEST_NOTE, HIGHEST_NOTE);
-      cpInstrument: Instrument := Max(Instrument+Value, 0);
+      cpNote:
+        if Note <> NO_NOTE then
+          Note := EnsureRange(Note+Value, LOWEST_NOTE, HIGHEST_NOTE);
+
+      cpInstrument:
+        if Instrument <> 0 then
+          Instrument := Max(Instrument+Value, 1);
+
       cpVolume:;
-      cpEffectCode: EffectCode := EnsureRange(EffectCode+Value, $0, $F);
-      cpEffectParams: EffectParams.Value := EnsureRange(EffectParams.Value+Value, Low(Byte), High(Byte));
+
+      cpEffectCode:
+        EffectCode := EnsureRange(EffectCode+Value, $0, $F);
+
+      cpEffectParams:
+        if EffectCode = $0 then begin
+          if EffectParams.Value <> $00 then
+            EffectParams.Value := EnsureRange(EffectParams.Value+Value, Low(Byte)+1, High(Byte));
+        end
+        else
+          EffectParams.Value := EnsureRange(EffectParams.Value+Value, Low(Byte), High(Byte));
     end;
 end;
 
