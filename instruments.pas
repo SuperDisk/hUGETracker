@@ -8,7 +8,7 @@ uses
   Classes, SysUtils;
 
 type
-  TInstrumentType = (Square, Wave, Noise);
+  TInstrumentType = (itSquare, itWave, itNoise);
   TDutyType = 0..3;
   TSweepType = (Up, Down);
   TStepWidth = (Fifteen, Seven);
@@ -27,7 +27,7 @@ type
     VolSweepDirection: TSweepType;
     VolSweepAmount: TEnvelopeSweepAmount;
 
-    // Square
+    // itSquare
     // NR10
     SweepTime: Integer;
     SweepIncDec: TSweepType;
@@ -36,14 +36,14 @@ type
     // NR11
     Duty: TDutyType;
 
-    // Wave
+    // itWave
 
     // NR32
     OutputLevel: Integer;
-    // Wave
+    // itWave
     Waveform: Integer;
 
-    // Noise
+    // itNoise
     // NR42
     ShiftClockFreq: Integer; // Unused
     CounterStep: TStepWidth;
@@ -54,9 +54,9 @@ type
 
   TRegisters = record
     case Type_: TInstrumentType of
-      Square: (NR10, NR11, NR12, NR13, NR14: Byte);
-      Wave: (NR30, NR31, NR32, NR33, NR34: Byte);
-      Noise: (NR41, NR42, NR43, NR44: Byte);
+      itSquare: (NR10, NR11, NR12, NR13, NR14: Byte);
+      itWave: (NR30, NR31, NR32, NR33, NR34: Byte);
+      itNoise: (NR41, NR42, NR43, NR44: Byte);
   end;
 
   Bit = Boolean;
@@ -215,9 +215,9 @@ end;
 function InstrumentToBytes(Instrument: TInstrument): TAsmInstrument;
 begin
   case Instrument.Type_ of
-    Square: Result := SquareInstrumentToBytes(Instrument);
-    Wave: Result := WaveInstrumentToBytes(Instrument);
-    Noise: Result := NoiseInstrumentToBytes(Instrument);
+    itSquare: Result := SquareInstrumentToBytes(Instrument);
+    itWave: Result := WaveInstrumentToBytes(Instrument);
+    itNoise: Result := NoiseInstrumentToBytes(Instrument);
   end;
 end;
 
@@ -250,7 +250,7 @@ begin
   NR34.FrequencyBits := (Frequency and %0000011100000000) shr 8;
   NR34.UseLength := Instr.LengthEnabled;
 
-  Result.Type_ := Wave;
+  Result.Type_ := itWave;
   Result.NR30 := NR30.ByteValue;
   Result.NR31 := NR31;
   Result.NR32 := NR32.ByteValue;
@@ -287,7 +287,7 @@ begin
   NR44.Initial:= Initial;
   NR44.UseLength:=Instr.LengthEnabled;
 
-  Result.Type_ := Noise;
+  Result.Type_ := itNoise;
   Result.NR41 := NR41;
   Result.NR42 := NR42.ByteValue;
   Result.NR43 := NR43.ByteValue;
@@ -328,7 +328,7 @@ begin
   NR14.Initial := Initial;
   NR14.UseLength := Instr.LengthEnabled;
 
-  Result.Type_ := Square;
+  Result.Type_ := itSquare;
   Result.NR10:=NR10.ByteValue;
   Result.NR11:=NR11.ByteValue;
   Result.NR12:=NR12.ByteValue;

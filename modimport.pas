@@ -5,7 +5,8 @@ unit MODImport;
 interface
 
 uses
-  Classes, SysUtils, Song, hugedatatypes, fgl, utils, constants;
+  Classes, SysUtils, Song, hugedatatypes, fgl, math, utils, constants,
+  instruments;
 
 type
   TPeriodToCodeMap = specialize TFPGMap<Integer, Integer>;
@@ -65,6 +66,18 @@ type
 
 function LoadSongFromModStream(Stream: TStream): TSong;
 
+const
+  // https://github.com/AntonioND/gbt-player/blob/master/rgbds_example/gbt_player_bank1.asm
+  GBT_WAVEFORMS: array[0..7] of array[0..15] of Byte =
+    (($A5,$D7,$C9,$E1,$BC,$9A,$76,$31,$0C,$BA,$DE,$60,$1B,$CA,$03,$93),
+    ($F0,$E1,$D2,$C3,$B4,$A5,$96,$87,$78,$69,$5A,$4B,$3C,$2D,$1E,$0F),
+    ($FD,$EC,$DB,$CA,$B9,$A8,$97,$86,$79,$68,$57,$46,$35,$24,$13,$02),
+    ($DE,$FE,$DC,$BA,$9A,$A9,$87,$77,$88,$87,$65,$56,$54,$32,$10,$12),
+    ($AB,$CD,$EF,$ED,$CB,$A0,$12,$3E,$DC,$BA,$BC,$DE,$FE,$DC,$32,$10),
+    ($FF,$EE,$DD,$CC,$BB,$AA,$99,$88,$77,$66,$55,$44,$33,$22,$11,$00),
+    ($FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$00,$00,$00,$00,$00,$00,$00,$00),
+    ($79,$BC,$DE,$EF,$FF,$EE,$DC,$B9,$75,$43,$21,$10,$00,$11,$23,$45));
+
 var
   PeriodsToCodeMap: TPeriodToCodeMap;
 
@@ -88,24 +101,37 @@ end;
 
 function ConvertInstrument(Instr: Integer): Integer;
 begin
-  if Instr = 0 then
-    Result := 0
-  else
-    Result := 1;
+  Result := EnsureRange(Instr, 0, 15);
 end;
 
 procedure ConvertEffect(Code, Params: Integer; out OutCode: Integer; out OutParams: TEffectParams);
+var
+  EP: TEffectParams absolute Params;
+label IdentityEffect;
 begin
-  case Code of
-    $C: begin
-      OutCode := $C;
-      OutParams.Value := ;
-    end;
-    else begin
-      OutCode := Code;
-      OutParams := Params;
-    end;
+  if Code in [$F, $B, $D] then begin
+    OutCode := Code;
+    OutParams.Value := Params + 1;
   end
+  else
+    case Code of
+      $C: begin
+        OutCode := $C;
+        OutParams.Value := Trunc((Params / $40)*$F);
+      end;
+      $E: begin
+        if EP.Param1 = $C then begin
+          OutCode := $E;
+          OutParams.Value := EP.Param2;
+        end
+        else goto IdentityEffect;
+      end;
+      else begin
+        IdentityEffect:
+        OutCode := Code;
+        OutParams.Value := Params;
+      end;
+    end
 end;
 
 function ConvertCell(MC: TMODRow): TCell;
@@ -115,15 +141,25 @@ begin
   ConvertEffect(MC.Effect.Code, MC.Effect.Params, Result.EffectCode, Result.EffectParams);
 end;
 
-procedure TranscribePattern(MP: TMODPattern; P1, P2, P3, P4: PPattern);
+procedure TranscribeColumn(MP: TMODPattern; Pat: PPattern; Column: Integer);
 var
   I: Integer;
+  LastPlayedNote: Integer;
+  LastPlayedInstrument: Integer;
 begin
+  LastPlayedNote := C_5;
+  LastPlayedInstrument := 0;
+
   for I := Low(MP) to High(MP) do begin
-    P1^[I] := ConvertCell(MP[I, 1]);
-    P2^[I] := ConvertCell(MP[I, 2]);
-    P3^[I] := ConvertCell(MP[I, 3]);
-    P4^[I] := ConvertCell(MP[I, 4]);
+    Pat^[I] := ConvertCell(MP[I, Column]);
+
+    if (Pat^[I].EffectCode = $C) and (Pat^[I].Note = NO_NOTE) then begin
+      Pat^[I].Note := LastPlayedNote;
+      Pat^[I].Instrument := LastPlayedInstrument;
+    end;
+
+    if (Pat^[I].Note <> NO_NOTE) then LastPlayedNote := Pat^[I].Note;
+    if (Pat^[I].Instrument <> 0) then LastPlayedInstrument := Pat^[I].Instrument;
   end;
 end;
 
@@ -157,15 +193,39 @@ begin
 
   InitializeSong(Result);
 
-  for I := Low(ModFile.Patterns) to High(ModFile.Patterns) do
-    TranscribePattern(ModFile.Patterns[I],
-                      Result.Patterns.CreateNewPattern(I*10 + 0),
-                      Result.Patterns.CreateNewPattern(I*10 + 1),
-                      Result.Patterns.CreateNewPattern(I*10 + 2),
-                      Result.Patterns.CreateNewPattern(I*10 + 3));
+  // Create the instruments.
 
+  // First four are just the default instrument with a different duty cycle.
+  Result.Instruments[1].Duty := 1;
+  Result.Instruments[2].Duty := 2;
+  Result.Instruments[3].Duty := 3;
+  Result.Instruments[4].Duty := 0;
+
+  for I := 8 to 15 do
+    with Result.Instruments[I] do begin
+      Waveform := I - 8;
+      Type_ := itWave;
+    end;
+
+  // Waveforms.
+  for I := Low(GBT_WAVEFORMS) to High(GBT_WAVEFORMS) do
+    for J := Low(GBT_WAVEFORMS[I]) to High(GBT_WAVEFORMS[I]) do begin
+      Result.Waves[I, J*2] := hi(GBT_WAVEFORMS[I, J]);
+      Result.Waves[I, (J*2) + 1] := lo(GBT_WAVEFORMS[I, J]);
+    end;
+
+  // Convert all patterns
+  for I := Low(ModFile.Patterns) to High(ModFile.Patterns) do begin
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.CreateNewPattern(I*10 + 0), 1);
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.CreateNewPattern(I*10 + 1), 2);
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.CreateNewPattern(I*10 + 2), 3);
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.CreateNewPattern(I*10 + 3), 4);
+  end;
+
+  // Import the order table. Uses a weird numbering scheme because hUGE has
+  // 4 separate patterns like AHX and unlike MOD.
   for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do begin
-    SetLength(Result.OrderMatrix[I], ModFile.SongLen);
+    SetLength(Result.OrderMatrix[I], ModFile.SongLen+1);
 
     for J := 0 to ModFile.SongLen do
       Result.OrderMatrix[I, J] := (ModFile.Positions[J]*10) + I;

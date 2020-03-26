@@ -533,7 +533,7 @@ begin
   with Song.Instruments[Instr] do
   begin
     case Type_ of
-      Square: begin
+      itSquare: begin
         Regs := SquareInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
         Spokeb(NR10, Regs.NR10);
         Spokeb(NR11, Regs.NR11);
@@ -541,9 +541,9 @@ begin
         Spokeb(NR13, Regs.NR13);
         Spokeb(NR14, Regs.NR14);
       end;
-      Wave: begin
+      itWave: begin
         NewWaveform := ConvertWaveform(Song.Waves[Waveform]);
-        // Fill Wave RAM with the waveform
+        // Fill itWave RAM with the waveform
         for I := Low(NewWaveform) to High(NewWaveform) do
           Spokeb(AUD3_WAVE_RAM+I, NewWaveform[I]);
 
@@ -555,7 +555,7 @@ begin
         Spokeb(NR33, Regs.NR33);
         Spokeb(NR34, Regs.NR34)
       end;
-      Noise: begin
+      itNoise: begin
         Regs := NoiseInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
         Spokeb(NR41, Regs.NR41);
         Spokeb(NR42, Regs.NR42);
@@ -784,15 +784,15 @@ begin
   LengthTrackbar.Position := CI^.Length;
 
   case CI^.Type_ of
-    Square: begin
+    itSquare: begin
       InstrumentTypeComboBox.Text := 'Square';
       ChangeToSquare;
     end;
-    Wave: begin
+    itWave: begin
       InstrumentTypeComboBox.Text := 'Wave';
       ChangeToWave;
     end;
-    Noise: begin
+    itNoise: begin
       InstrumentTypeComboBox.Text := 'Noise';
       ChangeToNoise;
     end;
@@ -806,7 +806,7 @@ begin
   EnvChangeTrackbar.Position := CI^.VolSweepAmount;
 
   case CI^.Type_ of
-    Square: begin
+    itSquare: begin
       SweepTimeCombobox.ItemIndex := CI^.SweepTime;
       case CI^.SweepIncDec of
         Up: SweepDirectionCombobox.Text := 'Up';
@@ -816,12 +816,12 @@ begin
       DutyCombobox.ItemIndex := CI^.Duty;
     end;
 
-    Wave: begin
+    itWave: begin
       WaveVolumeCombobox.ItemIndex := CI^.OutputLevel;
       WaveformCombobox.ItemIndex := CI^.Waveform;
     end;
 
-    Noise: begin
+    itNoise: begin
       ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
       DivRatioTrackbar.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = Seven;
@@ -938,15 +938,15 @@ procedure TfrmTracker.InstrumentTypeComboboxChange(Sender: TObject);
 begin
   case InstrumentTypeComboBox.Text of
     'Square': begin
-      CurrentInstrument^.Type_ := Square;
+      CurrentInstrument^.Type_ := itSquare;
       ChangeToSquare
     end;
     'Wave': begin
-      CurrentInstrument^.Type_ := Wave;
+      CurrentInstrument^.Type_ := itWave;
       ChangeToWave
     end;
     'Noise': begin
-      CurrentInstrument^.Type_ := Noise;
+      CurrentInstrument^.Type_ := itNoise;
       ChangeToNoise
     end;
   end;

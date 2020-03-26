@@ -199,7 +199,7 @@ begin
   end;
   for I := Low(S.Instruments) to High(S.Instruments) do
     with S.Instruments[I] do begin
-      Type_ := Square;
+      Type_ := itSquare;
       Length := 0;
       LengthEnabled := False;
       InitialVolume := High(TEnvelopeVolume);
