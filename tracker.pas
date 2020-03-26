@@ -39,7 +39,12 @@ type
     MenuItem33: TMenuItem;
     MenuItem34: TMenuItem;
     MenuItem35: TMenuItem;
+    MenuItem36: TMenuItem;
+    MenuItem37: TMenuItem;
+    MenuItem38: TMenuItem;
+    MenuItem39: TMenuItem;
     MenuItem4: TMenuItem;
+    MenuItem40: TMenuItem;
     NoiseVisualizer: TPaintBox;
     MODOpenDialog: TOpenDialog;
     Panel6: TPanel;
@@ -264,6 +269,10 @@ type
     procedure MenuItem31Click(Sender: TObject);
     procedure MenuItem33Click(Sender: TObject);
     procedure MenuItem34Click(Sender: TObject);
+    procedure MenuItem37Click(Sender: TObject);
+    procedure MenuItem38Click(Sender: TObject);
+    procedure MenuItem39Click(Sender: TObject);
+    procedure MenuItem40Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -1582,6 +1591,8 @@ procedure TfrmTracker.MenuItem34Click(Sender: TObject);
 var
   Stream: TStream;
 begin
+  if not CheckUnsavedChanges then Exit;
+
   if MODOpenDialog.Execute then begin
     DestroySong(Song);
 
@@ -1592,6 +1603,26 @@ begin
 
     UpdateUIAfterLoad;
   end;
+end;
+
+procedure TfrmTracker.MenuItem37Click(Sender: TObject);
+begin
+  TrackerGrid.IncrementSelection(1, 1, 0, 0, 1);
+end;
+
+procedure TfrmTracker.MenuItem38Click(Sender: TObject);
+begin
+  TrackerGrid.IncrementSelection(-1, -1, 0, 0, -1);
+end;
+
+procedure TfrmTracker.MenuItem39Click(Sender: TObject);
+begin
+  TrackerGrid.IncrementSelection(12, 10, 0, 0, $10);
+end;
+
+procedure TfrmTracker.MenuItem40Click(Sender: TObject);
+begin
+  TrackerGrid.IncrementSelection(-12, -10, 0, 0, -$10);
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);

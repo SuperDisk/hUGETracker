@@ -57,14 +57,14 @@ object frmTracker: TfrmTracker
       Height = 442
       Top = 0
       Width = 968
-      ActivePage = InstrumentTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 412
+        ClientHeight = 414
         ClientWidth = 960
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
@@ -141,16 +141,16 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
-        ClientHeight = 412
+        ClientHeight = 414
         ClientWidth = 960
         ParentFont = False
         object Panel3: TPanel
           Left = 224
-          Height = 412
+          Height = 414
           Top = 0
           Width = 736
           Align = alClient
-          ClientHeight = 412
+          ClientHeight = 414
           ClientWidth = 736
           ParentFont = False
           TabOrder = 0
@@ -199,7 +199,7 @@ object frmTracker: TfrmTracker
           end
           object ScrollBox1: TScrollBox
             Left = 1
-            Height = 380
+            Height = 382
             Top = 31
             Width = 734
             HorzScrollBar.Increment = 1
@@ -218,7 +218,7 @@ object frmTracker: TfrmTracker
         end
         object OrderEditStringGrid: TStringGrid
           Left = 0
-          Height = 412
+          Height = 414
           Top = 0
           Width = 224
           Align = alLeft
@@ -4920,7 +4920,7 @@ object frmTracker: TfrmTracker
   end
   object GBSSaveDialog: TSaveDialog
     Filter = 'Gameboy Soundtrack|*.gbs'
-    left = 590
+    left = 560
     top = 37
   end
   object WaveSaveDialog: TSaveDialog
@@ -5029,6 +5029,34 @@ object frmTracker: TfrmTracker
       Caption = 'Redo'
       ShortCut = 16473
       OnClick = TrackerPopupRedoClick
+    end
+    object MenuItem36: TMenuItem
+      Caption = '-'
+      Visible = False
+    end
+    object MenuItem37: TMenuItem
+      Caption = 'Increment value by 1'
+      ShortCut = 16571
+      Visible = False
+      OnClick = MenuItem37Click
+    end
+    object MenuItem38: TMenuItem
+      Caption = 'Decrement value by 1'
+      ShortCut = 16573
+      Visible = False
+      OnClick = MenuItem38Click
+    end
+    object MenuItem39: TMenuItem
+      Caption = 'Increment value by 10'
+      ShortCut = 24763
+      Visible = False
+      OnClick = MenuItem39Click
+    end
+    object MenuItem40: TMenuItem
+      Caption = 'Decrement value by 10'
+      ShortCut = 24765
+      Visible = False
+      OnClick = MenuItem40Click
     end
   end
   object WavSaveDialog: TSaveDialog

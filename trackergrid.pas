@@ -128,6 +128,7 @@ type
 
     function GetAt(SelectionPos: TSelectionPos): Integer;
     procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
+    procedure IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
     procedure ClearAt(SelectionPos: TSelectionPos);
 
     procedure SelectAll;
@@ -137,6 +138,7 @@ type
     procedure DoRedo;
     procedure DoRepeatPaste;
     procedure TransposeSelection(Semitones: Integer);
+    procedure IncrementSelection(Note, Instrument, Volume, EffectCode, EffectParam: Integer);
     procedure InterpolateSelection;
     procedure OpenEffectEditor;
 
@@ -574,19 +576,37 @@ begin
 end;
 
 procedure TTrackerGrid.TransposeSelection(Semitones: Integer);
+begin
+  IncrementSelection(Semitones, 0, 0, 0, 0);
+end;
+
+procedure TTrackerGrid.IncrementSelection(Note, Instrument, Volume, EffectCode,
+  EffectParam: Integer);
 var
-  C, R: Integer;
+  Pos: TSelectionPos;
 begin
   NormalizeCursors;
 
-  for R := Cursor.Y to Other.Y do
-    for C := Cursor.X to Other.X do
-      if Patterns[C]^[R].Note <> NO_NOTE then
-        Patterns[C]^[R].Note :=
-          EnsureRange(Patterns[C]^[R].Note + Semitones, LOWEST_NOTE, HIGHEST_NOTE);
+  Pos := Cursor;
+
+  while Pos.Y <= Other.Y do begin
+    while Pos <= Other do begin
+      case Pos.SelectedPart of
+        cpNote: IncrementAt(Pos, Note);
+        cpInstrument: IncrementAt(Pos, Instrument);
+        cpVolume: IncrementAt(Pos, Volume);
+        cpEffectCode: IncrementAt(Pos, EffectCode);
+        cpEffectParams: IncrementAt(Pos, EffectParam);
+      end;
+      IncSelectionPos(Pos);
+    end;
+    Inc(Pos.Y);
+    Pos.X := Cursor.X;
+    Pos.SelectedPart := Cursor.SelectedPart;
+  end;
 
   Invalidate;
-  SaveUndoState;
+  SaveUndoState
 end;
 
 procedure TTrackerGrid.InterpolateSelection;
@@ -1014,6 +1034,18 @@ begin
       cpVolume:;
       cpEffectCode: EffectCode := Value;
       cpEffectParams: EffectParams.Value := Value;
+    end;
+end;
+
+procedure TTrackerGrid.IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
+begin
+  with Patterns[SelectionPos.X]^[SelectionPos.Y] do
+    case SelectionPos.SelectedPart of
+      cpNote: Note := EnsureRange(Note+Value, LOWEST_NOTE, HIGHEST_NOTE);
+      cpInstrument: Instrument := Max(Instrument+Value, 0);
+      cpVolume:;
+      cpEffectCode: EffectCode := EnsureRange(EffectCode+Value, $0, $F);
+      cpEffectParams: EffectParams.Value := EnsureRange(EffectParams.Value+Value, Low(Byte), High(Byte));
     end;
 end;
 
