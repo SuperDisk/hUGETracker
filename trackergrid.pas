@@ -94,8 +94,8 @@ type
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
     function SelectionToRect(Selection: TSelectionPos): TRect;
     function MousePosToSelection(X, Y: Integer): TSelectionPos;
-    function KeycodeToHexNumber(Key: Word; out Num: Nibble): Boolean; overload;
-    function KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean; overload;
+    function KeycodeToHexNumber(Key: Word; var Num: Nibble): Boolean; overload;
+    function KeycodeToHexNumber(Key: Word; var Num: Integer): Boolean; overload;
 
     procedure ChangeFontSize;
   private
@@ -952,7 +952,7 @@ begin
   end;
 end;
 
-function TTrackerGrid.KeycodeToHexNumber(Key: Word; out Num: Nibble): Boolean;
+function TTrackerGrid.KeycodeToHexNumber(Key: Word; var Num: Nibble): Boolean;
 begin
   Result := True;
 
@@ -977,12 +977,12 @@ begin
   end;
 end;
 
-function TTrackerGrid.KeycodeToHexNumber(Key: Word; out Num: Integer): Boolean;
+function TTrackerGrid.KeycodeToHexNumber(Key: Word; var Num: Integer): Boolean;
 var
   X: Nibble;
 begin
   Result := KeycodeToHexNumber(Key, X);
-  Num := X;
+  if Result then Num := X;
 end;
 
 procedure TTrackerGrid.ChangeFontSize;
