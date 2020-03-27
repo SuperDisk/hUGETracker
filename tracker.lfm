@@ -907,14 +907,14 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 412
+        ClientHeight = 414
         ClientWidth = 960
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 252
+          Height = 254
           Top = 160
           Width = 960
           Align = alBottom

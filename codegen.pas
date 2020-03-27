@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, math, Instruments, Song, Utils,
-  HugeDatatypes, Constants, dialogs, strutils, FileUtil, LazFileUtils;
+  HugeDatatypes, Constants, dialogs, strutils, FileUtil, LazFileUtils,
+  lclintf;
 
 type
   TExportMode = (emNormal, emPreview, emGBS);
@@ -295,7 +296,7 @@ begin
       mtError,
       [mbOK],
       0)
-  else
+  else begin
     MessageDlg(
       'Error!',
       'There was an error assembling the song for playback.'+LineEnding+LineEnding+
@@ -306,6 +307,9 @@ begin
       mtError,
       [mbOK],
       0);
+
+    {$ifdef PRODUCTION}OpenURL('https://github.com/SuperDisk/UGE/issues');{$endif}
+  end;
 
   Cleanup:
   Proc.Free;

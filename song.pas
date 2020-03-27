@@ -2,6 +2,9 @@ unit Song;
 
 {$mode delphi}
 
+// TODO: Lots of duplicated code in here. At some point this should switch over
+// to a more parsable format, like NBT, JSON, or XML or something.
+
 interface
 
 uses Classes, HugeDatatypes, instruments, Constants;
@@ -41,9 +44,28 @@ type
     Routines: TRoutineBank;
   end;
 
+  TSongV3 = packed record
+    Version: Integer;
+
+    Name: ShortString;
+    Artist: ShortString;
+    Comment: ShortString;
+
+    Instruments: TInstrumentCollection;
+
+    Waves: TWaveBank;
+
+    TicksPerRow: Integer;
+
+    Patterns: TPatternMap;
+    OrderMatrix: TOrderMatrix;
+
+    Routines: TRoutineBank;
+  end;
+
   { TSong }
 
-  TSong = TSongV2;
+  TSong = TSongV3;
 
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
@@ -52,6 +74,7 @@ procedure DestroySong(var S: TSong);
 
 function UpgradeSong(S: TSongV1): TSong; overload;
 function UpgradeSong(S: TSongV2): TSong; overload;
+function UpgradeSong(S: TSongV3): TSong; overload;
 
 implementation
 
@@ -66,8 +89,6 @@ begin
   // Read the fixed elements first
   n := SizeOf(TSongV1) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
   S.Read(ASong, n);
-
-  // ASong.Patterns.Clear;
 
   // Create the patterns
   ASong.Patterns := TPatternMap.Create;
@@ -107,7 +128,46 @@ begin
 
   S.Read(ASong, n);
 
-  // ASong.Patterns.Clear;
+  // Create the patterns
+  ASong.Patterns := TPatternMap.Create;
+  // Read the pattern count
+  S.Read(n, SizeOf(Integer));
+  for i:=0 to n - 1 do begin
+    // Allocate memory for each pattern ...
+    New(pat);
+    // and read the pattern content
+    S.Read(pat^, SizeOf(TPattern));
+    // Add the pattern to the list
+    ASong.Patterns.Add(i, pat);
+  end;
+
+  // Read the OrderMatrix
+  for i := 0 to 3 do
+  begin
+    // Read length of each OrderMatrix array
+    S.Read(n, SizeOf(Integer));
+    // Allocate memory for it
+    SetLength(ASong.OrderMatrix[i], n);
+    // Read content of OrderMatrix array
+    S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
+  end;
+
+  for I := Low(TRoutineBank) to High(TRoutineBank) do
+    ASong.Routines[I] := S.ReadAnsiString;
+end;
+
+procedure ReadSongFromStreamV3(S: TStream; out ASong: TSongV3);
+var
+  i, n: Integer;
+  pat: PPattern;
+begin
+  // Read the fixed elements first
+  n := SizeOf(TSongV3)
+     - SizeOf(TPatternMap)
+     - SizeOf(TOrderMatrix)
+     - SizeOf(TRoutineBank);
+
+  S.Read(ASong, n);
 
   // Create the patterns
   ASong.Patterns := TPatternMap.Create;
@@ -143,7 +203,7 @@ var
   pPat: PPattern;
 begin
   // Write the fixed record elements first
-  n := SizeOf(TSongV2)
+  n := SizeOf(TSongV3)
      - SizeOf(TPatternMap)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
@@ -173,8 +233,9 @@ end;
 
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
 var
-  Version: Integer = 1;
+  Version: Integer;
   SV1: TSongV1;
+  SV2: TSongV2;
 begin
   S.Read(Version, SizeOf(Integer));
   S.Seek(0, soBeginning);
@@ -183,7 +244,11 @@ begin
       ReadSongFromStreamV1(S, SV1);
       ASong := UpgradeSong(SV1);
     end;
-    2: ReadSongFromStreamV2(S, ASong);
+    2: begin
+      ReadSongFromStreamV2(S, SV2);
+      ASong := UpgradeSong(SV2);
+    end;
+    3: ReadSongFromStreamV3(S, ASong);
   end;
 end;
 
@@ -197,8 +262,9 @@ begin
     Artist := '';
     Comment := '';
   end;
-  for I := Low(S.Instruments) to High(S.Instruments) do
-    with S.Instruments[I] do begin
+
+  for I := Low(S.Instruments.DutyInstruments) to High(S.Instruments.DutyInstruments) do
+    with S.Instruments.DutyInstruments[I] do begin
       Type_ := itSquare;
       Length := 0;
       LengthEnabled := False;
@@ -214,6 +280,43 @@ begin
 
       OutputLevel := 1;
     end;
+
+  for I := Low(S.Instruments.WaveInstruments) to High(S.Instruments.WaveInstruments) do
+    with S.Instruments.WaveInstruments[I] do begin
+      Type_ := itWave;
+      Length := 0;
+      LengthEnabled := False;
+      InitialVolume := High(TEnvelopeVolume);
+      VolSweepDirection := Down;
+      VolSweepAmount := 0;
+
+      SweepTime := 0;
+      SweepIncDec := Down;
+      SweepShift := 0;
+
+      Duty := 2;
+
+      OutputLevel := 1;
+    end;
+
+  for I := Low(S.Instruments.NoiseInstruments) to High(S.Instruments.NoiseInstruments) do
+    with S.Instruments.NoiseInstruments[I] do begin
+      Type_ := itSquare;
+      Length := 0;
+      LengthEnabled := False;
+      InitialVolume := High(TEnvelopeVolume);
+      VolSweepDirection := Down;
+      VolSweepAmount := 0;
+
+      SweepTime := 0;
+      SweepIncDec := Down;
+      SweepShift := 0;
+
+      Duty := 2;
+
+      OutputLevel := 1;
+    end;
+
   for I := Low(S.Waves) to High(S.Waves) do begin
     for J := 0 to 32 do
       S.Waves[I][J] := random($F);

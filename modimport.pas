@@ -40,7 +40,7 @@ type
 
   { TMODRow }
 
-  TMODRow = bitpacked record
+  TMODRow = record
     Note: Integer;
     Instrument: Integer;
     Effect: bitpacked record

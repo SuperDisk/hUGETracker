@@ -13,6 +13,12 @@ type
   TRoutine = string;
 
   TInstrumentBank = packed array[1..15] of TInstrument;
+  TInstrumentCollection = packed record
+    case Boolean of
+      False: (DutyInstruments, WaveInstruments, NoiseInstruments: TInstrumentBank);
+      True: (All: packed array[1..45] of TInstrument);
+  end;
+
   TWaveBank = packed array[0..15] of TWave;
   TRoutineBank = packed array[0..15] of TRoutine;
 

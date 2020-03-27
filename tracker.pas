@@ -1954,6 +1954,8 @@ procedure TfrmTracker.WaveEditPaintBoxMouseMove(Sender: TObject;
 var
   Idx: Integer;
 begin
+  X := EnsureRange(X, 0, WaveEditPaintBox.Width);
+  Y := EnsureRange(Y, 0, WaveEditPaintBox.Height);
   if DrawingWave then begin
     Idx := Trunc((X / WaveEditPaintBox.Width)*32);
     CurrentWave^[Idx] := EnsureRange(Trunc((Y / WaveEditPaintBox.Height)*$F), 0, $F);
