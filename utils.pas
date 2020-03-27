@@ -37,6 +37,7 @@ function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
 
 function ModInst(Inst: Integer): Integer;
+function UnmodInst(Bank: TInstrumentType; Inst: Integer): Integer;
 function InstBankName(Bank: TInstrumentType): String;
 
 function GetUsageReport(Song: TSong): TSongUsageReport;
@@ -114,6 +115,15 @@ end;
 function ModInst(Inst: Integer): Integer;
 begin
   Result := ((Inst-1) mod 15)+1;
+end;
+
+function UnmodInst(Bank: TInstrumentType; Inst: Integer): Integer;
+begin
+  case Bank of
+    itSquare: Result := Inst+(15*0);
+    itWave: Result := Inst+(15*1);
+    itNoise: Result := Inst+(15*2);
+  end;
 end;
 
 function InstBankName(Bank: TInstrumentType): String;

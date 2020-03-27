@@ -599,7 +599,7 @@ end;
 procedure TfrmTracker.PreviewC5;
 begin
   if not LoadingFile then begin
-    PreviewInstrument(NotesToFreqs.Data[C_5], InstrumentNumberSpinner.Value);
+    PreviewInstrument(NotesToFreqs.Data[C_5], UnmodInst(CurrentInstrumentBank, InstrumentNumberSpinner.Value));
     NoteHaltTimer.Enabled := False;
     NoteHaltTimer.Enabled := True
   end;
@@ -989,7 +989,7 @@ begin
   LengthTrackbar.Position := Random(Round(LengthTrackbar.Max));
 
   PreviewInstrument(NotesToFreqs.KeyData[RandomRange(LOWEST_NOTE, HIGHEST_NOTE)],
-    InstrumentNumberSpinner.Value);
+    UnmodInst(CurrentInstrumentBank, InstrumentNumberSpinner.Value));
 end;
 
 procedure TfrmTracker.FormCreate(Sender: TObject);
