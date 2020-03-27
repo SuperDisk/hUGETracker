@@ -5,7 +5,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Song, Waves, HugeDatatypes, Constants, gHashSet, fgl;
+  Classes, SysUtils, Song, Waves, HugeDatatypes, Constants, gHashSet, fgl, instruments;
 
 type
 
@@ -37,6 +37,7 @@ function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
 
 function ModInst(Inst: Integer): Integer;
+function InstBankName(Bank: TInstrumentType): String;
 
 function GetUsageReport(Song: TSong): TSongUsageReport;
 procedure FreeUsageReport(Report: TSongUsageReport);
@@ -113,6 +114,15 @@ end;
 function ModInst(Inst: Integer): Integer;
 begin
   Result := ((Inst-1) mod 15)+1;
+end;
+
+function InstBankName(Bank: TInstrumentType): String;
+begin
+  case Bank of
+    itSquare: Result := 'Square';
+    itWave: Result := 'Wave';
+    itNoise: Result := 'Noise';
+  end;
 end;
 
 function GetUsageReport(Song: TSong): TSongUsageReport;

@@ -8,7 +8,7 @@ uses
   Classes, SysUtils;
 
 type
-  TInstrumentType = (itSquare, itWave, itNoise);
+  TInstrumentType = (itSquare = 0, itWave = 1, itNoise = 2);
   TDutyType = 0..3;
   TSweepType = (Up, Down);
   TStepWidth = (swFifteen, swSeven);

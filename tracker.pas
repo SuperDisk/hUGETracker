@@ -361,7 +361,12 @@ type
     LoadingFile: Boolean;
     SaveSucceeded: Boolean;
 
-    {PatternsNode, }InstrumentsNode, WavesNode, RoutinesNode: TTreeNode;
+    {PatternsNode, }
+    WaveInstrumentsNode,
+    NoiseInstrumentsNode,
+    DutyInstrumentsNode,
+    WavesNode,
+    RoutinesNode: TTreeNode;
 
     OptionsFile: TIniFile;
 
@@ -370,7 +375,7 @@ type
     procedure ChangeToSquare;
     procedure ChangeToWave;
     procedure ChangeToNoise;
-    procedure LoadInstrument(Instr: Integer);
+    procedure LoadInstrument(Bank: TInstrumentType; Instr: Integer);
     procedure LoadWave(Wave: Integer);
     procedure LoadSong(Filename: String);
     procedure ReloadPatterns;
@@ -415,7 +420,7 @@ begin
   ResetEmulationThread;
 
   LoadingFile := True; // HACK!!!!!
-  LoadInstrument(1);
+  LoadInstrument(itSquare, 1);
   LoadWave(0);
 
   RoutineSynedit.Text := Song.Routines[0];
@@ -431,11 +436,21 @@ begin
   CopyOrderMatrixToOrderGrid;
 
   // PLACEHOLDER
-  for I := Low(Song.Instruments.All) to High(song.Instruments.All) do
-    InstrumentComboBox.Items[I] := IntToStr(ModInst(I))+': '+Song.Instruments.All[ModInst(I)].Name;
+  while InstrumentComboBox.Items.Count > 1 do
+    InstrumentComboBox.Items.Delete(1);
 
-  for I := Low(Song.Instruments.All) to High(song.Instruments.All) do
-    InstrumentsNode.Items[I-1].Text := IntToStr(ModInst(I))+': '+Song.Instruments.All[ModInst(I)].Name;
+  for I := Low(Song.Instruments.Duty) to High(song.Instruments.Duty) do
+    InstrumentComboBox.Items.Add('Square '+IntToStr(I)+': '+Song.Instruments.Duty[ModInst(I)].Name);
+  for I := Low(Song.Instruments.Wave) to High(song.Instruments.Wave) do
+    InstrumentComboBox.Items.Add('Wave '+IntToStr(I)+': '+Song.Instruments.Wave[ModInst(I)].Name);
+  for I := Low(Song.Instruments.Noise) to High(song.Instruments.Noise) do
+    InstrumentComboBox.Items.Add('Noise '+IntToStr(I)+': '+Song.Instruments.Noise[ModInst(I)].Name);
+
+  for I := Low(TInstrumentBank) to High(TInstrumentBank) do begin
+    DutyInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Duty[I].Name;
+    WaveInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Wave[I].Name;
+    NoiseInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Noise[I].Name;
+  end;
 
   LoadingFile := False; // HACK!!!!
 
@@ -786,17 +801,19 @@ begin
   TrackerGrid.PopupMenu := TrackerGridPopup;
 end;
 
-procedure TfrmTracker.LoadInstrument(Instr: Integer);
+procedure TfrmTracker.LoadInstrument(Bank: TInstrumentType; Instr: Integer);
 var
   CI: ^TInstrument;
 begin
-  case CurrentInstrumentBank of
+  CurrentInstrumentBank := Bank;
+  case Bank of
     itSquare: CurrentInstrument := @Song.Instruments.Duty[Instr];
     itWave:   CurrentInstrument := @Song.Instruments.Wave[Instr];
     itNoise:  CurrentInstrument := @Song.Instruments.Noise[Instr];
   end;
   CI := CurrentInstrument;
 
+  InstrumentTypeComboBox.ItemIndex := Integer(CurrentInstrumentBank);
   InstrumentNumberSpinner.Value := Instr;
   InstrumentNameEdit.Text := CI^.Name;
   LengthEnabledCheckbox.Checked := CI^.LengthEnabled;
@@ -960,7 +977,7 @@ begin
     1: CurrentInstrumentBank := itWave;
     2: CurrentInstrumentBank := itNoise;
   end;
-  LoadInstrument(InstrumentNumberSpinner.Value);
+  LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
 end;
 
 procedure TfrmTracker.RandomizeNoiseButtonClick(Sender: TObject);
@@ -1014,32 +1031,33 @@ begin
   // Initialize ticks per row
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
 
-  CurrentInstrumentBank := itSquare;
-  LoadInstrument(1);
+  LoadInstrument(itSquare, 1);
   LoadWave(0);
 
   // Fetch the tree items
   with TreeView1 do begin
     //PatternsNode := Items[0];
-    InstrumentsNode := Items[0];
-    WavesNode := Items[1];
-    RoutinesNode := Items[2];
+    DutyInstrumentsNode := Items[0].Items[0];
+    WaveInstrumentsNode := Items[0].Items[1];
+    NoiseInstrumentsNode := Items[0].Items[2];
+
+    // TODO: Find out how to actually do this... WTF?
+    WavesNode := Items[4];
+    RoutinesNode := Items[5];
   end;
 
-  for PUI := 1 to 15 do
-    TreeView1.Items.AddChild(InstrumentsNode, IntToStr(PUI)+':').Data := {%H-}Pointer(PUI);
+  for PUI := 1 to 15 do begin
+    TreeView1.Items.AddChild(DutyInstrumentsNode, IntToStr(PUI)+':').Data := {%H-}Pointer(PUI);
+    TreeView1.Items.AddChild(WaveInstrumentsNode, IntToStr(PUI)+':').Data := {%H-}Pointer(PUI);
+    TreeView1.Items.AddChild(NoiseInstrumentsNode, IntToStr(PUI)+':').Data := {%H-}Pointer(PUI);
+  end;
 
   for PUI := 0 to 15 do begin
     TreeView1.Items.AddChild(WavesNode, 'Wave '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
     TreeView1.Items.AddChild(RoutinesNode, 'Routine '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
   end;
 
-  // Initialize order table
-  {for I := 0 to 3 do begin
-    OrderEditStringGrid.Cells[I+1, 1] := IntToStr(I);
-    TrackerGrid.LoadPattern(I, I);
-  end;}
-  //CopyOrderGridToOrderMatrix;
+  // Initialize order table (InitializeSong creates the default order table)
   CopyOrderMatrixToOrderGrid;
 
   // Manually resize the fixed column in the order editor
@@ -1281,7 +1299,7 @@ end;
 
 procedure TfrmTracker.InstrumentComboBoxChange(Sender: TObject);
 begin
-  TrackerGrid.SelectedInstrument := InstrumentComboBox.ItemIndex;
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 end;
 
 procedure TfrmTracker.EditDelete1Execute(Sender: TObject);
@@ -1406,17 +1424,30 @@ begin
 end;
 
 procedure TfrmTracker.InstrumentNameEditChange(Sender: TObject);
+var
+  S: String;
 begin
+  S := IntToStr(InstrumentNumberSpinner.Value) + ': ' + InstrumentNameEdit.Text;
   CurrentInstrument^.Name := InstrumentNameEdit.Text;
-  InstrumentComboBox.Items[InstrumentNumberSpinner.Value] :=
-    IntToStr(InstrumentNumberSpinner.Value) + ': ' + InstrumentNameEdit.Text;
-  InstrumentsNode.Items[InstrumentNumberSpinner.Value-1].Text :=
-    InstrumentComboBox.Items[InstrumentNumberSpinner.Value];
+  case CurrentInstrumentBank of
+    itSquare: begin
+      InstrumentComboBox.Items[(0*15) + InstrumentNumberSpinner.Value] := 'Square '+S;
+      DutyInstrumentsNode.Items[InstrumentNumberSpinner.Value-1].Text := S;
+    end;
+    itWave: begin
+      InstrumentComboBox.Items[(1*15) + InstrumentNumberSpinner.Value] := 'Wave '+S;
+      WaveInstrumentsNode.Items[InstrumentNumberSpinner.Value-1].Text := S;
+    end;
+    itNoise: begin
+      InstrumentComboBox.Items[(2*15) + InstrumentNumberSpinner.Value] := 'Noise '+S;
+      NoiseInstrumentsNode.Items[InstrumentNumberSpinner.Value-1].Text := S;
+    end;
+  end;
 end;
 
 procedure TfrmTracker.InstrumentNumberSpinnerChange(Sender: TObject);
 begin
-  LoadInstrument(InstrumentNumberSpinner.Value);
+  LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
 end;
 
 procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
@@ -1921,8 +1952,18 @@ end;
 
 procedure TfrmTracker.TreeView1DblClick(Sender: TObject);
 begin
-  if TreeView1.Selected.Parent = InstrumentsNode then begin
-    InstrumentNumberSpinner.Value := {%H-}PtrUInt(TreeView1.Selected.Data);
+  if TreeView1.Selected.Parent = DutyInstrumentsNode then begin
+    LoadInstrument(itSquare, {%H-}PtrUInt(TreeView1.Selected.Data));
+    PageControl1.ActivePage := InstrumentTabSheet;
+  end;
+
+  if TreeView1.Selected.Parent = WaveInstrumentsNode then begin
+    LoadInstrument(itWave, {%H-}PtrUInt(TreeView1.Selected.Data));
+    PageControl1.ActivePage := InstrumentTabSheet;
+  end;
+
+  if TreeView1.Selected.Parent = NoiseInstrumentsNode then begin
+    LoadInstrument(itNoise, {%H-}PtrUInt(TreeView1.Selected.Data));
     PageControl1.ActivePage := InstrumentTabSheet;
   end;
 
