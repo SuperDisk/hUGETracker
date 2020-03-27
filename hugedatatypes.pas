@@ -13,6 +13,12 @@ type
   TRoutine = string;
 
   TInstrumentBank = packed array[1..15] of TInstrument;
+  TInstrumentCollection = packed record
+    case Boolean of
+      False: (Duty, Wave, Noise: TInstrumentBank);
+      True: (All: packed array[1..45] of TInstrument);
+  end;
+
   TWaveBank = packed array[0..15] of TWave;
   TRoutineBank = packed array[0..15] of TRoutine;
 
@@ -33,7 +39,17 @@ type
   TPattern = packed array[0..63] of TCell;
   PPattern = ^TPattern;
 
-  TPatternMap = specialize TFPGMap<Integer, PPattern>;
+  //TPatternMap = specialize TFPGMap<Integer, PPattern>;
+  TPatternMap = class(specialize TFPGMap<Integer, PPattern>)
+    function GetOrCreateNew(Key: Integer): PPattern;
+    function CreateNewPattern(Key: Integer): PPattern;
+    function MaxKey: Integer;
+
+    procedure DeletePattern(Key: Integer);
+
+    destructor Destroy; override;
+  end;
+
   TOrderMatrix = packed array[0..3] of array of Integer;
 
   TCellPart = (
@@ -67,6 +83,8 @@ procedure IncSelectionPos(var SP: TSelectionPos);
 procedure DecSelectionPos(var SP: TSelectionPos);
 
 implementation
+
+uses Utils;
 
 operator>(L, R: TSelectionPos): Boolean;
 begin
@@ -119,6 +137,54 @@ begin
     Dec(SP.X);
   end
   else Dec(SP.SelectedPart);
+end;
+
+{ TPatternMap }
+
+function TPatternMap.GetOrCreateNew(Key: Integer): PPattern;
+begin
+  if Self.IndexOf(Key) <> -1 then
+    Result := Self.KeyData[Key]
+  else begin
+    New(Result);
+    BlankPattern(Result);
+    Self.Add(Key, Result);
+  end;
+end;
+
+function TPatternMap.CreateNewPattern(Key: Integer): PPattern;
+begin
+  if IndexOf(Key) <> -1 then Exit(KeyData[Key]);
+
+  New(Result);
+  BlankPattern(Result);
+  Self.Add(Key, Result);
+end;
+
+function TPatternMap.MaxKey: Integer;
+var
+  X: Integer;
+begin
+  Result := 0;
+  for X := 0 to Self.Count-1 do
+    if Self.Keys[X] > Result then Result := Self.Keys[X];
+  Inc(Result);
+end;
+
+procedure TPatternMap.DeletePattern(Key: Integer);
+begin
+  Dispose(KeyData[Key]);
+  Self.Remove(Key);
+end;
+
+destructor TPatternMap.Destroy;
+var
+  I: Integer;
+begin
+  for I := 0 to Self.Count-1 do
+    Dispose(Self.Data[I]);
+
+  inherited;
 end;
 
 end.

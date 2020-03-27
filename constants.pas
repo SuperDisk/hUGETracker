@@ -18,7 +18,7 @@ type
   TRoutineIndex = 0..15;
 
 const
-  UGE_FORMAT_VERSION = 2;
+  UGE_FORMAT_VERSION = 3;
 
   INSTRUMENTS_COUNT = 15;
   ROUTINES_COUNT = 16;

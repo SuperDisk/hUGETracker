@@ -8,10 +8,10 @@ uses
   Classes, SysUtils;
 
 type
-  TInstrumentType = (itSquare, itWave, itNoise);
+  TInstrumentType = (itSquare = 0, itWave = 1, itNoise = 2);
   TDutyType = 0..3;
   TSweepType = (Up, Down);
-  TStepWidth = (Fifteen, Seven);
+  TStepWidth = (swFifteen, swSeven);
   TEnvelopeVolume = 0..15;
   TEnvelopeSweepAmount = 0..7;
 
@@ -282,7 +282,7 @@ begin
   NR43.ShiftClockFrequency := $F - (Frequency shr 7); // Quantize CH4 note
 
   NR43.DividingRatio:= Instr.DividingRatio;
-  NR43.SevenBitCounter:=Instr.CounterStep = Seven;
+  NR43.SevenBitCounter:=Instr.CounterStep = swSeven;
 
   NR44.Initial:= Initial;
   NR44.UseLength:=Instr.LengthEnabled;

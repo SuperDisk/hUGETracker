@@ -40,7 +40,7 @@ type
 
   { TMODRow }
 
-  TMODRow = bitpacked record
+  TMODRow = record
     Note: Integer;
     Instrument: Integer;
     Effect: bitpacked record
@@ -196,13 +196,13 @@ begin
   // Create the instruments.
 
   // First four are just the default instrument with a different duty cycle.
-  Result.Instruments[1].Duty := 1;
-  Result.Instruments[2].Duty := 2;
-  Result.Instruments[3].Duty := 3;
-  Result.Instruments[4].Duty := 0;
+  Result.Instruments.Duty[1].Duty := 1;
+  Result.Instruments.Duty[2].Duty := 2;
+  Result.Instruments.Duty[3].Duty := 3;
+  Result.Instruments.Duty[4].Duty := 0;
 
   for I := 8 to 15 do
-    with Result.Instruments[I] do begin
+    with Result.Instruments.Wave[I] do begin
       Waveform := I - 8;
       Type_ := itWave;
     end;
