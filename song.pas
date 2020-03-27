@@ -78,6 +78,8 @@ function UpgradeSong(S: TSongV3): TSong; overload;
 
 implementation
 
+uses Utils;
+
 // Thanks to WP on the FreePascal forums for this code!
 // https://forum.lazarus.freepascal.org/index.php/topic,47892.msg344152.html#msg344152
 
@@ -263,8 +265,8 @@ begin
     Comment := '';
   end;
 
-  for I := Low(S.Instruments.DutyInstruments) to High(S.Instruments.DutyInstruments) do
-    with S.Instruments.DutyInstruments[I] do begin
+  for I := Low(S.Instruments.Duty) to High(S.Instruments.Duty) do
+    with S.Instruments.Duty[I] do begin
       Type_ := itSquare;
       Length := 0;
       LengthEnabled := False;
@@ -281,40 +283,27 @@ begin
       OutputLevel := 1;
     end;
 
-  for I := Low(S.Instruments.WaveInstruments) to High(S.Instruments.WaveInstruments) do
-    with S.Instruments.WaveInstruments[I] do begin
+  for I := Low(S.Instruments.Wave) to High(S.Instruments.Wave) do
+    with S.Instruments.Wave[I] do begin
       Type_ := itWave;
       Length := 0;
       LengthEnabled := False;
-      InitialVolume := High(TEnvelopeVolume);
-      VolSweepDirection := Down;
-      VolSweepAmount := 0;
-
-      SweepTime := 0;
-      SweepIncDec := Down;
-      SweepShift := 0;
-
-      Duty := 2;
-
       OutputLevel := 1;
+      Waveform := 0;
     end;
 
-  for I := Low(S.Instruments.NoiseInstruments) to High(S.Instruments.NoiseInstruments) do
-    with S.Instruments.NoiseInstruments[I] do begin
-      Type_ := itSquare;
+  for I := Low(S.Instruments.Noise) to High(S.Instruments.Noise) do
+    with S.Instruments.Noise[I] do begin
+      Type_ := itNoise;
       Length := 0;
       LengthEnabled := False;
       InitialVolume := High(TEnvelopeVolume);
       VolSweepDirection := Down;
       VolSweepAmount := 0;
 
-      SweepTime := 0;
-      SweepIncDec := Down;
-      SweepShift := 0;
-
-      Duty := 2;
-
-      OutputLevel := 1;
+      ShiftClockFreq := 0;
+      DividingRatio := 0;
+      CounterStep := swFifteen;
     end;
 
   for I := Low(S.Waves) to High(S.Waves) do begin
@@ -356,6 +345,36 @@ begin
 end;
 
 function UpgradeSong(S: TSongV2): TSong;
+var
+  SV3: TSongV3;
+  I: Integer;
+begin
+  InitializeSong(SV3);
+  SV3.Patterns.Free; // We already have one in S, so free the one InitializeSong creates.
+
+  SV3.Version:=3;
+  SV3.Name:=S.Name;
+  SV3.Artist:=S.Artist;
+  SV3.Comment:=S.Comment;
+
+  for I := Low(S.Instruments) to High(S.Instruments) do begin
+    case S.Instruments[I].Type_ of
+      itSquare: SV3.Instruments.Duty[I] := S.Instruments[I];
+      itWave: SV3.Instruments.Wave[I]   := S.Instruments[I];
+      itNoise: SV3.Instruments.Noise[I] := S.Instruments[I];
+    end;
+  end;
+
+  SV3.Waves:=S.Waves;
+  SV3.TicksPerRow:=S.TicksPerRow;
+  SV3.Patterns:=S.Patterns;
+  SV3.OrderMatrix:=S.OrderMatrix;
+  SV3.Routines:=S.Routines;
+
+  Result := UpgradeSong(SV3);
+end;
+
+function UpgradeSong(S: TSongV3): TSong;
 begin
   Result := S;
 end;

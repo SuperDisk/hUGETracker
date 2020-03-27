@@ -5,7 +5,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Song, Waves, HugeDatatypes, Constants, gHashSet;
+  Classes, SysUtils, Song, Waves, HugeDatatypes, Constants, gHashSet, fgl;
 
 type
 
@@ -16,16 +16,6 @@ type
   end;
 
   TUsedMap = specialize THashSet<Integer, TIntegerHash>;
-
-  { TOrderMapHelper }
-
-  TOrderMapHelper = class helper for TPatternMap
-    function GetOrCreateNew(Key: Integer): PPattern;
-    function CreateNewPattern(Key: Integer): PPattern;
-    function MaxKey: Integer;
-
-    procedure DeletePattern(Key: Integer);
-  end;
 
   { TSongUsageReport }
 
@@ -46,6 +36,8 @@ procedure BlankCell(var Cell: TCell);
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
 
+function ModInst(Inst: Integer): Integer;
+
 function GetUsageReport(Song: TSong): TSongUsageReport;
 procedure FreeUsageReport(Report: TSongUsageReport);
 
@@ -56,44 +48,6 @@ implementation
 class function TIntegerHash.hash(I: Integer; N: Integer): Integer;
 begin
   Result := I mod N;
-end;
-
-{ TOrderMapHelper }
-
-function TOrderMapHelper.GetOrCreateNew(Key: Integer): PPattern;
-begin
-  if Self.IndexOf(Key) <> -1 then
-    Result := Self.KeyData[Key]
-  else begin
-    New(Result);
-    BlankPattern(Result);
-    Self.Add(Key, Result);
-  end;
-end;
-
-function TOrderMapHelper.CreateNewPattern(Key: Integer): PPattern;
-begin
-  if IndexOf(Key) <> -1 then Exit(KeyData[Key]);
-
-  New(Result);
-  BlankPattern(Result);
-  Self.Add(Key, Result);
-end;
-
-function TOrderMapHelper.MaxKey: Integer;
-var
-  X: Integer;
-begin
-  Result := 0;
-  for X := 0 to Self.Count-1 do
-    if Self.Keys[X] > Result then Result := Self.Keys[X];
-  Inc(Result);
-end;
-
-procedure TOrderMapHelper.DeletePattern(Key: Integer);
-begin
-  Dispose(KeyData[Key]);
-  Self.Remove(Key);
 end;
 
 function Lerp(v0, v1, t: Double): Double;
@@ -154,6 +108,11 @@ begin
     $E: Result := 'Cut note after '+P+' ticks';
     $F: Result := 'Set speed to '+P+' ticks';
   end;
+end;
+
+function ModInst(Inst: Integer): Integer;
+begin
+  Result := ((Inst-1) mod 15)+1;
 end;
 
 function GetUsageReport(Song: TSong): TSongUsageReport;

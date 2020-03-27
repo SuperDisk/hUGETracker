@@ -57,6 +57,7 @@ var
   SL, ResultSL: TStringList;
   AsmInstrument: TAsmInstrument;
   I, J: Integer;
+  TypePrefix: String;
 begin
   ResultSL := TStringList.Create;
 
@@ -69,7 +70,8 @@ begin
     for J := Low(AsmInstrument) to High(AsmInstrument) do
       SL.Add(IntToStr(AsmInstrument[J]));
 
-    ResultSL.Add(Format('%s: db %s', ['inst'+IntToStr(I), SL.DelimitedText]));
+    WriteStr(TypePrefix, Instruments[I].Type_);
+    ResultSL.Add(Format('%s%s: db %s', [TypePrefix, 'inst'+IntToStr(I), SL.DelimitedText]));
     SL.Free;
   end;
 
@@ -207,9 +209,19 @@ begin
   Write(OutFile, RenderOrderTable(Song.OrderMatrix));
   CloseFile(OutFile);
 
-  AssignFile(OutFile, './hUGEDriver/instrument.htt');
+  AssignFile(OutFile, './hUGEDriver/duty_instrument.htt');
   Rewrite(OutFile);
-  Write(OutFile, RenderInstruments(Song.Instruments));
+  Write(OutFile, RenderInstruments(Song.Instruments.Duty));
+  CloseFile(OutFile);
+
+  AssignFile(OutFile, './hUGEDriver/wave_instrument.htt');
+  Rewrite(OutFile);
+  Write(OutFile, RenderInstruments(Song.Instruments.Wave));
+  CloseFile(OutFile);
+
+  AssignFile(OutFile, './hUGEDriver/noise_instrument.htt');
+  Rewrite(OutFile);
+  Write(OutFile, RenderInstruments(Song.Instruments.Noise));
   CloseFile(OutFile);
 
   WriteRoutinesToFile(Song.Routines);

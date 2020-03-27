@@ -351,6 +351,7 @@ type
     Song: TSong;
     CurrentInstrument: ^TInstrument;
     CurrentWave: ^TWave;
+    CurrentInstrumentBank: TInstrumentType;
 
     EmulationThread: TThread;
 
@@ -429,11 +430,12 @@ begin
   RecreateTrackerGrid;
   CopyOrderMatrixToOrderGrid;
 
-  for I := Low(Song.Instruments) to High(song.Instruments) do
-    InstrumentComboBox.Items[I] := IntToStr(I)+': '+Song.Instruments[I].Name;
+  // PLACEHOLDER
+  for I := Low(Song.Instruments.All) to High(song.Instruments.All) do
+    InstrumentComboBox.Items[I] := IntToStr(ModInst(I))+': '+Song.Instruments.All[ModInst(I)].Name;
 
-  for I := Low(Song.Instruments) to High(song.Instruments) do
-    InstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments[I].Name;
+  for I := Low(Song.Instruments.All) to High(song.Instruments.All) do
+    InstrumentsNode.Items[I-1].Text := IntToStr(ModInst(I))+': '+Song.Instruments.All[ModInst(I)].Name;
 
   LoadingFile := False; // HACK!!!!
 
@@ -543,11 +545,11 @@ begin
   // TODO: Find some way to synchronize with the playback thread, so it doesn't
   // fail sometimes.
 
-  with Song.Instruments[Instr] do
+  with Song.Instruments.All[Instr] do //PLACEHOLDER
   begin
     case Type_ of
       itSquare: begin
-        Regs := SquareInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
+        Regs := SquareInstrumentToRegisters(Freq, True, Song.Instruments.All[Instr]);
         Spokeb(NR10, Regs.NR10);
         Spokeb(NR11, Regs.NR11);
         Spokeb(NR12, Regs.NR12);
@@ -560,7 +562,7 @@ begin
         for I := Low(NewWaveform) to High(NewWaveform) do
           Spokeb(AUD3_WAVE_RAM+I, NewWaveform[I]);
 
-        Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
+        Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments.All[Instr]);
 
         Spokeb(NR30, Regs.NR30);
         Spokeb(NR31, Regs.NR31);
@@ -569,7 +571,7 @@ begin
         Spokeb(NR34, Regs.NR34)
       end;
       itNoise: begin
-        Regs := NoiseInstrumentToRegisters(Freq, True, Song.Instruments[Instr]);
+        Regs := NoiseInstrumentToRegisters(Freq, True, Song.Instruments.All[Instr]);
         Spokeb(NR41, Regs.NR41);
         Spokeb(NR42, Regs.NR42);
         Spokeb(NR43, Regs.NR43);
@@ -788,7 +790,11 @@ procedure TfrmTracker.LoadInstrument(Instr: Integer);
 var
   CI: ^TInstrument;
 begin
-  CurrentInstrument := @Song.Instruments[Instr];
+  case CurrentInstrumentBank of
+    itSquare: CurrentInstrument := @Song.Instruments.Duty[Instr];
+    itWave:   CurrentInstrument := @Song.Instruments.Wave[Instr];
+    itNoise:  CurrentInstrument := @Song.Instruments.Noise[Instr];
+  end;
   CI := CurrentInstrument;
 
   InstrumentNumberSpinner.Value := Instr;
@@ -837,7 +843,7 @@ begin
     itNoise: begin
       ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
       DivRatioTrackbar.Position := CI^.DividingRatio;
-      SevenBitCounterCheckbox.Checked := CI^.CounterStep = Seven;
+      SevenBitCounterCheckbox.Checked := CI^.CounterStep = swSeven;
     end;
   end;
 
@@ -908,9 +914,9 @@ end;
 procedure TfrmTracker.SevenBitCounterCheckboxChange(Sender: TObject);
 begin
   if SevenBitCounterCheckbox.Checked then
-    CurrentInstrument^.CounterStep := Seven
+    CurrentInstrument^.CounterStep := swSeven
   else
-    CurrentInstrument^.CounterStep := Fifteen;
+    CurrentInstrument^.CounterStep := swFifteen;
 end;
 
 procedure TfrmTracker.SongEditChange(Sender: TObject);
@@ -949,20 +955,12 @@ end;
 
 procedure TfrmTracker.InstrumentTypeComboboxChange(Sender: TObject);
 begin
-  case InstrumentTypeComboBox.Text of
-    'Square': begin
-      CurrentInstrument^.Type_ := itSquare;
-      ChangeToSquare
-    end;
-    'Wave': begin
-      CurrentInstrument^.Type_ := itWave;
-      ChangeToWave
-    end;
-    'Noise': begin
-      CurrentInstrument^.Type_ := itNoise;
-      ChangeToNoise
-    end;
+  case InstrumentTypeCombobox.ItemIndex of
+    0: CurrentInstrumentBank := itSquare;
+    1: CurrentInstrumentBank := itWave;
+    2: CurrentInstrumentBank := itNoise;
   end;
+  LoadInstrument(InstrumentNumberSpinner.Value);
 end;
 
 procedure TfrmTracker.RandomizeNoiseButtonClick(Sender: TObject);
@@ -1016,6 +1014,7 @@ begin
   // Initialize ticks per row
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
 
+  CurrentInstrumentBank := itSquare;
   LoadInstrument(1);
   LoadWave(0);
 
