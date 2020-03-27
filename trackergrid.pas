@@ -281,20 +281,29 @@ end;
 
 procedure TTrackerGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
+var
+  Clicked: TSelectionPos;
 begin
   inherited MouseDown(Button, Shift, X, Y);
   if (Button = mbRight) and Selecting then Exit;
 
-  if Button = mbLeft then
+  if (Button = mbLeft) and not (ssShift in Shift) then
     MouseButtonDown := True;
-  Selecting := False;
 
   if not (csDesigning in ComponentState) and CanFocus then
     SetFocus;
 
-  Cursor := MousePosToSelection(X, Y);
-  Other := Cursor;
-  ClampCursors;
+  Clicked := MousePosToSelection(X, Y);
+
+  if ssShift in Shift then
+    Other := Clicked
+  else begin
+    Cursor := Clicked;
+    Other := Cursor;
+    Selecting := False;
+  end;
+
+  NormalizeCursors;
 
   Invalidate;
 end;
@@ -967,6 +976,16 @@ begin
     VK_7: Num := $7;
     VK_8: Num := $8;
     VK_9: Num := $9;
+    VK_NUMPAD0: Num := $0;
+    VK_NUMPAD1: Num := $1;
+    VK_NUMPAD2: Num := $2;
+    VK_NUMPAD3: Num := $3;
+    VK_NUMPAD4: Num := $4;
+    VK_NUMPAD5: Num := $5;
+    VK_NUMPAD6: Num := $6;
+    VK_NUMPAD7: Num := $7;
+    VK_NUMPAD8: Num := $8;
+    VK_NUMPAD9: Num := $9;
     VK_A: Num := $A;
     VK_B: Num := $B;
     VK_C: Num := $C;

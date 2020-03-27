@@ -40,11 +40,16 @@ type
     MenuItem34: TMenuItem;
     MenuItem35: TMenuItem;
     MenuItem36: TMenuItem;
-    MenuItem37: TMenuItem;
-    MenuItem38: TMenuItem;
-    MenuItem39: TMenuItem;
     MenuItem4: TMenuItem;
-    MenuItem40: TMenuItem;
+    MenuItem45: TMenuItem;
+    MenuItem46: TMenuItem;
+    MenuItem47: TMenuItem;
+    MenuItem48: TMenuItem;
+    MenuItem49: TMenuItem;
+    MenuItem50: TMenuItem;
+    MenuItem51: TMenuItem;
+    MenuItem52: TMenuItem;
+    MenuItem53: TMenuItem;
     NoiseVisualizer: TPaintBox;
     MODOpenDialog: TOpenDialog;
     Panel6: TPanel;
@@ -218,6 +223,7 @@ type
     procedure EditDelete1Execute(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure MenuItem46Click(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
@@ -273,10 +279,10 @@ type
     procedure MenuItem31Click(Sender: TObject);
     procedure MenuItem33Click(Sender: TObject);
     procedure MenuItem34Click(Sender: TObject);
-    procedure MenuItem37Click(Sender: TObject);
-    procedure MenuItem38Click(Sender: TObject);
-    procedure MenuItem39Click(Sender: TObject);
-    procedure MenuItem40Click(Sender: TObject);
+    procedure OnIncrementValueBy1Click(Sender: TObject);
+    procedure OnDecrementValueBy1Click(Sender: TObject);
+    procedure OnIncrementValueBy10Click(Sender: TObject);
+    procedure OnDecrementValueBy10Click(Sender: TObject);
     procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure NoiseVisualizerPaint(Sender: TObject);
@@ -1300,6 +1306,11 @@ begin
   CanClose := CheckUnsavedChanges;
 end;
 
+procedure TfrmTracker.MenuItem46Click(Sender: TObject);
+begin
+
+end;
+
 procedure TfrmTracker.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
@@ -1637,22 +1648,22 @@ begin
   end;
 end;
 
-procedure TfrmTracker.MenuItem37Click(Sender: TObject);
+procedure TfrmTracker.OnIncrementValueBy1Click(Sender: TObject);
 begin
   TrackerGrid.IncrementSelection(1, 1, 0, 0, 1);
 end;
 
-procedure TfrmTracker.MenuItem38Click(Sender: TObject);
+procedure TfrmTracker.OnDecrementValueBy1Click(Sender: TObject);
 begin
   TrackerGrid.IncrementSelection(-1, -1, 0, 0, -1);
 end;
 
-procedure TfrmTracker.MenuItem39Click(Sender: TObject);
+procedure TfrmTracker.OnIncrementValueBy10Click(Sender: TObject);
 begin
   TrackerGrid.IncrementSelection(12, 10, 0, 0, $10);
 end;
 
-procedure TfrmTracker.MenuItem40Click(Sender: TObject);
+procedure TfrmTracker.OnDecrementValueBy10Click(Sender: TObject);
 begin
   TrackerGrid.IncrementSelection(-12, -10, 0, 0, -$10);
 end;
