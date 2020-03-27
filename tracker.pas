@@ -9,7 +9,8 @@ uses
   FileUtil, math, Instruments, Waves, Song, EmulationThread, Utils, Constants,
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser,
-  options, IniFiles, bgrabitmap, effecteditor, RenderToWave, modimport, Types;
+  options, IniFiles, bgrabitmap, effecteditor, RenderToWave, modimport,
+  strutils, Types;
 
 type
   { TfrmTracker }
@@ -18,12 +19,14 @@ type
     Button1: TButton;
     Duty1Visualizer: TPaintBox;
     Duty2Visualizer: TPaintBox;
+    HexWaveEdit: TEdit;
     InstrumentExportButton: TButton;
     InstrumentImportButton: TButton;
     InstrumentComboBox: TComboBox;
     CutAction: TAction;
     ImageList2: TImageList;
     GBSaveDialog: TSaveDialog;
+    Label13: TLabel;
     Label25: TLabel;
     MenuItem10: TMenuItem;
     MenuItem16: TMenuItem;
@@ -223,6 +226,7 @@ type
     procedure EditDelete1Execute(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure HexWaveEditEditingDone(Sender: TObject);
     procedure MenuItem46Click(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
@@ -391,6 +395,7 @@ type
 
     procedure RecreateTrackerGrid;
     procedure UpdateUIAfterLoad;
+    procedure UpdateHexWaveTextbox;
     function CheckUnsavedChanges: Boolean;
 
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
@@ -449,6 +454,18 @@ begin
   PageControl1.ActivePageIndex := 0;
 end;
 
+procedure TfrmTracker.UpdateHexWaveTextbox;
+var
+  I: Integer;
+  S: String;
+begin
+  S := '';
+  for I := Low(CurrentWave^) to High(CurrentWave^) do
+    S += hexStr(CurrentWave^[I], 1);
+
+  HexWaveEdit.Text := S;
+end;
+
 function TfrmTracker.CheckUnsavedChanges: Boolean;
 begin
   Result := True;
@@ -491,7 +508,7 @@ begin
     Pen.Color := clTeal;
     Pen.Width := 2;
     MoveTo(0, H);
-    for I := 0 to 32 do
+    for I := Low(Wave) to High(Wave) do
       LineTo(I*Interval, Trunc((Wave[I]/$F)*H));
     LineTo(W, Trunc((Wave[0]/$F)*H));
   end;
@@ -625,6 +642,7 @@ procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
   WaveEditPaintBox.Invalidate;
+  UpdateHexWaveTextbox;
 end;
 
 procedure TfrmTracker.LoadSong(Filename: String);
@@ -1306,6 +1324,26 @@ begin
   CanClose := CheckUnsavedChanges;
 end;
 
+procedure TfrmTracker.HexWaveEditEditingDone(Sender: TObject);
+var
+  S: String;
+  I: Integer;
+begin
+  S := DelSpace(HexWaveEdit.Text);
+  if S.Length < High(TWave) then Exit;
+
+  try
+    for I := Low(TWave) to High(TWave) do begin
+      writeln(Hex2Dec(S.Substring(I,1)));
+      CurrentWave^[I] := Hex2Dec(S.Substring(I,1));
+    end;
+    HexWaveEdit.Text := S;
+    WaveEditPaintBox.Invalidate;
+  except
+    on EConvertError do Exit;
+  end;
+end;
+
 procedure TfrmTracker.MenuItem46Click(Sender: TObject);
 begin
 
@@ -1966,8 +2004,9 @@ var
   Idx: Integer;
 begin
   if DrawingWave then begin
-    Idx := Trunc((X / WaveEditPaintBox.Width)*32);
+    Idx := EnsureRange(Trunc((X / WaveEditPaintBox.Width)*High(TWave)), Low(TWave), High(TWave));
     CurrentWave^[Idx] := EnsureRange(Trunc((Y / WaveEditPaintBox.Height)*$F), 0, $F);
+    UpdateHexWaveTextbox;
     WaveEditPaintBox.Invalidate;
   end;
 end;

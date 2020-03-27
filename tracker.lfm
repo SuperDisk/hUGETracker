@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1888
+  Left = 1860
   Height = 726
-  Top = 59
+  Top = 69
   Width = 1180
   Caption = 'hUGETracker'
   ClientHeight = 706
@@ -60,10 +60,10 @@ object frmTracker: TfrmTracker
       Height = 480
       Top = 0
       Width = 982
-      ActivePage = GeneralTabSheet
+      ActivePage = WavesTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 3
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -911,16 +911,16 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 414
-        ClientWidth = 960
+        ClientHeight = 452
+        ClientWidth = 974
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 254
+          Height = 292
           Top = 160
-          Width = 960
+          Width = 974
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 13
@@ -934,10 +934,10 @@ object frmTracker: TfrmTracker
           Left = 8
           Height = 139
           Top = 8
-          Width = 173
+          Width = 568
           Caption = 'Wave Editor'
           ClientHeight = 119
-          ClientWidth = 169
+          ClientWidth = 564
           ParentFont = False
           TabOrder = 0
           object Label20: TLabel
@@ -980,6 +980,22 @@ object frmTracker: TfrmTracker
             OnClick = ExportWaveButtonClick
             ParentFont = False
             TabOrder = 2
+          end
+          object HexWaveEdit: TEdit
+            Left = 288
+            Height = 23
+            Top = 8
+            Width = 264
+            OnEditingDone = HexWaveEditEditingDone
+            TabOrder = 3
+          end
+          object Label13: TLabel
+            Left = 176
+            Height = 15
+            Top = 16
+            Width = 100
+            Caption = 'Hex representation'
+            ParentColor = False
           end
         end
       end
