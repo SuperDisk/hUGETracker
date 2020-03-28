@@ -7,7 +7,7 @@ unit Song;
 
 interface
 
-uses Classes, HugeDatatypes, instruments, Constants;
+uses Classes, HugeDatatypes, instruments, Constants, waves;
 
 type
   TSongV1 = packed record
@@ -18,7 +18,7 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentBank;
-    Waves: TWaveBank;
+    Waves: TWaveBankV1;
 
     TicksPerRow: Integer;
 
@@ -34,7 +34,7 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentBank;
-    Waves: TWaveBank;
+    Waves: TWaveBankV1;
 
     TicksPerRow: Integer;
 
@@ -305,7 +305,7 @@ begin
     end;
 
   for I := Low(S.Waves) to High(S.Waves) do begin
-    for J := 0 to 32 do
+    for J := Low(TWave) to High(TWave) do
       S.Waves[I][J] := random($F);
   end;
 
@@ -363,7 +363,9 @@ begin
     end;
   end;
 
-  SV3.Waves:=S.Waves;
+  for I := Low(TWaveBank) to High(TWaveBank) do
+    Move(S.Waves[I], SV3.Waves[I], SizeOf(TWave));
+
   SV3.TicksPerRow:=S.TicksPerRow;
   SV3.Patterns:=S.Patterns;
   SV3.OrderMatrix:=S.OrderMatrix;

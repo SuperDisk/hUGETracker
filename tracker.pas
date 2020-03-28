@@ -507,7 +507,7 @@ begin
   W := PB.Width;
   H := PB.Height;
 
-  Interval := W div 32;
+  Interval := W div 31;
   //HInterval := H div $10;
   With PB.Canvas do begin
     Brush.Color := clBlack;
@@ -1350,10 +1350,8 @@ begin
   if S.Length < High(TWave) then Exit;
 
   try
-    for I := Low(TWave) to High(TWave) do begin
-      writeln(Hex2Dec(S.Substring(I,1)));
+    for I := Low(TWave) to High(TWave) do
       CurrentWave^[I] := Hex2Dec(S.Substring(I,1));
-    end;
     HexWaveEdit.Text := S;
     WaveEditPaintBox.Invalidate;
   except

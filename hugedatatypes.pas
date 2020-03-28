@@ -19,7 +19,9 @@ type
       True: (All: packed array[1..45] of TInstrument);
   end;
 
-  TWaveBank = packed array[0..15] of TWave;
+  TWaveBankV1 = packed array[0..15] of TWaveV1;
+  TWaveBankV2 = packed array[0..15] of TWaveV2;
+  TWaveBank = TWaveBankV2;
   TRoutineBank = packed array[0..15] of TRoutine;
 
   TEffectParams = bitpacked record
