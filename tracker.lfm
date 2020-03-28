@@ -60,7 +60,7 @@ object frmTracker: TfrmTracker
       Height = 480
       Top = 0
       Width = 982
-      ActivePage = InstrumentTabSheet
+      ActivePage = WavesTabSheet
       Align = alClient
       ParentFont = False
       TabIndex = 3
@@ -911,8 +911,8 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 414
-        ClientWidth = 960
+        ClientHeight = 452
+        ClientWidth = 974
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
@@ -996,6 +996,14 @@ object frmTracker: TfrmTracker
             Width = 100
             Caption = 'Hex representation'
             ParentColor = False
+          end
+          object PlayWaveWhileDrawingCheckbox: TCheckBox
+            Left = 176
+            Height = 19
+            Top = 40
+            Width = 149
+            Caption = 'Play wave while drawing'
+            TabOrder = 4
           end
         end
       end

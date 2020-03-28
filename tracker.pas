@@ -17,6 +17,7 @@ type
 
   TfrmTracker = class(TForm)
     Button1: TButton;
+    PlayWaveWhileDrawingCheckbox: TCheckBox;
     Duty1Visualizer: TPaintBox;
     Duty2Visualizer: TPaintBox;
     HexWaveEdit: TEdit;
@@ -391,6 +392,7 @@ type
     procedure ReloadPatterns;
     procedure CopyOrderGridToOrderMatrix;
     procedure CopyOrderMatrixToOrderGrid;
+    procedure CopyWaveIntoWaveRam(Wave: Integer);
     function PreparePreview: Boolean;
     procedure ResetEmulationThread;
 
@@ -407,7 +409,8 @@ type
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
-    procedure PreviewInstrument(Freq: Integer; Instr: Integer);
+    procedure PreviewInstrument(Freq: Integer; Instr: Integer); overload;
+    procedure PreviewInstrument(Freq: Integer; Instr: TInstrument); overload;
     procedure PreviewC5;
     procedure Panic;
   public
@@ -446,7 +449,6 @@ begin
   RecreateTrackerGrid;
   CopyOrderMatrixToOrderGrid;
 
-  // PLACEHOLDER
   while InstrumentComboBox.Items.Count > 1 do
     InstrumentComboBox.Items.Delete(1);
 
@@ -575,19 +577,22 @@ begin
 end;
 
 procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer);
+begin
+  PreviewInstrument(Freq, Song.Instruments.All[Instr]);
+end;
+
+procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: TInstrument);
 var
   Regs: TRegisters;
-  I: Integer;
-  NewWaveform: T4bitWave;
 begin
   // TODO: Find some way to synchronize with the playback thread, so it doesn't
   // fail sometimes.
 
-  with Song.Instruments.All[Instr] do //PLACEHOLDER
+  with Instr do
   begin
     case Type_ of
       itSquare: begin
-        Regs := SquareInstrumentToRegisters(Freq, True, Song.Instruments.All[Instr]);
+        Regs := SquareInstrumentToRegisters(Freq, True, Instr);
         Spokeb(NR10, Regs.NR10);
         Spokeb(NR11, Regs.NR11);
         Spokeb(NR12, Regs.NR12);
@@ -595,12 +600,8 @@ begin
         Spokeb(NR14, Regs.NR14);
       end;
       itWave: begin
-        NewWaveform := ConvertWaveform(Song.Waves[Waveform]);
-        // Fill itWave RAM with the waveform
-        for I := Low(NewWaveform) to High(NewWaveform) do
-          Spokeb(AUD3_WAVE_RAM+I, NewWaveform[I]);
-
-        Regs := WaveInstrumentToRegisters(Freq, True, Song.Instruments.All[Instr]);
+        CopyWaveIntoWaveRam(Waveform);
+        Regs := WaveInstrumentToRegisters(Freq, True, Instr);
 
         Spokeb(NR30, Regs.NR30);
         Spokeb(NR31, Regs.NR31);
@@ -609,7 +610,7 @@ begin
         Spokeb(NR34, Regs.NR34)
       end;
       itNoise: begin
-        Regs := NoiseInstrumentToRegisters(Freq, True, Song.Instruments.All[Instr]);
+        Regs := NoiseInstrumentToRegisters(Freq, True, Instr);
         Spokeb(NR41, Regs.NR41);
         Spokeb(NR42, Regs.NR42);
         Spokeb(NR43, Regs.NR43);
@@ -746,6 +747,16 @@ begin
       for C := 1 to OrderEditStringGrid.ColCount-1 do
         if OrderEditStringGrid.Cells[C, R] = '' then
           OrderEditStringGrid.Cells[C, R] := '0';
+end;
+
+procedure TfrmTracker.CopyWaveIntoWaveRam(Wave: Integer);
+var
+  NewWaveform: T4bitWave;
+  I: Integer;
+begin
+  NewWaveform := ConvertWaveform(Song.Waves[Wave]);
+  for I := Low(NewWaveform) to High(NewWaveform) do
+    Spokeb(AUD3_WAVE_RAM+I, NewWaveform[I]);
 end;
 
 function TfrmTracker.PreparePreview: Boolean;
@@ -2032,8 +2043,21 @@ end;
 
 procedure TfrmTracker.WaveEditPaintBoxMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var
+  TestInstrument: TInstrument;
 begin
+  TestInstrument := Default(TInstrument);
+  with TestInstrument do begin
+    Type_ := itWave;
+    OutputLevel := 1;
+    Waveform := WaveEditNumberSpinner.Value;
+    Length := 0;
+    LengthEnabled := False;
+  end;
+
   DrawingWave := True;
+  if PlayWaveWhileDrawingCheckbox.Checked then
+    PreviewInstrument(NotesToFreqs.Data[C_5], TestInstrument);
 end;
 
 procedure TfrmTracker.WaveEditPaintBoxMouseMove(Sender: TObject;
@@ -2048,6 +2072,8 @@ begin
     CurrentWave^[Idx] := EnsureRange(Trunc((Y / WaveEditPaintBox.Height)*$F), 0, $F);
     UpdateHexWaveTextbox;
     WaveEditPaintBox.Invalidate;
+    if PlayWaveWhileDrawingCheckbox.Checked then
+      CopyWaveIntoWaveRam(WaveEditNumberSpinner.Value);
   end;
 end;
 
@@ -2055,6 +2081,7 @@ procedure TfrmTracker.WaveEditPaintBoxMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   DrawingWave := False;
+  Panic;
 end;
 
 procedure TfrmTracker.WaveEditPaintBoxPaint(Sender: TObject);
