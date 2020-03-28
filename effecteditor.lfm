@@ -1,7 +1,7 @@
 object frmEffectEditor: TfrmEffectEditor
-  Left = 1006
+  Left = 1941
   Height = 238
-  Top = 86
+  Top = 453
   Width = 391
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
@@ -168,6 +168,7 @@ object frmEffectEditor: TfrmEffectEditor
           'e: __--------------__-------'
           'f: _---------------_--------'
         )
+        OnChange = VibratoComboBoxChange
         Style = csDropDownList
         TabOrder = 1
         Text = '0: _________________________'

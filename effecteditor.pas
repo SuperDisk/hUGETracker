@@ -63,6 +63,7 @@ type
     procedure RightVolumeTrackBarChange(Sender: TObject);
     procedure TwoParamsTrackBar1Change(Sender: TObject);
     procedure TwoParamsTrackBar2Change(Sender: TObject);
+    procedure VibratoComboBoxChange(Sender: TObject);
     procedure VibratoDepthTrackBarChange(Sender: TObject);
     procedure VibratoRateRadioGroupSelectionChanged(Sender: TObject);
   private
@@ -200,6 +201,11 @@ begin
   Value1.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
 end;
 
+procedure TfrmEffectEditor.VibratoComboBoxChange(Sender: TObject);
+begin
+  Cell^.EffectParams.Param1 := VibratoComboBox.ItemIndex;
+end;
+
 procedure TfrmEffectEditor.VibratoDepthTrackBarChange(Sender: TObject);
 begin
   Cell^.EffectParams.Param2 := VibratoDepthTrackBar.Position;
@@ -251,7 +257,7 @@ procedure TfrmEffectEditor.LoadVibratoData;
 begin
   VibratoComboBox.ItemIndex := Cell^.EffectParams.Param1;
   VibratoDepthTrackBar.Position := Cell^.EffectParams.Param2;
-  Label2.Caption := IntToStr(VibratoDepthTrackBar.Position);
+  Label2.Caption := 'Depth: '+IntToStr(VibratoDepthTrackBar.Position);
 end;
 
 procedure TfrmEffectEditor.LoadMasterVolumeData;
