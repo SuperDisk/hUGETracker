@@ -5,7 +5,7 @@ unit MODImport;
 interface
 
 uses
-  Classes, SysUtils, Song, hugedatatypes, fgl, math, utils, constants,
+  Classes, SysUtils, Song, hugedatatypes, fgl, math, constants,
   instruments;
 
 type

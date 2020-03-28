@@ -78,8 +78,6 @@ function UpgradeSong(S: TSongV3): TSong; overload;
 
 implementation
 
-uses Utils;
-
 // Thanks to WP on the FreePascal forums for this code!
 // https://forum.lazarus.freepascal.org/index.php/topic,47892.msg344152.html#msg344152
 
