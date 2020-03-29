@@ -58,7 +58,6 @@ type
     MenuItem53: TMenuItem;
     NoiseVisualizer: TPaintBox;
     MODOpenDialog: TOpenDialog;
-    Panel6: TPanel;
     WaveEditPopup: TPopupMenu;
     SynAnySyn1: TSynAnySyn;
     WavSaveDialog: TSaveDialog;
