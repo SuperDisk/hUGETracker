@@ -414,8 +414,8 @@ type
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
-    procedure PreviewInstrument(Freq: Integer; Instr: Integer); overload;
-    procedure PreviewInstrument(Freq: Integer; Instr: TInstrument); overload;
+    procedure PreviewInstrument(Freq: Integer; Instr: Integer; SquareOnCh2: Boolean = False); overload;
+    procedure PreviewInstrument(Freq: Integer; Instr: TInstrument; SquareOnCh2: Boolean = False); overload;
     procedure PreviewC5;
     procedure Panic;
   public
@@ -463,6 +463,8 @@ begin
     InstrumentComboBox.Items.Add('Wave '+IntToStr(I)+': '+Song.Instruments.Wave[ModInst(I)].Name);
   for I := Low(Song.Instruments.Noise) to High(song.Instruments.Noise) do
     InstrumentComboBox.Items.Add('Noise '+IntToStr(I)+': '+Song.Instruments.Noise[ModInst(I)].Name);
+
+  InstrumentComboBox.ItemIndex := 0;
 
   for I := Low(TInstrumentBank) to High(TInstrumentBank) do begin
     DutyInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Duty[I].Name;
@@ -574,12 +576,14 @@ begin
   //PB.Canvas.Draw(0, 0, VisualizerBuffer);
 end;
 
-procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer);
+procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer;
+  SquareOnCh2: Boolean = False);
 begin
-  PreviewInstrument(Freq, Song.Instruments.All[Instr]);
+  PreviewInstrument(Freq, Song.Instruments.All[Instr], SquareOnCh2);
 end;
 
-procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: TInstrument);
+procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: TInstrument;
+  SquareOnCh2: Boolean = False);
 var
   Regs: TRegisters;
 begin
@@ -591,11 +595,19 @@ begin
     case Type_ of
       itSquare: begin
         Regs := SquareInstrumentToRegisters(Freq, True, Instr);
-        Spokeb(NR10, Regs.NR10);
-        Spokeb(NR11, Regs.NR11);
-        Spokeb(NR12, Regs.NR12);
-        Spokeb(NR13, Regs.NR13);
-        Spokeb(NR14, Regs.NR14);
+        if SquareOnCh2 then begin
+          Spokeb(NR21, Regs.NR11);
+          Spokeb(NR22, Regs.NR12);
+          Spokeb(NR23, Regs.NR13);
+          Spokeb(NR24, Regs.NR14);
+        end
+        else begin
+          Spokeb(NR10, Regs.NR10);
+          Spokeb(NR11, Regs.NR11);
+          Spokeb(NR12, Regs.NR12);
+          Spokeb(NR13, Regs.NR13);
+          Spokeb(NR14, Regs.NR14);
+        end;
       end;
       itWave: begin
         CopyWaveIntoWaveRam(Waveform);
@@ -1164,7 +1176,17 @@ begin
 
   if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
 
-  PreviewInstrument(Freq, InstrumentComboBox.ItemIndex);
+  case TrackerGrid.Cursor.X of
+    0..1: InstrumentComboBox.ItemIndex := UnmodInst(itSquare, TrackerGrid.SelectedInstrument);
+    2:    InstrumentComboBox.ItemIndex := UnmodInst(itWave, TrackerGrid.SelectedInstrument);
+    3:    InstrumentComboBox.ItemIndex := UnmodInst(itNoise, TrackerGrid.SelectedInstrument);
+  end;
+
+  if TrackerGrid.Cursor.X = 1 then
+    PreviewInstrument(Freq, InstrumentComboBox.ItemIndex, True)
+  else
+    PreviewInstrument(Freq, InstrumentComboBox.ItemIndex, False);
+
   PreviewingInstrument := Note;
 end;
 
