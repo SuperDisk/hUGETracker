@@ -263,7 +263,10 @@ begin
     Comment := '';
   end;
 
-  for I := Low(S.Instruments.Duty) to High(S.Instruments.Duty) do
+  for I := Low(S.Instruments.All) to High(S.Instruments.All) do
+    S.Instruments.All[I] := Default(TInstrument);
+
+  for I := Low(S.Instruments.Duty) to High(S.Instruments.Duty) do begin
     with S.Instruments.Duty[I] do begin
       Type_ := itSquare;
       Length := 0;
@@ -280,6 +283,7 @@ begin
 
       OutputLevel := 1;
     end;
+  end;
 
   for I := Low(S.Instruments.Wave) to High(S.Instruments.Wave) do
     with S.Instruments.Wave[I] do begin

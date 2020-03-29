@@ -1137,6 +1137,8 @@ begin
   // If a command line param was passed, try to open it
   if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then
     LoadSong(ParamStr(1));
+
+  UpdateUIAfterLoad;
 end;
 
 procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
