@@ -134,9 +134,16 @@
       <Version Value="2"/>
     </PublishOptions>
     <RunParams>
+      <local>
+        <CommandLineParams Value="&quot;C:\Projects\GB-Stuff\uge\SampleSongs\WVL - Yyna is a Girl.uge&quot;"/>
+      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default"/>
+        <Mode0 Name="default">
+          <local>
+            <CommandLineParams Value="&quot;C:\Projects\GB-Stuff\uge\SampleSongs\WVL - Yyna is a Girl.uge&quot;"/>
+          </local>
+        </Mode0>
       </Modes>
     </RunParams>
     <RequiredPackages Count="6">

@@ -987,6 +987,7 @@ object frmTracker: TfrmTracker
             Height = 23
             Top = 8
             Width = 264
+            MaxLength = 32
             OnChange = HexWaveEditEditingDone
             OnEditingDone = HexWaveEditEditingDone
             TabOrder = 3
