@@ -925,6 +925,7 @@ object frmTracker: TfrmTracker
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 13
           ParentFont = False
+          PopupMenu = WaveEditPopup
           OnMouseDown = WaveEditPaintBoxMouseDown
           OnMouseMove = WaveEditPaintBoxMouseMove
           OnMouseUp = WaveEditPaintBoxMouseUp
@@ -986,6 +987,7 @@ object frmTracker: TfrmTracker
             Height = 23
             Top = 8
             Width = 264
+            OnChange = HexWaveEditEditingDone
             OnEditingDone = HexWaveEditEditingDone
             TabOrder = 3
           end
@@ -5231,5 +5233,17 @@ object frmTracker: TfrmTracker
     Filter = 'GBT Player MOD files|*.mod'
     left = 144
     top = 114
+  end
+  object WaveEditPopup: TPopupMenu
+    left = 80
+    top = 56
+    object MenuItem37: TMenuItem
+      Caption = 'Copy'
+      OnClick = MenuItem37Click
+    end
+    object MenuItem38: TMenuItem
+      Caption = 'Paste'
+      OnClick = MenuItem38Click
+    end
   end
 end

@@ -8,15 +8,17 @@ uses
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, SynHighlighterAny,
   FileUtil, math, Instruments, Waves, Song, EmulationThread, Utils, Constants,
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
-  Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, RackCtls, Codegen, SymParser,
-  options, IniFiles, bgrabitmap, effecteditor, RenderToWave, modimport,
-  strutils, Types;
+  Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
+  SymParser, options, IniFiles, bgrabitmap, effecteditor, RenderToWave,
+  modimport, strutils, Types;
 
 type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
     Button1: TButton;
+    MenuItem37: TMenuItem;
+    MenuItem38: TMenuItem;
     PlayWaveWhileDrawingCheckbox: TCheckBox;
     Duty1Visualizer: TPaintBox;
     Duty2Visualizer: TPaintBox;
@@ -57,6 +59,7 @@ type
     NoiseVisualizer: TPaintBox;
     MODOpenDialog: TOpenDialog;
     Panel6: TPanel;
+    WaveEditPopup: TPopupMenu;
     SynAnySyn1: TSynAnySyn;
     WavSaveDialog: TSaveDialog;
     ToolButton10: TToolButton;
@@ -228,6 +231,8 @@ type
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure HexWaveEditEditingDone(Sender: TObject);
+    procedure MenuItem37Click(Sender: TObject);
+    procedure MenuItem38Click(Sender: TObject);
     procedure MenuItem46Click(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
@@ -393,6 +398,7 @@ type
     procedure CopyOrderGridToOrderMatrix;
     procedure CopyOrderMatrixToOrderGrid;
     procedure CopyWaveIntoWaveRam(Wave: Integer);
+    function ConvertWaveToHexString(Wave: Integer): String;
     function PreparePreview: Boolean;
     procedure ResetEmulationThread;
 
@@ -474,15 +480,8 @@ begin
 end;
 
 procedure TfrmTracker.UpdateHexWaveTextbox;
-var
-  I: Integer;
-  S: String;
 begin
-  S := '';
-  for I := Low(CurrentWave^) to High(CurrentWave^) do
-    S += hexStr(CurrentWave^[I], 1);
-
-  HexWaveEdit.Text := S;
+  HexWaveEdit.Text := ConvertWaveToHexString(WaveEditNumberSpinner.Value);
 end;
 
 function TfrmTracker.CheckUnsavedChanges: Boolean;
@@ -757,6 +756,15 @@ begin
   NewWaveform := ConvertWaveform(Song.Waves[Wave]);
   for I := Low(NewWaveform) to High(NewWaveform) do
     Spokeb(AUD3_WAVE_RAM+I, NewWaveform[I]);
+end;
+
+function TfrmTracker.ConvertWaveToHexString(Wave: Integer): String;
+var
+  I: Integer;
+begin
+  Result := '';
+  for I := Low(CurrentWave^) to High(CurrentWave^) do
+    Result += hexStr(CurrentWave^[I], 1);
 end;
 
 function TfrmTracker.PreparePreview: Boolean;
@@ -1358,7 +1366,7 @@ var
   I: Integer;
 begin
   S := DelSpace(HexWaveEdit.Text);
-  if S.Length < High(TWave) then Exit;
+  if S.Length < High(TWave)+1 then Exit;
 
   try
     for I := Low(TWave) to High(TWave) do
@@ -1368,6 +1376,17 @@ begin
   except
     on EConvertError do Exit;
   end;
+end;
+
+procedure TfrmTracker.MenuItem37Click(Sender: TObject);
+begin
+  Clipboard.AsText := ConvertWaveToHexString(WaveEditNumberSpinner.Value);
+end;
+
+procedure TfrmTracker.MenuItem38Click(Sender: TObject);
+begin
+  HexWaveEdit.Text := Clipboard.AsText;
+  HexWaveEditEditingDone(nil);
 end;
 
 procedure TfrmTracker.MenuItem46Click(Sender: TObject);
@@ -2046,18 +2065,20 @@ procedure TfrmTracker.WaveEditPaintBoxMouseDown(Sender: TObject;
 var
   TestInstrument: TInstrument;
 begin
-  TestInstrument := Default(TInstrument);
-  with TestInstrument do begin
-    Type_ := itWave;
-    OutputLevel := 1;
-    Waveform := WaveEditNumberSpinner.Value;
-    Length := 0;
-    LengthEnabled := False;
-  end;
+  if Button = mbLeft then begin
+    TestInstrument := Default(TInstrument);
+    with TestInstrument do begin
+      Type_ := itWave;
+      OutputLevel := 1;
+      Waveform := WaveEditNumberSpinner.Value;
+      Length := 0;
+      LengthEnabled := False;
+    end;
 
-  DrawingWave := True;
-  if PlayWaveWhileDrawingCheckbox.Checked then
-    PreviewInstrument(NotesToFreqs.Data[C_5], TestInstrument);
+    DrawingWave := True;
+    if PlayWaveWhileDrawingCheckbox.Checked then
+      PreviewInstrument(NotesToFreqs.Data[C_5], TestInstrument);
+  end
 end;
 
 procedure TfrmTracker.WaveEditPaintBoxMouseMove(Sender: TObject;
