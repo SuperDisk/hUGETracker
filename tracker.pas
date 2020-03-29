@@ -229,6 +229,7 @@ type
     procedure EditDelete1Execute(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
+    procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure HexWaveEditEditingDone(Sender: TObject);
     procedure MenuItem37Click(Sender: TObject);
     procedure MenuItem38Click(Sender: TObject);
@@ -1381,6 +1382,17 @@ end;
 procedure TfrmTracker.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := CheckUnsavedChanges;
+end;
+
+procedure TfrmTracker.FormDropFiles(Sender: TObject;
+  const FileNames: array of String);
+begin
+  if Length(FileNames) >= 1 then begin
+    if not (ExtractFileExt(FileNames[0]) = '.uge') or (not CheckUnsavedChanges) then
+      Exit;
+
+    LoadSong(FileNames[0]);
+  end;
 end;
 
 procedure TfrmTracker.HexWaveEditEditingDone(Sender: TObject);
