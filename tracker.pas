@@ -413,6 +413,7 @@ type
     function CheckUnsavedChanges: Boolean;
 
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
+    procedure DrawEnvelope(PB: TPaintBox);
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
     procedure PreviewInstrument(Freq: Integer; Instr: Integer; SquareOnCh2: Boolean = False); overload;
@@ -534,6 +535,61 @@ begin
   end;
 end;
 
+
+procedure TfrmTracker.DrawEnvelope(PB: TPaintBox);
+var
+  Interval, HInterval: Integer;
+  I: Integer;
+  W, H, V, S, L: Integer;
+begin
+  W := PB.Width;
+  H := PB.Height-3;
+  V := CurrentInstrument^.InitialVolume;
+  S := CurrentInstrument^.VolSweepAmount*2;
+  case CurrentInstrument^.LengthEnabled of
+    True:   L := (64-CurrentInstrument^.Length) div 2;
+    False:  L := 400;
+  end;
+  Interval := 1 {W div 260};
+  HInterval := H div 15;
+
+  With PB.Canvas do begin
+    Brush.Color := TColor($211807);  // Gameboy Black
+    Clear;
+    Pen.Color := TColor($6CC086);   // Gameboy Mid Green
+    Pen.Width := 3;
+    MoveTo(0, H-V*HInterval); // Start volume
+
+    if S{weep} = 0 then begin
+       LineTo(L*Interval, H-V*HInterval); // no sweep
+       MoveTo(L*Interval, H-(V*HInterval));
+       LineTo(L*Interval, H);
+    end
+    else begin
+      case CurrentInstrument^.VolSweepDirection of
+        Down: begin  // Envelope down, check length cut
+           For I := 0 to V do
+              LineTo( Min(I*S,L)*Interval, H-(V-I)*HInterval);
+           LineTo(W, H);
+           MoveTo(Trunc(L*Interval), 0);
+           LineTo(Trunc(L*Interval), H);
+           end;
+        Up: begin    // Envelope up, check length cut
+            For I := 0 to 15-V do
+                LineTo( Min(I*S,L)*Interval, (15-V-I)*HInterval+9);
+            LineTo(L*Interval, H-15*HInterval);
+            MoveTo(L*Interval, 0);
+            LineTo(L*Interval, H);
+            end;
+        end;
+    end;
+    // Width = 64th/sec sweep or 256th/sec length,
+    // Envelope = sweep length(0-7 * volume(0-15) * 1/64. max 105 (1.64 sec)
+    // Length = Length(0-63) / 1/256, max .25 sec.
+    // for simplicity, Sweep is mult 2, length is div 2, both 1/128 sec.
+  end;
+end;
+
 procedure TfrmTracker.DrawVizualizer(PB: TPaintBox; Channel: Integer);
 var
   I, J, X: Integer;
@@ -543,7 +599,7 @@ begin
   with VisualizerBuffer.Canvas do begin
     MoveTo(0, PB.Height div 2);
 
-    Brush.Color := clBlack;
+    Brush.Color := TColor($211807); // Gameboy Black
     Clear;
 
     Pen.Color := clGray;
@@ -552,7 +608,7 @@ begin
     Pen.Width := 2;
 
     if not snd[Channel].ChannelOFF then begin
-      Pen.Color := clLime;
+      Pen.Color := TColor($6CC086); // Gameboy Mid Green
 
       X := 0;
       I := 0;
@@ -999,6 +1055,7 @@ end;
 procedure TfrmTracker.StartVolSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.InitialVolume := Round(StartVolTrackbar.Position);
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.SweepDirectionComboboxChange(Sender: TObject);
@@ -1007,6 +1064,7 @@ begin
     'Up': CurrentInstrument^.SweepIncDec := Up;
     'Down': CurrentInstrument^.SweepIncDec := Down;
   end;
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.SweepSizeSpinnerChange(Sender: TObject);
@@ -1255,6 +1313,7 @@ begin
     'Up': CurrentInstrument^.VolSweepDirection := Up;
     'Down': CurrentInstrument^.VolSweepDirection := Down;
   end;
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.CommentMemoChange(Sender: TObject);
@@ -1525,6 +1584,7 @@ end;
 procedure TfrmTracker.EnvChangeSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.VolSweepAmount := Round(EnvChangeTrackbar.Position);
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.EnvelopePaintboxPaint(Sender: TObject);
@@ -1533,6 +1593,7 @@ begin
     Brush.Color := clBlack;
     Clear;
   end;
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.InstrumentNameEditChange(Sender: TObject);
@@ -1565,6 +1626,7 @@ end;
 procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.Length := Round(LengthTrackbar.Position);
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.DebugPlayNoteButtonClick(Sender: TObject);
@@ -2149,6 +2211,7 @@ procedure TfrmTracker.LengthEnabledCheckboxChange(Sender: TObject);
 begin
   LengthTrackbar.Enabled := LengthEnabledCheckbox.Checked;
   CurrentInstrument^.LengthEnabled := LengthEnabledCheckbox.Checked;
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 end.
