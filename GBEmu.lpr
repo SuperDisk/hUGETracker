@@ -20,9 +20,9 @@ uses
 // font includes here
 {$endif}
 
-{$IFDEF debug}
+{$ifdef DEVELOPMENT}
  SysUtils,
-{$ENDIF}
+{$endif}
 
   Forms,
   Interfaces,
@@ -47,12 +47,14 @@ end;
 {$endif}
 
 begin
-  //{$IFDEF DEBUG}
-  // Set up -gh output for the Leakview package:
-  {if FileExists('heap.trc') then
-    DeleteFile('heap.trc');
-  SetHeapTraceOutput('heap.trc');}
-  //{$ENDIF DEBUG}
+  {$if declared(useHeapTrace)}
+    // Set up -gh output for the Leakview package:
+    if FileExists('heap.trc') then
+      DeleteFile('heap.trc');
+    SetHeapTraceOutput('heap.trc');
+
+    Writeln(StdErr, 'Using heaptrc...');
+  {$endIf}
 
   { Before the LCL starts, embed Pixelite so users dont have to install it.
     Unfortunately there isn't really a cross-platform way to do it, so here's an
