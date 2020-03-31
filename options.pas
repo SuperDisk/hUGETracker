@@ -13,6 +13,7 @@ type
 
   TfrmOptions = class(TForm)
     Button1: TButton;
+    ScopesCheck: TCheckBox;
     Label1: TLabel;
     FontSizeSpinner: TSpinEdit;
     procedure Button1Click(Sender: TObject);
