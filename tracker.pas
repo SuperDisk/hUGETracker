@@ -544,8 +544,8 @@ var
 begin
   W := PB.Width;
   H := PB.Height-3;
-  V := CurrentInstrument^.InitialVolume;
-  S := CurrentInstrument^.VolSweepAmount*2;
+  V := Min(CurrentInstrument^.InitialVolume,15);
+  S := Min(CurrentInstrument^.VolSweepAmount,7)*2;
   case CurrentInstrument^.LengthEnabled of
     True:   L := (64-CurrentInstrument^.Length) div 2;
     False:  L := 400;
@@ -564,6 +564,7 @@ begin
        LineTo(L*Interval, H-V*HInterval); // no sweep
        MoveTo(L*Interval, H-(V*HInterval));
        LineTo(L*Interval, H);
+       LineTo(W, H);
     end
     else begin
       case CurrentInstrument^.VolSweepDirection of
@@ -571,15 +572,14 @@ begin
            For I := 0 to V do
               LineTo( Min(I*S,L)*Interval, H-(V-I)*HInterval);
            LineTo(W, H);
-           MoveTo(Trunc(L*Interval), 0);
            LineTo(Trunc(L*Interval), H);
            end;
         Up: begin    // Envelope up, check length cut
             For I := 0 to 15-V do
                 LineTo( Min(I*S,L)*Interval, (15-V-I)*HInterval+9);
             LineTo(L*Interval, H-15*HInterval);
-            MoveTo(L*Interval, 0);
             LineTo(L*Interval, H);
+            LineTo(W, H);
             end;
         end;
     end;
@@ -1621,6 +1621,7 @@ end;
 procedure TfrmTracker.InstrumentNumberSpinnerChange(Sender: TObject);
 begin
   LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
