@@ -368,6 +368,7 @@ type
     CurrentInstrument: ^TInstrument;
     CurrentWave: ^TWave;
     CurrentInstrumentBank: TInstrumentType;
+    LoadedFileName: String;
 
     EmulationThread: TThread;
 
@@ -409,7 +410,8 @@ type
     procedure OnSampleSongMenuItemClicked(Sender: TObject);
 
     procedure RecreateTrackerGrid;
-    procedure UpdateUIAfterLoad;
+    procedure UpdateUIAfterLoad(FileName: String = '');
+    procedure UpdateWindowTitle;
     procedure UpdateHexWaveTextbox;
     function CheckUnsavedChanges: Boolean;
 
@@ -435,7 +437,7 @@ implementation
 
 { TfrmTracker }
 
-procedure TfrmTracker.UpdateUIAfterLoad;
+procedure TfrmTracker.UpdateUIAfterLoad(FileName: String = '');
 var
   I: Integer;
 begin
@@ -453,6 +455,9 @@ begin
   CommentMemo.Text := Song.Comment;
 
   TicksPerRowSpinEdit.Value := Song.TicksPerRow;
+
+  LoadedFilename := FileName;
+  UpdateWindowTitle;
 
   RecreateTrackerGrid;
   CopyOrderMatrixToOrderGrid;
@@ -481,6 +486,26 @@ begin
   ReloadPatterns;
 
   PageControl1.ActivePageIndex := 0;
+end;
+
+procedure TfrmTracker.UpdateWindowTitle;
+var
+  S: String;
+begin
+  S := 'hUGETracker';
+
+  if Trim(LoadedFileName) <> '' then
+    S += ' - '+LoadedFilename;
+
+  if Trim(Song.Name) <> '' then begin
+    S += ' - [';
+    if Trim(Song.Artist) <> '' then
+      S += Song.Artist+' - ';
+
+    S += Song.Name+']';
+  end;
+
+  Self.Caption := S;
 end;
 
 procedure TfrmTracker.UpdateHexWaveTextbox;
@@ -744,7 +769,7 @@ begin
   end;
   FileSaveAs1.Dialog.FileName := FileName;
 
-  UpdateUIAfterLoad;
+  UpdateUIAfterLoad(Filename);
 end;
 
 procedure TfrmTracker.ReloadPatterns;
@@ -1052,6 +1077,7 @@ end;
 procedure TfrmTracker.SongEditChange(Sender: TObject);
 begin
   Song.Name := SongEdit.Text;
+  UpdateWindowTitle;
 end;
 
 procedure TfrmTracker.StartVolSpinnerChange(Sender: TObject);
@@ -1129,7 +1155,7 @@ begin
       'the tracker. This likely means that you haven''t extracted the program ' +
       'before running it. Please do so, and relaunch. Thanks!',
       mtError, [mbOk], 0);
-    Halt;
+    Application.Terminate;
   end;
 
   VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
@@ -1185,7 +1211,7 @@ begin
 
   // Start the Oscilloscope repaint timer
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
-  Panel2.height :=  IfThen(ScopesOn, 64, 0);
+  Panel2.Visible := ScopesOn;
 
   // Switch to general tab sheet
   PageControl1.ActivePageIndex := 0;
@@ -1208,10 +1234,12 @@ begin
     SampleSongsMenuItem.Enabled := False;
 
   // If a command line param was passed, try to open it
-  if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then
+  if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then begin
     LoadSong(ParamStr(1));
-
-  UpdateUIAfterLoad;
+    UpdateUIAfterLoad(ParamStr(1));
+  end
+  else
+    UpdateUIAfterLoad;
 end;
 
 procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
@@ -1327,6 +1355,7 @@ end;
 procedure TfrmTracker.ArtistEditChange(Sender: TObject);
 begin
   Song.Artist := ArtistEdit.Text;
+  UpdateWindowTitle;
 end;
 
 procedure TfrmTracker.HelpLookupManualExecute(Sender: TObject);
@@ -1351,6 +1380,8 @@ begin
   try
     WriteSongToStream(stream, Song);
     SaveSucceeded := True;
+    LoadedFileName := FileSaveAs1.Dialog.FileName;
+    UpdateWindowTitle;
   finally
     stream.Free;
   end;
@@ -1364,6 +1395,7 @@ end;
 procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
 begin
   LoadSong(FileOpen1.Dialog.FileName);
+  UpdateUIAfterLoad(FileOpen1.Dialog.FileName);
 end;
 
 procedure TfrmTracker.HeaderControl1MouseDown(Sender: TObject;
@@ -1669,7 +1701,7 @@ end;
 procedure TfrmTracker.MenuItem14Click(Sender: TObject);
 begin
   if CheckUnsavedChanges then
-    Halt;
+    Application.Terminate;
 end;
 
 procedure TfrmTracker.MenuItem17Click(Sender: TObject);
@@ -1810,7 +1842,7 @@ begin
   OptionsFile.WriteInteger('hUGETracker', 'fontsize', TrackerGrid.FontSize);
   OptionsFile.WriteBool('hUGETracker', 'ScopesOn', ScopesOn);
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
-  Panel2.height :=  IfThen(ScopesOn, 64, 0);
+  Panel2.Visible := ScopesOn;
 
 end;
 
@@ -1846,7 +1878,7 @@ begin
 
     Stream.Free;
 
-    UpdateUIAfterLoad;
+    UpdateUIAfterLoad(MODOpenDialog.FileName);
   end;
 end;
 

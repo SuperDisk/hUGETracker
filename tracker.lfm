@@ -1,11 +1,11 @@
 object frmTracker: TfrmTracker
-  Left = 453
-  Height = 701
-  Top = 598
+  Left = 1763
+  Height = 687
+  Top = 320
   Width = 1145
   AllowDropFiles = True
   Caption = 'hUGETracker'
-  ClientHeight = 681
+  ClientHeight = 667
   ClientWidth = 1145
   KeyPreview = True
   Menu = MainMenu1
@@ -21,7 +21,7 @@ object frmTracker: TfrmTracker
   LCLVersion = '2.0.6.0'
   object TreeView1: TTreeView
     Left = 0
-    Height = 569
+    Height = 555
     Top = 89
     Width = 193
     Align = alLeft
@@ -42,34 +42,34 @@ object frmTracker: TfrmTracker
   end
   object Splitter1: TSplitter
     Left = 193
-    Height = 569
+    Height = 555
     Top = 89
     Width = 5
   end
   object Panel1: TPanel
     Left = 198
-    Height = 569
+    Height = 555
     Top = 89
     Width = 947
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 569
+    ClientHeight = 555
     ClientWidth = 947
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 569
+      Height = 555
       Top = 0
       Width = 947
-      ActivePage = PatternTabSheet
+      ActivePage = GeneralTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 502
+        ClientHeight = 527
         ClientWidth = 939
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
@@ -146,16 +146,16 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
-        ClientHeight = 541
+        ClientHeight = 527
         ClientWidth = 939
         ParentFont = False
         object Panel3: TPanel
           Left = 224
-          Height = 541
+          Height = 527
           Top = 0
           Width = 715
           Align = alClient
-          ClientHeight = 541
+          ClientHeight = 527
           ClientWidth = 715
           ParentFont = False
           TabOrder = 0
@@ -204,7 +204,7 @@ object frmTracker: TfrmTracker
           end
           object ScrollBox1: TScrollBox
             Left = 1
-            Height = 509
+            Height = 495
             Top = 31
             Width = 713
             HorzScrollBar.Increment = 1
@@ -225,7 +225,7 @@ object frmTracker: TfrmTracker
         end
         object OrderEditStringGrid: TStringGrid
           Left = 0
-          Height = 541
+          Height = 527
           Top = 0
           Width = 224
           Align = alLeft
@@ -1689,7 +1689,7 @@ object frmTracker: TfrmTracker
   object StatusBar1: TStatusBar
     Left = 0
     Height = 23
-    Top = 658
+    Top = 644
     Width = 1145
     AutoHint = True
     Panels = <    
