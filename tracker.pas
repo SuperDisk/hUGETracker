@@ -563,7 +563,6 @@ begin
 
     if S{weep} = 0 then begin
        LineTo(L*Interval, H-V*HInterval); // no sweep
-       MoveTo(L*Interval, H-(V*HInterval));
        LineTo(L*Interval, H);
        LineTo(W, H);
     end
@@ -978,6 +977,7 @@ begin
   end;
 
   WavePaintbox.Invalidate;
+  EnvelopePaintBox.Invalidate;
 end;
 
 procedure TfrmTracker.ChangeToSquare;
@@ -1057,7 +1057,7 @@ end;
 procedure TfrmTracker.StartVolSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.InitialVolume := Round(StartVolTrackbar.Position);
-  DrawEnvelope(EnvelopePaintBox);
+  EnvelopePaintBox.Invalidate;
 end;
 
 procedure TfrmTracker.SweepDirectionComboboxChange(Sender: TObject);
@@ -1066,7 +1066,7 @@ begin
     'Up': CurrentInstrument^.SweepIncDec := Up;
     'Down': CurrentInstrument^.SweepIncDec := Down;
   end;
-  DrawEnvelope(EnvelopePaintBox);
+  EnvelopePaintBox.Invalidate;
 end;
 
 procedure TfrmTracker.SweepSizeSpinnerChange(Sender: TObject);
@@ -1316,7 +1316,7 @@ begin
     'Up': CurrentInstrument^.VolSweepDirection := Up;
     'Down': CurrentInstrument^.VolSweepDirection := Down;
   end;
-  DrawEnvelope(EnvelopePaintBox);
+  EnvelopePaintBox.Invalidate;
 end;
 
 procedure TfrmTracker.CommentMemoChange(Sender: TObject);
@@ -1587,7 +1587,7 @@ end;
 procedure TfrmTracker.EnvChangeSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.VolSweepAmount := Round(EnvChangeTrackbar.Position);
-  DrawEnvelope(EnvelopePaintBox);
+  EnvelopePaintBox.Invalidate;
 end;
 
 procedure TfrmTracker.EnvelopePaintboxPaint(Sender: TObject);
@@ -1624,13 +1624,12 @@ end;
 procedure TfrmTracker.InstrumentNumberSpinnerChange(Sender: TObject);
 begin
   LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
-  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.Length := Round(LengthTrackbar.Position);
-  DrawEnvelope(EnvelopePaintBox);
+  EnvelopePaintBox.Invalidate;
 end;
 
 procedure TfrmTracker.DebugPlayNoteButtonClick(Sender: TObject);
@@ -1898,7 +1897,7 @@ begin
   if OrderEditStringGrid.Row > -1 then
     ReloadPatterns;
 
-  if Playing = True then begin
+  if Playing then begin
      if TrackerGrid.HighlightedRow <> 0 then begin
         if OrderEditStringGrid.Row = 1 then begin
            if PreparePreview then
@@ -1946,7 +1945,7 @@ procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
 var
   Highest: Integer;
 begin
-  if Playing = True then begin
+  if Playing then begin
      if  OrderEditStringGrid.Row = 1 then begin
         if PreparePreview then begin
            Playing := True;
@@ -2249,7 +2248,7 @@ procedure TfrmTracker.LengthEnabledCheckboxChange(Sender: TObject);
 begin
   LengthTrackbar.Enabled := LengthEnabledCheckbox.Checked;
   CurrentInstrument^.LengthEnabled := LengthEnabledCheckbox.Checked;
-  DrawEnvelope(EnvelopePaintBox);
+  EnvelopePaintBox.Invalidate;
 end;
 
 end.

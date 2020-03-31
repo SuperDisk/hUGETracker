@@ -38,10 +38,12 @@
             </SyntaxOptions>
           </Parsing>
           <CodeGeneration>
+            <SmartLinkUnit Value="True"/>
+            <RelocatableUnit Value="True"/>
             <TargetCPU Value="i386"/>
             <TargetOS Value="win32"/>
             <Optimizations>
-              <OptimizationLevel Value="0"/>
+              <OptimizationLevel Value="4"/>
             </Optimizations>
           </CodeGeneration>
           <Linking>
@@ -50,6 +52,7 @@
               <UseLineInfoUnit Value="False"/>
               <StripSymbols Value="True"/>
             </Debugging>
+            <LinkSmart Value="True"/>
             <Options>
               <Win32>
                 <GraphicApplication Value="True"/>
