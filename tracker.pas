@@ -376,6 +376,7 @@ type
     Playing: Boolean;
     LoadingFile: Boolean;
     SaveSucceeded: Boolean;
+    ScopesOn: Boolean;
 
     {PatternsNode, }
     WaveInstrumentsNode,
@@ -544,8 +545,8 @@ var
 begin
   W := PB.Width;
   H := PB.Height-3;
-  V := CurrentInstrument^.InitialVolume;
-  S := CurrentInstrument^.VolSweepAmount*2;
+  V := Min(CurrentInstrument^.InitialVolume,15);
+  S := Min(CurrentInstrument^.VolSweepAmount,7)*2;
   case CurrentInstrument^.LengthEnabled of
     True:   L := (64-CurrentInstrument^.Length) div 2;
     False:  L := 400;
@@ -564,6 +565,7 @@ begin
        LineTo(L*Interval, H-V*HInterval); // no sweep
        MoveTo(L*Interval, H-(V*HInterval));
        LineTo(L*Interval, H);
+       LineTo(W, H);
     end
     else begin
       case CurrentInstrument^.VolSweepDirection of
@@ -571,15 +573,14 @@ begin
            For I := 0 to V do
               LineTo( Min(I*S,L)*Interval, H-(V-I)*HInterval);
            LineTo(W, H);
-           MoveTo(Trunc(L*Interval), 0);
            LineTo(Trunc(L*Interval), H);
            end;
         Up: begin    // Envelope up, check length cut
             For I := 0 to 15-V do
                 LineTo( Min(I*S,L)*Interval, (15-V-I)*HInterval+9);
             LineTo(L*Interval, H-15*HInterval);
-            MoveTo(L*Interval, 0);
             LineTo(L*Interval, H);
+            LineTo(W, H);
             end;
         end;
     end;
@@ -904,6 +905,7 @@ begin
   TrackerGrid.OnResize:=@OnTrackerGridResize;
 
   TrackerGrid.FontSize := OptionsFile.ReadInteger('hUGETracker', 'fontsize', 12);
+  ScopesOn := OptionsFile.ReadBool('hUGETracker', 'ScopesOn', True);
 
   // Fix the size of the channel headers
   for Section in HeaderControl1.Sections do
@@ -1182,7 +1184,8 @@ begin
   ResetEmulationThread; //TODO: remove this hack
 
   // Start the Oscilloscope repaint timer
-  OscilloscopeUpdateTimer.Enabled := True;
+  OscilloscopeUpdateTimer.Enabled := ScopesOn;
+  Panel2.height :=  IfThen(ScopesOn, 64, 0);
 
   // Switch to general tab sheet
   PageControl1.ActivePageIndex := 0;
@@ -1621,6 +1624,7 @@ end;
 procedure TfrmTracker.InstrumentNumberSpinnerChange(Sender: TObject);
 begin
   LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
+  DrawEnvelope(EnvelopePaintBox);
 end;
 
 procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
@@ -1799,10 +1803,16 @@ end;
 procedure TfrmTracker.MenuItem26Click(Sender: TObject);
 begin
   frmOptions.FontSizeSpinner.Value := TrackerGrid.FontSize;
+  frmOptions.ScopesCheck.Checked := ScopesOn;
   frmOptions.ShowModal;
   TrackerGrid.FontSize := frmOptions.FontSizeSpinner.Value;
+  ScopesOn := frmOptions.ScopesCheck.Checked;
 
   OptionsFile.WriteInteger('hUGETracker', 'fontsize', TrackerGrid.FontSize);
+  OptionsFile.WriteBool('hUGETracker', 'ScopesOn', ScopesOn);
+  OscilloscopeUpdateTimer.Enabled := ScopesOn;
+  Panel2.height :=  IfThen(ScopesOn, 64, 0);
+
 end;
 
 procedure TfrmTracker.MenuItem31Click(Sender: TObject);
@@ -1887,6 +1897,20 @@ procedure TfrmTracker.OrderEditStringGridAfterSelection(Sender: TObject; aCol,
 begin
   if OrderEditStringGrid.Row > -1 then
     ReloadPatterns;
+
+  if Playing = True then begin
+     if TrackerGrid.HighlightedRow <> 0 then begin
+        if OrderEditStringGrid.Row = 1 then begin
+           if PreparePreview then
+              Playing := True;
+        end
+        else begin
+            PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-2));
+            PokeSymbol(SYM_ROW, 63);
+        end;
+     end;
+     EmulationThread.Start;
+  end
 end;
 
 procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;
@@ -1922,11 +1946,25 @@ procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
 var
   Highest: Integer;
 begin
-  Highest := Song.Patterns.MaxKey;
+  if Playing = True then begin
+     if  OrderEditStringGrid.Row = 1 then begin
+        if PreparePreview then begin
+           Playing := True;
+        end;
+     end
+     else begin
+       PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-2));
+       PokeSymbol(SYM_ROW, 63);
+     end;
+     EmulationThread.Start;
+  end
+  else begin
+    Highest := Song.Patterns.MaxKey;
 
-  with OrderEditStringGrid do begin
-    Cells[Col, Row] := IntToStr(Highest);
-    TrackerGrid.LoadPattern(Col - 1, Highest);
+    with OrderEditStringGrid do begin
+      Cells[Col, Row] := IntToStr(Highest);
+      TrackerGrid.LoadPattern(Col - 1, Highest);
+    end;
   end;
 end;
 
