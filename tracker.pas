@@ -869,6 +869,7 @@ begin
     SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
 
     // Start emulation on the rendered preview binary
+    StopPlayback;
     EmulationThread.Free;
     EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
     PokeSymbol(SYM_TICKS_PER_ROW, Song.TicksPerRow);
@@ -889,9 +890,11 @@ begin
   TrackerGrid.HighlightedRow := -1;
   ToolButton2.ImageIndex := 74;
 
+  LockPlayback;
   EmulationThread.Free;
   EmulationThread := TEmulationThread.Create('halt.gb');
-  EmulationThread.Start;
+  UnlockPlayback;
+  //EmulationThread.Start;
 end;
 
 procedure TfrmTracker.OnFD(var Msg: TLMessage);
@@ -1205,8 +1208,11 @@ begin
   OrderEditStringGrid.ColWidths[0]:=50;
 
   // Get the emulator ready to make sound...
+  EnableSound;
+
   EmulationThread := TEmulationThread.Create('halt.gb');
-  EmulationThread.Start;
+  StartPlayback;
+  //EmulationThread.Start;
   ResetEmulationThread; //TODO: remove this hack
 
   // Start the Oscilloscope repaint timer
@@ -1940,7 +1946,7 @@ begin
             PokeSymbol(SYM_ROW, 63);
         end;
      end;
-     EmulationThread.Start;
+     //EmulationThread.Start;
   end
 end;
 
@@ -1987,7 +1993,7 @@ begin
        PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-2));
        PokeSymbol(SYM_ROW, 63);
      end;
-     EmulationThread.Start;
+     //EmulationThread.Start;
   end
   else begin
     Highest := Song.Patterns.MaxKey;
@@ -2082,7 +2088,8 @@ end;
 
 procedure TfrmTracker.ToolButton10Click(Sender: TObject);
 begin
-  EmulationThread.Terminate;
+  //EmulationThread.Terminate;
+  StopPlayback;
   if RenderPreviewROM(Song) then begin
     SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
     frmRenderToWave.ShowModal;
@@ -2098,7 +2105,8 @@ begin
     PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
     PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
 
-    EmulationThread.Start;
+    StartPlayback;
+    //EmulationThread.Start;
   end
 end;
 
@@ -2106,7 +2114,8 @@ procedure TfrmTracker.ToolButton3Click(Sender: TObject);
 begin
   if PreparePreview then begin
     Playing := True;
-    EmulationThread.Start;
+    StartPlayback;
+    //EmulationThread.Start;
   end;
 end;
 

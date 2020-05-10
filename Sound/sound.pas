@@ -128,16 +128,24 @@ Bit0  Sound 1 on[1]/off[0]
 
 *)
 
-uses Classes;
+uses Classes, sdl2;
 
 const
   SAMPLE_BUFFER_SIZE = 1024;
 
 type
+  PSingle = ^Single;
   TSampleBuffer = record
     BufferL, BufferR: array[0..SAMPLE_BUFFER_SIZE] of Integer;
     Cursor: Integer;
   end;
+
+procedure StartPlayback;
+procedure StopPlayback;
+procedure LockPlayback;
+procedure UnlockPlayback;
+
+procedure AudioCallback(userdata: Pointer; stream: PUInt8; len: Integer) cdecl;
 
 procedure EnableSound;
 procedure DisableSound;
@@ -153,6 +161,8 @@ procedure EndWritingSoundToStream;
 var
   soundEnable: boolean;
   sndRegChange: boolean;
+  sndBuffer: ^Single;
+  sndBytesWritten: Integer;
   snd: array[1..4] of record
     // public:
     ChannelOFF: boolean; // (un)mute Channel
@@ -170,7 +180,7 @@ var
 
 implementation
 
-uses vars, sdl2, htWaveWriter;
+uses mainloop, vars, htWaveWriter;
 
 const
   SampleSize = SizeOf(Single)*2;
@@ -179,7 +189,7 @@ const
   TooFullThreshold: Integer = (playbackFrequency div 10)*sizeof(single); //0.1s
 
 var
-  playStream: TSDL_AudioDeviceID;
+  PlayStream: TSDL_AudioDeviceID;
   bufCycles, bufLVal, bufRVal: integer;
   lfsr: Cardinal = 0;
 
@@ -212,7 +222,7 @@ end;
 
 function SoundBufferSize: Integer;
 begin
-  Result := SDL_GetQueuedAudioSize(playStream)
+  Result := SDL_GetQueuedAudioSize(PlayStream)
 end;
 
 procedure BeginWritingSoundToStream(Stream: TStream);
@@ -234,6 +244,34 @@ begin
   WaveWriter.Free;
 end;
 
+procedure StartPlayback;
+begin
+  SDL_PauseAudioDevice(PlayStream, 0);
+end;
+
+procedure StopPlayback;
+begin
+  SDL_PauseAudioDevice(PlayStream, 1);
+end;
+
+procedure LockPlayback;
+begin
+  SDL_LockAudioDevice(PlayStream);
+end;
+
+procedure UnlockPlayback;
+begin
+  SDL_UnlockAudioDevice(PlayStream);
+end;
+
+procedure AudioCallback(userdata: Pointer; stream: PUInt8; len: Integer)cdecl;
+begin
+  sndBuffer := PSingle(Stream);
+  while sndBytesWritten < len do
+    z80_decode;
+  sndBytesWritten := 0;
+end;
+
 procedure EnableSound;
 var
   Want, Have: TSDL_AudioSpec;
@@ -249,11 +287,10 @@ begin
   Want.freq := playbackFrequency;
   Want.format := AUDIO_F32;
   Want.channels := 2;
-  Want.samples := 512; //????
-  Want.callback := nil;
+  Want.samples := 1024; //512;
+  Want.callback := @AudioCallback;
 
-  PlayStream := SDL_OpenAudioDevice(nil, 0, @Want, @Have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
-  SDL_PauseAudioDevice(playStream, 0);
+  PlayStream := SDL_OpenAudioDevice(nil, 0, @Want, @Have, 0);
 
   soundEnable := True;
   bufCycles := 0;
@@ -266,7 +303,7 @@ begin
   if not soundEnable then
     exit;
 
-  SDL_CloseAudioDevice(playStream);
+  SDL_CloseAudioDevice(PlayStream);
   SDL_Quit;
 
   soundEnable := False;
@@ -293,8 +330,14 @@ begin
       buf2[1] := Trunc(buf[1]*High(Smallint));
       WaveWriter.WriteBuf(buf2, SizeOf(Smallint)*2);
     end
-    else
-      SDL_QueueAudio(playStream, @buf, SampleSize);
+    else begin
+      sndBuffer^ := buf[0];
+      Inc(sndBuffer);
+      sndBuffer^ := buf[1];
+      Inc(sndBuffer);
+      Inc(sndBytesWritten, SampleSize);
+      //SDL_QueueAudio(PlayStream, @buf, SampleSize);
+    end;
   end;
 end;
 
