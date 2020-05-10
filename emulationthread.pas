@@ -31,35 +31,29 @@ const
 
 procedure TEmulationThread.Execute;
 var
-  tickFreq, cycles: Extended;
+  cycles: Extended;
   frameStart, frameEnd: Extended;
   frameElapsedInSec: Extended;
-function GetCounter: Extended;
 begin
-  Result := ET.Elapsed*1000000; // Convert to microseconds
-end;
-begin
-  lastTime := 0;
+  LastTime := 0;
 
-  cycles := 0;
+  Cycles := 0;
 
-  tickFreq := 1000000; // Convert to microseconds
-  FrameStart := GetCounter;
+  FrameStart := ET.Elapsed;
 
   repeat
-    while (cycles < CyclesPerFrame) do
-      cycles += z80_decode;
+    while (Cycles < CyclesPerFrame) do
+      Cycles += z80_decode;
 
-    cycles -= CyclesPerFrame;
+    Cycles -= CyclesPerFrame;
 
-    // TODO: Replace this with an actual timing mechanism. This devours CPU.
     repeat
-      FrameEnd := GetCounter;
+      FrameEnd := ET.Elapsed;
+      FrameElapsedInSec := (FrameEnd - frameStart);
 
-      frameElapsedInSec := (frameEnd - frameStart) / tickFreq;
-    until ((frameElapsedInSec > TimePerFrame) and (not SoundBufferTooFull));
+    until ((FrameElapsedInSec > TimePerFrame) and (not SoundBufferTooFull));
 
-    frameStart := frameEnd;
+    FrameStart := FrameEnd;
   until Terminated;
 end;
 

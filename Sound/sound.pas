@@ -143,7 +143,6 @@ procedure EnableSound;
 procedure DisableSound;
 procedure ResetSound;
 procedure SoundUpdate(cycles: integer);
-procedure SoundSetCycles(n: integer);
 
 function SoundBufferTooFull: Boolean;
 function SoundBufferSize: Integer;
@@ -327,7 +326,6 @@ var
 
 
 // Yanked from SameBoy: https://github.com/LIJI32/SameBoy/blob/master/Core/apu.c#L489
-// carrying on the tradition of translating existing C audio code
 function NextLFSRBit(Narrow: Boolean): Byte;
 var
   HighBitMask: Cardinal;
@@ -686,11 +684,6 @@ begin
   SampleBuffers[0].Cursor := (SampleBuffers[0].Cursor + 1) mod SAMPLE_BUFFER_SIZE;
 
   SoundOutBits(l, r, cycles);
-end;
-
-procedure SoundSetCycles(n: integer);
-begin
-  sampleCycles := n;
 end;
 
 begin
