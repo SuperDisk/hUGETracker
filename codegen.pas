@@ -149,6 +149,7 @@ var
   SL: TStringList;
 begin
   SL := TSTringList.Create;
+  SL.Add('STANDALONE_MODE EQU 1');
 
   if Mode = emPreview then
     SL.Add('PREVIEW_MODE EQU 1')
@@ -286,10 +287,16 @@ begin
       Result := False;
       goto Cleanup;
     end;
-
-    DeleteFile(Filename+'.obj');
-    DeleteFile(Filename+'.sym');
-    DeleteFile(Filename+'.map');
+    {$ifdef DEVELOPMENT}
+      RenameFile(Filename+'.obj', FilePath+'.obj');
+      RenameFile(Filename+'.sym', FilePath+'.sym');
+      RenameFile(Filename+'.map', FilePath+'.map');
+    {$endif}
+    {$ifdef PRODUCTION}
+      DeleteFile(Filename+'.obj');
+      DeleteFile(Filename+'.sym');
+      DeleteFile(Filename+'.map');
+    {$endif}
   end;
 
   Result := True;

@@ -220,7 +220,7 @@ procedure BeginWritingSoundToStream(Stream: TStream);
 begin
   WritingSoundToStream := True;
   WaveWriter := TWavWriter.Create;
-  WaveWriter.StoreToStream(Stream);
+  {$push}{$R-}WaveWriter.StoreToStream(Stream);{$pop}
   with WaveWriter.fmt do begin
     SampleRate := playbackFrequency;
     BitsPerSample := 16;
