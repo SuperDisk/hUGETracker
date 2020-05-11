@@ -131,6 +131,11 @@ type
     procedure IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
     procedure ClearAt(SelectionPos: TSelectionPos);
 
+    procedure InsertRowInPatternAtCursor(Pattern: Integer);
+    procedure InsertRowInAllAtCursor;
+    procedure DeleteRowInPatternAtCursor(Pattern: Integer);
+    procedure DeleteRowInAllAtCursor;
+
     procedure SelectAll;
     procedure SelectColumn;
     procedure EraseSelection;
@@ -1093,6 +1098,62 @@ begin
       cpEffectCode: EffectCode := 0;
       cpEffectParams: EffectParams.Value := 0;
     end;
+end;
+
+procedure TTrackerGrid.InsertRowInPatternAtCursor(Pattern: Integer);
+var
+  I: Integer;
+begin
+  NormalizeCursors;
+
+  for I := High(TPattern) downto Cursor.Y do
+    Patterns[Pattern]^[I] := Patterns[Pattern]^[I-1];
+
+  BlankCell(Patterns[Pattern]^[Cursor.Y]);
+
+  Invalidate;
+  SaveUndoState;
+end;
+
+procedure TTrackerGrid.InsertRowInAllAtCursor;
+var
+  I: Integer;
+begin
+  for I := Low(Patterns) to High(Patterns) do begin
+    InsertRowInPatternAtCursor(I);
+    Performed.PopFront; // hack, maybe change the way this works later
+  end;
+
+  Invalidate;
+  SaveUndoState;
+end;
+
+procedure TTrackerGrid.DeleteRowInPatternAtCursor(Pattern: Integer);
+var
+  I: Integer;
+begin
+  NormalizeCursors;
+
+  for I := Cursor.Y to High(TPattern)-1 do
+    Patterns[Pattern]^[I] := Patterns[Pattern]^[I+1];
+
+  BlankCell(Patterns[Pattern]^[High(TPattern)]);
+
+  Invalidate;
+  SaveUndoState;
+end;
+
+procedure TTrackerGrid.DeleteRowInAllAtCursor;
+var
+  I: Integer;
+begin
+  for I := Low(Patterns) to High(Patterns) do begin
+    DeleteRowInPatternAtCursor(I);
+    Performed.PopFront; // hack, maybe change the way this works later
+  end;
+
+  Invalidate;
+  SaveUndoState;
 end;
 
 procedure TTrackerGrid.SelectAll;

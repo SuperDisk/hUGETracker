@@ -12,7 +12,7 @@ type
 
   { TCheckBoxHelper }
 
-  // What a hack.
+  // Hack, or elegant? You decide.
   TCheckBoxHelper = class helper for TCheckBox
     procedure SetCheckedWithoutClick(AChecked: Boolean);
   end;

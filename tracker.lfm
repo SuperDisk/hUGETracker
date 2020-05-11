@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1811
+  Left = 1459
   Height = 687
-  Top = 297
+  Top = 339
   Width = 1145
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -9,7 +9,6 @@ object frmTracker: TfrmTracker
   ClientWidth = 1145
   KeyPreview = True
   Menu = MainMenu1
-  OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDropFiles = FormDropFiles
@@ -1594,7 +1593,6 @@ object frmTracker: TfrmTracker
     Width = 1145
     Align = alTop
     BevelOuter = bvNone
-    Caption = 'Hides if Scopes Off'
     ClientHeight = 64
     ClientWidth = 1145
     ParentFont = False
@@ -1740,19 +1738,13 @@ object frmTracker: TfrmTracker
     end
     object ToolButton2: TToolButton
       Left = 147
-      Hint = 'Begin playback from the cursor'
       Top = 0
-      Caption = '▶️ Cursor'
-      ImageIndex = 75
-      OnClick = ToolButton2Click
+      Action = PlayCursorAction
     end
     object ToolButton4: TToolButton
       Left = 221
-      Hint = 'Stop playback'
       Top = 0
-      Caption = '⏹ Stop'
-      ImageIndex = 73
-      OnClick = ToolButton4Click
+      Action = StopAction
     end
     object ExportGBButton: TToolButton
       Left = 291
@@ -1866,11 +1858,8 @@ object frmTracker: TfrmTracker
     end
     object ToolButton3: TToolButton
       Left = 84
-      Hint = 'Begin playback from the cursor'
       Top = 0
-      Caption = '▶️ Start'
-      ImageIndex = 74
-      OnClick = ToolButton3Click
+      Action = PlayStartAction
     end
     object ExportGBSButton: TToolButton
       Left = 372
@@ -1915,7 +1904,6 @@ object frmTracker: TfrmTracker
       end
       object MenuItem13: TMenuItem
         Action = FileSaveAs1
-        OnClick = MenuItem13Click
       end
       object MenuItem4: TMenuItem
         Caption = '-'
@@ -2014,7 +2002,7 @@ object frmTracker: TfrmTracker
       OnClick = DebugShiteButtonClick
     end
   end
-  object ActionList1: TActionList
+  object MenuBarActionList: TActionList
     Images = ImageList1
     left = 104
     top = 72
@@ -2101,7 +2089,6 @@ object frmTracker: TfrmTracker
       DisableIfNoHandler = False
       Hint = 'Delete'
       ImageIndex = 13
-      OnExecute = EditDelete1Execute
       ShortCut = 46
     end
     object EditSelectAll1: TEditSelectAll
@@ -5243,6 +5230,75 @@ object frmTracker: TfrmTracker
     object MenuItem38: TMenuItem
       Caption = 'Paste'
       OnClick = MenuItem38Click
+    end
+  end
+  object ShortcutsActionList: TActionList
+    Images = ImageList1
+    left = 208
+    top = 36
+    object PlayStartAction: TAction
+      Caption = '▶️ Start'
+      DisableIfNoHandler = False
+      ImageIndex = 74
+      OnExecute = PlayStartActionExecute
+      SecondaryShortCuts.Strings = (
+        'F5'
+      )
+      ShortCut = 8205
+    end
+    object PlayCursorAction: TAction
+      Caption = '▶️ Cursor'
+      ImageIndex = 74
+      OnExecute = PlayCursorActionExecute
+      SecondaryShortCuts.Strings = (
+        'F6'
+      )
+      ShortCut = 16397
+    end
+    object PlayOrderAction: TAction
+      Caption = '▶️ Order'
+      ImageIndex = 74
+      OnExecute = PlayOrderActionExecute
+      SecondaryShortCuts.Strings = (
+        'F7'
+      )
+      ShortCut = 13
+    end
+    object StopAction: TAction
+      Caption = '⏹ Stop'
+      ImageIndex = 73
+      OnExecute = StopActionExecute
+      SecondaryShortCuts.Strings = (
+        'F8'
+      )
+      ShortCut = 27
+    end
+    object InsertRowAction: TAction
+      Caption = 'Insert Row'
+      OnExecute = InsertRowActionExecute
+      OnUpdate = InsertRowActionUpdate
+      ShortCut = 45
+    end
+    object InsertRowForAllAction: TAction
+      Caption = 'InsertRowForAllAction'
+      OnExecute = InsertRowForAllActionExecute
+      OnUpdate = InsertRowForAllActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Shift+Ins'
+      )
+      ShortCut = 16429
+    end
+    object DeleteRowAction: TAction
+      Caption = 'DeleteRowAction'
+      OnExecute = DeleteRowActionExecute
+      OnUpdate = DeleteRowActionUpdate
+      ShortCut = 8
+    end
+    object DeleteRowForAllAction: TAction
+      Caption = 'DeleteRowForAllAction'
+      OnExecute = DeleteRowForAllActionExecute
+      OnUpdate = DeleteRowForAllActionUpdate
+      ShortCut = 16392
     end
   end
 end

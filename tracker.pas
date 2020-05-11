@@ -16,6 +16,15 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    DeleteRowAction: TAction;
+    DeleteRowForAllAction: TAction;
+    InsertRowForAllAction: TAction;
+    InsertRowAction: TAction;
+    StopAction: TAction;
+    PlayOrderAction: TAction;
+    PlayCursorAction: TAction;
+    PlayStartAction: TAction;
+    ShortcutsActionList: TActionList;
     Button1: TButton;
     MenuItem37: TMenuItem;
     MenuItem38: TMenuItem;
@@ -114,7 +123,7 @@ type
     PasteAction: TAction;
     CopyAction: TAction;
     HelpLookupManual: TAction;
-    ActionList1: TActionList;
+    MenuBarActionList: TActionList;
     EditCopy1: TEditCopy;
     EditDelete1: TEditDelete;
     EditPaste1: TEditPaste;
@@ -225,15 +234,23 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
+    procedure DeleteRowActionExecute(Sender: TObject);
+    procedure DeleteRowActionUpdate(Sender: TObject);
+    procedure DeleteRowForAllActionExecute(Sender: TObject);
+    procedure DeleteRowForAllActionUpdate(Sender: TObject);
     procedure Duty1VisualizerClick(Sender: TObject);
-    procedure EditDelete1Execute(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
     procedure HexWaveEditEditingDone(Sender: TObject);
+    procedure InsertRowActionExecute(Sender: TObject);
+    procedure InsertRowActionUpdate(Sender: TObject);
+    procedure InsertRowForAllActionExecute(Sender: TObject);
+    procedure InsertRowForAllActionUpdate(Sender: TObject);
     procedure MenuItem37Click(Sender: TObject);
     procedure MenuItem38Click(Sender: TObject);
-    procedure MenuItem46Click(Sender: TObject);
+    procedure PlayCursorActionExecute(Sender: TObject);
+    procedure PlayOrderActionExecute(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
@@ -246,7 +263,6 @@ type
     procedure Duty2VisualizerPaint(Sender: TObject);
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure HeaderControl1MouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure HeaderControl1SectionClick(HeaderControl: TCustomHeaderControl;
@@ -273,10 +289,8 @@ type
     procedure LengthSpinnerChange(Sender: TObject);
     procedure DebugPlayNoteButtonClick(Sender: TObject);
     procedure DebugShiteButtonClick(Sender: TObject);
-    procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
     procedure MenuItem12Click(Sender: TObject);
-    procedure MenuItem13Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
     procedure MenuItem17Click(Sender: TObject);
     procedure MenuItem18Click(Sender: TObject);
@@ -317,14 +331,13 @@ type
     procedure RoutineNumberSpinnerChange(Sender: TObject);
     procedure RoutineSyneditChange(Sender: TObject);
     procedure ShiftClockSpinnerChange(Sender: TObject);
+    procedure PlayStartActionExecute(Sender: TObject);
     procedure StepSpinEditChange(Sender: TObject);
+    procedure StopActionExecute(Sender: TObject);
     procedure TicksPerRowSpinEditChange(Sender: TObject);
     procedure OscilloscopeUpdateTimerTimer(Sender: TObject);
     procedure ExportGBSButtonClick(Sender: TObject);
     procedure ToolButton10Click(Sender: TObject);
-    procedure ToolButton2Click(Sender: TObject);
-    procedure ToolButton3Click(Sender: TObject);
-    procedure ToolButton4Click(Sender: TObject);
     procedure ExportGBButtonClick(Sender: TObject);
     procedure TrackerPopupCopyClick(Sender: TObject);
     procedure TrackerPopupCutClick(Sender: TObject);
@@ -1229,7 +1242,7 @@ begin
   // Get the emulator ready to make sound...
   EnableSound;
   StartPlayback;
-  HaltPlayback; //TODO: remove this hack
+  HaltPlayback;
 
   // Start the Oscilloscope repaint timer
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
@@ -1409,11 +1422,6 @@ begin
   end;
 end;
 
-procedure TfrmTracker.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-begin
-
-end;
-
 procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
 begin
   LoadSong(FileOpen1.Dialog.FileName);
@@ -1485,11 +1493,6 @@ begin
   TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 end;
 
-procedure TfrmTracker.EditDelete1Execute(Sender: TObject);
-begin
-
-end;
-
 procedure TfrmTracker.FileSaveAs1BeforeExecute(Sender: TObject);
 begin
   SaveSucceeded := False;
@@ -1529,6 +1532,26 @@ begin
   end;
 end;
 
+procedure TfrmTracker.InsertRowActionExecute(Sender: TObject);
+begin
+  TrackerGrid.InsertRowInPatternAtCursor(TrackerGrid.Cursor.X);
+end;
+
+procedure TfrmTracker.InsertRowActionUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+end;
+
+procedure TfrmTracker.InsertRowForAllActionExecute(Sender: TObject);
+begin
+  TrackerGrid.InsertRowInAllAtCursor;
+end;
+
+procedure TfrmTracker.InsertRowForAllActionUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+end;
+
 procedure TfrmTracker.MenuItem37Click(Sender: TObject);
 begin
   Clipboard.AsText := ConvertWaveToHexString(WaveEditNumberSpinner.Value);
@@ -1540,9 +1563,28 @@ begin
   HexWaveEditEditingDone(nil);
 end;
 
-procedure TfrmTracker.MenuItem46Click(Sender: TObject);
+procedure TfrmTracker.PlayCursorActionExecute(Sender: TObject);
 begin
+  if GetPreviewReady then begin
+    Playing := True;
 
+    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
+
+    UnlockPlayback;
+  end
+end;
+
+procedure TfrmTracker.PlayOrderActionExecute(Sender: TObject);
+begin
+  if GetPreviewReady then begin
+    Playing := True;
+
+    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_ROW, 0);
+
+    UnlockPlayback;
+  end
 end;
 
 procedure TfrmTracker.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -1585,6 +1627,26 @@ begin
   PreviewC5;
 end;
 
+procedure TfrmTracker.DeleteRowActionExecute(Sender: TObject);
+begin
+  TrackerGrid.DeleteRowInPatternAtCursor(TrackerGrid.Cursor.X);
+end;
+
+procedure TfrmTracker.DeleteRowActionUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+end;
+
+procedure TfrmTracker.DeleteRowForAllActionExecute(Sender: TObject);
+begin
+  TrackerGrid.DeleteRowInAllAtCursor;
+end;
+
+procedure TfrmTracker.DeleteRowForAllActionUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+end;
+
 procedure TfrmTracker.Duty1VisualizerClick(Sender: TObject);
 var
   Section: THeaderSection;
@@ -1623,9 +1685,23 @@ begin
   CurrentInstrument^.ShiftClockFreq := Round(ShiftClockTrackbar.Position);
 end;
 
+procedure TfrmTracker.PlayStartActionExecute(Sender: TObject);
+begin
+  if GetPreviewReady then begin
+    Playing := True;
+    UnlockPlayback;
+  end;
+end;
+
 procedure TfrmTracker.StepSpinEditChange(Sender: TObject);
 begin
   TrackerGrid.Step := StepSpinEdit.Value;
+end;
+
+procedure TfrmTracker.StopActionExecute(Sender: TObject);
+begin
+  TrackerGrid.HighlightedRow := -1;
+  HaltPlayback;
 end;
 
 procedure TfrmTracker.DivRatioSpinnerChange(Sender: TObject);
@@ -1699,11 +1775,6 @@ begin
     LoadSong(ParamStr(0));
 end;
 
-procedure TfrmTracker.MenuItem10Click(Sender: TObject);
-begin
-
-end;
-
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
 begin
   TrackerGrid.DoUndo;
@@ -1713,11 +1784,6 @@ procedure TfrmTracker.MenuItem12Click(Sender: TObject);
 begin
   if CheckUnsavedChanges then
     FileOpen1.Execute;
-end;
-
-procedure TfrmTracker.MenuItem13Click(Sender: TObject);
-begin
-
 end;
 
 procedure TfrmTracker.MenuItem14Click(Sender: TObject);
@@ -2090,32 +2156,6 @@ begin
     StartPlayback;
     HaltPlayback;
   end;
-end;
-
-procedure TfrmTracker.ToolButton2Click(Sender: TObject);
-begin
-  if GetPreviewReady then begin
-    Playing := True;
-
-    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
-    PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
-
-    UnlockPlayback;
-  end
-end;
-
-procedure TfrmTracker.ToolButton3Click(Sender: TObject);
-begin
-  if GetPreviewReady then begin
-    Playing := True;
-    UnlockPlayback;
-  end;
-end;
-
-procedure TfrmTracker.ToolButton4Click(Sender: TObject);
-begin
-  TrackerGrid.HighlightedRow := -1;
-  HaltPlayback;
 end;
 
 procedure TfrmTracker.ExportGBButtonClick(Sender: TObject);
