@@ -6,11 +6,11 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, SynHighlighterAny,
-  FileUtil, math, Instruments, Waves, Song, EmulationThread, Utils, Constants,
+  FileUtil, math, Instruments, Waves, Song, Utils, Constants,
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, IniFiles, bgrabitmap, effecteditor, RenderToWave,
-  modimport, strutils, Types;
+  modimport, mainloop, strutils, Types;
 
 type
   { TfrmTracker }
@@ -370,8 +370,6 @@ type
     CurrentInstrumentBank: TInstrumentType;
     LoadedFileName: String;
 
-    EmulationThread: TThread;
-
     PreviewingInstrument: Integer;
     DrawingWave: Boolean;
     Playing: Boolean;
@@ -401,8 +399,11 @@ type
     procedure CopyOrderMatrixToOrderGrid;
     procedure CopyWaveIntoWaveRam(Wave: Integer);
     function ConvertWaveToHexString(Wave: Integer): String;
-    function PreparePreview: Boolean;
-    procedure ResetEmulationThread;
+
+    function GetPreviewReady: Boolean;
+    procedure GetROMReady(ROM: String);
+    procedure HaltPlayback;
+    procedure FDCallback;
 
     procedure OnFD(var Msg: TLMessage); message LM_FD;
     procedure OnUndoOccured(var Msg: TLMessage); message LM_UNDO_OCCURED;
@@ -441,7 +442,7 @@ procedure TfrmTracker.UpdateUIAfterLoad(FileName: String = '');
 var
   I: Integer;
 begin
-  ResetEmulationThread;
+  HaltPlayback;
 
   LoadingFile := True; // HACK!!!!!
   LoadInstrument(itSquare, 1);
@@ -669,9 +670,7 @@ procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: TInstrument;
 var
   Regs: TRegisters;
 begin
-  // TODO: Find some way to synchronize with the playback thread, so it doesn't
-  // fail sometimes.
-
+  LockPlayback;
   with Instr do
   begin
     case Type_ of
@@ -710,6 +709,7 @@ begin
       end;
     end;
   end;
+  UnlockPlayback;
 end;
 
 procedure TfrmTracker.PreviewC5;
@@ -723,6 +723,7 @@ end;
 
 procedure TfrmTracker.Panic;
 begin
+  LockPlayback;
   // Silence CH1
   Spokeb(NR12, 0);
   Spokeb(NR14, %10000000);
@@ -737,6 +738,7 @@ begin
   // Silence CH4
   Spokeb(NR42, 0);
   Spokeb(NR44, %10000000);
+  UnlockPlayback;
 end;
 
 procedure TfrmTracker.OnTrackerGridResize(Sender: TObject);
@@ -860,7 +862,7 @@ begin
     Result += hexStr(CurrentWave^[I], 1);
 end;
 
-function TfrmTracker.PreparePreview: Boolean;
+function TfrmTracker.GetPreviewReady: Boolean;
 var
   I: Integer;
 begin
@@ -869,9 +871,8 @@ begin
     SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
 
     // Start emulation on the rendered preview binary
-    StopPlayback;
-    EmulationThread.Free;
-    EmulationThread := TEmulationThread.Create('hUGEDriver/preview.gb');
+    LockPlayback;
+    GetROMReady('hUGEDriver/preview.gb');
     PokeSymbol(SYM_TICKS_PER_ROW, Song.TicksPerRow);
     for I := 0 to 3 do
       snd[I+1].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
@@ -881,7 +882,18 @@ begin
   else Result := False;
 end;
 
-procedure TfrmTracker.ResetEmulationThread;
+procedure TfrmTracker.GetROMReady(ROM: String);
+begin
+  z80_reset;
+  ResetSound;
+  enablesound;
+
+  vars.FDCallback := @Self.FDCallback;
+
+  load(ROM);
+end;
+
+procedure TfrmTracker.HaltPlayback;
 begin
   Playing := False;
 
@@ -891,10 +903,13 @@ begin
   ToolButton2.ImageIndex := 74;
 
   LockPlayback;
-  EmulationThread.Free;
-  EmulationThread := TEmulationThread.Create('halt.gb');
+  GetROMReady('halt.gb');
   UnlockPlayback;
-  //EmulationThread.Start;
+end;
+
+procedure TfrmTracker.FDCallback;
+begin
+  PostMessage(frmTracker.Handle, LM_FD, 0, 0);
 end;
 
 procedure TfrmTracker.OnFD(var Msg: TLMessage);
@@ -1209,11 +1224,8 @@ begin
 
   // Get the emulator ready to make sound...
   EnableSound;
-
-  EmulationThread := TEmulationThread.Create('halt.gb');
   StartPlayback;
-  //EmulationThread.Start;
-  ResetEmulationThread; //TODO: remove this hack
+  HaltPlayback; //TODO: remove this hack
 
   // Start the Oscilloscope repaint timer
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
@@ -1935,19 +1947,12 @@ begin
   if OrderEditStringGrid.Row > -1 then
     ReloadPatterns;
 
-  if Playing then begin
-     if TrackerGrid.HighlightedRow <> 0 then begin
-        if OrderEditStringGrid.Row = 1 then begin
-           if PreparePreview then
-              Playing := True;
-        end
-        else begin
-            PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-2));
-            PokeSymbol(SYM_ROW, 63);
-        end;
-     end;
-     //EmulationThread.Start;
-  end
+  {if Playing then begin
+    LockPlayback;
+    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_ROW, 0);
+    UnlockPlayback;
+  end}
 end;
 
 procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;
@@ -1983,19 +1988,13 @@ procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
 var
   Highest: Integer;
 begin
-  if Playing then begin
-     if  OrderEditStringGrid.Row = 1 then begin
-        if PreparePreview then begin
-           Playing := True;
-        end;
-     end
-     else begin
-       PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-2));
-       PokeSymbol(SYM_ROW, 63);
-     end;
-     //EmulationThread.Start;
+  {if Playing then begin
+    LockPlayback;
+    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_ROW, 0);
+    UnlockPlayback;
   end
-  else begin
+  else} begin
     Highest := Song.Patterns.MaxKey;
 
     with OrderEditStringGrid do begin
@@ -2088,41 +2087,37 @@ end;
 
 procedure TfrmTracker.ToolButton10Click(Sender: TObject);
 begin
-  //EmulationThread.Terminate;
-  StopPlayback;
   if RenderPreviewROM(Song) then begin
     SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
     frmRenderToWave.ShowModal;
-    ResetEmulationThread;
+    HaltPlayback;
   end;
 end;
 
 procedure TfrmTracker.ToolButton2Click(Sender: TObject);
 begin
-  if PreparePreview then begin
+  if GetPreviewReady then begin
     Playing := True;
 
     PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
     PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
 
-    StartPlayback;
-    //EmulationThread.Start;
+    UnlockPlayback;
   end
 end;
 
 procedure TfrmTracker.ToolButton3Click(Sender: TObject);
 begin
-  if PreparePreview then begin
+  if GetPreviewReady then begin
     Playing := True;
-    StartPlayback;
-    //EmulationThread.Start;
+    UnlockPlayback;
   end;
 end;
 
 procedure TfrmTracker.ToolButton4Click(Sender: TObject);
 begin
   TrackerGrid.HighlightedRow := -1;
-  ResetEmulationThread;
+  HaltPlayback;
 end;
 
 procedure TfrmTracker.ExportGBButtonClick(Sender: TObject);
