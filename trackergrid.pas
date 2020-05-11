@@ -356,8 +356,13 @@ begin
   case Key of
     VK_UP: Dec(Cursor.Y);
     VK_DOWN: Inc(Cursor.Y);
+    VK_PRIOR: Dec(Cursor.Y, 16);
+    VK_NEXT: Inc(Cursor.Y, 16);
     VK_LEFT: DecSelectionPos(Cursor);
     VK_RIGHT: IncSelectionPos(Cursor);
+    {VK_TAB: begin
+      if ssShift in Shift then Dec(Cursor.X) else Inc(Cursor.X);
+    end}
     else
       if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
         case Cursor.SelectedPart of

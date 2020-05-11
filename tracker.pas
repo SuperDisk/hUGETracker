@@ -16,6 +16,12 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    GotoGeneralAction: TAction;
+    GotoPatternsAction: TAction;
+    GotoInstrumentsAction: TAction;
+    GotoWavesAction: TAction;
+    GotoCommentsAction: TAction;
+    GotoRoutinesAction: TAction;
     DeleteRowAction: TAction;
     DeleteRowForAllAction: TAction;
     InsertRowForAllAction: TAction;
@@ -242,6 +248,12 @@ type
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
+    procedure GotoCommentsActionExecute(Sender: TObject);
+    procedure GotoGeneralActionExecute(Sender: TObject);
+    procedure GotoInstrumentsActionExecute(Sender: TObject);
+    procedure GotoPatternsActionExecute(Sender: TObject);
+    procedure GotoRoutinesActionExecute(Sender: TObject);
+    procedure GotoWavesActionExecute(Sender: TObject);
     procedure HexWaveEditEditingDone(Sender: TObject);
     procedure InsertRowActionExecute(Sender: TObject);
     procedure InsertRowActionUpdate(Sender: TObject);
@@ -1512,6 +1524,36 @@ begin
 
     LoadSong(FileNames[0]);
   end;
+end;
+
+procedure TfrmTracker.GotoGeneralActionExecute(Sender: TObject);
+begin
+  PageControl1.TabIndex := 0;
+end;
+
+procedure TfrmTracker.GotoPatternsActionExecute(Sender: TObject);
+begin
+  PageControl1.TabIndex := 1;
+end;
+
+procedure TfrmTracker.GotoInstrumentsActionExecute(Sender: TObject);
+begin
+  PageControl1.TabIndex := 2;
+end;
+
+procedure TfrmTracker.GotoWavesActionExecute(Sender: TObject);
+begin
+  PageControl1.TabIndex := 3;
+end;
+
+procedure TfrmTracker.GotoCommentsActionExecute(Sender: TObject);
+begin
+  PageControl1.TabIndex := 4;
+end;
+
+procedure TfrmTracker.GotoRoutinesActionExecute(Sender: TObject);
+begin
+  PageControl1.TabIndex := 5;
 end;
 
 procedure TfrmTracker.HexWaveEditEditingDone(Sender: TObject);

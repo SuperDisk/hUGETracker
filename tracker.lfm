@@ -5300,5 +5300,35 @@ object frmTracker: TfrmTracker
       OnUpdate = DeleteRowForAllActionUpdate
       ShortCut = 16392
     end
+    object GotoGeneralAction: TAction
+      Caption = 'GotoGeneralAction'
+      OnExecute = GotoGeneralActionExecute
+      ShortCut = 32839
+    end
+    object GotoPatternsAction: TAction
+      Caption = 'GotoPatternsAction'
+      OnExecute = GotoPatternsActionExecute
+      ShortCut = 32848
+    end
+    object GotoInstrumentsAction: TAction
+      Caption = 'GotoInstrumentsAction'
+      OnExecute = GotoInstrumentsActionExecute
+      ShortCut = 32841
+    end
+    object GotoWavesAction: TAction
+      Caption = 'GotoWavesAction'
+      OnExecute = GotoWavesActionExecute
+      ShortCut = 32855
+    end
+    object GotoCommentsAction: TAction
+      Caption = 'GotoCommentsAction'
+      OnExecute = GotoCommentsActionExecute
+      ShortCut = 32835
+    end
+    object GotoRoutinesAction: TAction
+      Caption = 'GotoRoutinesAction'
+      OnExecute = GotoRoutinesActionExecute
+      ShortCut = 32850
+    end
   end
 end
