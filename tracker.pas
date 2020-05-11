@@ -388,6 +388,8 @@ type
 
     VisualizerBuffer: TBGRABitmap;
 
+    InFDCallback: Boolean;
+
     procedure ChangeToSquare;
     procedure ChangeToWave;
     procedure ChangeToNoise;
@@ -914,8 +916,10 @@ end;
 
 procedure TfrmTracker.OnFD(var Msg: TLMessage);
 begin
+  InFDCallback := True; // HACK!!!!!!!!!
   TrackerGrid.HighlightedRow := PeekSymbol(SYM_ROW);
   OrderEditStringGrid.Row := (PeekSymbol(SYM_CURRENT_ORDER) div 2) + 1;
+  InFDCallback := False; // HACK!!!!!!!!
 end;
 
 procedure TfrmTracker.OnUndoOccured(var Msg: TLMessage);
@@ -1947,12 +1951,12 @@ begin
   if OrderEditStringGrid.Row > -1 then
     ReloadPatterns;
 
-  {if Playing then begin
+  if not InFDCallback then begin // Hacky solution, but probably the best there is.
     LockPlayback;
-    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
-    PokeSymbol(SYM_ROW, 0);
+    PokeSymbol(SYM_NEXT_ORDER, OrderEditStringGrid.Row);
+    PokeSymbol(SYM_ROW_BREAK, 1);
     UnlockPlayback;
-  end}
+  end
 end;
 
 procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;
@@ -1988,19 +1992,11 @@ procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
 var
   Highest: Integer;
 begin
-  {if Playing then begin
-    LockPlayback;
-    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
-    PokeSymbol(SYM_ROW, 0);
-    UnlockPlayback;
-  end
-  else} begin
-    Highest := Song.Patterns.MaxKey;
+  Highest := Song.Patterns.MaxKey;
 
-    with OrderEditStringGrid do begin
-      Cells[Col, Row] := IntToStr(Highest);
-      TrackerGrid.LoadPattern(Col - 1, Highest);
-    end;
+  with OrderEditStringGrid do begin
+    Cells[Col, Row] := IntToStr(Highest);
+    TrackerGrid.LoadPattern(Col - 1, Highest);
   end;
 end;
 
@@ -2088,8 +2084,10 @@ end;
 procedure TfrmTracker.ToolButton10Click(Sender: TObject);
 begin
   if RenderPreviewROM(Song) then begin
+    StopPlayback;
     SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
     frmRenderToWave.ShowModal;
+    StartPlayback;
     HaltPlayback;
   end;
 end;

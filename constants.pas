@@ -29,7 +29,10 @@ const
   LM_PREVIEW_NOTE = LM_USER + 2;
 
   SYM_ROW = 'row';
+  SYM_TICK = 'tick';
   SYM_CURRENT_ORDER = 'current_order';
+  SYM_NEXT_ORDER = 'next_order';
+  SYM_ROW_BREAK = 'row_break';
   SYM_TICKS_PER_ROW = 'ticks_per_row';
   SYM_ORDER_COUNT = 'order_cnt';
 

@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 671
+  Left = 1811
   Height = 687
-  Top = 221
+  Top = 297
   Width = 1145
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -62,10 +62,10 @@ object frmTracker: TfrmTracker
       Height = 555
       Top = 0
       Width = 947
-      ActivePage = GeneralTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'

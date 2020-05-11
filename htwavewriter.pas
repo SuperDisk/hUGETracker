@@ -16,7 +16,8 @@
 
 {
   This is a vendored version of the FPC fpWavWriter unit, which removes an
-  accidental debugging leftover which causes output to take forever.
+  accidental debugging leftover, and explicitly removes range checks on
+  a misbehaving function.
 }
 
 unit htWaveWriter;
@@ -86,6 +87,9 @@ begin
   end;
 end;
 
+// This whole module should probably be rewritten (and contributed back to FPC)
+// but for now, disable range checks in this routine
+{$push}{$R-}
 function TWavWriter.FlushHeader: Boolean;
 var
   riff: TRiffHeader;
@@ -114,6 +118,7 @@ begin
     Result := Write(DataChunk, SizeOf(DataChunk)) = SizeOf(DataChunk);
   end;
 end;
+{$pop}
 
 function TWavWriter.StoreToFile(const FileName: string):Boolean;
 begin
