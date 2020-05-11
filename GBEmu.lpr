@@ -53,7 +53,7 @@ begin
       DeleteFile('heap.trc');
     SetHeapTraceOutput('heap.trc');
 
-    Writeln(StdErr, 'Using heaptrc...');
+    Writeln(StdErr, '[DEBUG] Using heaptrc...');
   {$endIf}
 
   { Before the LCL starts, embed Pixelite so users dont have to install it.
@@ -62,7 +62,7 @@ begin
 
   {$ifdef MSWINDOWS}
     if AddFontResource('PixeliteTTF.ttf') = 0 then
-      Writeln(StdErr, 'Couldn''t load Pixelite!!!');
+      Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
 
     ExitProc := @WindowsExitProc;
   {$endif}

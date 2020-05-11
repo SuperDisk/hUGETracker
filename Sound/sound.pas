@@ -161,8 +161,6 @@ procedure EndWritingSoundToStream;
 var
   soundEnable: boolean;
   sndRegChange: boolean;
-  sndBuffer: ^Single;
-  sndBytesWritten: Integer;
   snd: array[1..4] of record
     // public:
     ChannelOFF: boolean; // (un)mute Channel
@@ -191,6 +189,10 @@ const
 var
   PlayStream: TSDL_AudioDeviceID;
   bufCycles, bufLVal, bufRVal: integer;
+
+  sndBuffer: ^Single;
+  sndBytesWritten: Integer;
+
   lfsr: Cardinal = 0;
 
   WritingSoundToStream: Boolean;
@@ -269,6 +271,7 @@ begin
   sndBuffer := PSingle(Stream);
   while sndBytesWritten < len do
     z80_decode;
+  if sndBytesWritten > len then Writeln(StdErr, '[WARNING] Audio callback wrote into uninitialized ram!');
   sndBytesWritten := 0;
 end;
 
@@ -287,7 +290,7 @@ begin
   Want.freq := playbackFrequency;
   Want.format := AUDIO_F32;
   Want.channels := 2;
-  Want.samples := 1024; //512;
+  Want.samples := 512;
   Want.callback := @AudioCallback;
 
   PlayStream := SDL_OpenAudioDevice(nil, 0, @Want, @Have, 0);
@@ -336,7 +339,6 @@ begin
       sndBuffer^ := buf[1];
       Inc(sndBuffer);
       Inc(sndBytesWritten, SampleSize);
-      //SDL_QueueAudio(PlayStream, @buf, SampleSize);
     end;
   end;
 end;

@@ -399,7 +399,7 @@ begin
     Other.SelectedPart := High(TCellPart);
   except
     on E: Exception do
-      WriteLn(StdErr, 'Clipboard did not contain valid note data!');
+      WriteLn(StdErr, '[DEBUG] Clipboard did not contain valid note data!');
   end;
 end;
 

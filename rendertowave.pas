@@ -153,7 +153,7 @@ begin
 
   z80_reset;
   ResetSound;
-  //enablesound;
+  enablesound;
 
   FDCallback := nil;
   load('hUGEDriver/preview.gb');
