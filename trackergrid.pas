@@ -362,9 +362,15 @@ begin
     VK_NEXT: Inc(Cursor.Y, 16);
     VK_LEFT: DecSelectionPos(Cursor);
     VK_RIGHT: IncSelectionPos(Cursor);
-    {VK_TAB: begin
-      if ssShift in Shift then Dec(Cursor.X) else Inc(Cursor.X);
-    end}
+    VK_TAB: begin
+      if ssShift in Shift then  begin
+        Dec(Cursor.X);
+        Exclude(Shift, ssShift)
+      end
+      else
+        Inc(Cursor.X);
+      Key := 0;
+    end
     else
       if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
         case Cursor.SelectedPart of
@@ -381,10 +387,10 @@ begin
 
   if not (ssShift in Shift) then
     Other := Cursor;
+
   Selecting := ssShift in Shift;
 
   ClampCursors;
-
   Invalidate
 end;
 
