@@ -16,6 +16,8 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    IncrementCurrentInstrumentAction: TAction;
+    DecrementCurrentInstrumentAction: TAction;
     GotoGeneralAction: TAction;
     GotoPatternsAction: TAction;
     GotoInstrumentsAction: TAction;
@@ -240,6 +242,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
+    procedure DecrementCurrentInstrumentActionExecute(Sender: TObject);
     procedure DeleteRowActionExecute(Sender: TObject);
     procedure DeleteRowActionUpdate(Sender: TObject);
     procedure DeleteRowForAllActionExecute(Sender: TObject);
@@ -255,6 +258,7 @@ type
     procedure GotoRoutinesActionExecute(Sender: TObject);
     procedure GotoWavesActionExecute(Sender: TObject);
     procedure HexWaveEditEditingDone(Sender: TObject);
+    procedure IncrementCurrentInstrumentActionExecute(Sender: TObject);
     procedure InsertRowActionExecute(Sender: TObject);
     procedure InsertRowActionUpdate(Sender: TObject);
     procedure InsertRowForAllActionExecute(Sender: TObject);
@@ -453,7 +457,7 @@ type
     procedure Panic;
   public
     procedure OnTrackerGridResize(Sender: TObject);
-
+    procedure OnTrackerGridCursorOutOfBounds;
   end;
 
 var
@@ -777,6 +781,21 @@ begin
     (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
 end;
 
+procedure TfrmTracker.OnTrackerGridCursorOutOfBounds;
+begin
+  if  (TrackerGrid.Cursor.Y > High(TPattern))
+  and (OrderEditStringGrid.Row < OrderEditStringGrid.RowCount-1) then begin
+    OrderEditStringGrid.Row := OrderEditStringGrid.Row+1;
+    TrackerGrid.Cursor.Y := Low(TPattern);
+  end;
+
+  if  (TrackerGrid.Cursor.Y < Low(TPattern))
+  and (OrderEditStringGrid.Row > 1) then begin
+    OrderEditStringGrid.Row := OrderEditStringGrid.Row-1;
+    TrackerGrid.Cursor.Y := High(TPattern);
+  end;
+end;
+
 procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
@@ -974,6 +993,7 @@ begin
   if Assigned(TrackerGrid) then TrackerGrid.Free;
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
+  TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
 
   TrackerGrid.FontSize := OptionsFile.ReadInteger('hUGETracker', 'fontsize', 12);
   ScopesOn := OptionsFile.ReadBool('hUGETracker', 'ScopesOn', True);
@@ -1574,6 +1594,11 @@ begin
   end;
 end;
 
+procedure TfrmTracker.IncrementCurrentInstrumentActionExecute(Sender: TObject);
+begin
+  InstrumentComboBox.ItemIndex := EnsureRange(InstrumentComboBox.ItemIndex+1, 0, InstrumentComboBox.Items.Count-1);
+end;
+
 procedure TfrmTracker.InsertRowActionExecute(Sender: TObject);
 begin
   TrackerGrid.InsertRowInPatternAtCursor(TrackerGrid.Cursor.X);
@@ -1667,6 +1692,11 @@ end;
 procedure TfrmTracker.Button1Click(Sender: TObject);
 begin
   PreviewC5;
+end;
+
+procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);
+begin
+    InstrumentComboBox.ItemIndex := EnsureRange(InstrumentComboBox.ItemIndex-1, 0, InstrumentComboBox.Items.Count-1);
 end;
 
 procedure TfrmTracker.DeleteRowActionExecute(Sender: TObject);

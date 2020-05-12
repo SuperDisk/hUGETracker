@@ -121,6 +121,8 @@ type
 
     SelectedInstrument, SelectedOctave, Step: Integer;
 
+    OnCursorOutOfBounds: procedure of object;
+
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
     property FontSize: Integer read FFontSize write SetFontSize;
@@ -374,7 +376,10 @@ begin
         end;
   end;
 
-  if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
+  if (Cursor.Y > High(TPattern)) or (Cursor.Y < Low(TPattern)) then
+    if Assigned(OnCursorOutOfBounds) then OnCursorOutOfBounds;
+
+  if not (ssShift in Shift) then
     Other := Cursor;
   Selecting := ssShift in Shift;
 

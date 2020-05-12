@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1459
+  Left = 1336
   Height = 687
-  Top = 339
+  Top = 320
   Width = 1145
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -5235,7 +5235,7 @@ object frmTracker: TfrmTracker
   object ShortcutsActionList: TActionList
     Images = ImageList1
     left = 208
-    top = 36
+    top = 32
     object PlayStartAction: TAction
       Caption = '▶️ Start'
       DisableIfNoHandler = False
@@ -5274,12 +5274,14 @@ object frmTracker: TfrmTracker
       ShortCut = 27
     end
     object InsertRowAction: TAction
+      Category = 'TrackerGrid'
       Caption = 'Insert Row'
       OnExecute = InsertRowActionExecute
       OnUpdate = InsertRowActionUpdate
       ShortCut = 45
     end
     object InsertRowForAllAction: TAction
+      Category = 'TrackerGrid'
       Caption = 'InsertRowForAllAction'
       OnExecute = InsertRowForAllActionExecute
       OnUpdate = InsertRowForAllActionUpdate
@@ -5289,12 +5291,14 @@ object frmTracker: TfrmTracker
       ShortCut = 16429
     end
     object DeleteRowAction: TAction
+      Category = 'TrackerGrid'
       Caption = 'DeleteRowAction'
       OnExecute = DeleteRowActionExecute
       OnUpdate = DeleteRowActionUpdate
       ShortCut = 8
     end
     object DeleteRowForAllAction: TAction
+      Category = 'TrackerGrid'
       Caption = 'DeleteRowForAllAction'
       OnExecute = DeleteRowForAllActionExecute
       OnUpdate = DeleteRowForAllActionUpdate
@@ -5329,6 +5333,19 @@ object frmTracker: TfrmTracker
       Caption = 'GotoRoutinesAction'
       OnExecute = GotoRoutinesActionExecute
       ShortCut = 32850
+    end
+    object IncrementCurrentInstrumentAction: TAction
+      Caption = 'IncrementCurrentInstrumentAction'
+      OnExecute = IncrementCurrentInstrumentActionExecute
+      SecondaryShortCuts.Strings = (
+        'Shift+='
+      )
+      ShortCut = 8379
+    end
+    object DecrementCurrentInstrumentAction: TAction
+      Caption = 'DecrementCurrentInstrumentAction'
+      OnExecute = DecrementCurrentInstrumentActionExecute
+      ShortCut = 8381
     end
   end
 end
