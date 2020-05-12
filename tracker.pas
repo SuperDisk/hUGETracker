@@ -28,6 +28,7 @@ type
     DeleteRowForAllAction: TAction;
     InsertRowForAllAction: TAction;
     InsertRowAction: TAction;
+    MenuItem39: TMenuItem;
     StopAction: TAction;
     PlayOrderAction: TAction;
     PlayCursorAction: TAction;

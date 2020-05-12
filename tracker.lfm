@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1336
+  Left = 450
   Height = 687
-  Top = 320
+  Top = 192
   Width = 1145
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -61,10 +61,10 @@ object frmTracker: TfrmTracker
       Height = 555
       Top = 0
       Width = 947
-      ActivePage = PatternTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -289,7 +289,7 @@ object frmTracker: TfrmTracker
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
-        ClientHeight = 502
+        ClientHeight = 527
         ClientWidth = 939
         ParentFont = False
         object PaintBox1: TPaintBox
@@ -297,7 +297,7 @@ object frmTracker: TfrmTracker
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 64
+          Height = 89
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
           Top = 438
           Width = 939
@@ -4621,8 +4621,8 @@ object frmTracker: TfrmTracker
     top = 56
   end
   object OrderEditPopup: TPopupMenu
-    left = 160
-    top = 91
+    left = 288
+    top = 32
     object MenuItem17: TMenuItem
       Caption = 'Insert new row'
       Hint = 'Insert a new row filled with brand new patterns'
@@ -4944,8 +4944,8 @@ object frmTracker: TfrmTracker
     top = 86
   end
   object TrackerGridPopup: TPopupMenu
-    left = 112
-    top = 56
+    left = 248
+    top = 32
     object TrackerPopupEditEffect: TMenuItem
       Caption = 'Edit effect ...'
       OnClick = TrackerPopupEditEffectClick
@@ -4955,6 +4955,7 @@ object frmTracker: TfrmTracker
     end
     object TrackerPopupSelectAll: TMenuItem
       Caption = 'Select all'
+      ShortCut = 24652
       OnClick = TrackerPopupSelectAllClick
     end
     object TrackerPopupSelectChannel: TMenuItem
@@ -5080,6 +5081,11 @@ object frmTracker: TfrmTracker
         Caption = '-10'
         ShortCut = 24685
         OnClick = OnDecrementValueBy10Click
+      end
+      object MenuItem39: TMenuItem
+        Caption = 'Redo2'
+        ShortCut = 24666
+        OnClick = TrackerPopupRedoClick
       end
     end
   end
