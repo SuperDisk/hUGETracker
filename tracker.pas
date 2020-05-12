@@ -1274,8 +1274,8 @@ begin
 
   // Get the emulator ready to make sound...
   EnableSound;
-  StartPlayback;
   HaltPlayback;
+  StartPlayback;
 
   // Start the Oscilloscope repaint timer
   OscilloscopeUpdateTimer.Enabled := ScopesOn;

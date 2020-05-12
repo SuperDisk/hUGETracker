@@ -67,7 +67,9 @@ type
     procedure DblClick; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
   private
-    procedure PerformPaste(Paste: TSelection);
+    function GetSelection: TSelection;
+    procedure PerformPaste(Paste: TSelection); overload;
+    procedure PerformPaste(Paste: TSelection; Where: TSelectionPos); overload;
     procedure PerformCopy;
     procedure DoPaste(var Msg: TLMessage); message LM_PASTE;
     procedure DoCopy(var Msg: TLMessage); message LM_COPY;
@@ -108,6 +110,10 @@ type
 
     MouseButtonDown: Boolean;
     Selecting: Boolean;
+    DraggingSelection: Boolean;
+    MouseMoveHappened: Boolean;
+    DragSelCursor, DragSelOther: TSelectionPos;
+    DragOffsetY: Integer;
 
     Performed: TUndoDeque;
     Recall: TRedoStack;
@@ -284,6 +290,8 @@ begin
   Canvas.Rectangle(R);
 
   RenderSelectedArea;
+  if DraggingSelection then
+    Canvas.DrawFocusRect(SelectionsToRect(DragSelCursor, DragSelOther));
 end;
 
 procedure TTrackerGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
@@ -292,7 +300,8 @@ var
   Clicked: TSelectionPos;
 begin
   inherited MouseDown(Button, Shift, X, Y);
-  if (Button = mbRight) and Selecting then Exit;
+
+  if (Button = mbRight) and (Cursor <> Other) then Exit;
 
   if (Button = mbLeft) and not (ssShift in Shift) then
     MouseButtonDown := True;
@@ -305,38 +314,92 @@ begin
   if ssShift in Shift then
     Other := Clicked
   else begin
-    Cursor := Clicked;
-    Other := Cursor;
-    Selecting := False;
+    if not SelectionsToRect(Cursor, Other).IntersectsWith(SelectionToRect(Clicked)) then begin
+      Cursor := Clicked;
+      Other := Cursor;
+      Selecting := False;
+    end
   end;
 
-  NormalizeCursors;
+  MouseMoveHappened := False;
 
+  NormalizeCursors;
   Invalidate;
 end;
 
 procedure TTrackerGrid.MouseMove(Shift: TShiftState; X, Y: Integer);
+var
+  Click, Drag: TSelectionPos;
+  SelectionRect: TRect;
 begin
   inherited MouseMove(Shift, X, Y);
 
-  if MouseButtonDown then begin
-    Selecting := True;
-    Other := MousePosToSelection(X, Y);
-
-    ClampCursors;
-
-    Invalidate;
+  Click := MousePosToSelection(X, Y);
+  if  MouseButtonDown
+  and ((Cursor <> Other) or (Cursor.Y <> Other.Y)) // <> is overridden
+  and (not Selecting)
+  and (not MouseMoveHappened)
+  and SelectionsToRect(Cursor, Other).IntersectsWith(SelectionToRect(Click)) then begin
+    DraggingSelection := True;
+    SelectionRect := SelectionsToRect(Cursor, Other);
+    DragOffsetY := Y - SelectionRect.Top;
   end;
+
+  if MouseButtonDown then begin
+    if DraggingSelection then begin
+      Drag := MousePosToSelection(X, Y - DragOffsetY);
+      DragSelCursor := Cursor;
+      DragSelOther := Other;
+
+      DragSelCursor.X := Drag.X;
+      DragSelCursor.Y := Drag.Y;
+
+      DragSelOther.X := DragSelCursor.X + (Other.X - Cursor.X);
+      DragSelOther.Y := DragSelCursor.Y + (Other.Y - Cursor.Y);
+
+      Invalidate;
+    end
+    else begin
+      Selecting := True;
+      Other := Click;
+
+      ClampCursors;
+      Invalidate;
+    end;
+  end;
+
+  MouseMoveHappened := True;
 end;
 
 procedure TTrackerGrid.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
+var
+  Selection: TSelection;
 begin
   inherited MouseUp(Button, Shift, X, Y);
 
-  NormalizeCursors;
+  if (not Selecting) and (not MouseMoveHappened) then begin
+    Cursor := MousePosToSelection(X, Y);
+    Other := Cursor;
+  end;
 
+  Selecting := False;
+  MouseMoveHappened := False;
   MouseButtonDown := False;
+
+  if DraggingSelection then begin
+    Selection := GetSelection;
+    EraseSelection;
+    PerformPaste(Selection, DragSelCursor);
+    Cursor := DragSelCursor;
+    Other := DragSelOther;
+
+    DraggingSelection := False;
+    SaveUndoState;
+  end;
+
+  NormalizeCursors;
+  Invalidate;
 end;
 
 procedure TTrackerGrid.DblClick;
@@ -388,13 +451,28 @@ begin
   if not (ssShift in Shift) then
     Other := Cursor;
 
-  Selecting := ssShift in Shift;
-
   ClampCursors;
   Invalidate
 end;
 
-procedure TTrackerGrid.PerformPaste(Paste: TSelection);
+function TTrackerGrid.GetSelection: TSelection;
+var
+  R: Integer;
+  Rect: TRect;
+  SelRow: TSelectionRow;
+begin
+  NormalizeCursors;
+
+  Rect := SelectionGridRect;
+  SetLength(Result, Rect.Height+1);
+  R := 0;
+  for SelRow in TSelectionEnumerator.Create(Patterns, Cursor, Other) do begin
+    Result[R] := SelRow;
+    Inc(R)
+  end;
+end;
+
+procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos);
 procedure OverlayCell(var Cell1: TCell; const Cell2: TSelectedCell);
 begin
   if cpNote in Cell2.Parts then Cell1.Note := Cell2.Cell.Note;
@@ -408,12 +486,13 @@ var
 begin
   try
     for Y := 0 to High(Paste) do begin
-      if Cursor.Y+Y > High(TPattern) then Break;
+      if not InRange(Where.Y+Y, Low(TPattern), High(TPattern)) then Continue;
       for X := 0 to High(Paste[Y]) do begin
-        if Cursor.X+X > High(Patterns) then Break;
-        OverlayCell(Patterns[Cursor.X + X]^[Cursor.Y + Y], Paste[Y, X]);
+        if not InRange(Where.X+X, Low(Patterns), High(Patterns)) then Continue;
+        OverlayCell(Patterns[Where.X + X]^[Where.Y + Y], Paste[Y, X]);
       end;
     end;
+    Cursor := Where;
     Other.X := Cursor.X + X;
     Other.Y := Cursor.Y + Y;
     Cursor.SelectedPart := Low(TCellPart);
@@ -422,6 +501,11 @@ begin
     on E: Exception do
       WriteLn(StdErr, '[DEBUG] Clipboard did not contain valid note data!');
   end;
+end;
+
+procedure TTrackerGrid.PerformPaste(Paste: TSelection);
+begin
+  PerformPaste(Paste, Cursor);
 end;
 
 procedure TTrackerGrid.PerformCopy;
@@ -455,23 +539,8 @@ begin
 end;
 
 procedure TTrackerGrid.DoCopy(var Msg: TLMessage);
-var
-  Selection: TSelection;
-  R: Integer;
-  Rect: TRect;
-  SelRow: TSelectionRow;
 begin
-  NormalizeCursors;
-
-  Rect := SelectionGridRect;
-  SetLength(Selection, Rect.Height+1);
-  R := 0;
-  for SelRow in TSelectionEnumerator.Create(Patterns, Cursor, Other) do begin
-    Selection[R] := SelRow;
-    Inc(R)
-  end;
-
-  CopyCells(Selection);
+  CopyCells(GetSelection);
 end;
 
 procedure TTrackerGrid.DoCut(var Msg: TLMessage);
