@@ -5,7 +5,7 @@ unit Constants;
 interface
 
 uses
-  fgl, LMessages;
+  fgl, LMessages, Graphics;
 
 type
   TNoteMap = specialize TFPGMap<Integer, String>;
@@ -18,6 +18,9 @@ type
   TRoutineIndex = 0..15;
 
 const
+  clGameboyBlack = TColor($211807);
+  clGameboyMidGreen = TColor($6CC086);
+
   UGE_FORMAT_VERSION = 3;
 
   INSTRUMENTS_COUNT = 45;

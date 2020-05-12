@@ -612,9 +612,9 @@ begin
   HInterval := H div 15;
 
   With PB.Canvas do begin
-    Brush.Color := TColor($211807);  // Gameboy Black
+    Brush.Color := clGameboyBlack;
     Clear;
-    Pen.Color := TColor($6CC086);   // Gameboy Mid Green
+    Pen.Color := clGameboyMidGreen;
     Pen.Width := 3;
     MoveTo(0, H-V*HInterval); // Start volume
 
@@ -656,7 +656,7 @@ begin
   with VisualizerBuffer.Canvas do begin
     MoveTo(0, PB.Height div 2);
 
-    Brush.Color := TColor($211807); // Gameboy Black
+    Brush.Color := clGameboyBlack;
     Clear;
 
     Pen.Color := clGray;
@@ -665,7 +665,7 @@ begin
     Pen.Width := 2;
 
     if not snd[Channel].ChannelOFF then begin
-      Pen.Color := TColor($6CC086); // Gameboy Mid Green
+      Pen.Color := clGameboyMidGreen;
 
       X := 0;
       I := 0;
@@ -681,7 +681,7 @@ begin
       end;
     end
     else begin
-      Pen.Color := TColor($0C0094);
+      Pen.Color := TColor($0C0094); // what color is this?
       Line(0, 0, PB.Width, PB.Height);
       Line(0, PB.Height, PB.Width, 0);
     end;
