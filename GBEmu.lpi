@@ -149,27 +149,24 @@
         </Mode0>
       </Modes>
     </RunParams>
-    <RequiredPackages Count="6">
+    <RequiredPackages Count="5">
       <Item1>
         <PackageName Value="BGRABitmapPack"/>
       </Item1>
       <Item2>
-        <PackageName Value="etpackage"/>
+        <PackageName Value="RackCtlsPkg"/>
       </Item2>
       <Item3>
-        <PackageName Value="RackCtlsPkg"/>
+        <PackageName Value="SynEdit"/>
       </Item3>
       <Item4>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="LazControls"/>
       </Item4>
       <Item5>
-        <PackageName Value="LazControls"/>
-      </Item5>
-      <Item6>
         <PackageName Value="LCL"/>
-      </Item6>
+      </Item5>
     </RequiredPackages>
-    <Units Count="26">
+    <Units Count="24">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -213,99 +210,89 @@
         <UnitName Value="Song"/>
       </Unit8>
       <Unit9>
-        <Filename Value="emulationthread.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="EmulationThread"/>
-      </Unit9>
-      <Unit10>
         <Filename Value="utils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Utils"/>
-      </Unit10>
-      <Unit11>
+      </Unit9>
+      <Unit10>
         <Filename Value="constants.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Constants"/>
-      </Unit11>
-      <Unit12>
+      </Unit10>
+      <Unit11>
         <Filename Value="waves.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Waves"/>
-      </Unit12>
-      <Unit13>
+      </Unit11>
+      <Unit12>
         <Filename Value="about_hugetracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAboutHugetracker"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit13>
-      <Unit14>
+      </Unit12>
+      <Unit13>
         <Filename Value="trackergrid.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TrackerGrid"/>
-      </Unit14>
-      <Unit15>
-        <Filename Value="patterns.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Patterns"/>
-      </Unit15>
-      <Unit16>
+      </Unit13>
+      <Unit14>
         <Filename Value="clipboardutils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ClipboardUtils"/>
-      </Unit16>
-      <Unit17>
+      </Unit14>
+      <Unit15>
         <Filename Value="hugedatatypes.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="HugeDatatypes"/>
-      </Unit17>
-      <Unit18>
+      </Unit15>
+      <Unit16>
         <Filename Value="codegen.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Codegen"/>
-      </Unit18>
-      <Unit19>
+      </Unit16>
+      <Unit17>
         <Filename Value="symparser.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SymParser"/>
-      </Unit19>
-      <Unit20>
+      </Unit17>
+      <Unit18>
         <Filename Value="effecteditor.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmEffectEditor"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit20>
-      <Unit21>
+      </Unit18>
+      <Unit19>
         <Filename Value="options.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmOptions"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit21>
-      <Unit22>
+      </Unit19>
+      <Unit20>
         <Filename Value="rendertowave.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmRenderToWave"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="RenderToWave"/>
-      </Unit22>
-      <Unit23>
+      </Unit20>
+      <Unit21>
         <Filename Value="htwavewriter.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="htWaveWriter"/>
-      </Unit23>
-      <Unit24>
+      </Unit21>
+      <Unit22>
         <Filename Value="nullstream.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="NullStream"/>
-      </Unit24>
-      <Unit25>
+      </Unit22>
+      <Unit23>
         <Filename Value="modimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MODImport"/>
-      </Unit25>
+      </Unit23>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -331,8 +318,6 @@
         <StackChecks Value="True"/>
       </Checks>
       <VerifyObjMethodCallValidity Value="True"/>
-      <TargetCPU Value="i386"/>
-      <TargetOS Value="win32"/>
       <Optimizations>
         <OptimizationLevel Value="0"/>
       </Optimizations>
