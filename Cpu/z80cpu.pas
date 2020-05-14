@@ -21,7 +21,7 @@ uses vars, machine;
 
 // temporary variables
 var
-  b: Pair;
+  b_pair: Pair;
   cycle: byte;
   b1: byte;
   w1, w2: word;
@@ -73,7 +73,7 @@ end;
 function INC_BC: byte;
 begin
   asm
-           INC     bc.w
+           INC     [rip+bc.w]
   end;
 
   Result := 8;
@@ -82,11 +82,11 @@ end;
 function INC_B: byte;
 begin
   asm
-           INC     bc.h
+           INC     [rip+bc.h]
            LAHF
            AND     EAX,$5100
-           AND     af.l,1
-           OR      af.l,AH
+           AND     [rip+af.l],1
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -95,12 +95,12 @@ end;
 function DEC_B: byte;
 begin
   asm
-           DEC     bc.h
+           DEC     [rip+bc.h]
            LAHF
-           AND     af.l,1
+           AND     [rip+af.l],1
            AND     EAX,$5500
            OR      EAX,$400
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -126,10 +126,10 @@ end;
 function RLCA: byte;
 begin
   asm
-           ROL     af.h,1
+           ROL     [rip+af.h],1
            LAHF
            AND     EAX,$100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
 
@@ -176,9 +176,9 @@ end;
 function ADD_HL_BC: byte;
 begin
   asm
-           AND     af.l,64
-           MOV     AX,hl.w
-           MOV     BX,bc.w
+           AND     [rip+af.l],64
+           MOV     AX,[rip+hl.w]
+           MOV     BX,[rip+bc.w]
 
 
            MOV     ECX,EAX
@@ -186,14 +186,14 @@ begin
 
            ADD     AX,BX
            JNC     @1
-           OR      af.l,1
+           OR      [rip+af.l],1
            @1:
            XOR     ECX,EAX
            TEST    ECX,4096
            JZ      @ende
-           OR      af.l,16
+           OR      [rip+af.l],16
            @ende:
-           MOV     hl.w,AX
+           MOV     [rip+hl.w],AX
 
   end;
   Result := 8;
@@ -217,7 +217,7 @@ end;
 function DEC_BC: byte;
 begin
   asm
-           DEC     bc.w
+           DEC     [rip+bc.w]
   end;
 
   Result := 8;
@@ -226,11 +226,11 @@ end;
 function INC_C: byte;
 begin
   asm
-           INC     bc.l
+           INC     [rip+bc.l]
            LAHF
            AND     EAX,$5100
-           AND     af.l,1
-           OR      af.l,AH
+           AND     [rip+af.l],1
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -239,12 +239,12 @@ end;
 function DEC_C: byte;
 begin
   asm
-           DEC     bc.l
+           DEC     [rip+bc.l]
            LAHF
-           AND     af.l,1
+           AND     [rip+af.l],1
            AND     EAX,$5500
            OR      EAX,$400
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -269,10 +269,10 @@ end;
 function RRCA: byte;
 begin
   asm
-           ROR     af.h,1
+           ROR     [rip+af.h],1
            LAHF
            AND     EAX,$100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
 
@@ -328,7 +328,7 @@ end;
 function INC_DE: byte;
 begin
   asm
-           INC     de.w
+           INC     [rip+de.w]
   end;
   Result := 8;
 end;
@@ -336,11 +336,11 @@ end;
 function INC_D: byte;
 begin
   asm
-           INC     de.h
+           INC     [rip+de.h]
            LAHF
            AND     EAX,$5100
-           AND     af.l,1
-           OR      af.l,AH
+           AND     [rip+af.l],1
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -349,12 +349,12 @@ end;
 function DEC_D: byte;
 begin
   asm
-           DEC     de.h
+           DEC     [rip+de.h]
            LAHF
-           AND     af.l,1
+           AND     [rip+af.l],1
            AND     EAX,$5500
            OR      EAX,$400
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -379,13 +379,13 @@ end;
 function RLA: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            AND     EAX,$100
            SAHF
-           RCL     af.h,1
+           RCL     [rip+af.h],1
            LAHF
            AND     EAX,$100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 4;
@@ -393,18 +393,20 @@ end;
 
 function JR: byte;
 begin
-  {asm
-           XOR     EAX,EAX
-           MOV     AX,pc.w
-           PUSH    EAX
-           CALL    speekb
+  w1 := speekb(pc.w);
+  asm
+           // XOR     EAX,EAX
+           // MOV     AX,[rip+pc.w]
+           // PUSH    EAX
+           // CALL    speekb
+           MOV     AX, [rip+w1]
            LEA     ESP,[ESP+4]
-           INC     word ptr pc.w
+           INC     word ptr [rip+pc.w]
            CBW
-           ADD     pc.w,AX
-  end;}
+           ADD     [rip+pc.w],AX
+  end;
 
-  Inc(pc.w, speekb(pc.w)+1);
+  //Inc(pc.w, speekb(pc.w)+1);
 
   Result := 8;
 end;
@@ -412,9 +414,9 @@ end;
 function ADD_HL_DE: byte;
 begin
   asm
-           AND     af.l,64
-           MOV     AX,hl.w
-           MOV     BX,de.w
+           AND     [rip+af.l],64
+           MOV     AX,[rip+hl.w]
+           MOV     BX,[rip+de.w]
 
 
            MOV     ECX,EAX
@@ -422,14 +424,14 @@ begin
 
            ADD     AX,BX
            JNC     @1
-           OR      af.l,1
+           OR      [rip+af.l],1
            @1:
            XOR     CX,AX
            TEST    CX,4096
            JZ      @ende
-           OR      af.l,16
+           OR      [rip+af.l],16
            @ende:
-           MOV     hl.w,AX
+           MOV     [rip+hl.w],AX
 
   end;
   Result := 8;
@@ -453,7 +455,7 @@ end;
 function DEC_DE: byte;
 begin
   asm
-           DEC     de.w
+           DEC     [rip+de.w]
   end;
 
   Result := 8;
@@ -462,11 +464,11 @@ end;
 function INC_E: byte;
 begin
   asm
-           INC     de.l
+           INC     [rip+de.l]
            LAHF
            AND     EAX,$5100
-           AND     af.l,1
-           OR      af.l,AH
+           AND     [rip+af.l],1
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -475,12 +477,12 @@ end;
 function DEC_E: byte;
 begin
   asm
-           DEC     de.l
+           DEC     [rip+de.l]
            LAHF
-           AND     af.l,1
+           AND     [rip+af.l],1
            AND     EAX,$5500
            OR      EAX,$400
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -505,12 +507,12 @@ end;
 function RRA: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           RCR     af.h,1
+           RCR     [rip+af.h],1
            LAHF
            AND     AH,1
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -520,18 +522,18 @@ begin
   b1 := speekb(pc.w);
   Inc(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           //INC     word ptr pc.w
+           //INC     word ptr [rip+pc.w]
            MOV     AH, 0
            MOV     AL, b1
-           TEST    af.l,64
-           MOV     cycle,8
+           TEST    [rip+af.l],64
+           MOV     [rip+cycle],8
            JNZ     @ende
-           MOV     cycle,12
+           MOV     [rip+cycle],12
            CBW
-           ADD     pc.w,AX
+           ADD     [rip+pc.w],AX
            @ende:
   end;
   Result := cycle;
@@ -583,7 +585,7 @@ end;
 function INC_HL: byte;
 begin
   asm
-           INC     hl.w
+           INC     [rip+hl.w]
   end;
   Result := 8;
 end;
@@ -591,11 +593,11 @@ end;
 function INC_H: byte;
 begin
   asm
-           INC     hl.h
+           INC     [rip+hl.h]
            LAHF
            AND     EAX,$5100
-           AND     af.l,1
-           OR      af.l,AH
+           AND     [rip+af.l],1
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -604,12 +606,12 @@ end;
 function DEC_H: byte;
 begin
   asm
-           DEC     hl.h
+           DEC     [rip+hl.h]
            LAHF
-           AND     af.l,1
+           AND     [rip+af.l],1
            AND     EAX,$5500
            OR      EAX,$400
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -634,11 +636,11 @@ end;
 function DAA: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            MOV     BL,AH
            AND     BL,4
            SAHF
-           MOV     AL,af.h
+           MOV     AL,[rip+af.h]
            JP      @dec_adjust
            //DAA
            JMP     @ddld
@@ -647,11 +649,11 @@ begin
            //DAS
 
            @ddld:
-           MOV     af.h,AL
+           MOV     [rip+af.h],AL
            LAHF
            AND     AH,65
            OR      AH,BL
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 4;
@@ -663,18 +665,18 @@ begin
   b1 := speekb(pc.w);
   Inc(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           //INC     word ptr pc.w
+           //INC     word ptr [rip+pc.w]
            MOV     AH, 0
            MOV     AL, b1
-           TEST    af.l,64
-           MOV     cycle,8
+           TEST    [rip+af.l],64
+           MOV     [rip+cycle],8
            JZ      @ende
-           MOV     cycle,12
+           MOV     [rip+cycle],12
            CBW
-           ADD     pc.w,AX
+           ADD     [rip+pc.w],AX
            @ende:
   end;
 
@@ -684,20 +686,20 @@ end;
 function ADD_HL_HL: byte;
 begin
   asm
-           AND     af.l,64
-           MOV     AX,hl.w
+           AND     [rip+af.l],64
+           MOV     AX,[rip+hl.w]
            XOR     ECX,ECX
 
            ADD     AX,AX
            JNC     @1
-           OR      af.l,1
+           OR      [rip+af.l],1
            @1:
            XOR     ECX,EAX
            TEST    CX,4096
            JZ      @ende
-           OR      af.l,16
+           OR      [rip+af.l],16
            @ende:
-           MOV     hl.w,AX
+           MOV     [rip+hl.w],AX
 
   end;
 
@@ -727,7 +729,7 @@ end;
 function DEC_HL: byte;
 begin
   asm
-           DEC     hl.w
+           DEC     [rip+hl.w]
   end;
 
   Result := 8;
@@ -736,11 +738,11 @@ end;
 function INC_L: byte;
 begin
   asm
-           INC     hl.l
+           INC     [rip+hl.l]
            LAHF
            AND     EAX,$5100
-           AND     af.l,1
-           OR      af.l,AH
+           AND     [rip+af.l],1
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -749,12 +751,12 @@ end;
 function DEC_L: byte;
 begin
   asm
-           DEC     hl.l
+           DEC     [rip+hl.l]
            LAHF
-           AND     af.l,1
+           AND     [rip+af.l],1
            AND     EAX,$5500
            OR      EAX,$400
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -779,8 +781,8 @@ end;
 function CPL: byte;
 begin
   asm
-           XOR     af.h,255
-           OR      af.l,$14
+           XOR     [rip+af.h],255
+           OR      [rip+af.l],$14
   end;
 
   Result := 4;
@@ -792,18 +794,18 @@ begin
   b1 := speekb(pc.w);
   Inc(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           //INC     word ptr pc.w
+           //INC     word ptr [rip+pc.w]
            MOV     AH, 0
            MOV     AL, b1
-           TEST    af.l,1
-           MOV     cycle,8
+           TEST    [rip+af.l],1
+           MOV     [rip+cycle],8
            JNZ     @ende
-           MOV     cycle,12
+           MOV     [rip+cycle],12
            CBW
-           ADD     pc.w,AX
+           ADD     [rip+pc.w],AX
            @ende:
   end;
 
@@ -858,7 +860,7 @@ end;
 function INC_SP: byte;
 begin
   asm
-           INC     sp_.w
+           INC     [rip+sp_.w]
   end;
 
   Result := 8;
@@ -868,23 +870,23 @@ function INC_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
+           MOV     AX,[rip+hl.w]
            PUSH    RAX
            // PUSH    EAX
            // CALL    speekb
            // LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
            INC     AL
            LAHF
            AND     AH,$51
-           AND     af.l,1
-           OR      af.l,AH
+           AND     [rip+af.l],1
+           OR      [rip+af.l],AH
            POP     RBX
            //PUSH    EAX
            //PUSH    EBX
            //CALL    SpokeB
            //LEA     ESP,[ESP+8]
-           MOV w1, BX
+           MOV [rip+w1], BX
            MOV w2, AX
   end;
   spokeb(w1, w2);
@@ -896,24 +898,24 @@ function DEC_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
+           MOV     AX,[rip+hl.w]
            PUSH    RAX
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
            DEC     AL
            LAHF
-           AND     af.l,1
+           AND     [rip+af.l],1
            AND     AH,$55
            OR      EAX,$400
-           OR      af.l,AH
+           OR      [rip+af.l],AH
            POP     RBX
            //PUSH    EAX
            //PUSH    EBX
            //CALL    SpokeB
            //LEA     ESP,[ESP+8]
-           MOV w1, BX
+           MOV [rip+w1], BX
            MOV w2, AX
   end;
   spokeb(w1, w2);
@@ -945,8 +947,8 @@ end;
 function SCF: byte;
 begin
   asm
-           AND     af.l,64
-           OR      af.l,1
+           AND     [rip+af.l],64
+           OR      [rip+af.l],1
   end;
 
   Result := 4;
@@ -957,17 +959,17 @@ function JR_C: byte;
 begin
   w1 := speekb(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
-           INC     word ptr pc.w
-           TEST    af.l,1
-           MOV     cycle,8
+           MOV     AX, [rip+w1]
+           INC     word ptr [rip+pc.w]
+           TEST    [rip+af.l],1
+           MOV     [rip+cycle],8
            JZ      @ende
-           MOV     cycle,12
+           MOV     [rip+cycle],12
            CBW
-           ADD     pc.w,AX
+           ADD     [rip+pc.w],AX
            @ende:
   end;
 
@@ -977,9 +979,9 @@ end;
 function ADD_HL_SP: byte;
 begin
   asm
-           AND     af.l,64
-           MOV     AX,hl.w
-           MOV     BX,sp_.w
+           AND     [rip+af.l],64
+           MOV     AX,[rip+hl.w]
+           MOV     BX,[rip+sp_.w]
 
 
            MOV     ECX,EAX
@@ -987,14 +989,14 @@ begin
 
            ADD     AX,BX
            JNC     @1
-           OR      af.l,1
+           OR      [rip+af.l],1
            @1:
            XOR     ECX,EAX
            TEST    ECX,4096
            JZ      @ende
-           OR      af.l,16
+           OR      [rip+af.l],16
            @ende:
-           MOV     hl.w,AX
+           MOV     [rip+hl.w],AX
   end;
   Result := 8;
 end;
@@ -1022,7 +1024,7 @@ end;
 function DEC_SP: byte;
 begin
   asm
-           DEC     sp_.w
+           DEC     [rip+sp_.w]
   end;
   Result := 8;
 end;
@@ -1030,11 +1032,11 @@ end;
 function INC_A: byte;
 begin
   asm
-           INC     af.h
+           INC     [rip+af.h]
            LAHF
            AND     EAX,$5100
-           AND     af.l,1
-           OR      af.l,AH
+           AND     [rip+af.l],1
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -1043,12 +1045,12 @@ end;
 function DEC_A: byte;
 begin
   asm
-           DEC     af.h
+           DEC     [rip+af.h]
            LAHF
-           AND     af.l,1
+           AND     [rip+af.l],1
            AND     EAX,$5500
            OR      EAX,$400
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 4;
@@ -1073,12 +1075,12 @@ end;
 function CCF: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
            CMC
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 4;
@@ -1594,11 +1596,11 @@ end;
 function ADD_B: byte;
 begin
   asm
-           MOV     AL,bc.h
-           ADD     af.h,AL
+           MOV     AL,[rip+bc.h]
+           ADD     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 4;
@@ -1607,11 +1609,11 @@ end;
 function ADD_C: byte;
 begin
   asm
-           MOV     AL,bc.l
-           ADD     af.h,AL
+           MOV     AL,[rip+bc.l]
+           ADD     [rip+af.h],AL
            LAHF
            AND     AH,81
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 4;
@@ -1620,11 +1622,11 @@ end;
 function ADD_D: byte;
 begin
   asm
-           MOV     AL,de.h
-           ADD     af.h,AL
+           MOV     AL,[rip+de.h]
+           ADD     [rip+af.h],AL
            LAHF
            AND     AH,81
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1634,11 +1636,11 @@ end;
 function ADD_E: byte;
 begin
   asm
-           MOV     AL,de.l
-           ADD     af.h,AL
+           MOV     AL,[rip+de.l]
+           ADD     [rip+af.h],AL
            LAHF
            AND     AH,81
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1648,11 +1650,11 @@ end;
 function ADD_H: byte;
 begin
   asm
-           MOV     AL,hl.h
-           ADD     af.h,AL
+           MOV     AL,[rip+hl.h]
+           ADD     [rip+af.h],AL
            LAHF
            AND     AH,81
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1662,11 +1664,11 @@ end;
 function ADD_L: byte;
 begin
   asm
-           MOV     AL,hl.l
-           ADD     af.h,AL
+           MOV     AL,[rip+hl.l]
+           ADD     [rip+af.h],AL
            LAHF
            AND     AH,81
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 4;
@@ -1676,16 +1678,16 @@ function ADD_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           //MOV     AX,hl.w
+           //MOV     AX,[rip+hl.w]
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV       AX, w1
+           MOV       AX, [rip+w1]
 
-           ADD     af.h,AL
+           ADD     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1695,11 +1697,11 @@ end;
 function ADD_A: byte;
 begin
   asm
-           MOV     AL,af.h
-           ADD     af.h,AL
+           MOV     AL,[rip+af.h]
+           ADD     [rip+af.h],AL
            LAHF
            AND     AH,81
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1709,13 +1711,13 @@ end;
 function ADC_B: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,bc.h
-           ADC     af.h,AL
+           MOV     AL,[rip+bc.h]
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1725,13 +1727,13 @@ end;
 function ADC_C: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,bc.l
-           ADC     af.h,AL
+           MOV     AL,[rip+bc.l]
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1741,13 +1743,13 @@ end;
 function ADC_D: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,de.h
-           ADC     af.h,AL
+           MOV     AL,[rip+de.h]
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 4;
@@ -1756,13 +1758,13 @@ end;
 function ADC_E: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,de.l
-           ADC     af.h,AL
+           MOV     AL,[rip+de.l]
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1772,13 +1774,13 @@ end;
 function ADC_H: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,hl.h
-           ADC     af.h,AL
+           MOV     AL,[rip+hl.h]
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1788,13 +1790,13 @@ end;
 function ADC_L: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,hl.l
-           ADC     af.h,AL
+           MOV     AL,[rip+hl.l]
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1805,19 +1807,19 @@ function ADC_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           //MOV     AX,hl.w
+           //MOV     AX,[rip+hl.w]
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
-           MOV     AH,af.l
+           MOV     AX, [rip+w1]
+           MOV     AH,[rip+af.l]
            AND     AH,1
            SAHF
 
-           ADC     af.h,AL
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1827,13 +1829,13 @@ end;
 function ADC_A: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,af.h
-           ADC     af.h,AL
+           MOV     AL,[rip+af.h]
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1843,11 +1845,11 @@ end;
 function SUB_B: byte;
 begin
   asm
-           MOV     AL,bc.h
-           SUB     af.h,AL
+           MOV     AL,[rip+bc.h]
+           SUB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 4;
@@ -1856,11 +1858,11 @@ end;
 function SUB_C: byte;
 begin
   asm
-           MOV     AL,bc.l
-           SUB     af.h,AL
+           MOV     AL,[rip+bc.l]
+           SUB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1870,11 +1872,11 @@ end;
 function SUB_D: byte;
 begin
   asm
-           MOV     AL,de.h
-           SUB     af.h,AL
+           MOV     AL,[rip+de.h]
+           SUB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1884,11 +1886,11 @@ end;
 function SUB_E: byte;
 begin
   asm
-           MOV     AL,de.l
-           SUB     af.h,AL
+           MOV     AL,[rip+de.l]
+           SUB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1899,11 +1901,11 @@ end;
 function SUB_H: byte;
 begin
   asm
-           MOV     AL,hl.h
-           SUB     af.h,AL
+           MOV     AL,[rip+hl.h]
+           SUB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1913,11 +1915,11 @@ end;
 function SUB_L: byte;
 begin
   asm
-           MOV     AL,hl.l
-           SUB     af.h,AL
+           MOV     AL,[rip+hl.l]
+           SUB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1928,16 +1930,16 @@ function SUB_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           //MOV     AX,hl.w
+           //MOV     AX,[rip+hl.w]
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           SUB     af.h,AL
+           SUB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1947,11 +1949,11 @@ end;
 function SUB_A: byte;
 begin
   asm
-           MOV     AL,af.h
-           SUB     af.h,AL
+           MOV     AL,[rip+af.h]
+           SUB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 4;
@@ -1961,13 +1963,13 @@ end;
 function SBC_B: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,bc.h
-           SBB     af.h,AL
+           MOV     AL,[rip+bc.h]
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1978,13 +1980,13 @@ end;
 function SBC_C: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,bc.l
-           SBB     af.h,AL
+           MOV     AL,[rip+bc.l]
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -1994,13 +1996,13 @@ end;
 function SBC_D: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,de.h
-           SBB     af.h,AL
+           MOV     AL,[rip+de.h]
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -2010,13 +2012,13 @@ end;
 function SBC_E: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,de.l
-           SBB     af.h,AL
+           MOV     AL,[rip+de.l]
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -2026,13 +2028,13 @@ end;
 function SBC_H: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,hl.h
-           SBB     af.h,AL
+           MOV     AL,[rip+hl.h]
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -2042,13 +2044,13 @@ end;
 function SBC_L: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,hl.l
-           SBB     af.h,AL
+           MOV     AL,[rip+hl.l]
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -2059,19 +2061,19 @@ function SBC_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           //MOV     AX,hl.w
+           //MOV     AX,[rip+hl.w]
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
 
-           SBB     af.h,AL
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 8;
@@ -2080,13 +2082,13 @@ end;
 function SBC_A: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,af.h
-           SBB     af.h,AL
+           MOV     AL,[rip+af.h]
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 4;
@@ -2095,12 +2097,12 @@ end;
 function AND_B: byte;
 begin
   asm
-           MOV     AL,bc.h
-           AND     af.h,AL
+           MOV     AL,[rip+bc.h]
+           AND     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
            OR      EAX,$1000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2108,12 +2110,12 @@ end;
 function AND_C: byte;
 begin
   asm
-           MOV     AL,bc.l
-           AND     af.h,AL
+           MOV     AL,[rip+bc.l]
+           AND     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
            OR      EAX,$1000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 4;
@@ -2122,12 +2124,12 @@ end;
 function AND_D: byte;
 begin
   asm
-           MOV     AL,de.h
-           AND     af.h,AL
+           MOV     AL,[rip+de.h]
+           AND     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
            OR      EAX,$1000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2135,12 +2137,12 @@ end;
 function AND_E: byte;
 begin
   asm
-           MOV     AL,de.l
-           AND     af.h,AL
+           MOV     AL,[rip+de.l]
+           AND     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
            OR      EAX,$1000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2148,12 +2150,12 @@ end;
 function AND_H: byte;
 begin
   asm
-           MOV     AL,hl.h
-           AND     af.h,AL
+           MOV     AL,[rip+hl.h]
+           AND     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
            OR      EAX,$1000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2161,12 +2163,12 @@ end;
 function AND_L: byte;
 begin
   asm
-           MOV     AL,hl.l
-           AND     af.h,AL
+           MOV     AL,[rip+hl.l]
+           AND     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
            OR      EAX,$1000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2175,17 +2177,17 @@ function AND_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           //MOV     AX,hl.w
+           //MOV     AX,[rip+hl.w]
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           AND     af.h,AL
+           AND     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
            OR      EAX,$1000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -2193,12 +2195,12 @@ end;
 function AND_A: byte;
 begin
   asm
-           MOV     AL,af.h
-           AND     af.h,AL
+           MOV     AL,[rip+af.h]
+           AND     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
            OR      EAX,$1000 // AH
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2206,11 +2208,11 @@ end;
 function XOR_B: byte;
 begin
   asm
-           MOV     AL,bc.h
-           XOR     af.h,AL
+           MOV     AL,[rip+bc.h]
+           XOR     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2218,11 +2220,11 @@ end;
 function XOR_C: byte;
 begin
   asm
-           MOV     AL,bc.l
-           XOR     af.h,AL
+           MOV     AL,[rip+bc.l]
+           XOR     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2230,11 +2232,11 @@ end;
 function XOR_D: byte;
 begin
   asm
-           MOV     AL,de.h
-           XOR     af.h,AL
+           MOV     AL,[rip+de.h]
+           XOR     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2242,11 +2244,11 @@ end;
 function XOR_E: byte;
 begin
   asm
-           MOV     AL,de.l
-           XOR     af.h,AL
+           MOV     AL,[rip+de.l]
+           XOR     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2254,11 +2256,11 @@ end;
 function XOR_H: byte;
 begin
   asm
-           MOV     AL,hl.h
-           XOR     af.h,AL
+           MOV     AL,[rip+hl.h]
+           XOR     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2266,11 +2268,11 @@ end;
 function XOR_L: byte;
 begin
   asm
-           MOV     AL,hl.l
-           XOR     af.h,AL
+           MOV     AL,[rip+hl.l]
+           XOR     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2279,16 +2281,16 @@ function XOR_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           //MOV     AX,hl.w
+           //MOV     AX,[rip+hl.w]
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           XOR     af.h,AL
+           XOR     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -2305,11 +2307,11 @@ end;
 function OR_B: byte;
 begin
   asm
-           MOV     AL,bc.h
-           OR      af.h,AL
+           MOV     AL,[rip+bc.h]
+           OR      [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2317,11 +2319,11 @@ end;
 function OR_C: byte;
 begin
   asm
-           MOV     AL,bc.l
-           OR      af.h,AL
+           MOV     AL,[rip+bc.l]
+           OR      [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 4;
@@ -2330,11 +2332,11 @@ end;
 function OR_D: byte;
 begin
   asm
-           MOV     AL,de.h
-           OR      af.h,AL
+           MOV     AL,[rip+de.h]
+           OR      [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 4;
@@ -2343,11 +2345,11 @@ end;
 function OR_E: byte;
 begin
   asm
-           MOV     AL,de.l
-           OR      af.h,AL
+           MOV     AL,[rip+de.l]
+           OR      [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2355,11 +2357,11 @@ end;
 function OR_H: byte;
 begin
   asm
-           MOV     AL,hl.h
-           OR      af.h,AL
+           MOV     AL,[rip+hl.h]
+           OR      [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2367,11 +2369,11 @@ end;
 function OR_L: byte;
 begin
   asm
-           MOV     AL,hl.l
-           OR      af.h,AL
+           MOV     AL,[rip+hl.l]
+           OR      [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2381,17 +2383,17 @@ begin
   w1 := speekb(hl.w);
 
   asm
-           //MOV     AX,hl.w
+           //MOV     AX,[rip+hl.w]
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
 
-           OR      af.h,AL
+           OR      [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -2399,11 +2401,11 @@ end;
 function OR_A: byte;
 begin
   asm
-           MOV     AL,af.h
-           OR      af.h,AL
+           MOV     AL,[rip+af.h]
+           OR      [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2411,11 +2413,11 @@ end;
 function CP_B: byte;
 begin
   asm
-           MOV     AL,bc.h
-           CMP     af.h,AL
+           MOV     AL,[rip+bc.h]
+           CMP     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 4;
@@ -2424,11 +2426,11 @@ end;
 function CP_C: byte;
 begin
   asm
-           MOV     AL,bc.l
-           CMP     af.h,AL
+           MOV     AL,[rip+bc.l]
+           CMP     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -2438,11 +2440,11 @@ end;
 function CP_D: byte;
 begin
   asm
-           MOV     AL,de.h
-           CMP     af.h,AL
+           MOV     AL,[rip+de.h]
+           CMP     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -2452,11 +2454,11 @@ end;
 function CP_E: byte;
 begin
   asm
-           MOV     AL,de.l
-           CMP     af.h,AL
+           MOV     AL,[rip+de.l]
+           CMP     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2464,11 +2466,11 @@ end;
 function CP_H: byte;
 begin
   asm
-           MOV     AL,hl.h
-           CMP     af.h,AL
+           MOV     AL,[rip+hl.h]
+           CMP     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2476,11 +2478,11 @@ end;
 function CP_L: byte;
 begin
   asm
-           MOV     AL,hl.l
-           CMP     af.h,AL
+           MOV     AL,[rip+hl.l]
+           CMP     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2489,17 +2491,17 @@ function CP_xHL: byte;
 begin
   w1 := speekb(hl.w);
   asm
-           //MOV     AX,hl.w
+           //MOV     AX,[rip+hl.w]
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
 
-           CMP     af.h,AL
+           CMP     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -2507,12 +2509,12 @@ end;
 function CP_A: byte;
 begin
   asm
-           MOV     AL,af.h
-           CMP     af.h,AL
+           MOV     AL,[rip+af.h]
+           CMP     [rip+af.h],AL
            LAHF
 
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 4;
 end;
@@ -2528,29 +2530,29 @@ begin
   Inc(sp_.w);
 
   asm
-           //TEST    af.l,64
-           //MOV     cycle,8
+           //TEST    [rip+af.l],64
+           //MOV     [rip+cycle],8
            //JNZ     @ende
-           //PUSH    dword ptr sp_.w
+           //PUSH    dword ptr [rip+sp_.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
            //
-           //INC     word ptr sp_.w
+           //INC     word ptr [rip+sp_.w]
            //PUSH    EAX
-           //PUSH    dword ptr sp_.w
+           //PUSH    dword ptr [rip+sp_.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           //INC     word ptr sp_.w
+           //INC     word ptr [rip+sp_.w]
            MOV     EAX,i2
 
            SHL     EAX,8
 
            //POP     EBX
-           MOV     EBX,i1
+           MOV     EBX,[rip+i1]
 
            MOV     AL,BL
-           MOV     pc.w,AX
-           MOV     cycle,20
+           MOV     [rip+pc.w],AX
+           MOV     [rip+cycle],20
            @ende:
   end;
 
@@ -2627,18 +2629,18 @@ begin
   w1 := speekb(pc.w);
 
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
-           INC     word ptr pc.w
-           MOV     AH,af.l
+           MOV     AX, [rip+w1]
+           INC     word ptr [rip+pc.w]
+           MOV     AH,[rip+af.l]
            SAHF
 
-           ADD     af.h,AL
+           ADD     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -2735,19 +2737,19 @@ function ADC_BYTE: byte;
 begin
   w1 := speekb(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           INC     word ptr pc.w
-           MOV     AH,af.l
+           INC     word ptr [rip+pc.w]
+           MOV     AH,[rip+af.l]
            SAHF
 
-           ADC     af.h,AL
+           ADC     [rip+af.h],AL
            LAHF
            AND     EAX,$5100
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
 
@@ -2838,15 +2840,15 @@ end;
 
 function SUB_BYTE: byte;
 begin
-  b.l := speekb(pc.w);
+  b_pair.l := speekb(pc.w);
   Inc(pc.w);
   asm
-           MOV     AL,af.h
-           SUB     AL,b.l
+           MOV     AL,[rip+af.h]
+           SUB     AL,[rip+b_pair.l]
            LAHF
            OR      AH,4
-           MOV     af.l,AH
-           MOV     af.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+af.h],AL
   end;
 
   Result := 8;
@@ -2914,12 +2916,12 @@ function CALL_C: byte;
 begin
   if (af.l and 1) = 1 then
   begin
-    b.l := speekb(pc.w);
+    b_pair.l := speekb(pc.w);
     Inc(pc.w);
-    b.h := speekb(pc.w);
+    b_pair.h := speekb(pc.w);
     Inc(pc.w);
     push_pc;
-    pc.w := b.w;
+    pc.w := b_pair.w;
     Result := 24;
   end
   else
@@ -2938,19 +2940,19 @@ function SBC_BYTE: byte;
 begin
   w1 := speekb(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           INC     word ptr pc.w
-           MOV     AH,af.l
+           INC     word ptr [rip+pc.w]
+           MOV     AH,[rip+af.l]
            SAHF
 
-           SBB     af.h,AL
+           SBB     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
 
   end;
   Result := 8;
@@ -2967,20 +2969,20 @@ function RET_PO: byte;
 begin
   w1 := speekb(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           INC     word ptr pc.w
+           INC     word ptr [rip+pc.w]
            MOV     AH,$ff
 
 
-           //push dword ptr af.h
+           //push dword ptr [rip+af.h]
            //PUSH    EAX
            //CALL    SpokeB
            //LEA     ESP,[ESP+8]
-           MOV     w1, AX
+           MOV     [rip+w1], AX
   end;
 
   spokeb(w1, af.h);
@@ -3017,13 +3019,13 @@ end;
 
 function EX_HL_xSP: byte;
 begin
-  B.l := SpeekB(SP_.W);
+  b_pair.l := SpeekB(SP_.W);
   SpokeB(SP_.W, HL.l);
   Inc(SP_.W);
-  B.h := SpeekB(SP_.W);
+  b_pair.h := SpeekB(SP_.W);
   SpokeB(SP_.W, HL.h);
   Dec(SP_.W);
-  HL.W := B.W;
+  HL.W := b_pair.W;
   Result := 4;
 end;
 
@@ -3043,15 +3045,15 @@ end;
 
 function AND_BYTE: byte;
 begin
-  b.l := speekb(pc.w);
+  b_pair.l := speekb(pc.w);
   Inc(pc.w);
   asm
-           MOV     AL,b.l
-           AND     af.h,AL
+           MOV     AL,[rip+b_pair.l]
+           AND     [rip+af.h],AL
            LAHF
            AND     AH,64
            OR      AH,16
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -3066,13 +3068,13 @@ end;
 
 function RET_PE: byte;
 begin
-  b.l := speekb(pc.w);
+  b_pair.l := speekb(pc.w);
   Inc(pc.w);
   asm
-           MOV     AL,b.l
+           MOV     AL,[rip+b_pair.l]
            CBW
-           ADD     sp_.w,AX
-           AND     af.l,17
+           ADD     [rip+sp_.w],AX
+           AND     [rip+af.l],17
   end;
   Result := 16;
 end;
@@ -3091,29 +3093,29 @@ begin
   Inc(pc.w);
 
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
            //PUSH    EAX
-           //INC     word ptr pc.w
-           //PUSH    dword ptr pc.w
+           //INC     word ptr [rip+pc.w]
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           //INC     word ptr pc.w
+           //INC     word ptr [rip+pc.w]
            MOV     EAX,i2
 
            SHL     EAX,8
 
            //POP     EBX
-           MOV     EBX,i1
+           MOV     EBX,[rip+i1]
 
            MOV     AL,BL
 
-           //PUSH    dword ptr af.h
+           //PUSH    dword ptr [rip+af.h]
            //PUSH    EAX
            //CALL    SpokeB
            //LEA     ESP,[ESP+8]
-           MOV i1, EAX
+           MOV [rip+i1], EAX
   end;
 
   spokeb(i1, af.h);
@@ -3123,9 +3125,9 @@ end;
 
 function EX_DE_HL: byte;
 begin
-  b.w := de.W;
+  b_pair.w := de.W;
   de.W := hl.W;
-  hl.W := b.w;
+  hl.W := b_pair.w;
   Result := 4;
 end;
 
@@ -3155,17 +3157,17 @@ function XOR_BYTE: byte;
 begin
   w1 := speekb(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           INC     word ptr pc.w
+           INC     word ptr [rip+pc.w]
 
-           XOR     af.h,AL
+           XOR     [rip+af.h],AL
            LAHF
            AND     EAX,$4000
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -3182,22 +3184,22 @@ function RET_P: byte;
 begin
   w1 := speekb(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           INC     word ptr pc.w
+           INC     word ptr [rip+pc.w]
            XOR     AH,AH
            MOV     BX,$ff00
            ADD     AX,BX
 
 
-           MOV     i1,EAX
+           MOV     [rip+i1],EAX
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           //MOV     af.h,AL
+           //MOV     [rip+af.h],AL
   end;
   af.h := speekb(i1);
 
@@ -3206,10 +3208,10 @@ end;
 
 function POP_AF: byte;
 begin
-  b.l := speekb(sp_.w);
+  b_pair.l := speekb(sp_.w);
   Inc(sp_.w);
   asm
-           MOV     AL,b.l
+           MOV     AL,[rip+b_pair.l]
            AND     AL,240
            MOV     BL,AL
            SHR     AL,1
@@ -3217,7 +3219,7 @@ begin
            SHR     BL,4
            AND     BL,5
            OR      AL,BL
-           MOV     af.l,AL
+           MOV     [rip+af.l],AL
   end;
   af.h := speekb(sp_.w);
   Inc(sp_.w);
@@ -3227,16 +3229,16 @@ end;
 function JP_P: byte;
 begin
   asm
-           MOV     AL,bc.l
+           MOV     AL,[rip+bc.l]
            XOR     AH,AH
            MOV     BX,$ff00
            ADD     AX,BX
 
-           mov     i1,EAX
+           mov     [rip+i1],EAX
            //PUSH    EAX
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           //MOV     af.h,AL
+           //MOV     [rip+af.h],AL
   end;
   af.h := speekb(i1);
 
@@ -3258,7 +3260,7 @@ end;
 function PUSH_AF: byte;
 begin
   asm
-           MOV     AL,af.l
+           MOV     AL,[rip+af.l]
            AND     AL,85
            MOV     BL,AL
            SHL     AL,1
@@ -3266,25 +3268,25 @@ begin
            SHL     BL,4
            AND     BL,80
            OR      AL,BL
-           MOV     b.l,AL
+           MOV     [rip+b_pair.l],AL
   end;
   Dec(sp_.w);
   SpokeB(sp_.w, af.h);
   Dec(sp_.w);
-  SpokeB(sp_.w, b.l);
+  SpokeB(sp_.w, b_pair.l);
   Result := 16;
 end;
 
 function OR_BYTE: byte;
 begin
-  b.l := speekb(pc.w);
+  b_pair.l := speekb(pc.w);
   Inc(pc.w);
   asm
-           MOV     AL,b.l
-           OR      af.h,AL
+           MOV     AL,[rip+b_pair.l]
+           OR      [rip+af.h],AL
            LAHF
            AND     AH,64
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -3301,12 +3303,12 @@ function RET_M: byte;
 begin
   w1 := speekb(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           INC     word ptr pc.w
+           INC     word ptr [rip+pc.w]
 
 
            CBW
@@ -3314,10 +3316,10 @@ begin
 
 
 
-           MOV     BX,sp_.w
+           MOV     BX,[rip+sp_.w]
            ADD     BX,AX
-           MOV     hl.w,BX
-           AND     af.l,17
+           MOV     [rip+hl.w],BX
+           AND     [rip+af.l],17
   end;
   Result := 12;
 end;
@@ -3325,8 +3327,8 @@ end;
 function LD_SP_HL: byte;
 begin
   asm
-           MOV     AX,hl.w
-           MOV     sp_.w,AX
+           MOV     AX,[rip+hl.w]
+           MOV     [rip+sp_.w],AX
   end;
 
   Result := 8;
@@ -3382,16 +3384,16 @@ function CP_BYTE: byte;
 begin
   w1 := speekb(pc.w);
   asm
-           //PUSH    dword ptr pc.w
+           //PUSH    dword ptr [rip+pc.w]
            //CALL    speekb
            //LEA     ESP,[ESP+4]
-           MOV     AX, w1
+           MOV     AX, [rip+w1]
 
-           INC     word ptr pc.w
-           CMP     af.h,AL
+           INC     word ptr [rip+pc.w]
+           CMP     [rip+af.h],AL
            LAHF
            OR      EAX,$400
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -3409,10 +3411,10 @@ begin
     af.l := 64
   else
     asm
-             ROL     bc.h,1
+             ROL     [rip+bc.h],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3423,10 +3425,10 @@ begin
     af.l := 64
   else
     asm
-             ROL     bc.l,1
+             ROL     [rip+bc.l],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3437,10 +3439,10 @@ begin
     af.l := 64
   else
     asm
-             ROL     de.h,1
+             ROL     [rip+de.h],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3451,10 +3453,10 @@ begin
     af.l := 64
   else
     asm
-             ROL     de.l,1
+             ROL     [rip+de.l],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3465,10 +3467,10 @@ begin
     af.l := 64
   else
     asm
-             ROL     hl.h,1
+             ROL     [rip+hl.h],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3479,27 +3481,27 @@ begin
     af.l := 64
   else
     asm
-             ROL     hl.l,1
+             ROL     [rip+hl.l],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
 
 function RLC_xHL: byte;
 begin
-  b.l := speekb(hl.w);
-  if b.l = 0 then
+  b_pair.l := speekb(hl.w);
+  if b_pair.l = 0 then
     af.l := 64
   else
     asm
-             ROL     b.l,1
+             ROL     [rip+b_pair.l],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
-  SpokeB(hl.w, b.l);
+  SpokeB(hl.w, b_pair.l);
   Result := 16;
 end;
 
@@ -3509,10 +3511,10 @@ begin
     af.l := 64
   else
     asm
-             ROL     af.h,1
+             ROL     [rip+af.h],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3523,10 +3525,10 @@ begin
     af.l := 64
   else
     asm
-             ROR     bc.h,1
+             ROR     [rip+bc.h],1
              LAHF
              AND     AH,235
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3537,10 +3539,10 @@ begin
     af.l := 64
   else
     asm
-             ROR     bc.l,1
+             ROR     [rip+bc.l],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3551,10 +3553,10 @@ begin
     af.l := 64
   else
     asm
-             ROR     de.h,1
+             ROR     [rip+de.h],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
 
   Result := 8;
@@ -3566,10 +3568,10 @@ begin
     af.l := 64
   else
     asm
-             ROR     de.l,1
+             ROR     [rip+de.l],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3580,10 +3582,10 @@ begin
     af.l := 64
   else
     asm
-             ROR     hl.h,1
+             ROR     [rip+hl.h],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3594,10 +3596,10 @@ begin
     af.l := 64
   else
     asm
-             ROR     hl.l,1
+             ROR     [rip+hl.l],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
 
   Result := 8;
@@ -3605,18 +3607,18 @@ end;
 
 function RRC_xHL: byte;
 begin
-  b.l := speekb(hl.w);
-  if b.l = 0 then
+  b_pair.l := speekb(hl.w);
+  if b_pair.l = 0 then
     af.l := 64
   else
     asm
-             ROR     b.l,1
+             ROR     [rip+b_pair.l],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
 
-  SpokeB(w1, b.l);
+  SpokeB(w1, b_pair.l);
 
   Result := 16;
 end;
@@ -3627,10 +3629,10 @@ begin
     af.l := 64
   else
     asm
-             ROR     af.h,1
+             ROR     [rip+af.h],1
              LAHF
              AND     AH,1
-             MOV     af.l,AH
+             MOV     [rip+af.l],AH
     end;
   Result := 8;
 end;
@@ -3638,9 +3640,9 @@ end;
 function RL_B: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,bc.h
+           MOV     AL,[rip+bc.h]
            RCL     AL,1
            LAHF
            AND     AH,1
@@ -3648,8 +3650,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     bc.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+bc.h],AL
   end;
 
   Result := 8;
@@ -3658,9 +3660,9 @@ end;
 function RL_C: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,bc.l
+           MOV     AL,[rip+bc.l]
            RCL     AL,1
            LAHF
            AND     AH,1
@@ -3668,8 +3670,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     bc.l,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+bc.l],AL
   end;
 
 
@@ -3679,9 +3681,9 @@ end;
 function RL_D: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,de.h
+           MOV     AL,[rip+de.h]
            RCL     AL,1
            LAHF
            AND     AH,1
@@ -3689,8 +3691,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     de.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+de.h],AL
   end;
 
 
@@ -3700,9 +3702,9 @@ end;
 function RL_E: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,de.l
+           MOV     AL,[rip+de.l]
            RCL     AL,1
            LAHF
            AND     AH,1
@@ -3710,8 +3712,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     de.l,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+de.l],AL
   end;
 
 
@@ -3722,9 +3724,9 @@ end;
 function RL_H: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,hl.h
+           MOV     AL,[rip+hl.h]
            RCL     AL,1
            LAHF
            AND     AH,1
@@ -3732,8 +3734,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     hl.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+hl.h],AL
   end;
 
 
@@ -3743,9 +3745,9 @@ end;
 function RL_L: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,hl.l
+           MOV     AL,[rip+hl.l]
            RCL     AL,1
            LAHF
            AND     AH,1
@@ -3753,8 +3755,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     hl.l,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+hl.l],AL
   end;
 
   Result := 8;
@@ -3763,11 +3765,11 @@ end;
 function RL_xHL: byte;
 begin
 
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,b.l
+           MOV     AL,[rip+b_pair.l]
            RCL     AL,1
            LAHF
            AND     AH,1
@@ -3775,13 +3777,13 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     b.l,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+b_pair.l],AL
   end;
 
 
 
-  SpokeB(hl.w, b.l);
+  SpokeB(hl.w, b_pair.l);
 
   Result := 16;
 end;
@@ -3789,9 +3791,9 @@ end;
 function RL_A: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,af.h
+           MOV     AL,[rip+af.h]
            RCL     AL,1
            LAHF
            AND     AH,1
@@ -3799,8 +3801,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     af.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+af.h],AL
   end;
 
   Result := 8;
@@ -3809,9 +3811,9 @@ end;
 function RR_B: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,bc.h
+           MOV     AL,[rip+bc.h]
            RCR     AL,1
            LAHF
            AND     AH,1
@@ -3819,8 +3821,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     bc.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+bc.h],AL
   end;
 
   Result := 8;
@@ -3829,9 +3831,9 @@ end;
 function RR_C: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,bc.l
+           MOV     AL,[rip+bc.l]
            RCR     AL,1
            LAHF
            AND     AH,1
@@ -3839,8 +3841,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     bc.l,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+bc.l],AL
   end;
 
   Result := 8;
@@ -3849,9 +3851,9 @@ end;
 function RR_D: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,de.h
+           MOV     AL,[rip+de.h]
            RCR     AL,1
            LAHF
            AND     AH,1
@@ -3859,8 +3861,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     de.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+de.h],AL
   end;
 
 
@@ -3871,9 +3873,9 @@ end;
 function RR_E: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,de.l
+           MOV     AL,[rip+de.l]
            RCR     AL,1
            LAHF
            AND     AH,1
@@ -3881,8 +3883,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     de.l,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+de.l],AL
   end;
 
 
@@ -3892,9 +3894,9 @@ end;
 function RR_H: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,hl.h
+           MOV     AL,[rip+hl.h]
            RCR     AL,1
            LAHF
            AND     AH,1
@@ -3902,8 +3904,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     hl.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+hl.h],AL
   end;
 
 
@@ -3914,9 +3916,9 @@ end;
 function RR_L: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,hl.l
+           MOV     AL,[rip+hl.l]
            RCR     AL,1
            LAHF
            AND     AH,1
@@ -3924,8 +3926,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     hl.l,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+hl.l],AL
   end;
 
 
@@ -3936,11 +3938,11 @@ end;
 function RR_xHL: byte;
 begin
 
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,b.l
+           MOV     AL,[rip+b_pair.l]
            RCR     AL,1
            LAHF
            AND     AH,1
@@ -3948,20 +3950,20 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     b.l,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+b_pair.l],AL
   end;
 
-  SpokeB(hl.w, b.l);
+  SpokeB(hl.w, b_pair.l);
   Result := 16;
 end;
 
 function RR_A: byte;
 begin
   asm
-           MOV     AH,af.l
+           MOV     AH,[rip+af.l]
            SAHF
-           MOV     AL,af.h
+           MOV     AL,[rip+af.h]
            RCR     AL,1
            LAHF
            AND     AH,1
@@ -3969,8 +3971,8 @@ begin
            JNZ     @1
            OR      AH,64
            @1:
-           MOV     af.l,AH
-           MOV     af.h,AL
+           MOV     [rip+af.l],AH
+           MOV     [rip+af.h],AL
   end;
 
 
@@ -3980,10 +3982,10 @@ end;
 function SLA_B: byte;
 begin
   asm
-           SHL     bc.h,1
+           SHL     [rip+bc.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -3992,10 +3994,10 @@ end;
 function SLA_C: byte;
 begin
   asm
-           SHL     bc.l,1
+           SHL     [rip+bc.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4004,10 +4006,10 @@ end;
 function SLA_D: byte;
 begin
   asm
-           SHL     de.h,1
+           SHL     [rip+de.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4016,10 +4018,10 @@ end;
 function SLA_E: byte;
 begin
   asm
-           SAL     de.l,1
+           SAL     [rip+de.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4028,10 +4030,10 @@ end;
 function SLA_H: byte;
 begin
   asm
-           SHL     hl.h,1
+           SHL     [rip+hl.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4040,10 +4042,10 @@ end;
 function SLA_L: byte;
 begin
   asm
-           SHL     hl.l,1
+           SHL     [rip+hl.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4051,25 +4053,25 @@ end;
 
 function SLA_xHL: byte;
 begin
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           SHL     b.l,1
+           SHL     [rip+b_pair.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
-  SpokeB(hl.w, b.l);
+  SpokeB(hl.w, b_pair.l);
   Result := 16;
 end;
 
 function SLA_A: byte;
 begin
   asm
-           SAL     af.h,1
+           SAL     [rip+af.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4078,10 +4080,10 @@ end;
 function SRA_B: byte;
 begin
   asm
-           SAR     bc.h,1
+           SAR     [rip+bc.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4090,10 +4092,10 @@ end;
 function SRA_C: byte;
 begin
   asm
-           SAR     bc.l,1
+           SAR     [rip+bc.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4102,10 +4104,10 @@ end;
 function SRA_D: byte;
 begin
   asm
-           SAR     de.h,1
+           SAR     [rip+de.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4114,10 +4116,10 @@ end;
 function SRA_E: byte;
 begin
   asm
-           SAR     de.l,1
+           SAR     [rip+de.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4126,10 +4128,10 @@ end;
 function SRA_H: byte;
 begin
   asm
-           SAR     hl.h,1
+           SAR     [rip+hl.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4138,10 +4140,10 @@ end;
 function SRA_L: byte;
 begin
   asm
-           SAR     hl.l,1
+           SAR     [rip+hl.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4149,25 +4151,25 @@ end;
 
 function SRA_xHL: byte;
 begin
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           SAR     b.l,1
+           SAR     [rip+b_pair.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
-  SpokeB(hl.w, b.l);
+  SpokeB(hl.w, b_pair.l);
   Result := 16;
 end;
 
 function SRA_A: byte;
 begin
   asm
-           SAR     af.h,1
+           SAR     [rip+af.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4175,11 +4177,11 @@ end;
 function SLL_B: byte;
 begin
   asm
-           MOV     af.l,0
-           ROL     bc.h,4
-           CMP     bc.h,0
+           MOV     [rip+af.l],0
+           ROL     [rip+bc.h],4
+           CMP     [rip+bc.h],0
            JNZ     @ende
-           MOV     af.l,64
+           MOV     [rip+af.l],64
            @ende:
   end;
   Result := 8;
@@ -4188,11 +4190,11 @@ end;
 function SLL_C: byte;
 begin
   asm
-           MOV     af.l,0
-           ROL     bc.l,4
-           CMP     bc.l,0
+           MOV     [rip+af.l],0
+           ROL     [rip+bc.l],4
+           CMP     [rip+bc.l],0
            JNZ     @ende
-           MOV     af.l,64
+           MOV     [rip+af.l],64
            @ende:
   end;
 
@@ -4202,11 +4204,11 @@ end;
 function SLL_D: byte;
 begin
   asm
-           MOV     af.l,0
-           ROL     de.h,4
-           CMP     de.h,0
+           MOV     [rip+af.l],0
+           ROL     [rip+de.h],4
+           CMP     [rip+de.h],0
            JNZ     @ende
-           MOV     af.l,64
+           MOV     [rip+af.l],64
            @ende:
   end;
 
@@ -4216,11 +4218,11 @@ end;
 function SLL_E: byte;
 begin
   asm
-           MOV     af.l,0
-           ROL     de.l,4
-           CMP     de.l,0
+           MOV     [rip+af.l],0
+           ROL     [rip+de.l],4
+           CMP     [rip+de.l],0
            JNZ     @ende
-           MOV     af.l,64
+           MOV     [rip+af.l],64
            @ende:
   end;
 
@@ -4230,11 +4232,11 @@ end;
 function SLL_H: byte;
 begin
   asm
-           MOV     af.l,0
-           ROL     hl.h,4
-           CMP     hl.h,0
+           MOV     [rip+af.l],0
+           ROL     [rip+hl.h],4
+           CMP     [rip+hl.h],0
            JNZ     @ende
-           MOV     af.l,64
+           MOV     [rip+af.l],64
            @ende:
   end;
 
@@ -4244,11 +4246,11 @@ end;
 function SLL_L: byte;
 begin
   asm
-           MOV     af.l,0
-           ROL     hl.l,4
-           CMP     hl.l,0
+           MOV     [rip+af.l],0
+           ROL     [rip+hl.l],4
+           CMP     [rip+hl.l],0
            JNZ     @ende
-           MOV     af.l,64
+           MOV     [rip+af.l],64
            @ende:
   end;
 
@@ -4258,16 +4260,16 @@ end;
 function SLL_xHL: byte;
 begin
 
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           MOV     af.l,0
-           ROL     b.l,4
-           CMP     b.l,0
+           MOV     [rip+af.l],0
+           ROL     [rip+b_pair.l],4
+           CMP     [rip+b_pair.l],0
            JNZ     @ende
-           MOV     af.l,64
+           MOV     [rip+af.l],64
            @ende:
   end;
-  SpokeB(hl.w, b.l);
+  SpokeB(hl.w, b_pair.l);
 
   Result := 16;
 end;
@@ -4275,11 +4277,11 @@ end;
 function SLL_A: byte;
 begin
   asm
-           MOV     af.l,0
-           ROR     af.h,4
-           CMP     af.h,0
+           MOV     [rip+af.l],0
+           ROR     [rip+af.h],4
+           CMP     [rip+af.h],0
            JNZ     @ende
-           MOV     af.l,64
+           MOV     [rip+af.l],64
            @ende:
   end;
   Result := 8;
@@ -4288,10 +4290,10 @@ end;
 function SRL_B: byte;
 begin
   asm
-           SHR     bc.h,1
+           SHR     [rip+bc.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
 
@@ -4301,10 +4303,10 @@ end;
 function SRL_C: byte;
 begin
   asm
-           SHR     bc.l,1
+           SHR     [rip+bc.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
 
@@ -4314,10 +4316,10 @@ end;
 function SRL_D: byte;
 begin
   asm
-           SHR     de.h,1
+           SHR     [rip+de.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
 
@@ -4327,10 +4329,10 @@ end;
 function SRL_E: byte;
 begin
   asm
-           SHR     de.l,1
+           SHR     [rip+de.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
 
@@ -4340,10 +4342,10 @@ end;
 function SRL_H: byte;
 begin
   asm
-           SHR     hl.h,1
+           SHR     [rip+hl.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
 
@@ -4353,10 +4355,10 @@ end;
 function SRL_L: byte;
 begin
   asm
-           SHR     hl.l,1
+           SHR     [rip+hl.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
 
@@ -4365,25 +4367,25 @@ end;
 
 function SRL_xHL: byte;
 begin
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           SHR     b.l,1
+           SHR     [rip+b_pair.l],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
-  SpokeB(hl.w, b.l);
+  SpokeB(hl.w, b_pair.l);
   Result := 16;
 end;
 
 function SRL_A: byte;
 begin
   asm
-           SHR     af.h,1
+           SHR     [rip+af.h],1
            LAHF
            AND     AH,65
-           MOV     af.l,AH
+           MOV     [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4393,12 +4395,12 @@ function BIT0_B: byte;
 begin
 
   asm
-           TEST    bc.h,1
+           TEST    [rip+bc.h],1
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
 
   end;
   Result := 8;
@@ -4407,12 +4409,12 @@ end;
 function BIT0_C: byte;
 begin
   asm
-           TEST    bc.l,1
+           TEST    [rip+bc.l],1
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4421,12 +4423,12 @@ end;
 function BIT0_D: byte;
 begin
   asm
-           TEST    de.h,1
+           TEST    [rip+de.h],1
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4435,12 +4437,12 @@ end;
 function BIT0_E: byte;
 begin
   asm
-           TEST    de.l,1
+           TEST    [rip+de.l],1
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4449,12 +4451,12 @@ end;
 function BIT0_H: byte;
 begin
   asm
-           TEST    hl.h,1
+           TEST    [rip+hl.h],1
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4463,12 +4465,12 @@ end;
 function BIT0_L: byte;
 begin
   asm
-           TEST    hl.l,1
+           TEST    [rip+hl.l],1
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4476,14 +4478,14 @@ end;
 
 function BIT0_xHL: byte;
 begin
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           TEST    b.l,1
+           TEST    [rip+b_pair.l],1
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 16;
 end;
@@ -4491,12 +4493,12 @@ end;
 function BIT0_A: byte;
 begin
   asm
-           TEST    af.h,1
+           TEST    [rip+af.h],1
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4505,12 +4507,12 @@ end;
 function BIT1_B: byte;
 begin
   asm
-           TEST    bc.h,2
+           TEST    [rip+bc.h],2
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4519,12 +4521,12 @@ end;
 function BIT1_C: byte;
 begin
   asm
-           TEST    bc.l,2
+           TEST    [rip+bc.l],2
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
 
@@ -4534,12 +4536,12 @@ end;
 function BIT1_D: byte;
 begin
   asm
-           TEST    de.h,2
+           TEST    [rip+de.h],2
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
 
@@ -4549,12 +4551,12 @@ end;
 function BIT1_E: byte;
 begin
   asm
-           TEST    de.l,2
+           TEST    [rip+de.l],2
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
 
@@ -4564,12 +4566,12 @@ end;
 function BIT1_H: byte;
 begin
   asm
-           TEST    hl.h,2
+           TEST    [rip+hl.h],2
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
 
@@ -4579,12 +4581,12 @@ end;
 function BIT1_L: byte;
 begin
   asm
-           TEST    hl.l,2
+           TEST    [rip+hl.l],2
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
 
@@ -4593,14 +4595,14 @@ end;
 
 function BIT1_xHL: byte;
 begin
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           TEST    b.l,2
+           TEST    [rip+b_pair.l],2
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
 
@@ -4610,12 +4612,12 @@ end;
 function BIT1_A: byte;
 begin
   asm
-           TEST    af.h,2
+           TEST    [rip+af.h],2
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
 
@@ -4625,12 +4627,12 @@ end;
 function BIT2_B: byte;
 begin
   asm
-           TEST    bc.h,4
+           TEST    [rip+bc.h],4
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
 
@@ -4640,12 +4642,12 @@ end;
 function BIT2_C: byte;
 begin
   asm
-           TEST    bc.l,4
+           TEST    [rip+bc.l],4
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4654,12 +4656,12 @@ end;
 function BIT2_D: byte;
 begin
   asm
-           TEST    de.h,4
+           TEST    [rip+de.h],4
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4668,12 +4670,12 @@ end;
 function BIT2_E: byte;
 begin
   asm
-           TEST    de.l,4
+           TEST    [rip+de.l],4
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4682,12 +4684,12 @@ end;
 function BIT2_H: byte;
 begin
   asm
-           TEST    hl.h,4
+           TEST    [rip+hl.h],4
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4696,12 +4698,12 @@ end;
 function BIT2_L: byte;
 begin
   asm
-           TEST    hl.l,4
+           TEST    [rip+hl.l],4
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4710,14 +4712,14 @@ end;
 function BIT2_xHL: byte;
 begin
 
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           TEST    b.l,4
+           TEST    [rip+b_pair.l],4
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 16;
 end;
@@ -4725,12 +4727,12 @@ end;
 function BIT2_A: byte;
 begin
   asm
-           TEST    af.h,4
+           TEST    [rip+af.h],4
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4739,12 +4741,12 @@ end;
 function BIT3_B: byte;
 begin
   asm
-           TEST    bc.h,8
+           TEST    [rip+bc.h],8
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4753,12 +4755,12 @@ end;
 function BIT3_C: byte;
 begin
   asm
-           TEST    bc.l,8
+           TEST    [rip+bc.l],8
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4766,12 +4768,12 @@ end;
 function BIT3_D: byte;
 begin
   asm
-           TEST    de.h,8
+           TEST    [rip+de.h],8
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4780,12 +4782,12 @@ end;
 function BIT3_E: byte;
 begin
   asm
-           TEST    de.l,8
+           TEST    [rip+de.l],8
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4793,12 +4795,12 @@ end;
 function BIT3_H: byte;
 begin
   asm
-           TEST    hl.h,8
+           TEST    [rip+hl.h],8
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4806,26 +4808,26 @@ end;
 function BIT3_L: byte;
 begin
   asm
-           TEST    hl.l,8
+           TEST    [rip+hl.l],8
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 1;
 end;
 
 function BIT3_xHL: byte;
 begin
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           TEST    b.l,8
+           TEST    [rip+b_pair.l],8
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 16;
 end;
@@ -4833,12 +4835,12 @@ end;
 function BIT3_A: byte;
 begin
   asm
-           TEST    af.h,8
+           TEST    [rip+af.h],8
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -4847,12 +4849,12 @@ end;
 function BIT4_B: byte;
 begin
   asm
-           TEST    bc.h,16
+           TEST    [rip+bc.h],16
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4860,12 +4862,12 @@ end;
 function BIT4_C: byte;
 begin
   asm
-           TEST    bc.l,16
+           TEST    [rip+bc.l],16
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4873,12 +4875,12 @@ end;
 function BIT4_D: byte;
 begin
   asm
-           TEST    de.h,16
+           TEST    [rip+de.h],16
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4886,12 +4888,12 @@ end;
 function BIT4_E: byte;
 begin
   asm
-           TEST    de.l,16
+           TEST    [rip+de.l],16
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4899,12 +4901,12 @@ end;
 function BIT4_H: byte;
 begin
   asm
-           TEST    hl.h,16
+           TEST    [rip+hl.h],16
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4912,26 +4914,26 @@ end;
 function BIT4_L: byte;
 begin
   asm
-           TEST    hl.l,16
+           TEST    [rip+hl.l],16
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
 
 function BIT4_xHL: byte;
 begin
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           TEST    b.l,16
+           TEST    [rip+b_pair.l],16
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 16;
 end;
@@ -4939,12 +4941,12 @@ end;
 function BIT4_A: byte;
 begin
   asm
-           TEST    af.h,16
+           TEST    [rip+af.h],16
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4952,12 +4954,12 @@ end;
 function BIT5_B: byte;
 begin
   asm
-           TEST    bc.h,32
+           TEST    [rip+bc.h],32
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4965,12 +4967,12 @@ end;
 function BIT5_C: byte;
 begin
   asm
-           TEST    bc.l,32
+           TEST    [rip+bc.l],32
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4978,12 +4980,12 @@ end;
 function BIT5_D: byte;
 begin
   asm
-           TEST    de.h,32
+           TEST    [rip+de.h],32
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -4991,12 +4993,12 @@ end;
 function BIT5_E: byte;
 begin
   asm
-           TEST    de.l,32
+           TEST    [rip+de.l],32
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5004,12 +5006,12 @@ end;
 function BIT5_H: byte;
 begin
   asm
-           TEST    hl.h,32
+           TEST    [rip+hl.h],32
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5017,12 +5019,12 @@ end;
 function BIT5_L: byte;
 begin
   asm
-           TEST    hl.l,32
+           TEST    [rip+hl.l],32
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5030,14 +5032,14 @@ end;
 function BIT5_xHL: byte;
 begin
 
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           TEST    b.l,32
+           TEST    [rip+b_pair.l],32
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 16;
 end;
@@ -5045,12 +5047,12 @@ end;
 function BIT5_A: byte;
 begin
   asm
-           TEST    af.h,32
+           TEST    [rip+af.h],32
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
 
   Result := 8;
@@ -5059,12 +5061,12 @@ end;
 function BIT6_B: byte;
 begin
   asm
-           TEST    bc.h,64
+           TEST    [rip+bc.h],64
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5072,12 +5074,12 @@ end;
 function BIT6_C: byte;
 begin
   asm
-           TEST    bc.l,64
+           TEST    [rip+bc.l],64
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5085,12 +5087,12 @@ end;
 function BIT6_D: byte;
 begin
   asm
-           TEST    de.h,64
+           TEST    [rip+de.h],64
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5098,12 +5100,12 @@ end;
 function BIT6_E: byte;
 begin
   asm
-           TEST    de.l,64
+           TEST    [rip+de.l],64
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5111,12 +5113,12 @@ end;
 function BIT6_H: byte;
 begin
   asm
-           TEST    hl.h,64
+           TEST    [rip+hl.h],64
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5124,12 +5126,12 @@ end;
 function BIT6_L: byte;
 begin
   asm
-           TEST    hl.l,64
+           TEST    [rip+hl.l],64
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5137,14 +5139,14 @@ end;
 function BIT6_xHL: byte;
 begin
 
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           TEST    b.l,64
+           TEST    [rip+b_pair.l],64
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 16;
 end;
@@ -5152,12 +5154,12 @@ end;
 function BIT6_A: byte;
 begin
   asm
-           TEST    af.h,64
+           TEST    [rip+af.h],64
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5165,12 +5167,12 @@ end;
 function BIT7_B: byte;
 begin
   asm
-           TEST    bc.h,128
+           TEST    [rip+bc.h],128
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5178,12 +5180,12 @@ end;
 function BIT7_C: byte;
 begin
   asm
-           TEST    bc.l,128
+           TEST    [rip+bc.l],128
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5191,12 +5193,12 @@ end;
 function BIT7_D: byte;
 begin
   asm
-           TEST    de.h,128
+           TEST    [rip+de.h],128
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5204,12 +5206,12 @@ end;
 function BIT7_E: byte;
 begin
   asm
-           TEST    de.l,128
+           TEST    [rip+de.l],128
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5217,12 +5219,12 @@ end;
 function BIT7_H: byte;
 begin
   asm
-           TEST    hl.h,128
+           TEST    [rip+hl.h],128
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5230,26 +5232,26 @@ end;
 function BIT7_L: byte;
 begin
   asm
-           TEST    hl.l,128
+           TEST    [rip+hl.l],128
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
 
 function BIT7_xHL: byte;
 begin
-  b.l := speekb(hl.w);
+  b_pair.l := speekb(hl.w);
   asm
-           TEST    b.l,128
+           TEST    [rip+b_pair.l],128
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 16;
 end;
@@ -5257,12 +5259,12 @@ end;
 function BIT7_A: byte;
 begin
   asm
-           TEST    af.h,128
+           TEST    [rip+af.h],128
            LAHF
            AND     AH,64
-           AND     af.l,1
+           AND     [rip+af.l],1
            OR      AH,16
-           OR      af.l,AH
+           OR      [rip+af.l],AH
   end;
   Result := 8;
 end;
@@ -5270,7 +5272,7 @@ end;
 function RES0_B: byte;
 begin
   asm
-           AND     bc.h,254
+           AND     [rip+bc.h],254
   end;
   Result := 8;
 end;
@@ -5278,7 +5280,7 @@ end;
 function RES0_C: byte;
 begin
   asm
-           AND     bc.l,254
+           AND     [rip+bc.l],254
   end;
 
   Result := 8;
@@ -5287,7 +5289,7 @@ end;
 function RES0_D: byte;
 begin
   asm
-           AND     de.h,254
+           AND     [rip+de.h],254
   end;
 
   Result := 8;
@@ -5296,7 +5298,7 @@ end;
 function RES0_E: byte;
 begin
   asm
-           AND     de.l,254
+           AND     [rip+de.l],254
   end;
 
   Result := 8;
@@ -5305,7 +5307,7 @@ end;
 function RES0_H: byte;
 begin
   asm
-           AND     hl.h,254
+           AND     [rip+hl.h],254
   end;
 
   Result := 8;
@@ -5314,7 +5316,7 @@ end;
 function RES0_L: byte;
 begin
   asm
-           AND     hl.l,254
+           AND     [rip+hl.l],254
   end;
 
   Result := 8;
@@ -5323,8 +5325,8 @@ end;
 function RES0_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1) and 254;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1) and 254;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5373,8 +5375,8 @@ end;
 function RES1_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1) and 253;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1) and 253;
+  SpokeB(w1, b_pair.l);
 
   Result := 16;
 end;
@@ -5424,9 +5426,9 @@ end;
 function RES2_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1);
-  b.l := b.l and 251;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1);
+  b_pair.l := b_pair.l and 251;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5475,9 +5477,9 @@ end;
 function RES3_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1);
-  b.l := b.l and 247;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1);
+  b_pair.l := b_pair.l and 247;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5526,9 +5528,9 @@ end;
 function RES4_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1);
-  b.l := b.l and 239;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1);
+  b_pair.l := b_pair.l and 239;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5578,9 +5580,9 @@ end;
 function RES5_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1);
-  b.l := b.l and 223;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1);
+  b_pair.l := b_pair.l and 223;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5629,9 +5631,9 @@ end;
 function RES6_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1);
-  b.l := b.l and 191;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1);
+  b_pair.l := b_pair.l and 191;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5680,9 +5682,9 @@ end;
 function RES7_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1);
-  b.l := b.l and 127;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1);
+  b_pair.l := b_pair.l and 127;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5731,9 +5733,9 @@ end;
 function SET0_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1);
-  b.l := b.l or 1;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1);
+  b_pair.l := b_pair.l or 1;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5782,8 +5784,8 @@ end;
 function SET1_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1) or 2;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1) or 2;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5832,8 +5834,8 @@ end;
 function SET2_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1) or 4;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1) or 4;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5945,8 +5947,8 @@ end;
 function SET4_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1) or 16;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1) or 16;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -5995,8 +5997,8 @@ end;
 function SET5_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1) or 32;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1) or 32;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -6045,8 +6047,8 @@ end;
 function SET6_xHL: byte;
 begin
   w1 := hl.w;
-  b.l := speekb(w1) or 64;
-  SpokeB(w1, b.l);
+  b_pair.l := speekb(w1) or 64;
+  SpokeB(w1, b_pair.l);
   Result := 16;
 end;
 
@@ -6077,7 +6079,7 @@ end;
 function SET7_E: byte;
 begin
   asm
-           OR      de.l,128
+           OR      [rip+de.l],128
   end;
   Result := 8;
 end;
@@ -6085,7 +6087,7 @@ end;
 function SET7_H: byte;
 begin
   asm
-           OR      hl.h,128
+           OR      [rip+hl.h],128
   end;
 
   Result := 8;
@@ -6094,7 +6096,7 @@ end;
 function SET7_L: byte;
 begin
   asm
-           OR      hl.l,128
+           OR      [rip+hl.l],128
   end;
   Result := 8;
 end;
@@ -6123,7 +6125,7 @@ end;
 function SET7_A: byte;
 begin
   asm
-           OR      af.h,128
+           OR      [rip+af.h],128
   end;
   Result := 8;
 end;
