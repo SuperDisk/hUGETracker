@@ -39,7 +39,7 @@ var
   OrderCnt: Integer;
 begin
   Res := TStringList.Create;
-  OrderCnt := maxvalue([High(OrderMatrix[0]), High(OrderMatrix[1]),
+  OrderCnt := MaxIntValue([High(OrderMatrix[0]), High(OrderMatrix[1]),
                         High(OrderMatrix[2]), High(OrderMatrix[3])]);
 
   Res.Add('order_cnt: db ' + IntToStr(OrderCnt*2));

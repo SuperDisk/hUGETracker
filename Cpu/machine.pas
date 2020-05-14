@@ -8,6 +8,7 @@
 unit machine;
 
 {$MODE Delphi}
+{$ASMMODE INTEL}
 
 interface
 
@@ -71,8 +72,8 @@ const
 {+ Important!! the two memory functions must
     be declared CDECL!!! +}
 
-function speekb(address: word): byte; cdecl;
-procedure spokeb(address: word; Data: byte); cdecl;
+function speekb(address: word): byte;
+procedure spokeb(address: word; Data: byte);
 
 function wordpeek(Addr: word): word;
 procedure wordpoke(addr: word; val: word);
@@ -279,7 +280,7 @@ begin
   Result := res;
 end;
 
-procedure spokeb(address: word; Data: byte); cdecl; // neu
+procedure spokeb(address: word; Data: byte); // neu
 var
   cr: byte;
   ji, pi: longint;
@@ -662,23 +663,10 @@ begin
 end;
 
 
-procedure push_pc; assembler;
-asm
-         MOV     AX,pc.w
-         DEC     sp_.w
-         XCHG    AH,AL
-         PUSH    EAX
-         PUSH    dword ptr sp_.w
-         CALL    spokeb
-         LEA     ESP,[ESP+8]
-         MOV     AX,pc.w
-         PUSH    EAX
-         DEC     sp_.w
-         PUSH    dword ptr sp_.w
-         CALL    spokeb
-         LEA     ESP,[ESP+8]
+procedure push_pc;
+begin
+  dec(sp_.W,2);
+  wordpoke(sp_.W,pc.w);
 end;
-(* dec(sp_.W,2);wordpoke(sp_.W,pc.w);*)
-
 
 end.
