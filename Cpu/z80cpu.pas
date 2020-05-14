@@ -8,6 +8,7 @@
 unit Z80CPU;
 
 {$MODE Delphi}
+{$ASMMODE Intel}
 
 interface
 
@@ -22,6 +23,7 @@ uses vars, machine;
 var
   b: Pair;
   cycle: byte;
+  b1: byte;
   w1, w2: word;
 
 function NOP: byte;
@@ -31,7 +33,7 @@ end;
 
 function LD_BC_WORD: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
@@ -42,19 +44,28 @@ begin
            LEA     ESP,[ESP+4]
            MOV     bc.h,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  bc.l := speekb(pc.w);
+  Inc(pc.w);
+  bc.h := speekb(pc.w);
+  Inc(pc.w);
+
   Result := 12;
 end;
 
 function LD_xBC_A: byte;
 begin
-  asm
+  {asm
            MOV     AX,bc.w
            PUSH    dword ptr af.h
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(bc.w, af.h);
+
   Result := 8;
 end;
 
@@ -63,6 +74,7 @@ begin
   asm
            INC     bc.w
   end;
+
   Result := 8;
 end;
 
@@ -96,13 +108,17 @@ end;
 
 function LD_B_BYTE: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     bc.h,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  bc.h := speekb(pc.w);
+  Inc(pc.w);
+
   Result := 8;
 end;
 
@@ -121,7 +137,7 @@ end;
 
 function EX_AF_AF: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
@@ -152,7 +168,7 @@ begin
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
   Result := 20;
 end;
 
@@ -184,13 +200,16 @@ end;
 
 function LD_A_xBC: byte;
 begin
-  asm
+  {asm
            MOV     AX,bc.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     af.h,AL
-  end;
+  end;}
+
+  af.h := speekb(bc.w);
+
   Result := 8;
 end;
 
@@ -232,13 +251,17 @@ end;
 
 function LD_C_BYTE: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     bc.l,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  bc.l := speekb(pc.w);
+  Inc(pc.w);
+
   Result := 8;
 end;
 
@@ -264,7 +287,7 @@ end;
 
 function LD_DE_WORD: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
@@ -276,19 +299,27 @@ begin
            LEA     ESP,[ESP+4]
            MOV     de.h,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  de.l := speekb(pc.w);
+  Inc(pc.w);
+  de.h := speekb(pc.w);
+  Inc(pc.w);
+
   Result := 12;
 end;
 
 function LD_xDE_A: byte;
 begin
-  asm
+  {asm
            MOV     AX,de.w
            PUSH    dword ptr af.h
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(de.w, af.h);
 
   Result := 8;
 end;
@@ -330,13 +361,16 @@ end;
 
 function LD_D_BYTE: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     de.h,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  de.h := speekb(pc.w);
+  Inc(pc.w);
 
   Result := 8;
 end;
@@ -358,7 +392,7 @@ end;
 
 function JR: byte;
 begin
-  asm
+  {asm
            XOR     EAX,EAX
            MOV     AX,pc.w
            PUSH    EAX
@@ -367,7 +401,9 @@ begin
            INC     word ptr pc.w
            CBW
            ADD     pc.w,AX
-  end;
+  end;}
+
+  Inc(pc.w, speekb(pc.w)+1);
 
   Result := 8;
 end;
@@ -400,13 +436,15 @@ end;
 
 function LD_A_xDE: byte;
 begin
-  asm
+  {asm
            MOV     AX,de.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     af.h,AL
-  end;
+  end;}
+
+  af.h := speekb(de.w);
 
   Result := 8;
 end;
@@ -449,13 +487,16 @@ end;
 
 function LD_E_BYTE: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     de.l,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  de.l := speekb(pc.w);
+  Inc(pc.w);
 
   Result := 8;
 end;
@@ -475,11 +516,15 @@ end;
 
 function JR_NZ: byte;
 begin
+  b1 := speekb(pc.w);
+  Inc(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
-           INC     word ptr pc.w
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           //INC     word ptr pc.w
+           MOV     AH, 0
+           MOV     AL, b1
            TEST    af.l,64
            MOV     cycle,8
            JNZ     @ende
@@ -493,7 +538,7 @@ end;
 
 function LD_HL_WORD: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
@@ -504,13 +549,19 @@ begin
            LEA     ESP,[ESP+4]
            MOV     hl.h,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  hl.l := speekb(pc.w);
+  Inc(pc.w);
+  hl.h := speekb(pc.w);
+  Inc(pc.w);
+
   Result := 12;
 end;
 
 function LD_xWORD_HL: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            PUSH    dword ptr af.h
@@ -520,7 +571,11 @@ begin
            POP     EAX
            INC     EAX
            MOV     hl.w,AX
-  end;
+  end;}
+
+  spokeb(hl.w, af.h);
+  Inc(hl.w);
+
   Result := 8;
 end;
 
@@ -561,13 +616,16 @@ end;
 
 function LD_H_BYTE: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     hl.h,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  hl.h := speekb(pc.w);
+  Inc(pc.w);
 
   Result := 8;
 end;
@@ -581,11 +639,11 @@ begin
            SAHF
            MOV     AL,af.h
            JP      @dec_adjust
-           DAA
+           //DAA
            JMP     @ddld
 
            @dec_adjust:
-           DAS
+           //DAS
 
            @ddld:
            MOV     af.h,AL
@@ -601,11 +659,15 @@ end;
 function JR_Z: byte;
 
 begin
+  b1 := speekb(pc.w);
+  Inc(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
-           INC     word ptr pc.w
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           //INC     word ptr pc.w
+           MOV     AH, 0
+           MOV     AL, b1
            TEST    af.l,64
            MOV     cycle,8
            JZ      @ende
@@ -643,8 +705,7 @@ end;
 
 function LD_HL_xWORD: byte;
 begin
-
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            PUSH    EAX
@@ -654,7 +715,10 @@ begin
            POP     EAX
            INC     AX
            MOV     hl.w,AX
-  end;
+  end;}
+
+  af.h := speekb(hl.w);
+  Inc(hl.w);
 
   Result := 8;
 end;
@@ -697,13 +761,16 @@ end;
 
 function LD_L_BYTE: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
            INC     word ptr pc.w
            MOV     hl.l,AL
-  end;
+  end;}
+
+  Inc(pc.w);
+  hl.l := speekb(pc.w);
 
   Result := 8;
 end;
@@ -712,9 +779,7 @@ function CPL: byte;
 begin
   asm
            XOR     af.h,255
-
            OR      af.l,$14
-
   end;
 
   Result := 4;
@@ -723,11 +788,15 @@ end;
 function JR_NC: byte;
 
 begin
+  b1 := speekb(pc.w);
+  Inc(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
-           INC     word ptr pc.w
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           //INC     word ptr pc.w
+           MOV     AH, 0
+           MOV     AL, b1
            TEST    af.l,1
            MOV     cycle,8
            JNZ     @ende
@@ -742,7 +811,7 @@ end;
 
 function LD_SP_WORD: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
@@ -757,14 +826,17 @@ begin
            MOV     AL,BL
 
            MOV     sp_.w,AX
-  end;
-  //sp_.w:=wordpeek(pc.w);inc(pc.w,2);
+  end;}
+
+  sp_.w := wordpeek(pc.w);
+  inc(pc.w,2);
+
   Result := 12;
 end;
 
 function LD_xWORD_A: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            PUSH    dword ptr af.h
@@ -774,10 +846,10 @@ begin
            POP     EAX
            DEC     AX
            MOV     hl.w,AX
-  end;
+  end;}
 
-
-
+  spokeb(hl.w, af.h);
+  Dec(hl.w);
 
   Result := 8;
 end;
@@ -793,54 +865,64 @@ end;
 
 function INC_xHL: byte;
 begin
+  w1 := speekb(hl.w);
   asm
            MOV     AX,hl.w
-           PUSH    EAX
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           PUSH    RAX
+           // PUSH    EAX
+           // CALL    speekb
+           // LEA     ESP,[ESP+4]
+           MOV     AX, w1
            INC     AL
            LAHF
            AND     AH,$51
            AND     af.l,1
            OR      af.l,AH
-           POP     EBX
-           PUSH    EAX
-           PUSH    EBX
-           CALL    SpokeB
-           LEA     ESP,[ESP+8]
+           POP     RBX
+           //PUSH    EAX
+           //PUSH    EBX
+           //CALL    SpokeB
+           //LEA     ESP,[ESP+8]
+           MOV w1, BX
+           MOV w2, AX
   end;
-
+  spokeb(w1, w2);
 
   Result := 12;
 end;
 
 function DEC_xHL: byte;
 begin
+  w1 := speekb(hl.w);
   asm
            MOV     AX,hl.w
-           PUSH    EAX
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           PUSH    RAX
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
            DEC     AL
            LAHF
            AND     af.l,1
            AND     AH,$55
            OR      EAX,$400
            OR      af.l,AH
-           POP     EBX
-           PUSH    EAX
-           PUSH    EBX
-           CALL    SpokeB
-           LEA     ESP,[ESP+8]
+           POP     RBX
+           //PUSH    EAX
+           //PUSH    EBX
+           //CALL    SpokeB
+           //LEA     ESP,[ESP+8]
+           MOV w1, BX
+           MOV w2, AX
   end;
+  spokeb(w1, w2);
+
   Result := 12;
 end;
 
 function LD_xHL_BYTE: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
@@ -850,8 +932,11 @@ begin
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
 
+  w1 := speekb(pc.w);
+  Inc(pc.w);
+  spokeb(hl.w, w1);
 
   Result := 12;
 end;
@@ -869,10 +954,12 @@ end;
 function JR_C: byte;
 
 begin
+  w1 := speekb(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     EAX, w1
            INC     word ptr pc.w
            TEST    af.l,1
            MOV     cycle,8
@@ -913,8 +1000,7 @@ end;
 
 function LD_A_xWORD: byte;
 begin
-
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            PUSH    EAX
@@ -924,7 +1010,10 @@ begin
            POP     EAX
            DEC     AX
            MOV     hl.w,AX
-  end;
+  end;}
+
+  af.h := speekb(hl.w);
+  Dec(hl.w);
 
   Result := 8;
 end;
@@ -966,13 +1055,16 @@ end;
 
 function LD_A_BYTE: byte;
 begin
-  asm
+  {asm
            PUSH    dword ptr pc.w
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     af.h,AL
            INC     word ptr pc.w
-  end;
+  end;}
+
+  af.h := speekb(pc.w);
+  Inc(pc.w);
 
   Result := 8;
 end;
@@ -1028,14 +1120,15 @@ end;
 
 function LD_B_xHL: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     bc.h,AL
-  end;
+  end;}
 
+  bc.h := speekb(hl.w);
 
   Result := 8;
 end;
@@ -1083,13 +1176,15 @@ end;
 
 function LD_C_xHL: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     bc.l,AL
-  end;
+  end;}
+
+  bc.l := speekb(hl.w);
 
   Result := 8;
 end;
@@ -1138,13 +1233,15 @@ end;
 
 function LD_D_xHL: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     de.h,AL
-  end;
+  end;}
+
+  de.h := speekb(hl.w);
 
   Result := 8;
 end;
@@ -1192,14 +1289,16 @@ end;
 
 function LD_E_xHL: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     de.l,AL
-  end;
-  ;
+  end;}
+
+  de.l := speekb(hl.w);
+
   Result := 8;
 end;
 
@@ -1246,13 +1345,15 @@ end;
 
 function LD_H_xHL: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     hl.h,AL
-  end;
+  end;}
+
+  hl.h := speekb(hl.w);
 
   Result := 8;
 end;
@@ -1300,13 +1401,15 @@ end;
 
 function LD_L_xHL: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     hl.l,AL
-  end;
+  end;}
+
+  hl.l := speekb(hl.w);
 
   Result := 8;
 end;
@@ -1319,78 +1422,90 @@ end;
 
 function LD_xHL_B: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    dword ptr bc.h
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(hl.w, bc.h);
 
   Result := 8;
 end;
 
 function LD_xHL_C: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    dword ptr bc.l
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(hl.w, bc.l);
 
   Result := 8;
 end;
 
 function LD_xHL_D: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    dword ptr de.h
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(hl.w, de.h);
 
   Result := 8;
 end;
 
 function LD_xHL_E: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    dword ptr de.l
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(hl.w, de.l);
 
   Result := 8;
 end;
 
 function LD_xHL_H: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    dword ptr hl.h
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(hl.w, hl.h);
 
   Result := 8;
 end;
 
 function LD_xHL_L: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    dword ptr hl.l
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(hl.w, hl.l);
 
   Result := 8;
 end;
@@ -1406,13 +1521,15 @@ end;
 
 function LD_xHL_A: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    dword ptr af.h
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(hl.w, af.h);
 
   Result := 8;
 end;
@@ -1455,13 +1572,15 @@ end;
 
 function LD_A_xHL: byte;
 begin
-  asm
+  {asm
            MOV     AX,hl.w
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
            MOV     af.h,AL
-  end;
+  end;}
+
+  af.h := speekb(hl.w);
 
   Result := 8;
 end;
@@ -1554,12 +1673,13 @@ end;
 
 function ADD_xHL: byte;
 begin
-
+  w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //MOV     AX,hl.w
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV       AX, w1
 
            ADD     af.h,AL
            LAHF
@@ -1567,6 +1687,7 @@ begin
            MOV     af.l,AH
 
   end;
+
   Result := 8;
 end;
 
@@ -1681,12 +1802,13 @@ end;
 
 function ADC_xHL: byte;
 begin
-
+  w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //MOV     AX,hl.w
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
            MOV     AH,af.l
            AND     AH,1
            SAHF
@@ -1803,12 +1925,13 @@ end;
 
 function SUB_xHL: byte;
 begin
-
+  w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //MOV     AX,hl.w
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
 
            SUB     af.h,AL
            LAHF
@@ -1933,12 +2056,14 @@ end;
 
 function SBC_xHL: byte;
 begin
-
+  w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //MOV     AX,hl.w
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
+
            MOV     AH,af.l
            SAHF
 
@@ -2047,12 +2172,13 @@ end;
 
 function AND_xHL: byte;
 begin
-
+  w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //MOV     AX,hl.w
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
 
            AND     af.h,AL
            LAHF
@@ -2150,12 +2276,13 @@ end;
 
 function XOR_xHL: byte;
 begin
-
+  w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //MOV     AX,hl.w
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
 
            XOR     af.h,AL
            LAHF
@@ -2250,12 +2377,14 @@ end;
 
 function OR_xHL: byte;
 begin
+  w1 := speekb(hl.w);
 
   asm
-           MOV     AX,hl.w
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //MOV     AX,hl.w
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
 
 
            OR      af.h,AL
@@ -2357,12 +2486,13 @@ end;
 
 function CP_xHL: byte;
 begin
-
+  w1 := speekb(hl.w);
   asm
-           MOV     AX,hl.w
-           PUSH    EAX
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //MOV     AX,hl.w
+           //PUSH    EAX
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
 
 
            CMP     af.h,AL
@@ -2389,6 +2519,8 @@ end;
 function RET_NZ: byte;
 
 begin
+  //w1 := speekb(sp_.w);
+  // TODO
   asm
            TEST    af.l,64
            MOV     cycle,8
@@ -2396,6 +2528,7 @@ begin
            PUSH    dword ptr sp_.w
            CALL    speekb
            LEA     ESP,[ESP+4]
+           MOV     AX, w1
            INC     word ptr sp_.w
            PUSH    EAX
            PUSH    dword ptr sp_.w
@@ -2480,11 +2613,13 @@ end;
 
 function ADD_BYTE: byte;
 begin
+  w1 := speekb(pc.w);
 
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
            INC     word ptr pc.w
            MOV     AH,af.l
            SAHF
@@ -2587,11 +2722,13 @@ end;
 
 function ADC_BYTE: byte;
 begin
-
+  w1 := speekb(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
+
            INC     word ptr pc.w
            MOV     AH,af.l
            SAHF
@@ -2788,10 +2925,13 @@ end;
 
 function SBC_BYTE: byte;
 begin
+  w1 := speekb(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
+
            INC     word ptr pc.w
            MOV     AH,af.l
            SAHF
@@ -2814,19 +2954,25 @@ end;
 
 function RET_PO: byte;
 begin
+  w1 := speekb(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
+
            INC     word ptr pc.w
            MOV     AH,$ff
 
 
-           push dword ptr af.h
-           PUSH    EAX
-           CALL    SpokeB
-           LEA     ESP,[ESP+8]
+           //push dword ptr af.h
+           //PUSH    EAX
+           //CALL    SpokeB
+           //LEA     ESP,[ESP+8]
+           MOV     w1, EAX
   end;
+
+  spokeb(w1, af.h);
 
   Result := 12;
 end;
@@ -2842,7 +2988,7 @@ end;
 
 function JP_PO: byte;
 begin
-  asm
+  {asm
            MOV     AL,bc.l
            MOV     AH,$ff
 
@@ -2851,7 +2997,9 @@ begin
            PUSH    EAX
            CALL    SpokeB
            LEA     ESP,[ESP+8]
-  end;
+  end;}
+
+  spokeb(bc.l, af.h);
 
   Result := 8;
 end;
@@ -2926,6 +3074,8 @@ end;
 
 function JP_PE: byte;
 begin
+  // TODO
+
   asm
            PUSH    dword ptr pc.w
            CALL    speekb
@@ -2980,11 +3130,13 @@ end;
 
 function XOR_BYTE: byte;
 begin
-
+  w1 := speekb(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
+
            INC     word ptr pc.w
 
            XOR     af.h,AL
@@ -3005,14 +3157,19 @@ end;
 
 function RET_P: byte;
 begin
+  // TODO
+  w1 := speekb(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
+
            INC     word ptr pc.w
            XOR     AH,AH
            MOV     BX,$ff00
            ADD     AX,BX
+           // ?
            PUSH    EAX
            CALL    speekb
            LEA     ESP,[ESP+4]
@@ -3044,6 +3201,7 @@ end;
 
 function JP_P: byte;
 begin
+  // TODO
   asm
            MOV     AL,bc.l
            XOR     AH,AH
@@ -3114,11 +3272,13 @@ end;
 
 function RET_M: byte;
 begin
-
+  w1 := speekb(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
+
            INC     word ptr pc.w
 
 
@@ -3147,6 +3307,8 @@ end;
 
 function JP_M: byte;
 begin
+  // TODO
+
   asm
            PUSH    dword ptr pc.w
            CALL    speekb
@@ -3185,17 +3347,19 @@ end;
 
 function PFX_FD: byte;
 begin
-  // Writeln('[DEBUG] 0xFD Called, A = ', af.h);
   if Assigned(@FDCallback) then FDCallback;
   Result := 0;
 end;
 
 function CP_BYTE: byte;
 begin
+  w1 := speekb(pc.w);
   asm
-           PUSH    dword ptr pc.w
-           CALL    speekb
-           LEA     ESP,[ESP+4]
+           //PUSH    dword ptr pc.w
+           //CALL    speekb
+           //LEA     ESP,[ESP+4]
+           MOV     AX, w1
+
            INC     word ptr pc.w
            CMP     af.h,AL
            LAHF
@@ -5690,7 +5854,7 @@ end;
 
 function SET3_xHL: byte;
 begin
-
+  // TODO
   asm
            MOV     AX,hl.w
            PUSH    EAX
@@ -5909,6 +6073,7 @@ end;
 
 function SET7_xHL: byte;
 begin
+  // TODO
   asm
            MOV     AX,hl.w
            PUSH    EAX

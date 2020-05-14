@@ -69,9 +69,6 @@ const
     (code: $1801; Name: 'Hudson Soft'));
 
 
-{+ Important!! the two memory functions must
-    be declared CDECL!!! +}
-
 function speekb(address: word): byte;
 procedure spokeb(address: word; Data: byte);
 
