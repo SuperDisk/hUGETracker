@@ -527,7 +527,7 @@ begin
            //LEA     ESP,[ESP+4]
            //INC     word ptr [rip+pc.w]
            MOV     AH, 0
-           MOV     AL, b1
+           MOV     AL, [rip+b1]
            TEST    [rip+af.l],64
            MOV     [rip+cycle],8
            JNZ     @ende
@@ -670,7 +670,7 @@ begin
            //LEA     ESP,[ESP+4]
            //INC     word ptr [rip+pc.w]
            MOV     AH, 0
-           MOV     AL, b1
+           MOV     AL, [rip+b1]
            TEST    [rip+af.l],64
            MOV     [rip+cycle],8
            JZ      @ende
@@ -799,7 +799,7 @@ begin
            //LEA     ESP,[ESP+4]
            //INC     word ptr [rip+pc.w]
            MOV     AH, 0
-           MOV     AL, b1
+           MOV     AL, [rip+b1]
            TEST    [rip+af.l],1
            MOV     [rip+cycle],8
            JNZ     @ende
@@ -887,7 +887,7 @@ begin
            //CALL    SpokeB
            //LEA     ESP,[ESP+8]
            MOV [rip+w1], BX
-           MOV w2, AX
+           MOV [rip+w2], AX
   end;
   spokeb(w1, w2);
 
@@ -916,7 +916,7 @@ begin
            //CALL    SpokeB
            //LEA     ESP,[ESP+8]
            MOV [rip+w1], BX
-           MOV w2, AX
+           MOV [rip+w2], AX
   end;
   spokeb(w1, w2);
 
@@ -2522,38 +2522,40 @@ end;
 function RET_NZ: byte;
 
 begin
-  if (af.l and 64) = 1 then Exit(8);
+  if (af.l and 64) <> 0 then
+    cycle := 8
+  else begin
+    i1 := speekb(sp_.w);
+    Inc(sp_.w);
+    i2 := speekb(sp_.w);
+    Inc(sp_.w);
 
-  i1 := speekb(sp_.w);
-  Inc(sp_.w);
-  i2 := speekb(sp_.w);
-  Inc(sp_.w);
+    asm
+             //TEST    [rip+af.l],64
+             //MOV     [rip+cycle],8
+             //JNZ     @ende
+             //PUSH    dword ptr [rip+sp_.w]
+             //CALL    speekb
+             //LEA     ESP,[ESP+4]
+             //
+             //INC     word ptr [rip+sp_.w]
+             //PUSH    EAX
+             //PUSH    dword ptr [rip+sp_.w]
+             //CALL    speekb
+             //LEA     ESP,[ESP+4]
+             //INC     word ptr [rip+sp_.w]
+             MOV     EAX,[rip+i2]
 
-  asm
-           //TEST    [rip+af.l],64
-           //MOV     [rip+cycle],8
-           //JNZ     @ende
-           //PUSH    dword ptr [rip+sp_.w]
-           //CALL    speekb
-           //LEA     ESP,[ESP+4]
-           //
-           //INC     word ptr [rip+sp_.w]
-           //PUSH    EAX
-           //PUSH    dword ptr [rip+sp_.w]
-           //CALL    speekb
-           //LEA     ESP,[ESP+4]
-           //INC     word ptr [rip+sp_.w]
-           MOV     EAX,i2
+             SHL     EAX,8
 
-           SHL     EAX,8
+             //POP     EBX
+             MOV     EBX,[rip+i1]
 
-           //POP     EBX
-           MOV     EBX,[rip+i1]
-
-           MOV     AL,BL
-           MOV     [rip+pc.w],AX
-           MOV     [rip+cycle],20
-           @ende:
+             MOV     AL,BL
+             MOV     [rip+pc.w],AX
+             MOV     [rip+cycle],20
+             //@ende:
+    end;
   end;
 
   Result := cycle;
@@ -3102,7 +3104,7 @@ begin
            //CALL    speekb
            //LEA     ESP,[ESP+4]
            //INC     word ptr [rip+pc.w]
-           MOV     EAX,i2
+           MOV     EAX,[rip+i2]
 
            SHL     EAX,8
 
