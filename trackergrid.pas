@@ -37,7 +37,10 @@ type
     Pattern: TPattern;
   end;
 
-  TUndoRedoAction = array[0..3] of TSavedPattern;
+  TSavedPatternSet = array[0..3] of TSavedPattern;
+  TUndoRedoAction = record
+    Before, After: TSavedPatternSet;
+  end;
   TUndoDeque = TDeque<TUndoRedoAction>;
   TRedoStack = TStack<TUndoRedoAction>;
 
@@ -74,7 +77,8 @@ type
     procedure DoPaste(var Msg: TLMessage); message LM_PASTE;
     procedure DoCopy(var Msg: TLMessage); message LM_COPY;
     procedure DoCut(var Msg: TLMessage); message LM_CUT;
-    procedure SaveUndoState;
+    procedure BeginUndoAction;
+    procedure EndUndoAction;
 
     procedure RenderSelectedArea;
     procedure ClampCursors;
@@ -115,6 +119,8 @@ type
     DragSelCursor, DragSelOther: TSelectionPos;
     DragOffsetY: Integer;
 
+    NestedUndoCount: Integer;
+    CurrentUndoAction: TUndoRedoAction;
     Performed: TUndoDeque;
     Recall: TRedoStack;
 
@@ -226,6 +232,7 @@ begin
 
   Self.PatternMap := PatternMap;
 
+  NestedUndoCount := 0;
   Performed := TUndoDeque.Create;
   Recall := TRedoStack.Create;
 
@@ -388,6 +395,8 @@ begin
   MouseButtonDown := False;
 
   if DraggingSelection then begin
+    BeginUndoAction;
+
     Selection := GetSelection;
     EraseSelection;
     PerformPaste(Selection, DragSelCursor);
@@ -395,7 +404,8 @@ begin
     Other := DragSelOther;
 
     DraggingSelection := False;
-    SaveUndoState;
+
+    EndUndoAction;
   end;
 
   NormalizeCursors;
@@ -415,8 +425,7 @@ procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited KeyDown(Key, Shift);
 
-  if Key in [VK_CONTROL, VK_SHIFT] then Exit;
-  if Key in [VK_DELETE] then Exit;
+  if Key in [VK_CONTROL, VK_SHIFT, VK_DELETE] then Exit;
 
   case Key of
     VK_UP: Dec(Cursor.Y);
@@ -448,7 +457,7 @@ begin
   if (Cursor.Y > High(TPattern)) or (Cursor.Y < Low(TPattern)) then
     if Assigned(OnCursorOutOfBounds) then OnCursorOutOfBounds;
 
-  if not (ssShift in Shift) then
+  if Shift = [] then
     Other := Cursor;
 
   ClampCursors;
@@ -518,6 +527,8 @@ var
   Selection: TSelection;
   I: Integer;
 begin
+  BeginUndoAction;
+
   Selection := GetPastedCells;
   I := Cursor.Y;
   while I <= High(TPattern) do begin
@@ -527,15 +538,17 @@ begin
   end;
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.DoPaste(var Msg: TLMessage);
 begin
+  BeginUndoAction;
+
   PerformPaste(GetPastedCells);
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.DoCopy(var Msg: TLMessage);
@@ -549,45 +562,66 @@ begin
   EraseSelection;
 end;
 
-procedure TTrackerGrid.SaveUndoState;
+procedure TTrackerGrid.BeginUndoAction;
 var
-  Actn: TUndoRedoAction;
   I: Integer;
 begin
-  // First, clear out the recall stack
-  while not Recall.IsEmpty do
-    Recall.Pop;
+  if NestedUndoCount = 0 then begin
+    // Save the "before" to our current undo action, so that EndUndoAction
+    // can save the "after" and commit it to the Performed stack.
+    CurrentUndoAction := Default(TUndoRedoAction);
+    for I := Low(Patterns) to High(Patterns) do
+      with CurrentUndoAction.Before[I] do begin
+        Pattern := Patterns[I]^;
+        PatternNumber := PatternNumbers[I];
+      end;
+  end;
 
-  // Create the state we need to save
-  Actn := Default(TUndoRedoAction);
-  for I := Low(Patterns) to High(Patterns) do
-    with Actn[I] do begin
-      Pattern := Patterns[I]^;
-      PatternNumber := PatternNumbers[I];
-    end;
+  Inc(NestedUndoCount);
+end;
 
-  // Push it into the performed queue
-  Performed.PushFront(Actn);
-  while Performed.Size > UNDO_STACK_SIZE do
-    Performed.PopBack;
+procedure TTrackerGrid.EndUndoAction;
+var
+  I: Integer;
+begin
+  if NestedUndoCount = 1 then begin
+    // First, clear out the recall stack
+    while not Recall.IsEmpty do
+      Recall.Pop;
+
+    // Save the "after" to our current undo action
+    for I := Low(Patterns) to High(Patterns) do
+      with CurrentUndoAction.After[I] do begin
+        Pattern := Patterns[I]^;
+        PatternNumber := PatternNumbers[I];
+      end;
+
+    // Commit the action to the Performed stack
+    Performed.PushFront(CurrentUndoAction);
+
+    // Keep the stack size, at maximum, UNDO_STACK_SIZE
+    while Performed.Size > UNDO_STACK_SIZE do
+      Performed.PopBack;
+  end;
+
+  Dec(NestedUndoCount);
 end;
 
 procedure TTrackerGrid.DoUndo;
 var
-  OldState, NewState: TUndoRedoAction;
+  State: TUndoRedoAction;
   I: Integer;
 begin
   if Performed.IsEmpty then Exit;
 
-  OldState := Performed.Front;
+  State := Performed.Front;
   Performed.PopFront;
-  NewState := Performed.Front;
 
-  Recall.Push(OldState);
+  Recall.Push(State);
 
-  for I := Low(NewState) to High(NewState) do begin
-    LoadPattern(I, NewState[I].PatternNumber);
-    Patterns[I]^ := NewState[I].Pattern;
+  for I := Low(State.Before) to High(State.Before) do begin
+    LoadPattern(I, State.Before[I].PatternNumber);
+    Patterns[I]^ := State.Before[I].Pattern;
   end;
 
   Invalidate;
@@ -605,9 +639,9 @@ begin
 
   Performed.PushFront(State);
 
-  for I := Low(State) to High(State) do begin
-    LoadPattern(I, State[I].PatternNumber);
-    Patterns[I]^ := State[I].Pattern;
+  for I := Low(State.After) to High(State.After) do begin
+    LoadPattern(I, State.After[I].PatternNumber);
+    Patterns[I]^ := State.After[I].Pattern;
   end;
 
   Invalidate;
@@ -684,6 +718,8 @@ procedure TTrackerGrid.IncrementSelection(Note, Instrument, Volume, EffectCode,
 var
   Pos: TSelectionPos;
 begin
+  BeginUndoAction;
+
   NormalizeCursors;
 
   Pos := Cursor;
@@ -705,7 +741,7 @@ begin
   end;
 
   Invalidate;
-  SaveUndoState
+  EndUndoAction
 end;
 
 procedure TTrackerGrid.InterpolateSelection;
@@ -714,6 +750,8 @@ var
   Pos: TSelectionPos;
   StartCell: TCell;
 begin
+  BeginUndoAction;
+
   NormalizeCursors;
 
   if Cursor.Y = Other.Y then Exit;
@@ -740,16 +778,18 @@ begin
   end;
 
   Invalidate;
-  SaveUndoState
+  EndUndoAction
 end;
 
 procedure TTrackerGrid.OpenEffectEditor;
 begin
+  BeginUndoAction;
+
   frmEffectEditor.Cell := @Patterns[Cursor.X]^[Cursor.Y];
   frmEffectEditor.ShowModal;
 
   Invalidate;
-  SaveUndoState
+  EndUndoAction
 end;
 
 procedure TTrackerGrid.EraseSelection;
@@ -757,6 +797,8 @@ var
   X: TSelectionPos;
   R: Integer;
 begin
+  BeginUndoAction;
+
   NormalizeCursors;
 
   for R := Cursor.Y to Other.Y do begin
@@ -769,13 +811,14 @@ begin
   end;
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.InputNote(Key: Word);
 var
   Temp: Integer;
 begin
+  BeginUndoAction;
   Temp := -1;
 
   with Patterns[Cursor.X]^[Cursor.Y] do
@@ -795,13 +838,14 @@ begin
     end;
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.InputInstrument(Key: Word);
 var
   Temp: Nibble;
 begin
+  BeginUndoAction;
   with Patterns[Cursor.X]^[Cursor.Y] do begin
     if Key = VK_DELETE then Instrument := 0
     else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
@@ -809,7 +853,7 @@ begin
   end;
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.InputVolume(Key: Word);
@@ -819,6 +863,7 @@ end;
 
 procedure TTrackerGrid.InputEffectCode(Key: Word);
 begin
+  BeginUndoAction;
   with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then begin
       EffectCode := 0;
@@ -827,13 +872,14 @@ begin
     else KeycodeToHexNumber(Key, EffectCode);
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.InputEffectParams(Key: Word);
 var
   Temp: Nibble;
 begin
+  BeginUndoAction;
   with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then begin
       EffectCode := 0;
@@ -843,7 +889,7 @@ begin
       EffectParams.Value := ((EffectParams.Value mod $10) * $10) + Temp;
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.RenderRow(Row: Integer);
@@ -1189,6 +1235,7 @@ procedure TTrackerGrid.InsertRowInPatternAtCursor(Pattern: Integer);
 var
   I: Integer;
 begin
+  BeginUndoAction;
   NormalizeCursors;
 
   for I := High(TPattern) downto Cursor.Y do
@@ -1197,26 +1244,27 @@ begin
   BlankCell(Patterns[Pattern]^[Cursor.Y]);
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.InsertRowInAllAtCursor;
 var
   I: Integer;
 begin
-  for I := Low(Patterns) to High(Patterns) do begin
+  BeginUndoAction;
+
+  for I := Low(Patterns) to High(Patterns) do
     InsertRowInPatternAtCursor(I);
-    Performed.PopFront; // hack, maybe change the way this works later
-  end;
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.DeleteRowInPatternAtCursor(Pattern: Integer);
 var
   I: Integer;
 begin
+  BeginUndoAction;
   NormalizeCursors;
 
   for I := Cursor.Y to High(TPattern)-1 do
@@ -1225,20 +1273,20 @@ begin
   BlankCell(Patterns[Pattern]^[High(TPattern)]);
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.DeleteRowInAllAtCursor;
 var
   I: Integer;
 begin
-  for I := Low(Patterns) to High(Patterns) do begin
+  BeginUndoAction;
+
+  for I := Low(Patterns) to High(Patterns) do
     DeleteRowInPatternAtCursor(I);
-    Performed.PopFront; // hack, maybe change the way this works later
-  end;
 
   Invalidate;
-  SaveUndoState;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.SelectAll;

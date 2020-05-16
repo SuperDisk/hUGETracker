@@ -687,8 +687,8 @@ begin
       Line(0, PB.Height, PB.Width, 0);
     end;
   end;
+
   VisualizerBuffer.Draw(PB.Canvas, 0, 0, True);
-  //PB.Canvas.Draw(0, 0, VisualizerBuffer);
 end;
 
 procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer;
