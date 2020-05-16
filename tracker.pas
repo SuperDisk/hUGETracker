@@ -1228,20 +1228,8 @@ begin
 
   VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
 
-  ReturnNilIfGrowHeapFails := False;
   PreviewingInstrument := -1;
   OptionsFile := TINIFile.Create('options.ini');
-
-  InitializeSong(Song);
-
-  // Create pattern editor control
-  RecreateTrackerGrid;
-
-  // Initialize ticks per row
-  Song.TicksPerRow := TicksPerRowSpinEdit.Value;
-
-  LoadInstrument(itSquare, 1);
-  LoadWave(0);
 
   // Fetch the tree items
   with TreeView1 do begin
@@ -1265,6 +1253,18 @@ begin
     TreeView1.Items.AddChild(WavesNode, 'Wave '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
     TreeView1.Items.AddChild(RoutinesNode, 'Routine '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
   end;
+
+  InitializeSong(Song);
+  LoadDefaultInstruments(Song);
+
+  // Create pattern editor control
+  RecreateTrackerGrid;
+
+  // Initialize ticks per row
+  Song.TicksPerRow := TicksPerRowSpinEdit.Value;
+
+  LoadInstrument(itSquare, 1);
+  LoadWave(0);
 
   // Initialize order table (InitializeSong creates the default order table)
   CopyOrderMatrixToOrderGrid;
@@ -2021,6 +2021,7 @@ begin
 
   DestroySong(Song);
   InitializeSong(Song);
+  LoadDefaultInstruments(Song);
 
   UpdateUIAfterLoad;
 end;

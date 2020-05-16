@@ -47,6 +47,8 @@ end;
 {$endif}
 
 begin
+  ReturnNilIfGrowHeapFails := False;
+
   {$if declared(useHeapTrace)}
     // Set up -gh output for the Leakview package:
     if FileExists('heap.trc') then

@@ -70,6 +70,7 @@ type
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
 procedure InitializeSong(var S: TSong);
+procedure LoadDefaultInstruments(var S: TSong);
 procedure DestroySong(var S: TSong);
 
 function UpgradeSong(S: TSongV1): TSong; overload;
@@ -291,7 +292,7 @@ begin
       Length := 0;
       LengthEnabled := False;
       OutputLevel := 1;
-      Waveform := 0;
+      Waveform := I-1;
     end;
 
   for I := Low(S.Instruments.Noise) to High(S.Instruments.Noise) do
@@ -320,6 +321,56 @@ begin
 
   S.TicksPerRow := 7;
   S.Patterns := TPatternMap.Create;
+end;
+
+procedure LoadDefaultInstruments(var S: TSong);
+var
+  I: Integer;
+begin
+  with S.Instruments do begin
+    Wave[1].Name := 'Square wave 12.5%';
+    Wave[2].Name := 'Square wave 25%';
+    Wave[3].Name := 'Square wave 50%';
+    Wave[4].Name := 'Square wave 75%';
+    Wave[5].Name := 'Sawtooth wave';
+    Wave[6].Name := 'Triangle wave';
+    Wave[7].Name := 'Sine wave';
+    Wave[8].Name := 'Toothy';
+    Wave[9].Name := 'Triangle Toothy';
+    Wave[10].Name := 'Pointy';
+    Wave[11].Name := 'Strange';
+
+    Duty[1].Name := 'Duty 12.5%';
+    Duty[1].Duty := 0;
+
+    Duty[2].Name := 'Duty 25%';
+    Duty[2].Duty := 1;
+
+    Duty[3].Name := 'Duty 50%';
+    Duty[3].Duty := 2;
+
+    Duty[4].Name := 'Duty 75%';
+    Duty[4].Duty := 3;
+
+    Duty[5].Name := 'Duty 12.5% plink';
+    Duty[5].Duty := 0;
+    Duty[5].VolSweepAmount := 1;
+
+    Duty[6].Name := 'Duty 25% plink';
+    Duty[6].Duty := 1;
+    Duty[6].VolSweepAmount := 1;
+
+    Duty[7].Name := 'Duty 50% plink';
+    Duty[7].Duty := 2;
+    Duty[7].VolSweepAmount := 1;
+
+    Duty[8].Name := 'Duty 75% plink';
+    Duty[8].Duty := 3;
+    Duty[8].VolSweepAmount := 1;
+  end;
+
+  for I := Low(DefaultWaves) to High(DefaultWaves) do
+    S.Waves[I] := DefaultWaves[I];
 end;
 
 procedure DestroySong(var S: TSong);
