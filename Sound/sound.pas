@@ -128,7 +128,7 @@ Bit0  Sound 1 on[1]/off[0]
 
 *)
 
-uses Classes, sdl2;
+uses Classes, sysutils, sdl2;
 
 const
   SAMPLE_BUFFER_SIZE = 1024;
@@ -269,10 +269,13 @@ end;
 procedure AudioCallback(userdata: Pointer; stream: PUInt8; len: Integer)cdecl;
 begin
   sndBuffer := PSingle(Stream);
+  sndBytesWritten := 0;
   while sndBytesWritten < len do
     z80_decode;
-  if sndBytesWritten > len then Writeln(StdErr, '[WARNING] Audio callback wrote into uninitialized ram!');
-  sndBytesWritten := 0;
+
+  if sndBytesWritten > len then
+    Writeln(StdErr,
+      Format('[WARNING] Audio callback wrote into uninitialized ram! (%d written, %d requested)', [sndBytesWritten, len]));
 end;
 
 procedure EnableSound;

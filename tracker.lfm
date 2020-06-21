@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 454
+  Left = 433
   Height = 687
-  Top = 195
+  Top = 190
   Width = 1145
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -17,7 +17,7 @@ object frmTracker: TfrmTracker
   OnShow = FormShow
   Position = poDefault
   ShowHint = True
-  LCLVersion = '2.0.8.0'
+  LCLVersion = '2.0.9.0'
   object TreeView1: TTreeView
     Left = 0
     Height = 555
@@ -297,9 +297,9 @@ object frmTracker: TfrmTracker
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 89
+          Height = 35
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
-          Top = 438
+          Top = 492
           Width = 939
           Align = alClient
           Color = clBlack
@@ -310,7 +310,7 @@ object frmTracker: TfrmTracker
         end
         object FlowPanel1: TFlowPanel
           Left = 0
-          Height = 438
+          Height = 492
           Top = 0
           Width = 939
           Align = alTop
@@ -832,7 +832,7 @@ object frmTracker: TfrmTracker
           end
           object NoiseGroupBox: TGroupBox
             Left = 651
-            Height = 169
+            Height = 223
             Top = 262
             Width = 264
             Anchors = []
@@ -841,7 +841,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Noise'
-            ClientHeight = 149
+            ClientHeight = 203
             ClientWidth = 260
             ParentFont = False
             TabOrder = 4
@@ -907,6 +907,54 @@ object frmTracker: TfrmTracker
               Position = 0
               ParentFont = False
               TabOrder = 3
+            end
+            object Edit1: TEdit
+              Left = 9
+              Height = 23
+              Top = 144
+              Width = 80
+              OnChange = Edit1Change
+              TabOrder = 4
+            end
+            object Edit2: TEdit
+              Left = 96
+              Height = 23
+              Top = 144
+              Width = 80
+              OnChange = Edit1Change
+              TabOrder = 5
+            end
+            object Edit3: TEdit
+              Left = 184
+              Height = 23
+              Top = 144
+              Width = 80
+              OnChange = Edit1Change
+              TabOrder = 6
+            end
+            object Edit4: TEdit
+              Left = 9
+              Height = 23
+              Top = 176
+              Width = 80
+              OnChange = Edit1Change
+              TabOrder = 7
+            end
+            object Edit5: TEdit
+              Left = 96
+              Height = 23
+              Top = 176
+              Width = 80
+              OnChange = Edit1Change
+              TabOrder = 8
+            end
+            object Edit6: TEdit
+              Left = 184
+              Height = 23
+              Top = 176
+              Width = 80
+              OnChange = Edit1Change
+              TabOrder = 9
             end
           end
         end
@@ -1887,8 +1935,8 @@ object frmTracker: TfrmTracker
   end
   object MainMenu1: TMainMenu
     Images = ImageList1
-    left = 40
-    top = 32
+    Left = 40
+    Top = 32
     object MenuItem1: TMenuItem
       Caption = 'File'
       object MenuItem33: TMenuItem
@@ -1962,7 +2010,6 @@ object frmTracker: TfrmTracker
       object FontSizeToggleMenuItem: TMenuItem
         AutoCheck = True
         Caption = 'Pattern grid small font'
-        OnClick = FontSizeToggleMenuItemClick
       end
     end
     object MenuItem3: TMenuItem
@@ -2004,8 +2051,8 @@ object frmTracker: TfrmTracker
   end
   object MenuBarActionList: TActionList
     Images = ImageList1
-    left = 104
-    top = 72
+    Left = 104
+    Top = 72
     object FileOpen1: TFileOpen
       Category = 'File'
       Caption = '&Open ...'
@@ -2108,8 +2155,8 @@ object frmTracker: TfrmTracker
     end
   end
   object ImageList1: TImageList
-    left = 141
-    top = 36
+    Left = 141
+    Top = 36
     Bitmap = {
       4C694E0000001000000010000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4612,17 +4659,17 @@ object frmTracker: TfrmTracker
   end
   object OpenDialog1: TOpenDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 80
-    top = 56
+    Left = 80
+    Top = 56
   end
   object InstrumentSaveDialog: TSaveDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    left = 80
-    top = 56
+    Left = 80
+    Top = 56
   end
   object OrderEditPopup: TPopupMenu
-    left = 288
-    top = 32
+    Left = 288
+    Top = 32
     object MenuItem17: TMenuItem
       Caption = 'Insert new row'
       Hint = 'Insert a new row filled with brand new patterns'
@@ -4653,8 +4700,8 @@ object frmTracker: TfrmTracker
   object ImageList2: TImageList
     Height = 32
     Width = 32
-    left = 48
-    top = 86
+    Left = 48
+    Top = 86
     Bitmap = {
       4C69020000002000000020000000000000000000000000000000000000000000
       0000000000000000000000000000000000000000000000000000000000000000
@@ -4919,33 +4966,33 @@ object frmTracker: TfrmTracker
     Enabled = False
     Interval = 200
     OnTimer = OscilloscopeUpdateTimerTimer
-    left = 88
-    top = 48
+    Left = 88
+    Top = 48
   end
   object GBSSaveDialog: TSaveDialog
     Filter = 'Gameboy Soundtrack|*.gbs'
-    left = 64
-    top = 56
+    Left = 64
+    Top = 56
   end
   object WaveSaveDialog: TSaveDialog
     Filter = 'hUGETracker Waves|*.ugw'
-    left = 64
-    top = 48
+    Left = 64
+    Top = 48
   end
   object GBSaveDialog: TSaveDialog
     Filter = 'Gameboy ROM|*.GB'
-    left = 120
-    top = 88
+    Left = 120
+    Top = 88
   end
   object NoteHaltTimer: TTimer
     Enabled = False
     OnTimer = NoteHaltTimerTimer
-    left = 80
-    top = 86
+    Left = 80
+    Top = 86
   end
   object TrackerGridPopup: TPopupMenu
-    left = 248
-    top = 32
+    Left = 248
+    Top = 32
     object TrackerPopupEditEffect: TMenuItem
       Caption = 'Edit effect ...'
       OnClick = TrackerPopupEditEffectClick
@@ -5092,8 +5139,8 @@ object frmTracker: TfrmTracker
   object WavSaveDialog: TSaveDialog
     DefaultExt = '.wav'
     Filter = 'Wave files|*.wav'
-    left = 72
-    top = 32
+    Left = 72
+    Top = 32
   end
   object SynAnySyn1: TSynAnySyn
     Enabled = False
@@ -5217,18 +5264,18 @@ object frmTracker: TfrmTracker
     Entity = False
     DollarVariables = False
     ActiveDot = False
-    left = 8
-    top = 86
+    Left = 8
+    Top = 86
   end
   object MODOpenDialog: TOpenDialog
     DefaultExt = '.mod'
     Filter = 'GBT Player MOD files|*.mod'
-    left = 104
-    top = 32
+    Left = 104
+    Top = 32
   end
   object WaveEditPopup: TPopupMenu
-    left = 8
-    top = 32
+    Left = 8
+    Top = 32
     object MenuItem37: TMenuItem
       Caption = 'Copy'
       OnClick = MenuItem37Click
@@ -5240,8 +5287,8 @@ object frmTracker: TfrmTracker
   end
   object ShortcutsActionList: TActionList
     Images = ImageList1
-    left = 208
-    top = 32
+    Left = 208
+    Top = 32
     object PlayStartAction: TAction
       Caption = '▶️ Start'
       DisableIfNoHandler = False

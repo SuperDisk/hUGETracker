@@ -16,6 +16,12 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    Edit1: TEdit;
+    Edit2: TEdit;
+    Edit3: TEdit;
+    Edit4: TEdit;
+    Edit5: TEdit;
+    Edit6: TEdit;
     IncrementCurrentInstrumentAction: TAction;
     DecrementCurrentInstrumentAction: TAction;
     GotoGeneralAction: TAction;
@@ -249,6 +255,7 @@ type
     procedure DeleteRowForAllActionExecute(Sender: TObject);
     procedure DeleteRowForAllActionUpdate(Sender: TObject);
     procedure Duty1VisualizerClick(Sender: TObject);
+    procedure Edit1Change(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
@@ -314,7 +321,6 @@ type
     procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem22Click(Sender: TObject);
-    procedure FontSizeToggleMenuItemClick(Sender: TObject);
     procedure MenuItem24Click(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem31Click(Sender: TObject);
@@ -1066,6 +1072,13 @@ begin
       ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
       DivRatioTrackbar.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = swSeven;
+
+      Edit1.Text := IntToStr(CI^.NoiseMacro[0]);
+      Edit2.Text := IntToStr(CI^.NoiseMacro[1]);
+      Edit3.Text := IntToStr(CI^.NoiseMacro[2]);
+      Edit4.Text := IntToStr(CI^.NoiseMacro[3]);
+      Edit5.Text := IntToStr(CI^.NoiseMacro[4]);
+      Edit6.Text := IntToStr(CI^.NoiseMacro[5]);
     end;
   end;
 
@@ -1733,6 +1746,24 @@ begin
   snd[Section.OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;
 end;
 
+procedure TfrmTracker.Edit1Change(Sender: TObject);
+begin
+  if Sender = Edit1 then
+    CurrentInstrument^.NoiseMacro[0] := StrToInt(Edit1.Text)
+  else if Sender = Edit2 then
+    CurrentInstrument^.NoiseMacro[1] := StrToInt(Edit2.Text)
+  else if Sender = Edit3 then
+    CurrentInstrument^.NoiseMacro[2] := StrToInt(Edit3.Text)
+  else if Sender = Edit4 then
+    CurrentInstrument^.NoiseMacro[3] := StrToInt(Edit4.Text)
+  else if Sender = Edit5 then
+    CurrentInstrument^.NoiseMacro[4] := StrToInt(Edit5.Text)
+  else if Sender = Edit6 then
+    CurrentInstrument^.NoiseMacro[5] := StrToInt(Edit6.Text)
+  else
+    ShowMessage('couldnt assign macro value');
+end;
+
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
 begin
   PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
@@ -1842,10 +1873,34 @@ begin
 end;
 
 procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
+  procedure note(A: Byte);
+  var
+    B, C: Integer;
+  begin
+    LockPlayback;
+
+    //A := A or %00001000;
+    if A > 7 then begin
+      B := (A-4) div 4; //high
+      C := (A mod 4)+4; //low
+      A := (C or (B shl 4)) or %00001000; // and %11110111;
+    end;
+
+    spokeb($FF21, %11110000);
+    spokeb($FF22, A or %00001000);
+    writeln('spoking ', IntTobin(A or %00001000, 8));
+    spokeb($FF23, %10000000);
+
+    UnlockPlayback;
+  end;
+
+var
+  I: Integer;
 begin
-  // If a command line param was passed, try to open it
-  if FileExists(ParamStr(0)) then
-    LoadSong(ParamStr(0));
+  for I := 0 to 64 do begin
+    note(I);
+    Sleep(150);
+  end;
 end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
@@ -1935,11 +1990,6 @@ begin
   end;
 
   ReloadPatterns;
-end;
-
-procedure TfrmTracker.FontSizeToggleMenuItemClick(Sender: TObject);
-begin
-
 end;
 
 procedure TfrmTracker.MenuItem24Click(Sender: TObject);

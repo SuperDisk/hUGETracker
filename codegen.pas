@@ -67,8 +67,18 @@ begin
     SL.StrictDelimiter := True;
     SL.Delimiter := ',';
 
-    for J := Low(AsmInstrument) to High(AsmInstrument) do
-      SL.Add(IntToStr(AsmInstrument[J]));
+    if Instruments[I].Type_ = itNoise then begin
+      SL.Add(IntToStr(AsmInstrument[1]));
+      if Instruments[I].LengthEnabled then
+        SL.Add(IntToStr(AsmInstrument[0] or %11000000))
+      else
+        SL.Add(IntToStr(AsmInstrument[0] or %10000000));
+      for J := Low(TNoiseMacro) to High(TNoiseMacro) do
+        SL.Add(IntToStr(Instruments[I].NoiseMacro[J]));
+    end
+    else
+      for J := Low(AsmInstrument) to High(AsmInstrument) do
+        SL.Add(IntToStr(AsmInstrument[J]));
 
     WriteStr(TypePrefix, Instruments[I].Type_);
     ResultSL.Add(Format('%s%s: db %s', [TypePrefix, 'inst'+IntToStr(I), SL.DelimitedText]));

@@ -14,6 +14,7 @@ type
   TStepWidth = (swFifteen, swSeven);
   TEnvelopeVolume = 0..15;
   TEnvelopeSweepAmount = 0..7;
+  TNoiseMacro = array[0..5] of Byte;
 
   TInstrument = packed record
     Type_: TInstrumentType;
@@ -48,6 +49,7 @@ type
     ShiftClockFreq: Integer; // Unused
     CounterStep: TStepWidth;
     DividingRatio: Integer;
+    NoiseMacro: TNoiseMacro;
   end;
 
   TAsmInstrument = array[0..3] of Byte;
