@@ -1,12 +1,12 @@
 object frmTracker: TfrmTracker
-  Left = 433
-  Height = 687
-  Top = 190
-  Width = 1145
+  Left = 402
+  Height = 806
+  Top = 115
+  Width = 1270
   AllowDropFiles = True
   Caption = 'hUGETracker'
-  ClientHeight = 667
-  ClientWidth = 1145
+  ClientHeight = 786
+  ClientWidth = 1270
   KeyPreview = True
   Menu = MainMenu1
   OnCloseQuery = FormCloseQuery
@@ -20,7 +20,7 @@ object frmTracker: TfrmTracker
   LCLVersion = '2.0.9.0'
   object TreeView1: TTreeView
     Left = 0
-    Height = 555
+    Height = 669
     Top = 89
     Width = 193
     Align = alLeft
@@ -41,26 +41,26 @@ object frmTracker: TfrmTracker
   end
   object Splitter1: TSplitter
     Left = 193
-    Height = 555
+    Height = 669
     Top = 89
     Width = 5
   end
   object Panel1: TPanel
     Left = 198
-    Height = 555
+    Height = 669
     Top = 89
-    Width = 947
+    Width = 1072
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 555
-    ClientWidth = 947
+    ClientHeight = 669
+    ClientWidth = 1072
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 555
+      Height = 669
       Top = 0
-      Width = 947
+      Width = 1072
       ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
@@ -68,8 +68,8 @@ object frmTracker: TfrmTracker
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 527
-        ClientWidth = 939
+        ClientHeight = 641
+        ClientWidth = 1064
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
           Left = 8
@@ -289,18 +289,18 @@ object frmTracker: TfrmTracker
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
-        ClientHeight = 527
-        ClientWidth = 939
+        ClientHeight = 641
+        ClientWidth = 1064
         ParentFont = False
         object PaintBox1: TPaintBox
           AnchorSideTop.Control = FlowPanel1
           AnchorSideTop.Side = asrBottom
           AnchorSideBottom.Side = asrBottom
           Left = 0
-          Height = 35
+          Height = 149
           Hint = 'Preview of how the resulting waveform will look with envelope applied'
           Top = 492
-          Width = 939
+          Width = 1064
           Align = alClient
           Color = clBlack
           ParentColor = False
@@ -312,7 +312,7 @@ object frmTracker: TfrmTracker
           Left = 0
           Height = 492
           Top = 0
-          Width = 939
+          Width = 1064
           Align = alTop
           AutoSize = True
           BevelOuter = bvNone
@@ -834,7 +834,7 @@ object frmTracker: TfrmTracker
             Left = 651
             Height = 223
             Top = 262
-            Width = 264
+            Width = 397
             Anchors = []
             BorderSpacing.Left = 7
             BorderSpacing.Top = 7
@@ -842,14 +842,14 @@ object frmTracker: TfrmTracker
             BorderSpacing.Bottom = 7
             Caption = 'Noise'
             ClientHeight = 203
-            ClientWidth = 260
+            ClientWidth = 393
             ParentFont = False
             TabOrder = 4
             object SevenBitCounterCheckbox: TCheckBox
               Left = 8
               Height = 19
               Hint = 'Select LFSR width. When checked, output will sound like a tone rather than noise'
-              Top = 80
+              Top = 8
               Width = 215
               Alignment = taLeftJustify
               Caption = '7 bit counter (more tone-like output)'
@@ -857,120 +857,42 @@ object frmTracker: TfrmTracker
               ParentFont = False
               TabOrder = 0
             end
-            object Label14: TLabel
-              Left = 9
-              Height = 15
-              Top = 51
-              Width = 71
-              Caption = 'Dividing ratio'
-              ParentColor = False
-              ParentFont = False
-            end
-            object RandomizeNoiseButton: TButton
-              Left = 9
-              Height = 25
-              Hint = 'Randomize the noise instrument parameters to get a random drum-like sound'
-              Top = 112
-              Width = 242
-              Caption = 'Randomize'
-              OnClick = RandomizeNoiseButtonClick
-              ParentFont = False
+            object Panel6: TPanel
+              Left = 8
+              Height = 152
+              Top = 40
+              Width = 376
+              BevelOuter = bvLowered
+              ClientHeight = 152
+              ClientWidth = 376
               TabOrder = 1
-            end
-            object Label25: TLabel
-              Left = 9
-              Height = 15
-              Top = 16
-              Width = 86
-              Caption = 'Shift clock mask'
-              ParentColor = False
-              ParentFont = False
-            end
-            object ShiftClockTrackbar: TTrackBar
-              Left = 110
-              Height = 25
-              Top = 16
-              Width = 146
-              Max = 15
-              OnChange = ShiftClockSpinnerChange
-              Position = 0
-              ParentFont = False
-              TabOrder = 2
-            end
-            object DivRatioTrackbar: TTrackBar
-              Left = 110
-              Height = 25
-              Top = 51
-              Width = 146
-              Max = 7
-              OnChange = DivRatioSpinnerChange
-              Position = 0
-              ParentFont = False
-              TabOrder = 3
-            end
-            object Edit1: TEdit
-              Left = 9
-              Height = 23
-              Top = 144
-              Width = 80
-              OnChange = Edit1Change
-              TabOrder = 4
-            end
-            object Edit2: TEdit
-              Left = 96
-              Height = 23
-              Top = 144
-              Width = 80
-              OnChange = Edit1Change
-              TabOrder = 5
-            end
-            object Edit3: TEdit
-              Left = 184
-              Height = 23
-              Top = 144
-              Width = 80
-              OnChange = Edit1Change
-              TabOrder = 6
-            end
-            object Edit4: TEdit
-              Left = 9
-              Height = 23
-              Top = 176
-              Width = 80
-              OnChange = Edit1Change
-              TabOrder = 7
-            end
-            object Edit5: TEdit
-              Left = 96
-              Height = 23
-              Top = 176
-              Width = 80
-              OnChange = Edit1Change
-              TabOrder = 8
-            end
-            object Edit6: TEdit
-              Left = 184
-              Height = 23
-              Top = 176
-              Width = 80
-              OnChange = Edit1Change
-              TabOrder = 9
+              object NoiseMacroPaintbox: TPaintBox
+                Left = 1
+                Height = 150
+                Top = 1
+                Width = 374
+                Align = alClient
+                OnMouseDown = NoiseMacroPaintboxMouseDown
+                OnMouseMove = NoiseMacroPaintboxMouseMove
+                OnMouseUp = NoiseMacroPaintboxMouseUp
+                OnPaint = NoiseMacroPaintboxPaint
+              end
             end
           end
         end
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 502
-        ClientWidth = 939
+        ClientHeight = 641
+        ClientWidth = 1064
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 342
+          Height = 481
           Top = 160
-          Width = 939
+          Width = 1064
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
           BorderSpacing.Top = 13
@@ -1638,11 +1560,11 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 64
     Top = 25
-    Width = 1145
+    Width = 1270
     Align = alTop
     BevelOuter = bvNone
     ClientHeight = 64
-    ClientWidth = 1145
+    ClientWidth = 1270
     ParentFont = False
     TabOrder = 3
     object LEDMeter1: TLEDMeter
@@ -1650,7 +1572,7 @@ object frmTracker: TfrmTracker
       Left = 0
       Height = 32
       Top = 32
-      Width = 357
+      Width = 482
       Anchors = [akTop, akLeft, akRight]
       BevelStyle = bvLowered
       Colors.Border = 2168839
@@ -1673,7 +1595,7 @@ object frmTracker: TfrmTracker
       Left = 0
       Height = 32
       Top = 0
-      Width = 357
+      Width = 482
       Anchors = [akTop, akLeft, akRight]
       BevelStyle = bvLowered
       Colors.Border = 2168839
@@ -1692,7 +1614,7 @@ object frmTracker: TfrmTracker
       Section3Value = 48
     end
     object Duty1Visualizer: TPaintBox
-      Left = 357
+      Left = 482
       Height = 64
       Top = 0
       Width = 197
@@ -1702,7 +1624,7 @@ object frmTracker: TfrmTracker
       OnPaint = Duty1VisualizerPaint
     end
     object Duty2Visualizer: TPaintBox
-      Left = 554
+      Left = 679
       Height = 64
       Top = 0
       Width = 197
@@ -1712,7 +1634,7 @@ object frmTracker: TfrmTracker
       OnPaint = Duty2VisualizerPaint
     end
     object WaveVisualizer: TPaintBox
-      Left = 751
+      Left = 876
       Height = 64
       Top = 0
       Width = 197
@@ -1722,7 +1644,7 @@ object frmTracker: TfrmTracker
       OnPaint = WaveVisualizerPaint
     end
     object NoiseVisualizer: TPaintBox
-      Left = 948
+      Left = 1073
       Height = 64
       Top = 0
       Width = 197
@@ -1734,9 +1656,9 @@ object frmTracker: TfrmTracker
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 23
-    Top = 644
-    Width = 1145
+    Height = 28
+    Top = 758
+    Width = 1270
     AutoHint = True
     Panels = <    
       item
@@ -1757,7 +1679,7 @@ object frmTracker: TfrmTracker
     Left = 0
     Height = 25
     Top = 0
-    Width = 1145
+    Width = 1270
     AutoSize = True
     Caption = 'ToolBar1'
     EdgeBorders = [ebBottom]

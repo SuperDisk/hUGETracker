@@ -30,6 +30,8 @@ type
   end;
 
 function Lerp(v0, v1, t: Double): Double;
+function ReMap(Value, Istart, Istop, Ostart, Ostop: Double): Double;
+function IntReMap(Value, Istart, Istop, Ostart, Ostop: Integer): Integer;
 function ConvertWaveform(Waveform: TWave): T4bitWave;
 procedure BlankPattern(Pat: PPattern);
 procedure BlankCell(var Cell: TCell);
@@ -55,6 +57,16 @@ end;
 function Lerp(v0, v1, t: Double): Double;
 begin
   Result := ((1 - t) * v0) + (t * v1);
+end;
+
+function ReMap(Value, Istart, Istop, Ostart, Ostop: Double): Double;
+begin
+  Result := ostart + ((ostop - ostart) * ((value - istart) / (istop - istart)));
+end;
+
+function IntReMap(Value, Istart, Istop, Ostart, Ostop: Integer): Integer;
+begin
+  Result := Trunc(ReMap(Value, Istart, Istop, Ostart, Ostop));
 end;
 
 function ConvertWaveform(Waveform: TWave): T4bitWave;

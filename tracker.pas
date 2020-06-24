@@ -16,12 +16,6 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
-    Edit1: TEdit;
-    Edit2: TEdit;
-    Edit3: TEdit;
-    Edit4: TEdit;
-    Edit5: TEdit;
-    Edit6: TEdit;
     IncrementCurrentInstrumentAction: TAction;
     DecrementCurrentInstrumentAction: TAction;
     GotoGeneralAction: TAction;
@@ -35,6 +29,8 @@ type
     InsertRowForAllAction: TAction;
     InsertRowAction: TAction;
     MenuItem39: TMenuItem;
+    NoiseMacroPaintbox: TPaintBox;
+    Panel6: TPanel;
     StopAction: TAction;
     PlayOrderAction: TAction;
     PlayCursorAction: TAction;
@@ -54,7 +50,6 @@ type
     ImageList2: TImageList;
     GBSaveDialog: TSaveDialog;
     Label13: TLabel;
-    Label25: TLabel;
     MenuItem10: TMenuItem;
     MenuItem16: TMenuItem;
     MenuItem23: TMenuItem;
@@ -107,8 +102,6 @@ type
     TrackerGridPopup: TPopupMenu;
     StartVolTrackbar: TTrackBar;
     EnvChangeTrackbar: TTrackBar;
-    ShiftClockTrackbar: TTrackBar;
-    DivRatioTrackbar: TTrackBar;
     LengthTrackbar: TTrackBar;
     SweepSizeTrackbar: TTrackBar;
     ToolButton5: TToolButton;
@@ -194,7 +187,6 @@ type
     SongInformationGroupbox: TGroupBox;
     Label15: TLabel;
     Label16: TLabel;
-    RandomizeNoiseButton: TButton;
     SevenBitCounterCheckbox: TCheckBox;
     SweepTimeCombobox: TComboBox;
     RoutineSynedit: TSynEdit;
@@ -210,7 +202,6 @@ type
     Label10: TLabel;
     Label11: TLabel;
     Label12: TLabel;
-    Label14: TLabel;
     Label7: TLabel;
     Label8: TLabel;
     Label9: TLabel;
@@ -255,7 +246,6 @@ type
     procedure DeleteRowForAllActionExecute(Sender: TObject);
     procedure DeleteRowForAllActionUpdate(Sender: TObject);
     procedure Duty1VisualizerClick(Sender: TObject);
-    procedure Edit1Change(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
@@ -273,6 +263,13 @@ type
     procedure InsertRowForAllActionUpdate(Sender: TObject);
     procedure MenuItem37Click(Sender: TObject);
     procedure MenuItem38Click(Sender: TObject);
+    procedure NoiseMacroPaintboxMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure NoiseMacroPaintboxMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
+    procedure NoiseMacroPaintboxMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure NoiseMacroPaintboxPaint(Sender: TObject);
     procedure PlayCursorActionExecute(Sender: TObject);
     procedure PlayOrderActionExecute(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -297,7 +294,6 @@ type
     procedure ArtistEditChange(Sender: TObject);
     procedure CommentMemoChange(Sender: TObject);
     procedure DirectionComboBoxChange(Sender: TObject);
-    procedure DivRatioSpinnerChange(Sender: TObject);
     procedure DutyComboboxChange(Sender: TObject);
     procedure EnvChangeSpinnerChange(Sender: TObject);
     procedure EnvelopePaintboxPaint(Sender: TObject);
@@ -353,7 +349,6 @@ type
     procedure OctaveSpinEditChange(Sender: TObject);
     procedure RoutineNumberSpinnerChange(Sender: TObject);
     procedure RoutineSyneditChange(Sender: TObject);
-    procedure ShiftClockSpinnerChange(Sender: TObject);
     procedure PlayStartActionExecute(Sender: TObject);
     procedure StepSpinEditChange(Sender: TObject);
     procedure StopActionExecute(Sender: TObject);
@@ -385,7 +380,6 @@ type
     procedure WaveEditPaintBoxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure WaveEditPaintBoxPaint(Sender: TObject);
-    procedure RandomizeNoiseButtonClick(Sender: TObject);
     procedure InstrumentTypeComboboxChange(Sender: TObject);
     procedure LengthEnabledCheckboxChange(Sender: TObject);
     procedure PaintBox1Paint(Sender: TObject);
@@ -407,7 +401,7 @@ type
     LoadedFileName: String;
 
     PreviewingInstrument: Integer;
-    DrawingWave: Boolean;
+    DrawingWave, DrawingMacro: Boolean;
     Playing: Boolean;
     LoadingFile: Boolean;
     SaveSucceeded: Boolean;
@@ -1069,7 +1063,7 @@ begin
     end;
 
     itNoise: begin
-      ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
+      {ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
       DivRatioTrackbar.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = swSeven;
 
@@ -1078,7 +1072,7 @@ begin
       Edit3.Text := IntToStr(CI^.NoiseMacro[2]);
       Edit4.Text := IntToStr(CI^.NoiseMacro[3]);
       Edit5.Text := IntToStr(CI^.NoiseMacro[4]);
-      Edit6.Text := IntToStr(CI^.NoiseMacro[5]);
+      Edit6.Text := IntToStr(CI^.NoiseMacro[5]);}
     end;
   end;
 
@@ -1200,18 +1194,6 @@ begin
     2: CurrentInstrumentBank := itNoise;
   end;
   LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
-end;
-
-procedure TfrmTracker.RandomizeNoiseButtonClick(Sender: TObject);
-begin
-  ShiftClockTrackbar.Position := 0;
-  DivRatioTrackbar.Position := Random(Round(DivRatioTrackbar.Max));
-  SevenBitCounterCheckbox.Checked := Random <= 0.5;
-  LengthEnabledCheckbox.Checked := Random <= 0.5;
-  LengthTrackbar.Position := Random(Round(LengthTrackbar.Max));
-
-  PreviewInstrument(NotesToFreqs.KeyData[RandomRange(LOWEST_NOTE, HIGHEST_NOTE)],
-    UnmodInst(CurrentInstrumentBank, InstrumentNumberSpinner.Value));
 end;
 
 procedure TfrmTracker.FormCreate(Sender: TObject);
@@ -1644,6 +1626,55 @@ begin
   HexWaveEditEditingDone(nil);
 end;
 
+procedure TfrmTracker.NoiseMacroPaintboxMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  DrawingMacro := True;
+end;
+
+procedure TfrmTracker.NoiseMacroPaintboxMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+var
+  MacroIdx, Val: Integer;
+begin
+  if DrawingMacro then begin
+    MacroIdx := EnsureRange(Trunc((X/NoiseMacroPaintbox.Width) * 6), 0, 5);
+    Val := EnsureRange(Floor((Y/NoiseMacroPaintbox.Height) * 63), 0, 63) - 31;
+
+    CurrentInstrument^.NoiseMacro[MacroIdx] := Val;
+    NoiseMacroPaintbox.Invalidate;
+  end;
+end;
+
+procedure TfrmTracker.NoiseMacroPaintboxMouseUp(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  DrawingMacro := False;
+end;
+
+procedure TfrmTracker.NoiseMacroPaintboxPaint(Sender: TObject);
+var
+  BarWidth, BarStep: Double;
+  I: Integer;
+begin
+  BarWidth := (NoiseMacroPaintbox.Width / 6); // TODO: change this constant?
+  BarStep := (NoiseMacroPaintbox.Height / 63);
+  with NoiseMacroPaintbox.Canvas do begin
+    Brush.Color := clGameboyBlack;
+    Clear;
+
+    for I := Low(TNoiseMacro) to High(TNoiseMacro) do begin
+      Brush.Color := clGameboyMidGreen;
+      FillRect(
+        Trunc(I*BarWidth),
+        NoiseMacroPaintbox.Height div 2,
+        Trunc((I+1)*BarWidth),
+        Ceil((NoiseMacroPaintbox.Height / 2) + (CurrentInstrument^.NoiseMacro[I] * BarStep))
+      );
+    end;
+  end;
+end;
+
 procedure TfrmTracker.PlayCursorActionExecute(Sender: TObject);
 begin
   if GetPreviewReady then begin
@@ -1746,24 +1777,6 @@ begin
   snd[Section.OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;
 end;
 
-procedure TfrmTracker.Edit1Change(Sender: TObject);
-begin
-  if Sender = Edit1 then
-    CurrentInstrument^.NoiseMacro[0] := StrToInt(Edit1.Text)
-  else if Sender = Edit2 then
-    CurrentInstrument^.NoiseMacro[1] := StrToInt(Edit2.Text)
-  else if Sender = Edit3 then
-    CurrentInstrument^.NoiseMacro[2] := StrToInt(Edit3.Text)
-  else if Sender = Edit4 then
-    CurrentInstrument^.NoiseMacro[3] := StrToInt(Edit4.Text)
-  else if Sender = Edit5 then
-    CurrentInstrument^.NoiseMacro[4] := StrToInt(Edit5.Text)
-  else if Sender = Edit6 then
-    CurrentInstrument^.NoiseMacro[5] := StrToInt(Edit6.Text)
-  else
-    ShowMessage('couldnt assign macro value');
-end;
-
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
 begin
   PostMessage(Screen.ActiveControl.Handle, LM_PASTE, 0, 0);
@@ -1784,11 +1797,6 @@ begin
   Song.Routines[RoutineNumberSpinner.Value] := RoutineSynedit.Text;
 end;
 
-procedure TfrmTracker.ShiftClockSpinnerChange(Sender: TObject);
-begin
-  CurrentInstrument^.ShiftClockFreq := Round(ShiftClockTrackbar.Position);
-end;
-
 procedure TfrmTracker.PlayStartActionExecute(Sender: TObject);
 begin
   if GetPreviewReady then begin
@@ -1806,11 +1814,6 @@ procedure TfrmTracker.StopActionExecute(Sender: TObject);
 begin
   TrackerGrid.HighlightedRow := -1;
   HaltPlayback;
-end;
-
-procedure TfrmTracker.DivRatioSpinnerChange(Sender: TObject);
-begin
-  CurrentInstrument^.DividingRatio := Round(DivRatioTrackbar.Position);
 end;
 
 procedure TfrmTracker.DutyComboboxChange(Sender: TObject);

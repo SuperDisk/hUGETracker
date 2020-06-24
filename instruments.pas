@@ -14,7 +14,7 @@ type
   TStepWidth = (swFifteen, swSeven);
   TEnvelopeVolume = 0..15;
   TEnvelopeSweepAmount = 0..7;
-  TNoiseMacro = array[0..5] of Byte;
+  TNoiseMacro = array[0..5] of -31..32;
 
   TInstrument = packed record
     Type_: TInstrumentType;
