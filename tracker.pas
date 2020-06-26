@@ -1078,6 +1078,7 @@ begin
 
   WavePaintbox.Invalidate;
   EnvelopePaintBox.Invalidate;
+  NoiseMacroPaintbox.Invalidate;
 end;
 
 procedure TfrmTracker.ChangeToSquare;
