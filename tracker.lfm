@@ -61,10 +61,10 @@ object frmTracker: TfrmTracker
       Height = 674
       Top = 0
       Width = 1072
-      ActivePage = InstrumentTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -145,17 +145,17 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
-        ClientHeight = 527
-        ClientWidth = 939
+        ClientHeight = 646
+        ClientWidth = 1064
         ParentFont = False
         object Panel3: TPanel
           Left = 224
-          Height = 527
+          Height = 646
           Top = 0
-          Width = 715
+          Width = 840
           Align = alClient
-          ClientHeight = 527
-          ClientWidth = 715
+          ClientHeight = 646
+          ClientWidth = 840
           ParentFont = False
           TabOrder = 0
           object HeaderControl1: THeaderControl
@@ -163,7 +163,7 @@ object frmTracker: TfrmTracker
             Height = 30
             Hint = 'Left click to mute, right click to solo'
             Top = 1
-            Width = 713
+            Width = 838
             DragReorder = False
             Images = ImageList2
             Sections = <            
@@ -203,9 +203,9 @@ object frmTracker: TfrmTracker
           end
           object ScrollBox1: TScrollBox
             Left = 1
-            Height = 495
+            Height = 614
             Top = 31
-            Width = 713
+            Width = 838
             HorzScrollBar.Increment = 1
             HorzScrollBar.Page = 1
             HorzScrollBar.Smooth = True
@@ -224,7 +224,7 @@ object frmTracker: TfrmTracker
         end
         object OrderEditStringGrid: TStringGrid
           Left = 0
-          Height = 527
+          Height = 646
           Top = 0
           Width = 224
           Align = alLeft
@@ -262,7 +262,7 @@ object frmTracker: TfrmTracker
           DefaultColWidth = 17
           DefaultRowHeight = 21
           ExtendedSelect = False
-          Options = [goFixedVertLine, goFixedHorzLine, goRangeSelect, goRowMoving, goEditing, goAutoAddRows, goTabs, goSmoothScroll, goFixedRowNumbering, goRowHighlight]
+          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goRangeSelect, goRowMoving, goEditing, goAutoAddRows, goTabs, goSmoothScroll, goFixedRowNumbering, goRowHighlight]
           ParentFont = False
           PopupMenu = OrderEditPopup
           RangeSelectMode = rsmMulti
