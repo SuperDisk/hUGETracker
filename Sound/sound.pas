@@ -266,7 +266,7 @@ begin
   SDL_UnlockAudioDevice(PlayStream);
 end;
 
-procedure AudioCallback(userdata: Pointer; stream: PUInt8; len: Integer)cdecl;
+procedure AudioCallback(userdata: Pointer; stream: PUInt8; len: Integer) cdecl;
 begin
   sndBuffer := PSingle(Stream);
   sndBytesWritten := 0;

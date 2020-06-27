@@ -77,6 +77,7 @@ type
     MenuItem53: TMenuItem;
     NoiseVisualizer: TPaintBox;
     MODOpenDialog: TOpenDialog;
+    RowNumberStringGrid: TStringGrid;
     WaveEditPopup: TPopupMenu;
     SynAnySyn1: TSynAnySyn;
     WavSaveDialog: TSaveDialog;
@@ -775,11 +776,11 @@ end;
 
 procedure TfrmTracker.OnTrackerGridResize(Sender: TObject);
 var
-  Section: TCollectionItem;
+  I: Integer;
 begin
   // Fix the size of the channel headers
-  for Section in HeaderControl1.Sections do
-    (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
+  for I := 1 to HeaderControl1.Sections.Count-1 do
+    HeaderControl1.Sections.Items[I].Width := TrackerGrid.ColumnWidth;
 end;
 
 procedure TfrmTracker.OnTrackerGridCursorOutOfBounds;
@@ -921,8 +922,8 @@ begin
     LockPlayback;
     GetROMReady('hUGEDriver/preview.gb');
     PokeSymbol(SYM_TICKS_PER_ROW, Song.TicksPerRow);
-    for I := 0 to 3 do
-      snd[I+1].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
+    for I := 1 to 4 do
+      snd[I].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
 
     Result := True;
   end
@@ -989,19 +990,21 @@ end;
 
 procedure TfrmTracker.RecreateTrackerGrid;
 var
-  Section: TCollectionItem;
+  I: Integer;
 begin
   if Assigned(TrackerGrid) then TrackerGrid.Free;
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
+  TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
+  RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
 
   TrackerGrid.FontSize := OptionsFile.ReadInteger('hUGETracker', 'fontsize', 12);
   ScopesOn := OptionsFile.ReadBool('hUGETracker', 'ScopesOn', True);
 
   // Fix the size of the channel headers
-  for Section in HeaderControl1.Sections do
-    (Section as THeaderSection).Width := TrackerGrid.ColumnWidth;
+  for I := 1 to HeaderControl1.Sections.Count-1 do
+    HeaderControl1.Sections.Items[I].Width := TrackerGrid.ColumnWidth;
 
   TrackerGrid.PopupMenu := TrackerGridPopup;
 end;
@@ -1203,6 +1206,7 @@ var
   SampleSongs: TStringList;
   S: String;
   MenuItem: TMenuItem;
+  I: Integer;
 begin
   {if Screen.Fonts.IndexOf('PixeliteTTF') = -1 then
     MessageDlg('Warning', 'You don''t have the Pixelite font installed. '+
@@ -1279,6 +1283,10 @@ begin
 
   // Switch to general tab sheet
   PageControl1.ActivePageIndex := 0;
+
+  // Add the row numbers to the string grid
+  for I := 0 to RowNumberStringGrid.RowCount-1 do
+    RowNumberStringGrid.Cells[0, I] := IntToStr(I);
 
   {$ifdef DEVELOPMENT}
   DebugShiteButton.Visible := True;
@@ -1477,16 +1485,18 @@ begin
     SelectedSection := HeaderControl1.Sections[HeaderControl1.GetSectionAt(P)];
     SelectedSection.ImageIndex := 1;
 
-    for I := 0 to 3 do
-      snd[I+1].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
+    for I := 1 to 4 do
+      snd[I].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
   end;
 end;
 
 procedure TfrmTracker.HeaderControl1SectionClick(
   HeaderControl: TCustomHeaderControl; Section: THeaderSection);
 begin
+  if Section.OriginalIndex = 0 then Exit;
+
   Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
-  snd[Section.OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;
+  snd[Section.OriginalIndex].ChannelOFF := Section.ImageIndex = 0;
 end;
 
 procedure TfrmTracker.HeaderControl1SectionResize(
@@ -1769,10 +1779,10 @@ procedure TfrmTracker.Duty1VisualizerClick(Sender: TObject);
 var
   Section: THeaderSection;
 begin
-  if Sender = Duty1Visualizer then Section := HeaderControl1.Sections.Items[0]
-  else if Sender = Duty2Visualizer then Section := HeaderControl1.Sections.Items[1]
-  else if Sender = WaveVisualizer then Section := HeaderControl1.Sections.Items[2]
-  else {if Sender = NoiseVisualizer then} Section := HeaderControl1.Sections.Items[3];
+  if Sender = Duty1Visualizer then Section := HeaderControl1.Sections.Items[1]
+  else if Sender = Duty2Visualizer then Section := HeaderControl1.Sections.Items[2]
+  else if Sender = WaveVisualizer then Section := HeaderControl1.Sections.Items[3]
+  else {if Sender = NoiseVisualizer then} Section := HeaderControl1.Sections.Items[4];
 
   Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
   snd[Section.OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;

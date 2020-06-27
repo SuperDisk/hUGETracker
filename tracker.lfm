@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 411
+  Left = 247
   Height = 806
-  Top = 117
+  Top = 197
   Width = 1270
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -168,6 +168,11 @@ object frmTracker: TfrmTracker
             Images = ImageList2
             Sections = <            
               item
+                Alignment = taLeftJustify
+                Width = 32
+                Visible = True
+              end            
+              item
                 Alignment = taCenter
                 ImageIndex = 1
                 Text = 'Duty 1'
@@ -206,20 +211,35 @@ object frmTracker: TfrmTracker
             Height = 614
             Top = 31
             Width = 838
-            HorzScrollBar.Increment = 1
-            HorzScrollBar.Page = 1
+            HorzScrollBar.Increment = 3
+            HorzScrollBar.Page = 32
             HorzScrollBar.Smooth = True
             HorzScrollBar.Tracking = True
-            VertScrollBar.Increment = 1
-            VertScrollBar.Page = 1
+            VertScrollBar.Increment = 5
+            VertScrollBar.Page = 50
             VertScrollBar.Smooth = True
             VertScrollBar.Tracking = True
             Align = alClient
             BorderStyle = bsNone
+            ClientHeight = 614
+            ClientWidth = 838
             ParentFont = False
             TabOrder = 1
             OnMouseWheelDown = ScrollBox1MouseWheelDown
             OnMouseWheelUp = ScrollBox1MouseWheelUp
+            object RowNumberStringGrid: TStringGrid
+              Left = 0
+              Height = 614
+              Top = 0
+              Width = 32
+              Align = alLeft
+              BorderStyle = bsNone
+              ColCount = 1
+              DefaultColWidth = 32
+              RowCount = 64
+              ScrollBars = ssNone
+              TabOrder = 0
+            end
           end
         end
         object OrderEditStringGrid: TStringGrid
