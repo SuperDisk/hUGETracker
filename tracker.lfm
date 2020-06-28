@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 247
+  Left = 621
   Height = 806
-  Top = 197
+  Top = 181
   Width = 1270
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -282,7 +282,7 @@ object frmTracker: TfrmTracker
           DefaultColWidth = 17
           DefaultRowHeight = 21
           ExtendedSelect = False
-          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goRangeSelect, goRowMoving, goEditing, goAutoAddRows, goTabs, goSmoothScroll, goFixedRowNumbering, goRowHighlight]
+          Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goRangeSelect, goRowMoving, goEditing, goTabs, goSmoothScroll, goFixedRowNumbering, goRowHighlight]
           ParentFont = False
           PopupMenu = OrderEditPopup
           RangeSelectMode = rsmMulti
@@ -291,13 +291,14 @@ object frmTracker: TfrmTracker
           TabOrder = 1
           UseXORFeatures = True
           OnAfterSelection = OrderEditStringGridAfterSelection
+          OnCellProcess = OrderEditStringGridCellProcess
           OnColRowDeleted = OrderEditStringGridColRowDeleted
           OnColRowExchanged = OrderEditStringGridColRowExchanged
           OnColRowInserted = OrderEditStringGridColRowInserted
           OnColRowMoved = OrderEditStringGridColRowMoved
           OnDblClick = OrderEditStringGridDblClick
-          OnEditingDone = OrderEditStringGridEditingDone
           OnKeyDown = OrderEditStringGridKeyDown
+          OnValidateEntry = OrderEditStringGridValidateEntry
           ColWidths = (
             64
             34

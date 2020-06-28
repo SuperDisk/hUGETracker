@@ -271,6 +271,10 @@ type
     procedure NoiseMacroPaintboxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure NoiseMacroPaintboxPaint(Sender: TObject);
+    procedure OrderEditStringGridCellProcess(Sender: TObject; aCol,
+      aRow: Integer; processType: TCellProcessType; var aValue: string);
+    procedure OrderEditStringGridValidateEntry(sender: TObject; aCol,
+      aRow: Integer; const OldValue: string; var NewValue: String);
     procedure PlayCursorActionExecute(Sender: TObject);
     procedure PlayOrderActionExecute(Sender: TObject);
     procedure ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
@@ -342,7 +346,6 @@ type
     procedure OrderEditStringGridColRowMoved(Sender: TObject;
       IsColumn: Boolean; sIndex, tIndex: Integer);
     procedure OrderEditStringGridDblClick(Sender: TObject);
-    procedure OrderEditStringGridEditingDone(Sender: TObject);
     procedure OrderEditStringGridKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure PanicToolButtonClick(Sender: TObject);
@@ -1686,6 +1689,23 @@ begin
   end;
 end;
 
+procedure TfrmTracker.OrderEditStringGridCellProcess(Sender: TObject; aCol,
+  aRow: Integer; processType: TCellProcessType; var aValue: string);
+begin
+  // Somewhat of a hack, to prevent accidentally pasting crap into the
+  // order editor.
+  if processType = cpPaste then
+    aValue := OrderEditStringGrid.Cells[aCol, aRow];
+end;
+
+procedure TfrmTracker.OrderEditStringGridValidateEntry(sender: TObject; aCol,
+  aRow: Integer; const OldValue: string; var NewValue: String);
+var
+  _: Integer;
+begin
+  if not TryStrToInt(NewValue, _) then NewValue := OldValue;
+end;
+
 procedure TfrmTracker.PlayCursorActionExecute(Sender: TObject);
 begin
   if GetPreviewReady then begin
@@ -2202,21 +2222,6 @@ begin
     Cells[Col, Row] := IntToStr(Highest);
     TrackerGrid.LoadPattern(Col - 1, Highest);
   end;
-end;
-
-procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
-var
-  Temp: Integer;
-begin
-  // TODO: Fix this hack!
-  // For some reason OnValidateEntry is giving bad pointers
-  // for its NewValue and OldValue params. This is the workaround for now.
-  with OrderEditStringGrid do begin
-    if not TryStrToInt(Cells[Col, Row], Temp) then
-      Cells[Col, Row] := ''
-    else;
-  end;
-  ReloadPatterns;
 end;
 
 procedure TfrmTracker.OrderEditStringGridKeyDown(Sender: TObject;
