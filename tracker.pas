@@ -2380,6 +2380,8 @@ end;
 
 procedure TfrmTracker.TreeView1DblClick(Sender: TObject);
 begin
+  if TreeView1.Selected = nil then Exit;
+
   if TreeView1.Selected.Parent = DutyInstrumentsNode then begin
     LoadInstrument(itSquare, {%H-}PtrUInt(TreeView1.Selected.Data));
     PageControl1.ActivePage := InstrumentTabSheet;
