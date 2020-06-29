@@ -1472,7 +1472,6 @@ procedure TfrmTracker.HeaderControl1MouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   SelectedSection: THeaderSection;
-  Section: TCollectionItem;
   P: TPoint;
   I: Integer;
 begin
@@ -1482,8 +1481,8 @@ begin
     P.X := X;
     P.Y := Y;
 
-    for Section in HeaderControl1.Sections do
-      (Section as THeaderSection).ImageIndex := 0;
+    for I := 1 to 4 do
+      HeaderControl1.Sections[I].ImageIndex := 0;
 
     SelectedSection := HeaderControl1.Sections[HeaderControl1.GetSectionAt(P)];
     SelectedSection.ImageIndex := 1;
