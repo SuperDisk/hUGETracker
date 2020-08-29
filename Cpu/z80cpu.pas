@@ -975,7 +975,6 @@ end;
 
 function Z80halt: byte;
 begin
-  writeln('halting');
   if gbr_ime then
     halt_mode := 1
   else
@@ -1824,27 +1823,8 @@ end;
 
 function LDFF00plusN_A: byte;
 begin
-  {TODO}
-
-  w1 := speekb(pc.w);
-  asm
-           //PUSH    dword ptr [rip+pc.w]
-           //CALL    speekb
-           //LEA     ESP,[ESP+4]
-           MOV     AX, [rip+w1]
-
-           INC     word ptr [rip+pc.w]
-           MOV     AH,$ff
-
-
-           //push dword ptr [rip+af.h]
-           //PUSH    EAX
-           //CALL    SpokeB
-           //LEA     ESP,[ESP+8]
-           MOV     [rip+w1], AX
-  end;
-
-  spokeb(w1, af.h);
+  spokeb($ff00 + speekb(pc.w), af.h);
+  Inc(pc.w);
 
   Result := 12;
 end;
@@ -1858,7 +1838,8 @@ end;
 
 function ld_ff00plusC_a: byte;
 begin
-  {TODO}
+  spokeb($ff00 + bc.l, af.h);
+
   Result := 8
 end;
 
@@ -1928,40 +1909,8 @@ end;
 
 function ld_nn_a: byte;
 begin
-  {TODO}
-
-  i1 := speekb(pc.w);
-  Inc(pc.w);
-  i2 := speekb(pc.w);
-  Inc(pc.w);
-
-  asm
-           //PUSH    dword ptr [rip+pc.w]
-           //CALL    speekb
-           //LEA     ESP,[ESP+4]
-           //PUSH    EAX
-           //INC     word ptr [rip+pc.w]
-           //PUSH    dword ptr [rip+pc.w]
-           //CALL    speekb
-           //LEA     ESP,[ESP+4]
-           //INC     word ptr [rip+pc.w]
-           MOV     EAX,[rip+i2]
-
-           SHL     EAX,8
-
-           //POP     EBX
-           MOV     EBX,[rip+i1]
-
-           MOV     AL,BL
-
-           //PUSH    dword ptr [rip+af.h]
-           //PUSH    EAX
-           //CALL    SpokeB
-           //LEA     ESP,[ESP+8]
-           MOV [rip+i1], EAX
-  end;
-
-  spokeb(i1, af.h);
+  spokeb(wordpeek(pc.w), af.h);
+  Inc(pc.w, 2);
 
   Result := 16;
 end;
@@ -2012,27 +1961,8 @@ end;
 
 function ld_a_ff00plusn: byte;
 begin
-  {TODO}
-
-  w1 := speekb(pc.w);
-  asm
-           //PUSH    dword ptr [rip+pc.w]
-           //CALL    speekb
-           //LEA     ESP,[ESP+4]
-           MOV     AX, [rip+w1]
-
-           INC     word ptr [rip+pc.w]
-           MOV     AH,$ff
-
-
-           //push dword ptr [rip+af.h]
-           //PUSH    EAX
-           //CALL    SpokeB
-           //LEA     ESP,[ESP+8]
-           MOV     [rip+w1], AX
-  end;
-
-  spokeb(w1, af.h);
+  af.h := speekb($ff00 + speekb(pc.w));
+  Inc(pc.w);
 
   Result := 12;
 end;
@@ -2046,7 +1976,8 @@ end;
 
 function ld_a_ff00plusc: byte;
 begin
-  {TODO}
+  af.h := speekb($ff00 + speekb(bc.l));
+
   Result := 8;
 end;
 

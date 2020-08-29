@@ -17,7 +17,7 @@ uses ExtCtrls;
 
 function main_loop(a: DWord): DWORD;
 
-function z80_decode: byte;
+function z80_decode: byte; pascal;
 procedure z80_reset;
 
 implementation
@@ -296,20 +296,15 @@ begin
 
   if (code = $cb) then
   begin
-    //code := speekb(pc.w) or 256;
+    code := speekb(pc.w) or 256;
     Inc(pc.w);
   end;
 
   asm
      CLC
   end; // Set the Carry-Flag to zero
-  if romname[2] <> 'A' then begin
-    //writeln(code);
-    //readln;
-    Count := z80[code]
-  end
-  else
-    Count := z80[code];
+  if (RomName[2] <> 'A') and (code <> 118) then Writeln('OP ', code);
+  Count := z80[code];
   SoundUpdate(Count * (3 - gb_speed));
   cnumber := Count div gb_speed;
 
