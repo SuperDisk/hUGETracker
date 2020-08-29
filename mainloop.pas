@@ -305,6 +305,7 @@ begin
   end; // Set the Carry-Flag to zero
   if (RomName[2] <> 'A') and (code <> 118) then Writeln('OP ', code);
   Count := z80[code];
+  if (RomName[2] <> 'A') and (code <> 118) then Writeln('REGS pc=', pc.w, ' sp=', sp_.w, ' af=', af.w, ' hl=', hl.w, ' bc=', bc.w, ' de=', de.w);
   SoundUpdate(Count * (3 - gb_speed));
   cnumber := Count div gb_speed;
 
