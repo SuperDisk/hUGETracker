@@ -9,7 +9,7 @@
 
 unit mainloop;
 
-{$MODE Delphi}
+{$MODE objfpc}
 
 interface
 
@@ -17,7 +17,7 @@ uses ExtCtrls;
 
 function main_loop(a: DWord): DWORD;
 
-function z80_decode: byte; pascal;
+function z80_decode: byte;
 procedure z80_reset;
 
 implementation
@@ -277,6 +277,21 @@ end;
 const
   cycles_per_hblank = 451;
 
+  	function remap(f: byte): Byte;
+    var
+      z,n,h,c:byte;
+begin
+  Result := 0;
+  z := f and %01000000;
+	n := f and %00000010;
+	h := f and %00010000;
+	c := f and %00000001;
+	if z<>0 then result := result or %10000000;
+	if n<>0 then result := result or %01000000;
+	if h<>0 then result := result or %00100000;
+	if c<>0 then result := result or %00010000;
+end;
+
 function z80_decode: byte;
 var
   Count: byte;
@@ -305,10 +320,10 @@ begin
   end; // Set the Carry-Flag to zero
   if (RomName[2] <> 'A') and (code <> 118) then Writeln('OP ', code);
   if (RomName[2] <> 'A') and (code <> 118) then
-    Writeln('REGS_BEFOR pc=', pc.w, ' sp=', sp_.w, ' f=', af.l, ' a=', af.h, ' b=', bc.h, ' c=', bc.l, ' d=', de.h, ' e=', de.l, ' h=', hl.h, ' l=', hl.l);
-  Count := z80[code];
+    Writeln('REGS_BEFOR pc=', pc.w, ' sp=', sp_.w, ' f=', remap(af.l), ' a=', af.h, ' b=', bc.h, ' c=', bc.l, ' d=', de.h, ' e=', de.l, ' h=', hl.h, ' l=', hl.l);
+  Count := z80[code]();
   if (RomName[2] <> 'A') and (code <> 118) then
-    Writeln('REGS_AFTER pc=', pc.w, ' sp=', sp_.w, ' f=', af.l, ' a=', af.h, ' b=', bc.h, ' c=', bc.l, ' d=', de.h, ' e=', de.l, ' h=', hl.h, ' l=', hl.l);
+    Writeln('REGS_AFTER pc=', pc.w, ' sp=', sp_.w, ' f=', remap(af.l), ' a=', af.h, ' b=', bc.h, ' c=', bc.l, ' d=', de.h, ' e=', de.l, ' h=', hl.h, ' l=', hl.l);
   SoundUpdate(Count * (3 - gb_speed));
   cnumber := Count div gb_speed;
 
