@@ -240,7 +240,7 @@ begin
   AssignFile(OutFile, './hUGEDriver/pattern.htt');
   Rewrite(OutFile);
 
-  // Are keys and data defined to be aligned? Seems like they are but
+  // TODO: Are keys and data defined to be aligned? Seems like they are but
   // should probably find out if that's just an implementation detail...
   for I := 0 to Song.Patterns.Count-1 do
     Write(OutFile, RenderPattern('P'+IntToStr(Song.Patterns.Keys[I]),
