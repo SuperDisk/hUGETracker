@@ -919,7 +919,7 @@ var
 begin
   if RenderPreviewROM(Song) then begin
     // Load the new symbol table
-    SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
+    ParseSymFile('hUGEDriver/preview.sym');
 
     // Start emulation on the rendered preview binary
     LockPlayback;
@@ -2293,7 +2293,7 @@ procedure TfrmTracker.ToolButton10Click(Sender: TObject);
 begin
   if RenderPreviewROM(Song) then begin
     StopPlayback;
-    SymbolTable := ParseSymFile('hUGEDriver/preview.sym');
+    ParseSymFile('hUGEDriver/preview.sym');
     frmRenderToWave.ShowModal;
     StartPlayback;
     HaltPlayback;

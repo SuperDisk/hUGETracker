@@ -18,19 +18,22 @@ procedure WordPokeSymbol(Symbol: String; Value: Word);
 function PeekSymbol(Symbol: String): Integer;
 procedure PokeSymbol(Symbol: String; Value: Byte);
 
-function ParseSymFile(F: String): TSymbolMap;
+procedure ParseSymFile(F: String);
 
 implementation
 
 uses machine;
 
-function ParseSymFile(F: String): TSymbolMap;
+procedure ParseSymFile(F: String);
 var
   SL: TStringList;
   SA: TStringArray;
   S: String;
 begin
-  Result := TSymbolMap.Create;
+  if Assigned(SymbolTable) then
+    SymbolTable.Free;
+
+  SymbolTable := TSymbolMap.Create;
   SL := TStringList.Create;
   try
     SL.LoadFromFile(F);
@@ -41,7 +44,7 @@ begin
 
     for S in SL do begin
       SA := S.Split(' ');
-      Result.Add(SA[1], StrToInt('x'+SA[0].Substring(3)));
+      SymbolTable.Add(SA[1], StrToInt('x'+SA[0].Substring(3)));
     end;
   finally
     SL.Free;
