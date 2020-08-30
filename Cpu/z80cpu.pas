@@ -8,13 +8,9 @@
 unit Z80CPU;
 
 {$MODE Delphi}
+{$ASMMODE Intel}
 
 interface
-
-{$define Z_FLAG:=(af.l and %10000000)}
-{$define N_FLAG:=(af.l and %01000000)}
-{$define H_FLAG:=(af.l and %00100000)}
-{$define C_FLAG:=(af.l and %00010000)}
 
 {$include tables.inc}
 
