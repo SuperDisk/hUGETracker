@@ -313,8 +313,7 @@ begin
   if (Button = mbLeft) and not (ssShift in Shift) then
     MouseButtonDown := True;
 
-  if not (csDesigning in ComponentState) and CanFocus then
-    SetFocus;
+  if CanFocus then SetFocus;
 
   Clicked := MousePosToSelection(X, Y);
 
