@@ -13,10 +13,6 @@ unit mainloop;
 
 interface
 
-uses ExtCtrls;
-
-function main_loop(a: DWord): DWORD;
-
 function z80_decode: byte;
 procedure z80_reset;
 
@@ -85,14 +81,6 @@ begin
     t_count := m_iram[$ff06];
     set_ff0f(4);
   end;
-end;
-
-function main_loop(a: DWord): DWORD;
-begin
-  repeat
-    z80_decode;
-  until f_stopped;
-  Result := 0;
 end;
 
 procedure LCDControl;
@@ -318,12 +306,7 @@ begin
   asm
      CLC
   end; // Set the Carry-Flag to zero
-  if (RomName[2] <> 'A') and (code <> 118) then Writeln('OP ', code);
-  if (RomName[2] <> 'A') and (code <> 118) then
-    Writeln('REGS_BEFOR pc=', pc.w, ' sp=', sp_.w, ' f=', remap(af.l), ' a=', af.h, ' b=', bc.h, ' c=', bc.l, ' d=', de.h, ' e=', de.l, ' h=', hl.h, ' l=', hl.l);
   Count := z80[code]();
-  if (RomName[2] <> 'A') and (code <> 118) then
-    Writeln('REGS_AFTER pc=', pc.w, ' sp=', sp_.w, ' f=', remap(af.l), ' a=', af.h, ' b=', bc.h, ' c=', bc.l, ' d=', de.h, ' e=', de.l, ' h=', hl.h, ' l=', hl.l);
   SoundUpdate(Count * (3 - gb_speed));
   cnumber := Count div gb_speed;
 

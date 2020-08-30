@@ -282,11 +282,7 @@ var
   cr: byte;
   ji, pi: longint;
   sAddr, Offset: word;
-  templ, tempr: byte;
-
 begin
-  writeln('SPOKE ', address, ' ', Data);
-
   if cart = nil then
     exit;
   if (address < $8000) then
