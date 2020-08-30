@@ -12,12 +12,22 @@ type
 
   TRoutine = string;
 
-  TInstrumentBank = packed array[1..15] of TInstrument;
-  TInstrumentCollection = packed record
+  TInstrumentBankV1 = packed array[1..15] of TInstrumentV1;
+  TInstrumentCollectionV1 = packed record
     case Boolean of
-      False: (Duty, Wave, Noise: TInstrumentBank);
-      True: (All: packed array[1..45] of TInstrument);
+      False: (Duty, Wave, Noise: TInstrumentBankV1);
+      True: (All: packed array[1..45] of TInstrumentV1);
   end;
+
+  TInstrumentBankV2 = packed array[1..15] of TInstrumentV2;
+  TInstrumentCollectionV2 = packed record
+    case Boolean of
+      False: (Duty, Wave, Noise: TInstrumentBankV2);
+      True: (All: packed array[1..45] of TInstrumentV2);
+  end;
+
+  TInstrumentBank = TInstrumentBankV2;
+  TInstrumentCollection = TInstrumentCollectionV2;
 
   TWaveBankV1 = packed array[0..15] of TWaveV1;
   TWaveBankV2 = packed array[0..15] of TWaveV2;

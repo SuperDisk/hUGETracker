@@ -17,7 +17,7 @@ type
     Artist: ShortString;
     Comment: ShortString;
 
-    Instruments: TInstrumentBank;
+    Instruments: TInstrumentBankV1;
     Waves: TWaveBankV1;
 
     TicksPerRow: Integer;
@@ -33,7 +33,7 @@ type
     Artist: ShortString;
     Comment: ShortString;
 
-    Instruments: TInstrumentBank;
+    Instruments: TInstrumentBankV1;
     Waves: TWaveBankV1;
 
     TicksPerRow: Integer;
@@ -51,9 +51,26 @@ type
     Artist: ShortString;
     Comment: ShortString;
 
-    Instruments: TInstrumentCollection;
+    Instruments: TInstrumentCollectionV1;
+    Waves: TWaveBankV2;
 
-    Waves: TWaveBank;
+    TicksPerRow: Integer;
+
+    Patterns: TPatternMap;
+    OrderMatrix: TOrderMatrix;
+
+    Routines: TRoutineBank;
+  end;
+
+  TSongV4 = packed record
+    Version: Integer;
+
+    Name: ShortString;
+    Artist: ShortString;
+    Comment: ShortString;
+
+    Instruments: TInstrumentCollectionV2;
+    Waves: TWaveBankV2;
 
     TicksPerRow: Integer;
 
@@ -65,7 +82,7 @@ type
 
   { TSong }
 
-  TSong = TSongV3;
+  TSong = TSongV4;
 
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
@@ -76,6 +93,7 @@ procedure DestroySong(var S: TSong);
 function UpgradeSong(S: TSongV1): TSong; overload;
 function UpgradeSong(S: TSongV2): TSong; overload;
 function UpgradeSong(S: TSongV3): TSong; overload;
+function UpgradeSong(S: TSongV4): TSong; overload;
 
 implementation
 
@@ -198,13 +216,54 @@ begin
     ASong.Routines[I] := S.ReadAnsiString;
 end;
 
+procedure ReadSongFromStreamV4(S: TStream; out ASong: TSongV4);
+var
+  i, n: Integer;
+  pat: PPattern;
+begin
+  // Read the fixed elements first
+  n := SizeOf(TSongV4)
+     - SizeOf(TPatternMap)
+     - SizeOf(TOrderMatrix)
+     - SizeOf(TRoutineBank);
+
+  S.Read(ASong, n);
+
+  // Create the patterns
+  ASong.Patterns := TPatternMap.Create;
+  // Read the pattern count
+  S.Read(n, SizeOf(Integer));
+  for i:=0 to n - 1 do begin
+    // Allocate memory for each pattern ...
+    New(pat);
+    // and read the pattern content
+    S.Read(pat^, SizeOf(TPattern));
+    // Add the pattern to the list
+    ASong.Patterns.Add(i, pat);
+  end;
+
+  // Read the OrderMatrix
+  for i := 0 to 3 do
+  begin
+    // Read length of each OrderMatrix array
+    S.Read(n, SizeOf(Integer));
+    // Allocate memory for it
+    SetLength(ASong.OrderMatrix[i], n);
+    // Read content of OrderMatrix array
+    S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
+  end;
+
+  for I := Low(TRoutineBank) to High(TRoutineBank) do
+    ASong.Routines[I] := S.ReadAnsiString;
+end;
+
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 var
   i, n: Integer;
   pPat: PPattern;
 begin
   // Write the fixed record elements first
-  n := SizeOf(TSongV3)
+  n := SizeOf(TSongV4)
      - SizeOf(TPatternMap)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
@@ -237,6 +296,7 @@ var
   Version: Integer;
   SV1: TSongV1;
   SV2: TSongV2;
+  SV3: TSongV3;
 begin
   S.Read(Version, SizeOf(Integer));
   S.Seek(0, soBeginning);
@@ -249,7 +309,11 @@ begin
       ReadSongFromStreamV2(S, SV2);
       ASong := UpgradeSong(SV2);
     end;
-    3: ReadSongFromStreamV3(S, ASong);
+    3: begin
+      ReadSongFromStreamV3(S, SV3);
+      ASong := UpgradeSong(SV3);
+    end;
+    4: ReadSongFromStreamV4(S, ASong);
   end;
 end;
 
@@ -303,10 +367,11 @@ begin
       InitialVolume := High(TEnvelopeVolume);
       VolSweepDirection := Down;
       VolSweepAmount := 0;
-
-      ShiftClockFreq := 0;
-      DividingRatio := 0;
-      CounterStep := swFifteen;
+      NoiseMacro := Default(TNoiseMacro);
+      // TODO: Come back here
+      //ShiftClockFreq := 0;
+      //DividingRatio := 0;
+      //CounterStep := swFifteen;
     end;
 
   for I := Low(S.Waves) to High(S.Waves) do begin
@@ -402,13 +467,59 @@ var
   SV3: TSongV3;
   I: Integer;
 begin
-  InitializeSong(SV3);
-  SV3.Patterns.Free; // We already have one in S, so free the one InitializeSong creates.
-
   SV3.Version:=3;
   SV3.Name:=S.Name;
   SV3.Artist:=S.Artist;
   SV3.Comment:=S.Comment;
+  SV3.TicksPerRow:=S.TicksPerRow;
+  SV3.Patterns:=S.Patterns;
+  SV3.OrderMatrix:=S.OrderMatrix;
+  SV3.Routines:=S.Routines;
+
+  // AWFUL!!!!
+  for I := Low(SV3.Instruments.All) to High(SV3.Instruments.All) do
+    SV3.Instruments.All[I] := Default(TInstrumentV1);
+
+  for I := Low(SV3.Instruments.Duty) to High(SV3.Instruments.Duty) do begin
+    with SV3.Instruments.Duty[I] do begin
+      Type_ := itSquare;
+      Length := 0;
+      LengthEnabled := False;
+      InitialVolume := High(TEnvelopeVolume);
+      VolSweepDirection := Down;
+      VolSweepAmount := 0;
+
+      SweepTime := 0;
+      SweepIncDec := Down;
+      SweepShift := 0;
+
+      Duty := 2;
+
+      OutputLevel := 1;
+    end;
+  end;
+
+  for I := Low(SV3.Instruments.Wave) to High(SV3.Instruments.Wave) do
+    with SV3.Instruments.Wave[I] do begin
+      Type_ := itWave;
+      Length := 0;
+      LengthEnabled := False;
+      OutputLevel := 1;
+      Waveform := I-1;
+    end;
+
+  for I := Low(SV3.Instruments.Noise) to High(SV3.Instruments.Noise) do
+    with SV3.Instruments.Noise[I] do begin
+      Type_ := itNoise;
+      Length := 0;
+      LengthEnabled := False;
+      InitialVolume := High(TEnvelopeVolume);
+      VolSweepDirection := Down;
+      VolSweepAmount := 0;
+      ShiftClockFreq := 0;
+      DividingRatio := 0;
+      CounterStep := swFifteen;
+    end;
 
   for I := Low(S.Instruments) to High(S.Instruments) do begin
     case S.Instruments[I].Type_ of
@@ -419,17 +530,36 @@ begin
   end;
 
   for I := Low(TWaveBank) to High(TWaveBank) do
-    Move(S.Waves[I], SV3.Waves[I], SizeOf(TWave));
-
-  SV3.TicksPerRow:=S.TicksPerRow;
-  SV3.Patterns:=S.Patterns;
-  SV3.OrderMatrix:=S.OrderMatrix;
-  SV3.Routines:=S.Routines;
+    Move(S.Waves[I], SV3.Waves[I], SizeOf(TWaveV2));
 
   Result := UpgradeSong(SV3);
 end;
 
 function UpgradeSong(S: TSongV3): TSong;
+var
+  SV4: TSongV4;
+  I: Integer;
+begin
+  SV4.Version:=4;
+  SV4.Name:=S.Name;
+  SV4.Artist:=S.Artist;
+  SV4.Comment:=S.Comment;
+  SV4.TicksPerRow:=S.TicksPerRow;
+  SV4.Patterns:=S.Patterns;
+  SV4.OrderMatrix:=S.OrderMatrix;
+  SV4.Routines:=S.Routines;
+  SV4.Waves := S.Waves;
+
+  // for now just generate a blank noise macro
+  for I := Low(S.Instruments.All) to High(S.Instruments.All) do begin
+    Move(S.Instruments.All[I], SV4.Instruments.All[I], SizeOf(TInstrumentV1));
+    SV4.Instruments.All[I].NoiseMacro := Default(TNoiseMacro);
+  end;
+
+  Result := UpgradeSong(SV4);
+end;
+
+function UpgradeSong(S: TSongV4): TSong;
 begin
   Result := S;
 end;

@@ -16,7 +16,42 @@ type
   TEnvelopeSweepAmount = 0..7;
   TNoiseMacro = array[0..5] of -31..32;
 
-  TInstrument = packed record
+  TInstrumentV1 = packed record
+    Type_: TInstrumentType;
+
+    Name: ShortString;
+    Length: Integer;
+    // Highmask
+    LengthEnabled: Boolean;
+
+    InitialVolume: TEnvelopeVolume;
+    VolSweepDirection: TSweepType;
+    VolSweepAmount: TEnvelopeSweepAmount;
+
+    // itSquare
+    // NR10
+    SweepTime: Integer;
+    SweepIncDec: TSweepType;
+    SweepShift: Integer;
+
+    // NR11
+    Duty: TDutyType;
+
+    // itWave
+
+    // NR32
+    OutputLevel: Integer;
+    // itWave
+    Waveform: Integer;
+
+    // itNoise
+    // NR42
+    ShiftClockFreq: Integer; // Unused
+    CounterStep: TStepWidth;
+    DividingRatio: Integer;
+  end;
+
+  TInstrumentV2 = packed record
     Type_: TInstrumentType;
 
     Name: ShortString;
@@ -51,6 +86,8 @@ type
     DividingRatio: Integer;
     NoiseMacro: TNoiseMacro;
   end;
+
+  TInstrument = TInstrumentV2;
 
   TAsmInstrument = array[0..3] of Byte;
 
@@ -210,7 +247,8 @@ begin
   // Because *InstrumentToRegisters is meant for previewing, it puts in
   // a value for shift clock freq, so we have to remove it and put in the mask
   // instead.
-  Poly.ShiftClockFrequency := Instrument.ShiftClockFreq;
+  // TODO: Come back here
+  //Poly.ShiftClockFrequency := Instrument.ShiftClockFreq;
   Result[3] := Regs.NR44;
 end;
 
@@ -283,8 +321,9 @@ begin
 
   NR43.ShiftClockFrequency := $F - (Frequency shr 7); // Quantize CH4 note
 
-  NR43.DividingRatio:= Instr.DividingRatio;
-  NR43.SevenBitCounter:=Instr.CounterStep = swSeven;
+  // TODO: Come back here
+  //NR43.DividingRatio:= Instr.DividingRatio;
+  //NR43.SevenBitCounter:=Instr.CounterStep = swSeven;
 
   NR44.Initial:= Initial;
   NR44.UseLength:=Instr.LengthEnabled;

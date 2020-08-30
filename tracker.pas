@@ -1522,7 +1522,8 @@ procedure TfrmTracker.HeaderControl1SectionResize(
 begin
   // Prevent resizing these
   // TODO: Create a subclass of them that doesn't allow resizing maybe?
-  Section.Width := TrackerGrid.ColumnWidth;
+  if Section.OriginalIndex > 0 then Section.Width := TrackerGrid.ColumnWidth
+  else Section.Width := RowNumberStringGrid.Width;
 end;
 
 procedure TfrmTracker.CutActionExecute(Sender: TObject);
