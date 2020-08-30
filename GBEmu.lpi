@@ -221,7 +221,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="24">
+    <Units Count="23">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -339,15 +339,10 @@
         <UnitName Value="htWaveWriter"/>
       </Unit21>
       <Unit22>
-        <Filename Value="nullstream.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="NullStream"/>
-      </Unit22>
-      <Unit23>
         <Filename Value="modimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MODImport"/>
-      </Unit23>
+      </Unit22>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
