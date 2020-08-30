@@ -1,14 +1,16 @@
 object frmOptions: TfrmOptions
-  Left = 660
-  Height = 485
-  Top = 573
-  Width = 435
+  Left = 1736
+  Height = 615
+  Top = 145
+  Width = 315
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 485
-  ClientWidth = 435
+  ClientHeight = 615
+  ClientWidth = 315
+  OnClose = FormClose
+  OnCreate = FormCreate
   Position = poMainFormCenter
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.9.0'
   object Label1: TLabel
     Left = 14
     Height = 15
@@ -19,10 +21,13 @@ object frmOptions: TfrmOptions
     ParentFont = False
   end
   object Button1: TButton
-    Left = 297
+    AnchorSideRight.Side = asrBottom
+    AnchorSideBottom.Side = asrBottom
+    Left = 178
     Height = 25
-    Top = 448
+    Top = 576
     Width = 123
+    Anchors = [akRight, akBottom]
     Caption = 'OK'
     OnClick = Button1Click
     ParentFont = False
@@ -47,5 +52,94 @@ object frmOptions: TfrmOptions
     Checked = True
     State = cbChecked
     TabOrder = 2
+  end
+  object KeymapGroupBox: TGroupBox
+    Left = 16
+    Height = 418
+    Top = 96
+    Width = 279
+    Caption = 'Key map'
+    ClientHeight = 398
+    ClientWidth = 275
+    Enabled = False
+    TabOrder = 3
+    object KeyMapStringGrid: TStringGrid
+      Left = 5
+      Height = 328
+      Top = 5
+      Width = 265
+      Align = alClient
+      BorderSpacing.Bottom = 60
+      BorderSpacing.Around = 5
+      ColCount = 2
+      Columns = <      
+        item
+          Title.Caption = 'Key'
+        end      
+        item
+          Title.Caption = 'Note'
+        end>
+      DefaultColWidth = 120
+      FixedCols = 0
+      MouseWheelOption = mwGrid
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goAutoAddRows, goTabs, goSmoothScroll]
+      TabOrder = 0
+      OnValidateEntry = KeyMapStringGridValidateEntry
+    end
+    object Button2: TButton
+      Left = 8
+      Height = 25
+      Top = 362
+      Width = 131
+      Caption = 'Load'
+      OnClick = Button2Click
+      TabOrder = 1
+    end
+    object Button3: TButton
+      Left = 144
+      Height = 25
+      Top = 362
+      Width = 126
+      Caption = 'Save'
+      OnClick = Button3Click
+      TabOrder = 2
+    end
+    object Button4: TButton
+      Left = 240
+      Height = 25
+      Top = 336
+      Width = 30
+      Caption = '-'
+      OnClick = Button4Click
+      TabOrder = 3
+    end
+    object Button5: TButton
+      Left = 208
+      Height = 25
+      Top = 336
+      Width = 30
+      Caption = '+'
+      OnClick = Button5Click
+      TabOrder = 4
+    end
+  end
+  object KeymapCheckbox: TCheckBox
+    Left = 14
+    Height = 19
+    Top = 64
+    Width = 127
+    Alignment = taLeftJustify
+    Caption = 'Use custom keymap'
+    OnChange = KeymapCheckboxChange
+    ParentBidiMode = False
+    TabOrder = 4
+  end
+  object SaveDialog1: TSaveDialog
+    Left = 240
+    Top = 48
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 184
+    Top = 48
   end
 end

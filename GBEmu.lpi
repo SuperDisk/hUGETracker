@@ -221,7 +221,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="23">
+    <Units Count="25">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -343,6 +343,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="MODImport"/>
       </Unit22>
+      <Unit23>
+        <Filename Value="keymap.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Keymap"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="hugesettings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="hUGESettings"/>
+      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

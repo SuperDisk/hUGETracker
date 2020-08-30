@@ -9,8 +9,8 @@ uses
   FileUtil, math, Instruments, Waves, Song, Utils, Constants,
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
-  SymParser, options, IniFiles, bgrabitmap, effecteditor, RenderToWave,
-  modimport, mainloop, strutils, Types;
+  SymParser, options, bgrabitmap, effecteditor, RenderToWave,
+  modimport, mainloop, strutils, Types, Keymap, hUGESettings;
 
 type
   { TfrmTracker }
@@ -418,8 +418,6 @@ type
     WavesNode,
     RoutinesNode: TTreeNode;
 
-    OptionsFile: TIniFile;
-
     VisualizerBuffer: TBGRABitmap;
 
     InFDCallback: Boolean;
@@ -446,6 +444,7 @@ type
     procedure OnNotePlaced(var Msg: TLMessage); message LM_PREVIEW_NOTE;
     procedure OnSampleSongMenuItemClicked(Sender: TObject);
 
+    procedure CreateKeymap;
     procedure RecreateTrackerGrid;
     procedure UpdateUIAfterLoad(FileName: String = '');
     procedure UpdateWindowTitle;
@@ -991,6 +990,23 @@ begin
   LoadSong('Sample Songs/'+TMenuItem(Sender).Caption);
 end;
 
+procedure TfrmTracker.CreateKeymap;
+var
+  StringGrid: TStringGrid;
+begin
+  if not TrackerSettings.UseCustomKeymap then
+    LoadDefaultKeybindings
+  else begin
+    StringGrid := TStringGrid.Create(nil); // UGH!
+    try
+      StringGrid.LoadFromFile('custom_keymap.km');
+      LoadCustomKeybindings(StringGrid);
+    finally
+      StringGrid.Free;
+    end;
+  end;
+end;
+
 procedure TfrmTracker.RecreateTrackerGrid;
 var
   I: Integer;
@@ -1002,8 +1018,8 @@ begin
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
 
-  TrackerGrid.FontSize := OptionsFile.ReadInteger('hUGETracker', 'fontsize', 12);
-  ScopesOn := OptionsFile.ReadBool('hUGETracker', 'ScopesOn', True);
+  TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  ScopesOn := TrackerSettings.UseScopes;
 
   // Fix the size of the channel headers
   for I := 1 to HeaderControl1.Sections.Count-1 do
@@ -1232,7 +1248,6 @@ begin
   VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
 
   PreviewingInstrument := -1;
-  OptionsFile := TINIFile.Create('options.ini');
 
   // Fetch the tree items
   with TreeView1 do begin
@@ -1262,6 +1277,7 @@ begin
 
   // Create pattern editor control
   RecreateTrackerGrid;
+  CreateKeymap;
 
   // Initialize ticks per row
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
@@ -2077,17 +2093,15 @@ end;
 
 procedure TfrmTracker.MenuItem26Click(Sender: TObject);
 begin
-  frmOptions.FontSizeSpinner.Value := TrackerGrid.FontSize;
-  frmOptions.ScopesCheck.Checked := ScopesOn;
   frmOptions.ShowModal;
-  TrackerGrid.FontSize := frmOptions.FontSizeSpinner.Value;
-  ScopesOn := frmOptions.ScopesCheck.Checked;
 
-  OptionsFile.WriteInteger('hUGETracker', 'fontsize', TrackerGrid.FontSize);
-  OptionsFile.WriteBool('hUGETracker', 'ScopesOn', ScopesOn);
+  TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  ScopesOn := TrackerSettings.UseScopes;
+
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
   Panel2.Visible := ScopesOn;
 
+  CreateKeymap
 end;
 
 procedure TfrmTracker.MenuItem31Click(Sender: TObject);

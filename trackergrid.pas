@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, LCLIntf,
-  LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor;
+  LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor,
+  Keymap;
 
 // TODO: Maybe read these from a config file
 const

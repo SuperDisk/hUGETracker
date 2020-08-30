@@ -5,12 +5,11 @@ unit Constants;
 interface
 
 uses
-  fgl, LMessages, Graphics;
+  fgl, Graphics, LMessages;
 
 type
   TNoteMap = specialize TFPGMap<Integer, String>;
   TNoteToCodeMap = specialize TFPGMap<String, Integer>;
-  TKeybindings = specialize TFPGmap<Word, Integer>;
   TNoteToFreqMap = specialize TFPGMap<Integer, Integer>;
 
   TInstrumentIndex = 1..15;
@@ -137,84 +136,9 @@ const
   LAST_NOTE = 72;
   NO_NOTE = 90;
 
-  // Note constants. These will probably go in a dictionary instead later
-  {C_3  =  44;
-  CS3  =  156;
-  D_3  =  262;
-  DS3  =  363;
-  E_3  =  457;
-  F_3  =  547;
-  FS3  =  631;
-  G_3  =  710;
-  GS3  =  786;
-  A_3  =  854;
-  AS3  =  923;
-  B_3  =  986;
-  C_4  =  1046;
-  CS4  =  1102;
-  D_4  =  1155;
-  DS4  =  1205;
-  E_4  =  1253;
-  F_4  =  1297;
-  FS4  =  1339;
-  G_4  =  1379;
-  GS4  =  1417;
-  A_4  =  1452;
-  AS4  =  1486;
-  B_4  =  1517;
-  C_5  =  1546;
-  CS5  =  1575;
-  D_5  =  1602;
-  DS5  =  1627;
-  E_5  =  1650;
-  F_5  =  1673;
-  FS5  =  1694;
-  G_5  =  1714;
-  GS5  =  1732;
-  A_5  =  1750;
-  AS5  =  1767;
-  B_5  =  1783;
-  C_6  =  1798;
-  CS6  =  1812;
-  D_6  =  1825;
-  DS6  =  1837;
-  E_6  =  1849;
-  F_6  =  1860;
-  FS6  =  1871;
-  G_6  =  1881;
-  GS6  =  1890;
-  A_6  =  1899;
-  AS6  =  1907;
-  B_6  =  1915;
-  C_7  =  1923;
-  CS7  =  1930;
-  D_7  =  1936;
-  DS7  =  1943;
-  E_7  =  1949;
-  F_7  =  1954;
-  FS7  =  1959;
-  G_7  =  1964;
-  GS7  =  1969;
-  A_7  =  1974;
-  AS7  =  1978;
-  B_7  =  1982;
-  C_8  =  1985;
-  CS8  =  1988;
-  D_8  =  1992;
-  DS8  =  1995;
-  E_8  =  1998;
-  F_8  =  2001;
-  FS8  =  2004;
-  G_8  =  2006;
-  GS8  =  2009;
-  A_8  =  2011;
-  AS8  =  2013;
-  B_8  =  2015;}
-
 var
   NoteMap: TNoteMap;
   NoteToDriverMap: TNoteMap;
-  Keybindings: TKeybindings;
   NotesToFreqs: TNoteToFreqMap;
   NoteToCodeMap: TNoteToCodeMap;
 
@@ -234,7 +158,6 @@ begin
   NoteMap := TNoteMap.Create;
   NoteToDriverMap := TNoteMap.Create;
 
-  Keybindings := TKeybindings.Create;
   NotesToFreqs := TNoteToFreqMap.Create;
   NoteToCodeMap := TNoteToCodeMap.Create;
 
@@ -312,43 +235,6 @@ begin
   NotesToFreqs.Add(AS8, 2013);
   NotesToFreqs.Add(B_8, 2015);
   {%Endregion}
-
-  {%Region}
-  Keybindings.Add(VK_Q, C_3);
-  Keybindings.Add(VK_W, CS3);
-  Keybindings.Add(VK_E, D_3);
-  Keybindings.Add(VK_R, DS3);
-  Keybindings.Add(VK_T, E_3);
-  Keybindings.Add(VK_Y, F_3);
-  Keybindings.Add(VK_U, FS3);
-  Keybindings.Add(VK_I, G_3);
-  Keybindings.Add(VK_O, GS3);
-  Keybindings.Add(VK_P, A_3);
-  Keybindings.Add(VK_OEM_4, AS3);
-  Keybindings.Add(VK_OEM_6, B_3);
-  Keybindings.Add(VK_OEM_5, B_4);
-  Keybindings.Add(VK_A, C_4);
-  Keybindings.Add(VK_S, CS4);
-  Keybindings.Add(VK_D, D_4);
-  Keybindings.Add(VK_F, DS4);
-  Keybindings.Add(VK_G, E_4);
-  Keybindings.Add(VK_H, F_4);
-  Keybindings.Add(VK_J, FS4);
-  Keybindings.Add(VK_K, G_4);
-  Keybindings.Add(VK_L, GS4);
-  Keybindings.Add(VK_OEM_1, A_4);
-  Keybindings.Add(VK_OEM_7, AS4);
-  Keybindings.Add(VK_Z, C_5);
-  Keybindings.Add(VK_X, CS5);
-  Keybindings.Add(VK_C, D_5);
-  Keybindings.Add(VK_V, DS5);
-  Keybindings.Add(VK_B, E_5);
-  Keybindings.Add(VK_N, F_5);
-  Keybindings.Add(VK_M, FS5);
-  Keybindings.Add(VK_OEM_COMMA, G_5);
-  Keybindings.Add(VK_OEM_PERIOD, GS5);
-  Keybindings.Add(VK_OEM_2, A_5);
-  {%EndRegion Keycodes->Notes}
 
   {%Region Note names -> Notes}
   NoteToCodeMap.add('C-3', C_3);

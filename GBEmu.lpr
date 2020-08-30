@@ -73,9 +73,9 @@ begin
   Application.Title:='hUGETracker';
   Application.Initialize;
   Application.CreateForm(TfrmTracker, frmTracker);
-  Application.CreateForm(TfrmOptions, frmOptions);
   Application.CreateForm(TfrmAboutHugeTracker, frmAboutHugetracker);
   Application.CreateForm(TfrmEffectEditor, frmEffectEditor);
   Application.CreateForm(TfrmRenderToWave, frmRenderToWave);
+  Application.CreateForm(TfrmOptions, frmOptions);
   Application.Run;
 end.
