@@ -219,7 +219,7 @@ var
   btemp: byte;
 begin
   btemp := af.l and 1;
-  af.l := rla_f[btemp][af.h] or (af.l and 196);
+  af.l := rla_f[btemp][af.h]; // or (af.l and 196); NOTE
   af.h := rla_a[btemp][af.h];
 
   Result := 4;
