@@ -2630,48 +2630,42 @@ end;
 
 function sll_b: byte;
 begin
-  af.l := sll_f[bc.h];
-  bc.h := sll_a[bc.h];
+  swap(bc.h);
 
   Result := 8;
 end;
 
 function sll_c: byte;
 begin
-  af.l := sll_f[bc.l];
-  bc.l := sll_a[bc.l];
+  swap(bc.l);
 
   Result := 8;
 end;
 
 function sll_d: byte;
 begin
-  af.l := sll_f[de.h];
-  de.h := sll_a[de.h];
+  swap(de.h);
 
   Result := 8;
 end;
 
 function sll_e: byte;
 begin
-  af.l := sll_f[de.l];
-  de.l := sll_a[de.l];
+  swap(de.l);
 
   Result := 8;
 end;
 
 function sll_h: byte;
 begin
-  af.l := sll_f[hl.h];
-  hl.h := sll_a[hl.h];
+  swap(hl.h);
 
   Result := 8;
 end;
 
 function sll_l: byte;
 begin
-  af.l := sll_f[hl.l];
-  hl.l := sll_a[hl.l];
+  swap(hl.l);
 
   Result := 8;
 end;
@@ -2681,16 +2675,15 @@ var
   btemp: byte;
 begin
   btemp := speekb(Addr);
-  af.l := sll_f[btemp];
-  spokeb(Addr, sll_a[btemp]);
+  swap(btemp);
+  spokeb(Addr, btemp);
 
   Result := 16;
 end;
 
 function CBsll_a: byte;
 begin
-  af.l := sll_f[af.h];
-  af.h := sll_a[af.h];
+  swap(af.h);
 
   Result := 8;
 end;

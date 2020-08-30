@@ -161,6 +161,19 @@ begin
          af.l:=af.l and 251 ;(* reset Pf *)
 end;
 
+procedure swap(var bval: Byte);
+var
+  h: Byte;
+begin
+  h := hi(bval);
+  bval := (bval shl 4) or h;
+
+  if bval = 0 then
+    af.l := 64
+  else
+    af.l := 0;
+end;
+
 procedure anda(bval:Byte);
 begin
  af.h:=af.h and bval;
