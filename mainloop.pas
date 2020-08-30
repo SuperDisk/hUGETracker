@@ -303,9 +303,6 @@ begin
     Inc(pc.w);
   end;
 
-  asm
-     CLC
-  end; // Set the Carry-Flag to zero
   Count := z80[code]();
   SoundUpdate(Count * (3 - gb_speed));
   cnumber := Count div gb_speed;

@@ -8,7 +8,6 @@
 unit machine;
 
 {$MODE Delphi}
-{$ASMMODE INTEL}
 
 interface
 
@@ -192,9 +191,6 @@ begin
     else
       res := byte(PChar(cart)[address + addr_bank]);
 
-    asm
-             MOV     AL,res;
-    end;
     Result := res;
     exit;
     // Problem mit cdecl, keine Registerübergabe !!
@@ -208,9 +204,6 @@ begin
     if (m_iram[$ff4f] and 1 > 0) and (address >= $8000) and (address < $a000) then
     begin
       res := m_iram2[address];
-      asm
-               MOV     AL,res;
-      end;
       Result := res;
       exit;
     end;
@@ -220,9 +213,6 @@ begin
       if cr = 0 then
         cr := 1;
       res := m_cgbram[4096 * cr + address - $d000];
-      asm
-               MOV     AL,res;
-      end;
       Result := res;
       exit;
     end;
@@ -234,25 +224,17 @@ begin
           (byte(snd[3].Enable) shl 2) or (byte(snd[2].Enable) shl 1) or
           byte(snd[1].Enable);
         res := m_iram[$ff26];
-        asm
-                 MOV   AL,res end;
         Result := res;
       end;
       $ff69:
       begin
         res := palramb[(m_iram[$ff68]) and 63];
-        asm
-                 MOV   AL,res;
-        end;
         Result := res;
         exit;
       end;
       $ff6b:
       begin
         res := palramo[(m_iram[$ff68]) and 63];
-        asm
-                 MOV   AL,res;
-        end;
         Result := res;
         exit;
       end;
@@ -263,17 +245,11 @@ begin
   if (sram > 0) and ((address >= $a000) and (address < $c000)) then
   begin
     res := m_ram[address - $a000 + n_ram * $8912];
-    asm
-             MOV     AL,res;
-    end;
     Result := res;
     exit;
   end;
 
   res := m_iram[address];
-  asm
-           MOV     AL,res;
-  end;
   Result := res;
 end;
 

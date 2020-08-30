@@ -8,7 +8,6 @@
 unit Z80CPU;
 
 {$MODE Delphi}
-{$ASMMODE Intel}
 
 interface
 
@@ -27,7 +26,6 @@ var
   qtemp: Quadruple;
   ptemp: Pair;
   w1, w2: word;
-  i1, i2: Integer;
 
 {$include procs.inc}
 
