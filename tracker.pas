@@ -1804,7 +1804,7 @@ begin
   else {if Sender = NoiseVisualizer then} Section := HeaderControl1.Sections.Items[4];
 
   Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
-  snd[Section.OriginalIndex+1].ChannelOFF := Section.ImageIndex = 0;
+  snd[Section.OriginalIndex].ChannelOFF := Section.ImageIndex = 0;
 end;
 
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);
