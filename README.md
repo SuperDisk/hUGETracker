@@ -1,5 +1,5 @@
-# hUGETracker
+![hUGETracker](https://nickfa.ro/images/HUGELogo.gif)
 
 This is the repository for hUGETracker, the music editing suite for the Gameboy.
 
-This is all still WIP so check back later.
+A real readme is coming real soon...
