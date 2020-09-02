@@ -27,8 +27,8 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="CPU;Sound;Global;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+            <IncludeFiles Value="Cpu;Sound;Global;$(ProjOutDir)"/>
+            <OtherUnitFiles Value="Cpu;Sound;Global;Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -40,7 +40,6 @@
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
             <RelocatableUnit Value="True"/>
-            <TargetCPU Value="x86_64"/>
             <TargetOS Value="win64"/>
             <Optimizations>
               <OptimizationLevel Value="4"/>
@@ -96,7 +95,7 @@
           </Parsing>
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
-            <TargetCPU Value="x86_64"/>
+            <RelocatableUnit Value="True"/>
             <TargetOS Value="linux"/>
             <Optimizations>
               <OptimizationLevel Value="4"/>
@@ -128,7 +127,7 @@
               <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
-            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -CfAVX2 -CpCOREAVX2 OpCOREAVX2 -Si -Sv -dPRODUCTION"/>
+            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
       </Item3>
@@ -155,7 +154,7 @@
           </Parsing>
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
-            <TargetCPU Value="x86_64"/>
+            <RelocatableUnit Value="True"/>
             <TargetOS Value="darwin"/>
             <Optimizations>
               <OptimizationLevel Value="4"/>
@@ -187,7 +186,7 @@
               <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
-            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -CfAVX2 -CpCOREAVX2 OpCOREAVX2 -Si -Sv -dPRODUCTION"/>
+            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
       </Item4>
