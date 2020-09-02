@@ -72,6 +72,9 @@
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
+            <ExecuteAfter>
+              <Command Value="instantfpc PostBuild.pas $Path($(TargetFile))"/>
+            </ExecuteAfter>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -128,6 +131,9 @@
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
+            <ExecuteAfter>
+              <Command Value="instantfpc PostBuild.pas $Path($(TargetFile))"/>
+            </ExecuteAfter>
           </Other>
         </CompilerOptions>
       </Item3>
@@ -187,6 +193,9 @@
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
+            <ExecuteAfter>
+              <Command Value="instantfpc PostBuild.pas $Path($(TargetFile))"/>
+            </ExecuteAfter>
           </Other>
         </CompilerOptions>
       </Item4>
@@ -384,6 +393,9 @@
         <ShowAll Value="True"/>
       </Verbosity>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dDEVELOPMENT"/>
+      <ExecuteAfter>
+        <Command Value="instantfpc PostBuild.pas $Path($(TargetFile))"/>
+      </ExecuteAfter>
     </Other>
   </CompilerOptions>
 </CONFIG>
