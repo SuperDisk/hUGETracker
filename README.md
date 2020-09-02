@@ -20,8 +20,8 @@ git clone --recursive https://github.com/SuperDisk/hUGETracker
 cd hUGETracker
 
 # Let Lazarus know about the dependencies that HT uses
-lazbuild --add-package-link rackctls\RackCtlsPkg.lpk
-lazbuild --add-package-link bgrabitmap\bgrabitmap\bgrabitmappack.lpk
+lazbuild --add-package-link rackctls/RackCtlsPkg.lpk
+lazbuild --add-package-link bgrabitmap/bgrabitmap/bgrabitmappack.lpk
 
 # At this point if you want to develop HT, then open GBEmu.lpi in Lazarus, make sure you're in the 
 # Development build mode, and everything should build and run!
