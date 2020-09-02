@@ -7,3 +7,6 @@
 [submodule "rackctls"]
 	path = rackctls
 	url = https://github.com/olivluca/rackctls
+[submodule "bgrabitmap"]
+	path = bgrabitmap
+	url = https://github.com/bgrabitmap/bgrabitmap
