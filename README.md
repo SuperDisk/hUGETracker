@@ -9,8 +9,8 @@ A real readme is coming real soon...
 
 The project's main branch currently isn't in a production-ready state (it's broken) but that will change soon. So don't follow these instructions quite yet...
 
-The only requirements to build this project are a recent version of [Lazarus](https://www.lazarus-ide.org/) for your platform.
-If you plan on building for other platforms than your own, you'll need the FPC crosscompilers for those projects. (I recommend using [FPCUpDeluxe](https://github.com/LongDirtyAnimAlf/fpcupdeluxe) but honestly you probably don't need to do this)
+The only requirements to build hUGETracker are a recent version of [Lazarus](https://www.lazarus-ide.org/) for your platform.
+If you plan on building for other platforms than your own, you'll need the FPC crosscompilers for those platforms. (I recommend using [FPCUpDeluxe](https://github.com/LongDirtyAnimAlf/fpcupdeluxe) but honestly you probably don't need to do this)
 
 ```
 # Download this repo
