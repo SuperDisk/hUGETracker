@@ -73,7 +73,7 @@
             </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
             <ExecuteAfter>
-              <Command Value="instantfpc PostBuild.pas $Path($(TargetFile))"/>
+              <Command Value="$Path($(CompPath))/instantfpc PostBuild.pas $Path($(TargetFile))"/>
             </ExecuteAfter>
           </Other>
         </CompilerOptions>
@@ -132,7 +132,7 @@
             </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
             <ExecuteAfter>
-              <Command Value="instantfpc PostBuild.pas $Path($(TargetFile))"/>
+              <Command Value="$Path($(CompPath))/instantfpc  PostBuild.pas $Path($(TargetFile))"/>
             </ExecuteAfter>
           </Other>
         </CompilerOptions>
@@ -194,7 +194,7 @@
             </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
             <ExecuteAfter>
-              <Command Value="instantfpc PostBuild.pas $Path($(TargetFile))"/>
+              <Command Value="$Path($(CompPath))/instantfpc  PostBuild.pas $Path($(TargetFile))"/>
             </ExecuteAfter>
           </Other>
         </CompilerOptions>
@@ -205,6 +205,7 @@
     </BuildModes>
     <PublishOptions>
       <Version Value="2"/>
+      <OpenInFileMan Value="True"/>
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
@@ -394,7 +395,7 @@
       </Verbosity>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dDEVELOPMENT"/>
       <ExecuteAfter>
-        <Command Value="instantfpc PostBuild.pas $Path($(TargetFile))"/>
+        <Command Value="$MakeExe(ide,$Path($(CompPath))/instantfpc) --compiler=&quot;$(CompPath)&quot; PostBuild.pas &quot;$Path($(TargetFile))&quot; -d"/>
       </ExecuteAfter>
     </Other>
   </CompilerOptions>
