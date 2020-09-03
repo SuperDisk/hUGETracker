@@ -395,7 +395,7 @@
       </Verbosity>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dDEVELOPMENT"/>
       <ExecuteAfter>
-        <Command Value="$MakeExe(ide,$Path($(CompPath))/instantfpc) --compiler=&quot;$(CompPath)&quot; PostBuild.pas &quot;$Path($(TargetFile))&quot; -d"/>
+        <Command Value="$MakeExe(ide,$Path($(CompPath))/instantfpc) --compiler=&quot;$(CompPath)&quot; PostBuild.pas &quot;$Path($(TargetFile))&quot;"/>
       </ExecuteAfter>
     </Other>
   </CompilerOptions>

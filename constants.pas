@@ -20,7 +20,7 @@ const
   clGameboyBlack = TColor($211807);
   clGameboyMidGreen = TColor($6CC086);
 
-  UGE_FORMAT_VERSION = 3;
+  UGE_FORMAT_VERSION = 4;
 
   INSTRUMENTS_COUNT = 45;
   ROUTINES_COUNT = 16;
