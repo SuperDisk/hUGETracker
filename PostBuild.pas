@@ -28,7 +28,7 @@ begin
   {$endif}
 
   {$ifdef UNIX}
-    ExecuteProcess('/bin/bash', '-c "cp ' + Source + ' ' + ParamStr(2) + ExtractFileName(Source) + '" > /dev/null');
+    ExecuteProcess('/bin/bash', '-c "cp -rf ' + Source + ' ' + ParamStr(2) + ExtractFileName(Source) + '" > /dev/null');
   {$endif}
 end;
 
