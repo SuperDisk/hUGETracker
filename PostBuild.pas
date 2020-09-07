@@ -38,7 +38,7 @@ var
   DestDir: String;
 begin
   DestDir := ParamStr(2);
-  Dev := ContainsText(ParamStr(2), 'Development');
+  Dev := ContainsText(DestDir, 'Development');
 
   HTCopyFile('Resources/ROMs/halt.gb');
   HTCopyFile('Resources/Fonts/PixeliteTTF.ttf');
