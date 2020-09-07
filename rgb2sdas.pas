@@ -1,4 +1,4 @@
-program rgb2gbdk;
+program rgb2sdas;
 
 {$mode objfpc}{$H+}
 
