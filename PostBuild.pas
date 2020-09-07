@@ -11,6 +11,7 @@
   In a development build, it hardlinks
   - Halt.gb
   - hUGEDriver
+  - PixeliteTTF
 
   into the build output folder so that the driver and tracker can be developed
   simultaneously.
@@ -18,35 +19,16 @@
 
 {$mode objfpc}{$H+}
 
-uses SysUtils,
+uses SysUtils, StrUtils;
 
-{$ifdef UNIX}BaseUnix;{$endif}
-{$ifdef WINDOWS}Windows;{$endif}
-
-// Cringe
-{$ifdef WINDOWS}
-const
-  SYMBOLIC_LINK_FLAG_DIRECTORY = $00000001;
-
-function CreateSymbolicLinkA(
-  lpSymlinkFileName: PAnsiChar;
-  lpTargetFileName: PAnsiChar;
-  dwFlags: DWORD
-): Boolean; stdcall; external 'kernel32';
-{$endif}
-
-procedure Mklink(Src, Dst: AnsiString; Dir: Boolean = False);
+procedure HTCopyFile(Source: String);
 begin
-  writeln(src, ', ', dst, ', ', dir);
-  {$ifdef UNIX}
-  // TODO....
+  {$ifdef WINDOWS}
+    ExecuteProcess('cmd.exe', '/c "xcopy /e /Y ' + ExpandFileName(Source) + ' ' + ParamStr(2) + ExtractFileName(Source) + '" > NUL');
   {$endif}
 
-  {$ifdef WINDOWS}
-    if Dir then
-      writeln('link dir ', CreateSymbolicLinkA(PAnsiChar(Dst), PAnsiChar(Src), SYMBOLIC_LINK_FLAG_DIRECTORY))
-    else
-      writeln('link file ', CreateSymbolicLinkA(PAnsiChar(Dst), PAnsiChar(Src), 0))
+  {$ifdef UNIX}
+    ExecuteProcess('/bin/bash', '-c "cp ' + Source + ' ' + ParamStr(2) + ExtractFileName(Source) + '" > /dev/null');
   {$endif}
 end;
 
@@ -55,14 +37,17 @@ var
   Dev: Boolean;
   DestDir: String;
 begin
-  for I := 0 to ParamCount-1 do writeln(Paramstr(I));
   DestDir := ParamStr(2);
-  Dev := True; ///(ParamCount > 2) and (ParamStr(2) = '-d');
+  Dev := ContainsText(ParamStr(2), 'Development');
 
-  if Dev then begin
-    Mklink('hUGETracker', DestDir+'hUGETracker', True);
-    Mklink('Resources/ROMs/halt.gb', DestDir+'halt.gb');
+  HTCopyFile('Resources/ROMs/halt.gb');
+  HTCopyFile('Resources/Fonts/PixeliteTTF.ttf');
+
+  if not Dev then begin
+    HTCopyFile('hUGEDriver');
+    HTCopyFile('Resources/SampleSongs');
   end else begin
-    writeln('not implemented.');
+    if not DirectoryExists(DestDir+'hUGEDriver') then
+      Writeln('hUGEDriver not copied in development mode. Manually link it there yourself!');
   end;
 end.
