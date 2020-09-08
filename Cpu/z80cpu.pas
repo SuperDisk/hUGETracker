@@ -99,7 +99,6 @@ end;
 function ld_xxxx_sp: byte;
 begin
   {TODO}
-
   Result := 20;
 end;
 
@@ -1798,7 +1797,7 @@ end;
 function dd_debug: byte;
 begin
   writeln('DEBUG: ', speekb(pc.w));
-  //readln;
+  readln;
   Inc(pc.w);
   Result := 0;
 end;

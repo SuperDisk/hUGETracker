@@ -258,8 +258,22 @@ begin
 
   Proc.Executable := 'rgbasm';
   Proc.Parameters.Clear;
-  Proc.Parameters.add('-o'+Filename+'.obj');
-  Proc.Parameters.add('driverLite.z80');
+  Proc.Parameters.add('-o'+Filename+'_driver.obj');
+  Proc.Parameters.add('driver.z80');
+  Proc.Execute;
+  if Proc.ExitCode <> 0 then goto AssemblyError;
+
+  Proc.Executable := 'rgbasm';
+  Proc.Parameters.Clear;
+  Proc.Parameters.add('-o'+Filename+'_song.obj');
+  Proc.Parameters.add('song.z80');
+  Proc.Execute;
+  if Proc.ExitCode <> 0 then goto AssemblyError;
+
+  Proc.Executable := 'rgbasm';
+  Proc.Parameters.Clear;
+  Proc.Parameters.add('-o'+Filename+'_player.obj');
+  Proc.Parameters.add('player.z80');
   Proc.Execute;
   if Proc.ExitCode <> 0 then goto AssemblyError;
 
@@ -271,7 +285,10 @@ begin
     Proc.Parameters.add('-o'+Filename+'.gbs')
   else
     Proc.Parameters.add('-o'+Filename+'.gb');
-  Proc.Parameters.add(Filename+'.obj');
+  Proc.Parameters.add('-p0xDD');
+  Proc.Parameters.add(Filename+'_driver.obj');
+  Proc.Parameters.add(Filename+'_song.obj');
+  Proc.Parameters.add(Filename+'_player.obj');
   Proc.Execute;
   if Proc.ExitCode <> 0 then goto AssemblyError;
 
