@@ -303,11 +303,7 @@ begin
     Inc(pc.w);
   end;
 
-  if romname[2] = 'U' then begin
-    //writeln('op: ', code);
-    Count := z80[code]();
-  end else Count := z80[code]();
-
+  Count := z80[code]();
   SoundUpdate(Count * (3 - gb_speed));
   cnumber := Count div gb_speed;
 

@@ -1797,7 +1797,6 @@ end;
 function dd_debug: byte;
 begin
   writeln('DEBUG: ', speekb(pc.w));
-  readln;
   Inc(pc.w);
   Result := 0;
 end;
