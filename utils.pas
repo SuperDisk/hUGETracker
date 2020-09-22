@@ -30,6 +30,7 @@ type
   end;
 
 function Lerp(v0, v1, t: Double): Double;
+function Snap(Value, Every: Integer): Integer;
 function ReMap(Value, Istart, Istop, Ostart, Ostop: Double): Double;
 function IntReMap(Value, Istart, Istop, Ostart, Ostop: Integer): Integer;
 function ConvertWaveform(Waveform: TWave): T4bitWave;
@@ -57,6 +58,11 @@ end;
 function Lerp(v0, v1, t: Double): Double;
 begin
   Result := ((1 - t) * v0) + (t * v1);
+end;
+
+function Snap(Value, Every: Integer): Integer;
+begin
+  Result := Trunc(Value/Every)*Every;
 end;
 
 function ReMap(Value, Istart, Istop, Ostart, Ostop: Double): Double;

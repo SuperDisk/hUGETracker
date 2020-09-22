@@ -58,6 +58,7 @@ var
   AsmInstrument: TAsmInstrument;
   I, J: Integer;
   TypePrefix: String;
+  HighMask: Byte;
 begin
   ResultSL := TStringList.Create;
 
@@ -69,10 +70,14 @@ begin
 
     if Instruments[I].Type_ = itNoise then begin
       SL.Add(IntToStr(AsmInstrument[1]));
+
+      HighMask := %00000000;
       if Instruments[I].LengthEnabled then
-        SL.Add(IntToStr(AsmInstrument[0] or %11000000))
-      else
-        SL.Add(IntToStr(AsmInstrument[0] or %10000000));
+        HighMask := HighMask or %01000000;
+      if Instruments[I].CounterStep = swSeven then
+        HighMask := HighMask or %10000000;
+      SL.Add(IntToStr(HighMask));
+
       for J := Low(TNoiseMacro) to High(TNoiseMacro) do
         SL.Add(IntToStr(Instruments[I].NoiseMacro[J]));
     end
@@ -259,6 +264,7 @@ begin
   Proc.Executable := 'rgbasm';
   Proc.Parameters.Clear;
   Proc.Parameters.add('-o'+Filename+'_driver.obj');
+  Proc.Parameters.add('-DPREVIEW_MODE');
   Proc.Parameters.add('driver.z80');
   Proc.Execute;
   if Proc.ExitCode <> 0 then goto AssemblyError;
@@ -354,7 +360,7 @@ begin
       [mbOK],
       0);
 
-    {$ifdef PRODUCTION}OpenURL('https://github.com/SuperDisk/UGE/issues');{$endif}
+    {$ifdef PRODUCTION}OpenURL('https://github.com/SuperDisk/hUGETracker/issues');{$endif}
   end;
 
   Cleanup:

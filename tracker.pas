@@ -576,7 +576,7 @@ begin
   Interval := W div 31;
   //HInterval := H div $10;
   With PB.Canvas do begin
-    Brush.Color := clBlack;
+    Brush.Color := clGameboyBlack;
     Clear;
 
     {Pen.Width := 1;
@@ -587,8 +587,8 @@ begin
     for I := 0 to $10 do
       Line(0, I*HInterval, W, I*HInterval);}
 
-    Brush.Color := clTeal;
-    Pen.Color := clTeal;
+    Brush.Color := clGameboyMidGreen;
+    Pen.Color := clGameboyMidGreen;
     Pen.Width := 2;
     MoveTo(0, H);
     for I := Low(Wave) to High(Wave) do
@@ -923,7 +923,7 @@ begin
     // Start emulation on the rendered preview binary
     LockPlayback;
     GetROMReady('hUGEDriver/preview.gb');
-    PokeSymbol(SYM_TICKS_PER_ROW, Song.TicksPerRow);
+
     for I := 1 to 4 do
       snd[I].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
 
@@ -1137,7 +1137,7 @@ procedure TfrmTracker.WavePaintboxPaint(Sender: TObject);
 begin
   if not WaveGroupBox.Enabled then begin
     with WavePaintbox.Canvas do begin
-      Brush.Color := clBlack;
+      Brush.Color := clGameboyBlack;
       Clear;
     end;
   end
@@ -1669,7 +1669,7 @@ var
 begin
   if DrawingMacro then begin
     MacroIdx := EnsureRange(Trunc((X/NoiseMacroPaintbox.Width) * 6), 0, 5);
-    Val := EnsureRange(Floor((Y/NoiseMacroPaintbox.Height) * 63), 0, 63) - 31;
+    Val := 32-EnsureRange(Trunc((Y/NoiseMacroPaintbox.Height) * 63), 0, 63);
 
     CurrentInstrument^.NoiseMacro[MacroIdx] := Val;
     NoiseMacroPaintbox.Invalidate;
@@ -1686,6 +1686,15 @@ procedure TfrmTracker.NoiseMacroPaintboxPaint(Sender: TObject);
 var
   BarWidth, BarStep: Double;
   I: Integer;
+  Rect: TRect;
+
+  function FormatMacroNumber(Val: Integer): string;
+  begin
+    if Val = 0 then Exit('')
+    else if Val > 0 then Exit('+'+IntToStr(Val))
+    else Exit(IntToStr(Val));
+  end;
+
 begin
   BarWidth := (NoiseMacroPaintbox.Width / 6); // TODO: change this constant?
   BarStep := (NoiseMacroPaintbox.Height / 63);
@@ -1693,14 +1702,17 @@ begin
     Brush.Color := clGameboyBlack;
     Clear;
 
+    Brush.Color := clGameboyMidGreen;
+    Pen.Color := clGameboyBlack;
     for I := Low(TNoiseMacro) to High(TNoiseMacro) do begin
-      Brush.Color := clGameboyMidGreen;
-      FillRect(
+      Rect := TRect.Create(
         Trunc(I*BarWidth),
         NoiseMacroPaintbox.Height div 2,
         Trunc((I+1)*BarWidth),
-        Ceil((NoiseMacroPaintbox.Height / 2) + (CurrentInstrument^.NoiseMacro[I] * BarStep))
+        Ceil((NoiseMacroPaintbox.Height / 2) - (CurrentInstrument^.NoiseMacro[I] * BarStep))
       );
+      FillRect(Rect);
+      TextOut(Rect.Left + Trunc(Rect.Width/2.5), Rect.Top + (Rect.Height div 2), FormatMacroNumber(CurrentInstrument^.NoiseMacro[I]));
     end;
   end;
 end;
