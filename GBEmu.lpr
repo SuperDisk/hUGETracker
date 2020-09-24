@@ -35,8 +35,6 @@ uses
   about_hugetracker in 'about_hugetracker.pas',
   rendertowave in 'rendertowave.pas';
 
-{.$R *.RES}
-
 {$R *.res}
 
 {$ifdef MSWINDOWS}

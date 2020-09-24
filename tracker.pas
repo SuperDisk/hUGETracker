@@ -455,8 +455,8 @@ type
     procedure DrawEnvelope(PB: TPaintBox);
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
-    procedure PreviewInstrument(Freq: Integer; Instr: Integer; SquareOnCh2: Boolean = False); overload;
-    procedure PreviewInstrument(Freq: Integer; Instr: TInstrument; SquareOnCh2: Boolean = False); overload;
+    procedure PreviewInstrument(Note: Integer; Instr: Integer; SquareOnCh2: Boolean = False); overload;
+    procedure PreviewInstrument(Note: Integer; Instr: TInstrument; SquareOnCh2: Boolean = False); overload;
     procedure PreviewC5;
     procedure Panic;
   public
@@ -685,7 +685,7 @@ begin
       end;
     end
     else begin
-      Pen.Color := TColor($0C0094); // what color is this?
+      Pen.Color := TColor($0C0094); // TODO: what color is this?
       Line(0, 0, PB.Width, PB.Height);
       Line(0, PB.Height, PB.Width, 0);
     end;
@@ -694,17 +694,20 @@ begin
   VisualizerBuffer.Draw(PB.Canvas, 0, 0, True);
 end;
 
-procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: Integer;
+procedure TfrmTracker.PreviewInstrument(Note: Integer; Instr: Integer;
   SquareOnCh2: Boolean = False);
 begin
-  PreviewInstrument(Freq, Song.Instruments.All[Instr], SquareOnCh2);
+  PreviewInstrument(Note, Song.Instruments.All[Instr], SquareOnCh2);
 end;
 
-procedure TfrmTracker.PreviewInstrument(Freq: Integer; Instr: TInstrument;
+procedure TfrmTracker.PreviewInstrument(Note: Integer; Instr: TInstrument;
   SquareOnCh2: Boolean = False);
 var
   Regs: TRegisters;
+  I, Addr, Freq: Integer;
 begin
+  Freq := NotesToFreqs.KeyData[Note];
+
   LockPlayback;
   with Instr do
   begin
@@ -737,10 +740,22 @@ begin
       end;
       itNoise: begin
         Regs := NoiseInstrumentToRegisters(Freq, True, Instr);
+        Addr := SymbolTable.KeyData['instr'];
+        Spokeb(Addr, Regs.NR42);
+        Spokeb(Addr+1, Regs.NR41);
+
+        for I := 0 to 5 do begin
+          Spokeb(Addr+2+I, Byte(Instr.NoiseMacro[I]));
+        end;
+
+        PokeSymbol('macro_index', 1);
+        PokeSymbol('note', Note);
+
+        {Regs := NoiseInstrumentToRegisters(Freq, True, Instr);
         Spokeb(NR41, Regs.NR41);
         Spokeb(NR42, Regs.NR42);
         Spokeb(NR43, Regs.NR43);
-        Spokeb(NR44, Regs.NR44);
+        Spokeb(NR44, Regs.NR44);}
       end;
     end;
   end;
@@ -750,7 +765,7 @@ end;
 procedure TfrmTracker.PreviewC5;
 begin
   if not LoadingFile then begin
-    PreviewInstrument(NotesToFreqs.Data[C_5], UnmodInst(CurrentInstrumentBank, InstrumentNumberSpinner.Value));
+    PreviewInstrument(C_5, UnmodInst(CurrentInstrumentBank, InstrumentNumberSpinner.Value));
     NoteHaltTimer.Enabled := False;
     NoteHaltTimer.Enabled := True
   end;
@@ -954,6 +969,7 @@ begin
 
   LockPlayback;
   GetROMReady('halt.gb');
+  ParseSymFile('halt.sym');
   UnlockPlayback;
 end;
 
@@ -982,7 +998,7 @@ end;
 
 procedure TfrmTracker.OnNotePlaced(var Msg: TLMessage);
 begin
-  PreviewInstrument(NotesToFreqs.KeyData[msg.wParam], msg.lParam);
+  PreviewInstrument(msg.wParam, msg.lParam);
 end;
 
 procedure TfrmTracker.OnSampleSongMenuItemClicked(Sender: TObject);
@@ -1364,9 +1380,9 @@ begin
   end;
 
   if TrackerGrid.Cursor.X = 1 then
-    PreviewInstrument(Freq, InstrumentComboBox.ItemIndex, True)
+    PreviewInstrument(Note, InstrumentComboBox.ItemIndex, True)
   else
-    PreviewInstrument(Freq, InstrumentComboBox.ItemIndex, False);
+    PreviewInstrument(Note, InstrumentComboBox.ItemIndex, False);
 
   PreviewingInstrument := Note;
 end;
@@ -1935,34 +1951,26 @@ begin
 end;
 
 procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
-  procedure note(A: Byte);
-  var
-    B, C: Integer;
-  begin
-    LockPlayback;
-
-    //A := A or %00001000;
-    if A > 7 then begin
-      B := (A-4) div 4; //high
-      C := (A mod 4)+4; //low
-      A := (C or (B shl 4)) or %00001000; // and %11110111;
-    end;
-
-    spokeb($FF21, %11110000);
-    spokeb($FF22, A or %00001000);
-    writeln('spoking ', IntTobin(A or %00001000, 8));
-    spokeb($FF23, %10000000);
-
-    UnlockPlayback;
-  end;
-
 var
   I: Integer;
+  AsmInstrument: TAsmInstrument;
+  Addr: Integer;
 begin
-  for I := 0 to 64 do begin
-    note(I);
-    Sleep(150);
+  LockPlayback;
+
+  AsmInstrument := InstrumentToBytes(Song.Instruments.Noise[1]);
+  Addr := SymbolTable.KeyData['instr'];
+  Spokeb(Addr, AsmInstrument[1]);
+  Spokeb(Addr+1, AsmInstrument[0]);
+
+  for I := 0 to 5 do begin
+    Spokeb(Addr+2+I, Byte(Song.Instruments.Noise[1].NoiseMacro[I]));
   end;
+
+  PokeSymbol('macro_index', 1);
+  PokeSymbol('note', C_7);
+
+  UnlockPlayback;
 end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
@@ -2456,7 +2464,7 @@ begin
 
     DrawingWave := True;
     if PlayWaveWhileDrawingCheckbox.Checked then
-      PreviewInstrument(NotesToFreqs.Data[C_5], TestInstrument);
+      PreviewInstrument(C_5, TestInstrument);
   end
 end;
 

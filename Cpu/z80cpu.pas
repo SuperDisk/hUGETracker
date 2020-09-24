@@ -27,6 +27,7 @@ var
   ptemp: Pair;
   w1, w2: word;
 
+{$push}{$R-}
 {$include procs.inc}
 
 function nop: byte;
@@ -1795,9 +1796,16 @@ begin
 end;
 
 function dd_debug: byte;
+var
+  I: Byte;
 begin
-  writeln('DEBUG: ', speekb(pc.w));
+  I := speekb(pc.w);
   Inc(pc.w);
+  if I <> 0 then writeln('DEBUG: ', I);
+  if I = 0 then  begin
+    writeln('MEM: ', speekb(wordpeek(pc.w)));
+    Inc(pc.w,2);
+  end;
   Result := 0;
 end;
 
@@ -4094,6 +4102,7 @@ begin
 
   Result := 8;
 end;
+{$pop}
 
 begin
   Z80[0] := nop;
