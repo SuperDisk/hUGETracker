@@ -230,7 +230,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="26">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -362,6 +362,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="hUGESettings"/>
       </Unit24>
+      <Unit25>
+        <Filename Value="rgb2sdas.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit25>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

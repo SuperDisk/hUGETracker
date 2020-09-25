@@ -1,5 +1,7 @@
 unit rgb2sdas;
 
+{ TODO: This unit needs to be refactored, really bad. }
+
 {$mode objfpc}{$H+}
 
 interface
@@ -104,7 +106,7 @@ type
 
   EObjectConversionException = class(Exception);
 
-procedure ConvertRGB2SDAS(Filename: string);
+procedure ConvertRGB2SDAS(SourceName, DestName: string);
 
 implementation
 
@@ -634,7 +636,7 @@ begin
   Result := False;
 end;
 
-procedure ConvertRGB2SDAS(Filename: string);
+procedure ConvertRGB2SDAS(SourceName, DestName: String);
 var
   RObj: TRObj;
 
@@ -652,7 +654,7 @@ var
   Idx: integer;
   CODESEG: string;
   DefaultBank: integer = 1;
-  sourcename, tmp: string;
+  tmp: string;
 
   old_sym, new_sym: string;
 
@@ -660,7 +662,6 @@ var
 
   export_all: boolean = False;
 begin
-  sourcename := Filename;
   if not FileExists(sourcename) then
     Die('File not found: %s', [sourcename]);
 
@@ -695,7 +696,7 @@ begin
   if verbose then
     PrintObjFile(RObj);
 
-  Assign(F, sourcename + '.o');
+  Assign(F, DestName);
   Rewrite(F);
   try
     Idx := 0;

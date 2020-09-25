@@ -555,8 +555,9 @@ begin
       emGBS: RenameSucceeded := RenameFile(Filename + '.gbs', FilePath);
       emRGBDSObj: RenameSucceeded := RenameFile(Filename + '_song.obj', FilePath);
       emGBDKObj: begin
-        RenameSucceeded := RenameFile(Filename + '_song.obj', FilePath);
-        ConvertRGB2SDAS(FilePath);
+        RenameSucceeded := RenameFile(Filename + '_song.obj', FilePath+'bj');
+        ConvertRGB2SDAS(FilePath+'bj', FilePath);
+        DeleteFile(FilePath+'bj');
       end
       else RenameSucceeded := RenameFile(Filename + '.gb', FilePath);
     end;

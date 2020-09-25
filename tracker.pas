@@ -39,6 +39,8 @@ type
     NoiseMacroPaintbox: TPaintBox;
     Panel6: TPanel;
     GBDKCSaveDialog: TSaveDialog;
+    RGBDSObjSaveDialog: TSaveDialog;
+    GBDKObjSaveDialog: TSaveDialog;
     StopAction: TAction;
     PlayOrderAction: TAction;
     PlayCursorAction: TAction;
@@ -1864,24 +1866,34 @@ begin
 end;
 
 procedure TfrmTracker.ExportCMenuItemClick(Sender: TObject);
+var
+  S: String;
 begin
-  if GBDKCSaveDialog.Execute then begin
+  S := InputBox('Song descriptor', 'Enter the song descriptor (must be a valid C symbol):', 'song_descriptor');
+  if GBDKCSaveDialog.Execute then
     RenderSongToGBDKC(
       Song,
-      InputBox('Song descriptor', 'Enter the song descriptor (must be a valid C symbol):', 'song_descriptor'),
+      S,
       GBDKCSaveDialog.FileName
     );
-  end;
 end;
 
 procedure TfrmTracker.ExportGBDKMenuItemClick(Sender: TObject);
+var
+  S: String;
 begin
-//
+  S := InputBox('Song descriptor', 'Enter the song descriptor (must be a valid C symbol):', 'song_descriptor');
+  if GBDKObjSaveDialog.Execute then
+    RenderSongToFile(Song, GBDKObjSaveDialog.FileName, emGBDKObj, S);
 end;
 
 procedure TfrmTracker.ExportRGBDSMenuItemClick(Sender: TObject);
+var
+  S: String;
 begin
-//
+  S := InputBox('Song descriptor', 'Enter the song descriptor (must be a valid RGBDS symbol):', 'song_descriptor');
+  if RGBDSObjSaveDialog.Execute then
+    RenderSongToFile(Song, RGBDSObjSaveDialog.FileName, emRGBDSObj, S);
 end;
 
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);

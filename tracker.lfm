@@ -5388,4 +5388,14 @@ object frmTracker: TfrmTracker
     Left = 248
     Top = 24
   end
+  object RGBDSObjSaveDialog: TSaveDialog
+    Filter = 'RGBDS Object|*.obj'
+    Left = 248
+    Top = 64
+  end
+  object GBDKObjSaveDialog: TSaveDialog
+    Filter = 'GBDK Object|*.o'
+    Left = 288
+    Top = 64
+  end
 end
