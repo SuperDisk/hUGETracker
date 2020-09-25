@@ -521,28 +521,30 @@ begin
       goto AssemblyError;
   end;
 
-  // Link
-  if Mode = emGBS then
-  begin
-    if Link(Filename + '.gbs', [Filename + '_driver.obj', Filename +
-      '_song.obj', Filename + '_gbs.obj']) <> 0 then
-      goto AssemblyError;
-  end
-  else
-  begin
-    if Link(Filename + '.gb', [Filename + '_driver.obj', Filename +
-      '_song.obj', Filename + '_player.obj'], Filename + '.map', Filename +
-      '.sym') <> 0 then
-      goto AssemblyError;
-  end;
+  if Mode in [emNormal, emPreview, emGBS] then begin
+    // Link
+    if Mode = emGBS then
+    begin
+      if Link(Filename + '.gbs', [Filename + '_driver.obj', Filename +
+        '_song.obj', Filename + '_gbs.obj']) <> 0 then
+        goto AssemblyError;
+    end
+    else
+    begin
+      if Link(Filename + '.gb', [Filename + '_driver.obj', Filename +
+        '_song.obj', Filename + '_player.obj'], Filename + '.map', Filename +
+        '.sym') <> 0 then
+        goto AssemblyError;
+    end;
 
-  // Fix
-  if Mode = emGBS then
-    RectifyGBSFile(Filename + '.gbs')
-  else
-  begin
-    if (Fix(Filename + '.gb') <> 0) then
-      goto AssemblyError;
+    // Fix
+    if Mode = emGBS then
+      RectifyGBSFile(Filename + '.gbs')
+    else
+    begin
+      if (Fix(Filename + '.gb') <> 0) then
+        goto AssemblyError;
+    end;
   end;
 
   // Move to destination
@@ -574,21 +576,18 @@ begin
       goto Cleanup;
     end;
     {$ifdef DEVELOPMENT}
-    RenameFile(Filename + '_driver.obj', FilePath + '_driver.obj');
-    RenameFile(Filename + '_song.obj',   FilePath + '_driver.obj');
-    RenameFile(Filename + '_player.obj', FilePath + '_driver.obj');
-    RenameFile(Filename + '_gbs.obj',    FilePath + '_gbs.obj');
     RenameFile(Filename + '.sym',        FilePath + '.sym');
     RenameFile(Filename + '.map',        FilePath + '.map');
     {$endif}
     {$ifdef PRODUCTION}
+    DeleteFile(Filename + '.sym');
+    DeleteFile(Filename + '.map');
+    {$endif}
+
     DeleteFile(Filename + '_driver.obj');
     DeleteFile(Filename + '_song.obj');
     DeleteFile(Filename + '_player.obj');
     DeleteFile(Filename + '_gbs.obj');
-    DeleteFile(Filename + '.sym');
-    DeleteFile(Filename + '.map');
-    {$endif}
   end;
 
   Result := True;
