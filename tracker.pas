@@ -29,8 +29,15 @@ type
     InsertRowForAllAction: TAction;
     InsertRowAction: TAction;
     MenuItem39: TMenuItem;
+    ExportCMenuItem: TMenuItem;
+    ExportGBDKMenuItem: TMenuItem;
+    ExportRGBDSMenuItem: TMenuItem;
+    MenuItem43: TMenuItem;
+    MenuItem44: TMenuItem;
+    MenuItem54: TMenuItem;
     NoiseMacroPaintbox: TPaintBox;
     Panel6: TPanel;
+    GBDKCSaveDialog: TSaveDialog;
     StopAction: TAction;
     PlayOrderAction: TAction;
     PlayCursorAction: TAction;
@@ -247,6 +254,9 @@ type
     procedure DeleteRowForAllActionExecute(Sender: TObject);
     procedure DeleteRowForAllActionUpdate(Sender: TObject);
     procedure Duty1VisualizerClick(Sender: TObject);
+    procedure ExportCMenuItemClick(Sender: TObject);
+    procedure ExportGBDKMenuItemClick(Sender: TObject);
+    procedure ExportRGBDSMenuItemClick(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
@@ -1850,6 +1860,23 @@ begin
 
   Section.ImageIndex := (Section.ImageIndex + 1) mod 2;
   snd[Section.OriginalIndex].ChannelOFF := Section.ImageIndex = 0;
+end;
+
+procedure TfrmTracker.ExportCMenuItemClick(Sender: TObject);
+begin
+  if GBDKCSaveDialog.Execute then begin
+    RenderSongToGBDKC(Song, GBDKCSaveDialog.FileName);
+  end;
+end;
+
+procedure TfrmTracker.ExportGBDKMenuItemClick(Sender: TObject);
+begin
+//
+end;
+
+procedure TfrmTracker.ExportRGBDSMenuItemClick(Sender: TObject);
+begin
+//
 end;
 
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);

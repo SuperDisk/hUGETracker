@@ -7,18 +7,192 @@ interface
 uses
   Classes, SysUtils, Math, Instruments, Song, Utils,
   HugeDatatypes, Constants, Dialogs, strutils, FileUtil, LazFileUtils,
-  lclintf;
+  lclintf, process;
 
 type
-  TExportMode = (emNormal, emPreview, emGBS);
+  TExportMode = (emNormal, emPreview, emGBS, emRGBDSObj, emGBDKObj, emGBDKC);
 
 function RenderPreviewRom(Song: TSong): boolean;
 function RenderSongToFile(Song: TSong; Filename: string;
   Mode: TExportMode = emNormal): boolean;
+procedure RenderSongToGBDKC(Song: TSong; Filename: string);
 
 implementation
 
-uses process;
+procedure RenderSongToGBDKC(Song: TSong; Filename: string);
+var
+  OrderMatrix: TOrderMatrix;
+  OutSL: TStringList;
+  OrderCnt: integer;
+  I: integer;
+  F: Text;
+
+  function RenderGBDKCell(Cell: TCell): string;
+  var
+    SL: TStringList;
+  begin
+    SL := TStringList.Create;
+    SL.Delimiter := ',';
+
+    if Cell.Note = NO_NOTE then
+      SL.Add('90')
+      //SL.Add('___')
+    else SL.Add(IntToStr(Cell.Note));
+      //SL.Add(NoteToDriverMap.KeyData[Cell.Note]);
+
+    if InRange(Cell.Instrument, 0, 15) then
+      SL.Add(IntToStr(Cell.Instrument))
+    else
+      SL.Add('0');
+
+    SL.Add('0x' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
+
+    Result := SL.DelimitedText;
+    SL.Free;
+  end;
+
+  function RenderGBDKPattern(Name: string; Pat: TPattern): string;
+  var
+    Cell: TCell;
+  begin
+
+    Result := 'static const unsigned char ' + Name + '[] = {' + LineEnding;
+    for Cell in Pat do
+      Result += '    DN(' + RenderGBDKCell(Cell) + '),' + LineEnding;
+    Result += '};';
+  end;
+
+  function RenderGBDKOrder(Number: integer; Order: array of integer): string;
+  var
+    SL: TStringList;
+    I: integer;
+  begin
+    SL := TStringList.Create;
+    SL.StrictDelimiter := True;
+    SL.Delimiter := ',';
+
+    for I := Low(Order) to High(Order) do
+      SL.Add('P' + IntToStr(Order[I]));
+
+    Result := 'static const unsigned char* const order' + IntToStr(Number) + '[] = {';
+    Result += SL.DelimitedText;
+    Result += '};';
+    SL.Free;
+  end;
+
+  function RenderGBDKInstrument(Instrument: TInstrument): string;
+  var
+    SL: TStringList;
+    AsmInstrument: TAsmInstrument;
+    J: integer;
+    HighMask: byte;
+  begin
+    AsmInstrument := InstrumentToBytes(Instrument);
+    SL := TStringList.Create;
+    SL.StrictDelimiter := True;
+    SL.Delimiter := ',';
+
+    if Instrument.Type_ = itNoise then
+    begin
+      SL.Add(IntToStr(AsmInstrument[1]));
+
+      HighMask := %00000000;
+      if Instrument.LengthEnabled then
+        HighMask := HighMask or %01000000;
+      if Instrument.CounterStep = swSeven then
+        HighMask := HighMask or %10000000;
+      SL.Add(IntToStr(HighMask));
+
+      for J := Low(TNoiseMacro) to High(TNoiseMacro) do
+        SL.Add(IntToStr(Instrument.NoiseMacro[J]));
+    end
+    else
+      for J := Low(AsmInstrument) to High(AsmInstrument) do
+        SL.Add(IntToStr(AsmInstrument[J]));
+
+    Result := SL.DelimitedText;
+  end;
+
+  function RenderGBDKInstrumentBank(Name: string; Bank: TInstrumentBank): string;
+  var
+    I: integer;
+  begin
+    Result := 'static const unsigned char ' + Name + '[] = {';
+    for I := Low(Bank) to High(Bank) do
+      Result += RenderGBDKInstrument(Bank[I]) + ',';
+    Result += '};';
+  end;
+
+  function RenderGBDKWaves(Waves: TWaveBank): string;
+  var
+    I, J: integer;
+  begin
+    Result := 'static const unsigned char waves[] = {';
+    for I := Low(Waves) to High(Waves) do
+    begin
+      J := Low(Waves[I]);
+      while J < High(Waves[I]) do
+      begin
+        Result += IntToStr((Waves[I, J] shl 4) or Waves[I, J + 1])+',';
+        Inc(J, 2);
+      end;
+      Result += LineEnding;
+    end;
+    Result += '};';
+  end;
+
+begin
+  OutSL := TStringList.Create;
+  OutSL.Add('#include "hUGEDriver.h"');
+  OutSL.Add('#include <stddef.h>');
+  OutSL.Add('');
+  OutSL.Add('#ifndef SONG_VAR_NAME');
+  OutSL.Add('#define SONG_VAR_NAME song');
+  OutSL.Add('#endif');
+  OutSL.Add('');
+  OutSL.Add('#define DN(A, B, C) (A),((B << 4) | (C >> 8)),(C & 0xF)');
+  OutSL.Add('');
+
+  OrderMatrix := Song.OrderMatrix;
+  OrderCnt := MaxIntValue([High(OrderMatrix[0]), High(OrderMatrix[1]),
+    High(OrderMatrix[2]), High(OrderMatrix[3])]);
+
+  OutSL.Add(Format('static const unsigned char order_cnt = %d;', [OrderCnt * 2]));
+  OutSL.Add('');
+
+  // TODO: Are keys and data defined to be aligned? Seems like they are but
+  // should probably find out if that's just an implementation detail...
+  for I := 0 to Song.Patterns.Count - 1 do
+    OutSL.Add(RenderGBDKPattern('P' + IntToStr(Song.Patterns.Keys[I]),
+      Song.Patterns.Data[I]^));
+  OutSL.Add('');
+
+  OutSL.Add(RenderGBDKOrder(1, Song.OrderMatrix[0]));
+  OutSL.Add(RenderGBDKOrder(2, Song.OrderMatrix[1]));
+  OutSL.Add(RenderGBDKOrder(3, Song.OrderMatrix[2]));
+  OutSL.Add(RenderGBDKOrder(4, Song.OrderMatrix[3]));
+  OutSL.Add('');
+
+  OutSL.Add(RenderGBDKInstrumentBank('duty_instruments', Song.Instruments.Duty));
+  OutSL.Add(RenderGBDKInstrumentBank('wave_instruments', Song.Instruments.Wave));
+  OutSL.Add(RenderGBDKInstrumentBank('noise_instruments', Song.Instruments.Noise));
+  OutSL.Add('');
+
+  OutSL.Add(RenderGBDKWaves(Song.Waves));
+  OutSL.Add('');
+
+  OutSL.Add(Format(
+    'const hUGESong_t SONG_VAR_NAME = {%d, &order_cnt, order1, order2, order3,'+
+    'order4, duty_instruments, wave_instruments, noise_instruments, NULL, waves};',
+    [Song.TicksPerRow]));
+
+  AssignFile(F, Filename);
+  Rewrite(F);
+  Write(F, OutSL.Text);
+  CloseFile(F);
+
+  OutSL.Free;
+end;
 
 function RenderOrderTable(OrderMatrix: TOrderMatrix): string;
 
@@ -202,13 +376,13 @@ begin
   end;
 end;
 
-procedure RectifyGBSFile(GBSFile: String);
+procedure RectifyGBSFile(GBSFile: string);
 { This procedure removes the useless $400 bytes located after the GBS header.
   Since RGBDS has no feature to simply offset a section of code, we have to
   manually introduce padding and then remove it with this silly routine. }
 var
   Stream: TFileStream;
-  Buffer: array of Byte;
+  Buffer: array of byte;
 begin
   Stream := TFileStream.Create(GBSFile, fmOpenRead);
   SetLength(Buffer, Stream.Size - $400);
@@ -236,7 +410,7 @@ var
   OutSL: TStringList;
   FilePath: string;
 
-  procedure WriteHTT(F: String; S: String);
+  procedure WriteHTT(F: string; S: string);
   begin
     AssignFile(OutFile, F);
     Rewrite(OutFile);
@@ -301,7 +475,8 @@ begin
   WriteHTT('./hUGEDriver/order.htt', RenderOrderTable(Song.OrderMatrix));
   WriteHTT('./hUGEDriver/duty_instrument.htt', RenderInstruments(Song.Instruments.Duty));
   WriteHTT('./hUGEDriver/wave_instrument.htt', RenderInstruments(Song.Instruments.Wave));
-  WriteHTT('./hUGEDriver/noise_instrument.htt', RenderInstruments(Song.Instruments.Noise));
+  WriteHTT('./hUGEDriver/noise_instrument.htt',
+    RenderInstruments(Song.Instruments.Noise));
   WriteRoutinesToFile(Song.Routines);
 
   AssignFile(OutFile, './hUGEDriver/pattern.htt');
@@ -326,10 +501,13 @@ begin
   // Assemble
 
   // TODO: this is fugly, wish there was a ternary operator in this language...
-  if Mode = emPreview then begin
+  if Mode = emPreview then
+  begin
     if Assemble(Filename + '_driver.obj', 'driver.z80', ['PREVIEW_MODE']) <> 0 then
       goto AssemblyError;
-  end else begin
+  end
+  else
+  begin
     if Assemble(Filename + '_driver.obj', 'driver.z80', []) <> 0 then
       goto AssemblyError;
   end;
@@ -337,11 +515,13 @@ begin
   if Assemble(Filename + '_song.obj', 'song.z80', []) <> 0 then
     goto AssemblyError;
 
-  if Mode = emGBS then begin
+  if Mode = emGBS then
+  begin
     if Assemble(Filename + '_gbs.obj', 'gbs.z80', []) <> 0 then
       goto AssemblyError;
   end
-  else begin
+  else
+  begin
     if Assemble(Filename + '_player.obj', 'player.z80', []) <> 0 then
       goto AssemblyError;
   end;
@@ -349,21 +529,23 @@ begin
   // Link
   if Mode = emGBS then
   begin
-    if Link(Filename+'.gbs', [Filename + '_driver.obj',
-      Filename + '_song.obj', Filename + '_gbs.obj']) <> 0 then
+    if Link(Filename + '.gbs', [Filename + '_driver.obj', Filename +
+      '_song.obj', Filename + '_gbs.obj']) <> 0 then
       goto AssemblyError;
   end
-  else begin
-    if Link(Filename + '.gb', [Filename + '_driver.obj',
-      Filename + '_song.obj', Filename + '_player.obj'], Filename + '.map',
-      Filename + '.sym') <> 0 then
+  else
+  begin
+    if Link(Filename + '.gb', [Filename + '_driver.obj', Filename +
+      '_song.obj', Filename + '_player.obj'], Filename + '.map', Filename +
+      '.sym') <> 0 then
       goto AssemblyError;
   end;
 
   // Fix
   if Mode = emGBS then
-    RectifyGBSFile(Filename+'.gbs')
-  else begin
+    RectifyGBSFile(Filename + '.gbs')
+  else
+  begin
     if (Fix(Filename + '.gb') <> 0) then
       goto AssemblyError;
   end;
@@ -407,8 +589,8 @@ begin
   if OutSL.Text.Contains('routine') then
     MessageDlg(
       'Error!',
-      'There was an error assembling the song for playback.' + LineEnding + LineEnding +
-      Proc.Executable + ' output:' + LineEnding + OutSL.Text,
+      'There was an error assembling the song for playback.' + LineEnding +
+      LineEnding + Proc.Executable + ' output:' + LineEnding + OutSL.Text,
       mtError,
       [mbOK],
       0)
@@ -416,8 +598,9 @@ begin
   begin
     MessageDlg(
       'Error!',
-      'There was an error assembling the song for playback.' + LineEnding + LineEnding +
-      Proc.Executable + ' output:' + LineEnding + OutSL.Text + LineEnding + LineEnding +
+      'There was an error assembling the song for playback.' + LineEnding +
+      LineEnding + Proc.Executable + ' output:' + LineEnding + OutSL.Text +
+      LineEnding + LineEnding +
       'Please report this issue on the hUGETracker GitHub issues page, and ' +
       'post your song file!',
       mtError,
