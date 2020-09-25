@@ -32,6 +32,7 @@ type
     ExportCMenuItem: TMenuItem;
     ExportGBDKMenuItem: TMenuItem;
     ExportRGBDSMenuItem: TMenuItem;
+    MenuItem40: TMenuItem;
     MenuItem43: TMenuItem;
     MenuItem44: TMenuItem;
     MenuItem54: TMenuItem;
@@ -1865,7 +1866,11 @@ end;
 procedure TfrmTracker.ExportCMenuItemClick(Sender: TObject);
 begin
   if GBDKCSaveDialog.Execute then begin
-    RenderSongToGBDKC(Song, GBDKCSaveDialog.FileName);
+    RenderSongToGBDKC(
+      Song,
+      InputBox('Song descriptor', 'Enter the song descriptor (must be a valid C symbol):', 'song_descriptor'),
+      GBDKCSaveDialog.FileName
+    );
   end;
 end;
 

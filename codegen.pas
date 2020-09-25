@@ -7,19 +7,19 @@ interface
 uses
   Classes, SysUtils, Math, Instruments, Song, Utils,
   HugeDatatypes, Constants, Dialogs, strutils, FileUtil, LazFileUtils,
-  lclintf, process;
+  lclintf, process, rgb2sdas;
 
 type
-  TExportMode = (emNormal, emPreview, emGBS, emRGBDSObj, emGBDKObj, emGBDKC);
+  TExportMode = (emNormal, emPreview, emGBS, emRGBDSObj, emGBDKObj);
 
 function RenderPreviewRom(Song: TSong): boolean;
 function RenderSongToFile(Song: TSong; Filename: string;
-  Mode: TExportMode = emNormal): boolean;
-procedure RenderSongToGBDKC(Song: TSong; Filename: string);
+  Mode: TExportMode = emNormal; DescriptorName: String = 'song_descriptor'): boolean;
+procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string);
 
 implementation
 
-procedure RenderSongToGBDKC(Song: TSong; Filename: string);
+procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string);
 var
   OrderMatrix: TOrderMatrix;
   OutSL: TStringList;
@@ -35,10 +35,9 @@ var
     SL.Delimiter := ',';
 
     if Cell.Note = NO_NOTE then
-      SL.Add('90')
-      //SL.Add('___')
-    else SL.Add(IntToStr(Cell.Note));
-      //SL.Add(NoteToDriverMap.KeyData[Cell.Note]);
+      SL.Add('___')
+    else
+      SL.Add(NoteToCMap.KeyData[Cell.Note]);
 
     if InRange(Cell.Instrument, 0, 15) then
       SL.Add(IntToStr(Cell.Instrument))
@@ -117,9 +116,10 @@ var
   var
     I: integer;
   begin
-    Result := 'static const unsigned char ' + Name + '[] = {';
-    for I := Low(Bank) to High(Bank) do
-      Result += RenderGBDKInstrument(Bank[I]) + ',';
+    Result := 'static const unsigned char ' + Name + '[] = {'+LineEnding;
+    for I := Low(Bank) to High(Bank) do begin
+      Result += RenderGBDKInstrument(Bank[I]) + ','+LineEnding;
+    end;
     Result += '};';
   end;
 
@@ -127,9 +127,10 @@ var
   var
     I, J: integer;
   begin
-    Result := 'static const unsigned char waves[] = {';
+    Result := 'static const unsigned char waves[] = {'+LineEnding;
     for I := Low(Waves) to High(Waves) do
     begin
+      Result += '    ';
       J := Low(Waves[I]);
       while J < High(Waves[I]) do
       begin
@@ -145,12 +146,6 @@ begin
   OutSL := TStringList.Create;
   OutSL.Add('#include "hUGEDriver.h"');
   OutSL.Add('#include <stddef.h>');
-  OutSL.Add('');
-  OutSL.Add('#ifndef SONG_VAR_NAME');
-  OutSL.Add('#define SONG_VAR_NAME song');
-  OutSL.Add('#endif');
-  OutSL.Add('');
-  OutSL.Add('#define DN(A, B, C) (A),((B << 4) | (C >> 8)),(C & 0xF)');
   OutSL.Add('');
 
   OrderMatrix := Song.OrderMatrix;
@@ -182,9 +177,9 @@ begin
   OutSL.Add('');
 
   OutSL.Add(Format(
-    'const hUGESong_t SONG_VAR_NAME = {%d, &order_cnt, order1, order2, order3,'+
+    'const hUGESong_t %s = {%d, &order_cnt, order1, order2, order3,'+
     'order4, duty_instruments, wave_instruments, noise_instruments, NULL, waves};',
-    [Song.TicksPerRow]));
+    [DescriptorName, Song.TicksPerRow]));
 
   AssignFile(F, Filename);
   Rewrite(F);
@@ -401,14 +396,16 @@ begin
   Result := RenderSongToFile(Song, 'preview.gb', emPreview);
 end;
 
-function RenderSongToFile(Song: TSong; Filename: string;
-  Mode: TExportMode = emNormal): boolean;
+function RenderSongToFile(Song: TSong; Filename: String;
+  Mode: TExportMode = emNormal; DescriptorName: String = 'song_descriptor'): boolean;
+{ TODO: Refactor this whole monstrosity. }
 var
   OutFile: Text;
   I: integer;
   Proc: TProcess;
   OutSL: TStringList;
   FilePath: string;
+  RenameSucceeded: Boolean;
 
   procedure WriteHTT(F: string; S: string);
   begin
@@ -499,8 +496,6 @@ begin
     poNoConsole];
 
   // Assemble
-
-  // TODO: this is fugly, wish there was a ternary operator in this language...
   if Mode = emPreview then
   begin
     if Assemble(Filename + '_driver.obj', 'driver.z80', ['PREVIEW_MODE']) <> 0 then
@@ -512,17 +507,17 @@ begin
       goto AssemblyError;
   end;
 
-  if Assemble(Filename + '_song.obj', 'song.z80', []) <> 0 then
+  if Assemble(Filename + '_song.obj', 'song.z80', ['SONG_DESCRIPTOR=_'+DescriptorName]) <> 0 then
     goto AssemblyError;
 
   if Mode = emGBS then
   begin
-    if Assemble(Filename + '_gbs.obj', 'gbs.z80', []) <> 0 then
+    if Assemble(Filename + '_gbs.obj', 'gbs.z80', ['SONG_DESCRIPTOR=_'+DescriptorName]) <> 0 then
       goto AssemblyError;
   end
   else
   begin
-    if Assemble(Filename + '_player.obj', 'player.z80', []) <> 0 then
+    if Assemble(Filename + '_player.obj', 'player.z80', ['SONG_DESCRIPTOR=_'+DescriptorName]) <> 0 then
       goto AssemblyError;
   end;
 
@@ -556,7 +551,17 @@ begin
     if FileExists(FilePath) then
       DeleteFile(FilePath);
 
-    if not RenameFile(Filename + IfThen(Mode = emGBS, '.gbs', '.gb'), FilePath) then
+    case Mode of
+      emGBS: RenameSucceeded := RenameFile(Filename + '.gbs', FilePath);
+      emRGBDSObj: RenameSucceeded := RenameFile(Filename + '_song.obj', FilePath);
+      emGBDKObj: begin
+        RenameSucceeded := RenameFile(Filename + '_song.obj', FilePath);
+        ConvertRGB2SDAS(FilePath);
+      end
+      else RenameSucceeded := RenameFile(Filename + '.gb', FilePath);
+    end;
+
+    if not RenameSucceeded then
     begin
       MessageDlg('Error!',
         'Couldn''t create file at ' + FilePath +
@@ -568,12 +573,18 @@ begin
       goto Cleanup;
     end;
     {$ifdef DEVELOPMENT}
-    RenameFile(Filename + '.obj', FilePath + '.obj');
-    RenameFile(Filename + '.sym', FilePath + '.sym');
-    RenameFile(Filename + '.map', FilePath + '.map');
+    RenameFile(Filename + '_driver.obj', FilePath + '_driver.obj');
+    RenameFile(Filename + '_song.obj',   FilePath + '_driver.obj');
+    RenameFile(Filename + '_player.obj', FilePath + '_driver.obj');
+    RenameFile(Filename + '_gbs.obj',    FilePath + '_gbs.obj');
+    RenameFile(Filename + '.sym',        FilePath + '.sym');
+    RenameFile(Filename + '.map',        FilePath + '.map');
     {$endif}
     {$ifdef PRODUCTION}
-    DeleteFile(Filename + '.obj');
+    DeleteFile(Filename + '_driver.obj');
+    DeleteFile(Filename + '_song.obj');
+    DeleteFile(Filename + '_player.obj');
+    DeleteFile(Filename + '_gbs.obj');
     DeleteFile(Filename + '.sym');
     DeleteFile(Filename + '.map');
     {$endif}
@@ -609,11 +620,11 @@ begin
 
     {$ifdef PRODUCTION}
     OpenURL('https://github.com/SuperDisk/hUGETracker/issues');
-{$endif}
+    {$endif}
   end;
 
   Cleanup:
-    Proc.Free;
+  Proc.Free;
   OutSL.Free;
   Chdir('..');
 end;

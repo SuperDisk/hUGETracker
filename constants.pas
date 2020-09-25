@@ -141,8 +141,7 @@ const
   NO_NOTE = 90;
 
 var
-  NoteMap: TNoteMap;
-  NoteToDriverMap: TNoteMap;
+  NoteMap, NoteToDriverMap, NoteToCMap: TNoteMap;
   NotesToFreqs: TNoteToFreqMap;
   NoteToCodeMap: TNoteToCodeMap;
 
@@ -161,6 +160,7 @@ end;
 begin
   NoteMap := TNoteMap.Create;
   NoteToDriverMap := TNoteMap.Create;
+  NoteToCMap := TNoteMap.Create;
 
   NotesToFreqs := TNoteToFreqMap.Create;
   NoteToCodeMap := TNoteToCodeMap.Create;
@@ -463,6 +463,81 @@ begin
   NoteToDriverMap.add(A_8, 'A_8');
   NoteToDriverMap.add(As8, 'A#8');
   NoteToDriverMap.add(B_8, 'B_8');
+  {%EndRegion}
+
+  {%Region Notes -> C constants}
+  NoteToCMap.add(C_3, 'C_3');
+  NoteToCMap.add(Cs3, 'Cs3');
+  NoteToCMap.add(D_3, 'D_3');
+  NoteToCMap.add(Ds3, 'Ds3');
+  NoteToCMap.add(E_3, 'E_3');
+  NoteToCMap.add(F_3, 'F_3');
+  NoteToCMap.add(Fs3, 'Fs3');
+  NoteToCMap.add(G_3, 'G_3');
+  NoteToCMap.add(Gs3, 'Gs3');
+  NoteToCMap.add(A_3, 'A_3');
+  NoteToCMap.add(As3, 'As3');
+  NoteToCMap.add(B_3, 'B_3');
+  NoteToCMap.add(C_4, 'C_4');
+  NoteToCMap.add(Cs4, 'Cs4');
+  NoteToCMap.add(D_4, 'D_4');
+  NoteToCMap.add(Ds4, 'Ds4');
+  NoteToCMap.add(E_4, 'E_4');
+  NoteToCMap.add(F_4, 'F_4');
+  NoteToCMap.add(Fs4, 'Fs4');
+  NoteToCMap.add(G_4, 'G_4');
+  NoteToCMap.add(Gs4, 'Gs4');
+  NoteToCMap.add(A_4, 'A_4');
+  NoteToCMap.add(As4, 'As4');
+  NoteToCMap.add(B_4, 'B_4');
+  NoteToCMap.add(C_5, 'C_5');
+  NoteToCMap.add(Cs5, 'Cs5');
+  NoteToCMap.add(D_5, 'D_5');
+  NoteToCMap.add(Ds5, 'Ds5');
+  NoteToCMap.add(E_5, 'E_5');
+  NoteToCMap.add(F_5, 'F_5');
+  NoteToCMap.add(Fs5, 'Fs5');
+  NoteToCMap.add(G_5, 'G_5');
+  NoteToCMap.add(Gs5, 'Gs5');
+  NoteToCMap.add(A_5, 'A_5');
+  NoteToCMap.add(As5, 'As5');
+  NoteToCMap.add(B_5, 'B_5');
+  NoteToCMap.add(C_6, 'C_6');
+  NoteToCMap.add(Cs6, 'Cs6');
+  NoteToCMap.add(D_6, 'D_6');
+  NoteToCMap.add(Ds6, 'Ds6');
+  NoteToCMap.add(E_6, 'E_6');
+  NoteToCMap.add(F_6, 'F_6');
+  NoteToCMap.add(Fs6, 'Fs6');
+  NoteToCMap.add(G_6, 'G_6');
+  NoteToCMap.add(Gs6, 'Gs6');
+  NoteToCMap.add(A_6, 'A_6');
+  NoteToCMap.add(As6, 'As6');
+  NoteToCMap.add(B_6, 'B_6');
+  NoteToCMap.add(C_7, 'C_7');
+  NoteToCMap.add(Cs7, 'Cs7');
+  NoteToCMap.add(D_7, 'D_7');
+  NoteToCMap.add(Ds7, 'Ds7');
+  NoteToCMap.add(E_7, 'E_7');
+  NoteToCMap.add(F_7, 'F_7');
+  NoteToCMap.add(Fs7, 'Fs7');
+  NoteToCMap.add(G_7, 'G_7');
+  NoteToCMap.add(Gs7, 'Gs7');
+  NoteToCMap.add(A_7, 'A_7');
+  NoteToCMap.add(As7, 'As7');
+  NoteToCMap.add(B_7, 'B_7');
+  NoteToCMap.add(C_8, 'C_8');
+  NoteToCMap.add(Cs8, 'Cs8');
+  NoteToCMap.add(D_8, 'D_8');
+  NoteToCMap.add(Ds8, 'Ds8');
+  NoteToCMap.add(E_8, 'E_8');
+  NoteToCMap.add(F_8, 'F_8');
+  NoteToCMap.add(Fs8, 'Fs8');
+  NoteToCMap.add(G_8, 'G_8');
+  NoteToCMap.add(Gs8, 'Gs8');
+  NoteToCMap.add(A_8, 'A_8');
+  NoteToCMap.add(As8, 'As8');
+  NoteToCMap.add(B_8, 'B_8');
   {%EndRegion}
 
 end.
