@@ -247,8 +247,7 @@ begin
   // Because *InstrumentToRegisters is meant for previewing, it puts in
   // a value for shift clock freq, so we have to remove it and put in the mask
   // instead.
-  // TODO: Come back here
-  //Poly.ShiftClockFrequency := Instrument.ShiftClockFreq;
+  Poly.ShiftClockFrequency := Instrument.ShiftClockFreq;
   Result[3] := Regs.NR44;
 end;
 
@@ -321,9 +320,8 @@ begin
 
   NR43.ShiftClockFrequency := $F - (Frequency shr 7); // Quantize CH4 note
 
-  // TODO: Come back here
-  //NR43.DividingRatio:= Instr.DividingRatio;
-  //NR43.SevenBitCounter:=Instr.CounterStep = swSeven;
+  NR43.DividingRatio:= Instr.DividingRatio;
+  NR43.SevenBitCounter:=Instr.CounterStep = swSeven;
 
   NR44.Initial:= Initial;
   NR44.UseLength:=Instr.LengthEnabled;

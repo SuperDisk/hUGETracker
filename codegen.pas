@@ -93,9 +93,9 @@ var
 
     if Instrument.Type_ = itNoise then
     begin
-      SL.Add(IntToStr(AsmInstrument[1]));
+      SL.Add(IntToStr(AsmInstrument[1])); // envelope
 
-      HighMask := %00000000;
+      HighMask := AsmInstrument[0];
       if Instrument.LengthEnabled then
         HighMask := HighMask or %01000000;
       if Instrument.CounterStep = swSeven then
@@ -242,9 +242,9 @@ begin
 
     if Instruments[I].Type_ = itNoise then
     begin
-      SL.Add(IntToStr(AsmInstrument[1]));
+      SL.Add(IntToStr(AsmInstrument[1])); // envelope
 
-      HighMask := %00000000;
+      HighMask := AsmInstrument[0];
       if Instruments[I].LengthEnabled then
         HighMask := HighMask or %01000000;
       if Instruments[I].CounterStep = swSeven then

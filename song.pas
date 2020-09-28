@@ -368,10 +368,9 @@ begin
       VolSweepDirection := Down;
       VolSweepAmount := 0;
       NoiseMacro := Default(TNoiseMacro);
-      // TODO: Come back here
-      //ShiftClockFreq := 0;
-      //DividingRatio := 0;
-      //CounterStep := swFifteen;
+      ShiftClockFreq := 0;
+      DividingRatio := 0;
+      CounterStep := swFifteen;
     end;
 
   for I := Low(S.Waves) to High(S.Waves) do begin
@@ -571,8 +570,7 @@ var
 
       Ch4Freq := Trunc((524288 / RealR) / 2**(PolyCounter.ShiftClockFrequency+1));
       if not Ch4FreqToNoteCodeMap.TryGetData(Ch4Freq, Pat[I].Note) then
-        writeln(Regs.NR43, ' not found!');
-      //Pat[I].Note := Ch4PolyCounterToNoteCodeMap.KeyData[];
+        writeln('[DEBUG] Note value ', Pat[I].Note, ' not found.');
     end;
   end;
 begin
@@ -595,7 +593,7 @@ begin
   // Rewrite noise patterns to accomodate the new noise instruments...
   for I := 0 to SV4.Patterns.Count-1 do
     if UsedInCH4(SV4.Patterns.Keys[I]) then begin
-      //ConvertPattern(SV4.Patterns.Data[I]^);
+      ConvertPattern(SV4.Patterns.Data[I]^);
     end;
 
   Result := UpgradeSong(SV4);
