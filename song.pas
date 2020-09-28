@@ -1,13 +1,13 @@
 unit Song;
 
-{$mode delphi}
+{$mode objfpc}{$H+}
 
 // TODO: Lots of duplicated code in here. At some point this should switch over
 // to a more parsable format, like NBT, JSON, or XML or something.
 
 interface
 
-uses Classes, HugeDatatypes, instruments, Constants, waves;
+uses Classes, HugeDatatypes, instruments, Constants, waves, math;
 
 type
   TSongV1 = packed record
@@ -538,7 +538,43 @@ end;
 function UpgradeSong(S: TSongV3): TSong;
 var
   SV4: TSongV4;
-  I: Integer;
+  I, K: Integer;
+  Pat: PPattern;
+
+  function UsedInCH4(PatternIndex: Integer): Boolean;
+  var
+    J: Integer;
+  begin
+    for J := Low(SV4.OrderMatrix[3]) to High(SV4.OrderMatrix[3])-1 do // off by one error....
+      if SV4.OrderMatrix[3, J] = PatternIndex then
+        Exit(True);
+
+    Result := False;
+  end;
+
+  procedure ConvertPattern(var Pat: TPattern);
+  var
+    I: Integer;
+    Regs: TRegisters;
+    PolyCounter: TPolynomialCounterRegister absolute Regs.NR43;
+    Ch4Freq: Integer;
+    RealR: Double;
+  begin
+    for I := Low(Pat) to High(Pat) do begin
+      if (Pat[I].Instrument = 0) or (Pat[I].Note = NO_NOTE) then Continue;
+
+      Regs := NoiseInstrumentToRegisters(NotesToFreqs.KeyData[Pat[I].Note], False, SV4.Instruments.Noise[Pat[I].Instrument]);
+      if PolyCounter.DividingRatio = 0 then
+        RealR := 0.5
+      else
+        RealR := PolyCounter.DividingRatio;
+
+      Ch4Freq := Trunc((524288 / RealR) / 2**(PolyCounter.ShiftClockFrequency+1));
+      if not Ch4FreqToNoteCodeMap.TryGetData(Ch4Freq, Pat[I].Note) then
+        writeln(Regs.NR43, ' not found!');
+      //Pat[I].Note := Ch4PolyCounterToNoteCodeMap.KeyData[];
+    end;
+  end;
 begin
   SV4.Version:=4;
   SV4.Name:=S.Name;
@@ -550,11 +586,17 @@ begin
   SV4.Routines:=S.Routines;
   SV4.Waves := S.Waves;
 
-  // for now just generate a blank noise macro
+  // Create a blank noise macro for all noise instruments
   for I := Low(S.Instruments.All) to High(S.Instruments.All) do begin
     Move(S.Instruments.All[I], SV4.Instruments.All[I], SizeOf(TInstrumentV1));
     SV4.Instruments.All[I].NoiseMacro := Default(TNoiseMacro);
   end;
+
+  // Rewrite noise patterns to accomodate the new noise instruments...
+  for I := 0 to SV4.Patterns.Count-1 do
+    if UsedInCH4(SV4.Patterns.Keys[I]) then begin
+      //ConvertPattern(SV4.Patterns.Data[I]^);
+    end;
 
   Result := UpgradeSong(SV4);
 end;

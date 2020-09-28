@@ -2253,7 +2253,7 @@ begin
   if OrderEditStringGrid.Row > -1 then
     ReloadPatterns;
 
-  if not InFDCallback then begin // Hacky solution, but probably the best there is.
+  if (not InFDCallback) and Playing then begin // Hacky solution, but probably the best there is.
     LockPlayback;
     PokeSymbol(SYM_NEXT_ORDER, OrderEditStringGrid.Row);
     PokeSymbol(SYM_ROW_BREAK, 1);

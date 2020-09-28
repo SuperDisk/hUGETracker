@@ -8,9 +8,10 @@ uses
   fgl, Graphics, LMessages;
 
 type
+  TIntToIntMap = specialize TFPGMap<Integer, Integer>;
   TNoteMap = specialize TFPGMap<Integer, String>;
   TNoteToCodeMap = specialize TFPGMap<String, Integer>;
-  TNoteToFreqMap = specialize TFPGMap<Integer, Integer>;
+  TNoteToFreqMap = TIntToIntMap;
 
   TInstrumentIndex = 1..15;
   TWaveIndex = 0..15;
@@ -144,6 +145,7 @@ var
   NoteMap, NoteToDriverMap, NoteToCMap: TNoteMap;
   NotesToFreqs: TNoteToFreqMap;
   NoteToCodeMap: TNoteToCodeMap;
+  Ch4FreqToNoteCodeMap: TIntToIntMap;
 
 function NoteCodeToString(NoteCode: Integer): String;
 
@@ -164,6 +166,8 @@ begin
 
   NotesToFreqs := TNoteToFreqMap.Create;
   NoteToCodeMap := TNoteToCodeMap.Create;
+
+  Ch4FreqToNoteCodeMap := TIntToIntMap.Create;
 
   {%Region Notes->Freqs}
   NotesToFreqs.Add(C_3, 44);
@@ -538,6 +542,72 @@ begin
   NoteToCMap.add(A_8, 'A_8');
   NoteToCMap.add(As8, 'As8');
   NoteToCMap.add(B_8, 'B_8');
+  {%EndRegion}
+
+  {%Region Ch4 Frequency -> Note Code}
+  Ch4FreqToNoteCodeMap.Add(524288, 0);
+  Ch4FreqToNoteCodeMap.Add(262144, 1);
+  Ch4FreqToNoteCodeMap.Add(131072, 2);
+  Ch4FreqToNoteCodeMap.Add(87381, 3);
+  Ch4FreqToNoteCodeMap.Add(65536, 4);
+  Ch4FreqToNoteCodeMap.Add(52428, 5);
+  Ch4FreqToNoteCodeMap.Add(43690, 6);
+  Ch4FreqToNoteCodeMap.Add(37449, 7);
+  Ch4FreqToNoteCodeMap.Add(32768, 8);
+  Ch4FreqToNoteCodeMap.Add(26214, 9);
+  Ch4FreqToNoteCodeMap.Add(21845, 10);
+  Ch4FreqToNoteCodeMap.Add(18724, 11);
+  Ch4FreqToNoteCodeMap.Add(16384, 12);
+  Ch4FreqToNoteCodeMap.Add(13107, 13);
+  Ch4FreqToNoteCodeMap.Add(10922, 14);
+  Ch4FreqToNoteCodeMap.Add(9362, 15);
+  Ch4FreqToNoteCodeMap.Add(8192, 16);
+  Ch4FreqToNoteCodeMap.Add(6553, 17);
+  Ch4FreqToNoteCodeMap.Add(5461, 18);
+  Ch4FreqToNoteCodeMap.Add(4681, 19);
+  Ch4FreqToNoteCodeMap.Add(4096, 20);
+  Ch4FreqToNoteCodeMap.Add(3276, 21);
+  Ch4FreqToNoteCodeMap.Add(2730, 22);
+  Ch4FreqToNoteCodeMap.Add(2340, 23);
+  Ch4FreqToNoteCodeMap.Add(2048, 24);
+  Ch4FreqToNoteCodeMap.Add(1638, 25);
+  Ch4FreqToNoteCodeMap.Add(1365, 26);
+  Ch4FreqToNoteCodeMap.Add(1170, 27);
+  Ch4FreqToNoteCodeMap.Add(1024, 28);
+  Ch4FreqToNoteCodeMap.Add(819, 29);
+  Ch4FreqToNoteCodeMap.Add(682, 30);
+  Ch4FreqToNoteCodeMap.Add(585, 31);
+  Ch4FreqToNoteCodeMap.Add(512, 32);
+  Ch4FreqToNoteCodeMap.Add(409, 33);
+  Ch4FreqToNoteCodeMap.Add(341, 34);
+  Ch4FreqToNoteCodeMap.Add(292, 35);
+  Ch4FreqToNoteCodeMap.Add(256, 36);
+  Ch4FreqToNoteCodeMap.Add(204, 37);
+  Ch4FreqToNoteCodeMap.Add(170, 38);
+  Ch4FreqToNoteCodeMap.Add(146, 39);
+  Ch4FreqToNoteCodeMap.Add(128, 40);
+  Ch4FreqToNoteCodeMap.Add(102, 41);
+  Ch4FreqToNoteCodeMap.Add(85, 42);
+  Ch4FreqToNoteCodeMap.Add(73, 43);
+  Ch4FreqToNoteCodeMap.Add(64, 44);
+  Ch4FreqToNoteCodeMap.Add(51, 45);
+  Ch4FreqToNoteCodeMap.Add(42, 46);
+  Ch4FreqToNoteCodeMap.Add(36, 47);
+  Ch4FreqToNoteCodeMap.Add(32, 48);
+  Ch4FreqToNoteCodeMap.Add(25, 49);
+  Ch4FreqToNoteCodeMap.Add(21, 50);
+  Ch4FreqToNoteCodeMap.Add(18, 51);
+  Ch4FreqToNoteCodeMap.Add(16, 52);
+  Ch4FreqToNoteCodeMap.Add(12, 53);
+  Ch4FreqToNoteCodeMap.Add(10, 54);
+  Ch4FreqToNoteCodeMap.Add(9, 55);
+  Ch4FreqToNoteCodeMap.Add(8, 56);
+  Ch4FreqToNoteCodeMap.Add(6, 57);
+  Ch4FreqToNoteCodeMap.Add(5, 58);
+  Ch4FreqToNoteCodeMap.Add(4, 60);
+  Ch4FreqToNoteCodeMap.Add(3, 61);
+  Ch4FreqToNoteCodeMap.Add(2, 64);
+  Ch4FreqToNoteCodeMap.Add(1, 67);
   {%EndRegion}
 
 end.
