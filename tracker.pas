@@ -758,7 +758,7 @@ begin
         if Instr.CounterStep = swSeven then
           Regs.NR41 := Regs.NR41 or %10000000;
 
-        Addr := SymbolTable.KeyData[SYM_HALT_INSTR];
+        Addr := SymbolAddress(SYM_HALT_INSTR);
         Spokeb(Addr, Regs.NR42);
         Spokeb(Addr+1, Regs.NR41);
 
@@ -973,8 +973,6 @@ end;
 procedure TfrmTracker.HaltPlayback;
 begin
   Playing := False;
-
-  SymbolTable := nil;
 
   TrackerGrid.HighlightedRow := -1;
   ToolButton2.ImageIndex := 74;
@@ -1987,26 +1985,8 @@ begin
 end;
 
 procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
-var
-  I: Integer;
-  AsmInstrument: TAsmInstrument;
-  Addr: Integer;
 begin
-  LockPlayback;
 
-  AsmInstrument := InstrumentToBytes(Song.Instruments.Noise[1]);
-  Addr := SymbolTable.KeyData['instr'];
-  Spokeb(Addr, AsmInstrument[1]);
-  Spokeb(Addr+1, AsmInstrument[0]);
-
-  for I := 0 to 5 do begin
-    Spokeb(Addr+2+I, Byte(Song.Instruments.Noise[1].NoiseMacro[I]));
-  end;
-
-  PokeSymbol('macro_index', 1);
-  PokeSymbol('note', C_7);
-
-  UnlockPlayback;
 end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);

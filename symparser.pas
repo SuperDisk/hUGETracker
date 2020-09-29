@@ -10,9 +10,7 @@ uses
 type
   TSymbolMap = specialize TFPGMap<String, Integer>;
 
-var
-  SymbolTable: TSymbolMap;
-
+function SymbolAddress(Symbol: String): Integer;
 function WordPeekSymbol(Symbol: String): Integer;
 procedure WordPokeSymbol(Symbol: String; Value: Word);
 function PeekSymbol(Symbol: String): Integer;
@@ -23,6 +21,9 @@ procedure ParseSymFile(F: String);
 implementation
 
 uses machine;
+
+var
+  SymbolTable: TSymbolMap;
 
 procedure ParseSymFile(F: String);
 var
@@ -51,27 +52,53 @@ begin
   end;
 end;
 
+function SymbolAddress(Symbol: String): Integer;
+begin
+  if not SymbolTable.TryGetData(Symbol, Result) then begin
+    Writeln('[WARNING] Attempting to read address of unloaded symbol: ', symbol);
+    Result := 0;
+  end;
+end;
+
 function PeekSymbol(Symbol: String): Integer;
 begin
   if SymbolTable = nil then exit(0);
+  if SymbolTable.IndexOf(Symbol) = -1 then begin
+    WriteLn('[WARNING] Attempting to peek unloaded symbol: ', symbol);
+    Exit(0);
+  end;
+
   Result := speekb(SymbolTable.KeyData[Symbol]);
 end;
 
 procedure PokeSymbol(Symbol: String; Value: Byte);
 begin
   if SymbolTable = nil then exit;
+  if SymbolTable.IndexOf(Symbol) = -1 then begin
+    WriteLn('[WARNING] Attempting to poke unloaded symbol: ', symbol);
+    Exit;
+  end;
   spokeb(SymbolTable.KeyData[Symbol], Value);
 end;
 
 function WordPeekSymbol(Symbol: String): Integer;
 begin
   if SymbolTable = nil then exit(0);
+  if SymbolTable.IndexOf(Symbol) = -1 then begin
+    WriteLn('[WARNING] Attempting to wordpeek unloaded symbol: ', symbol);
+    Exit(0);
+  end;
+
   Result := wordpeek(SymbolTable.KeyData[Symbol]);
 end;
 
 procedure WordPokeSymbol(Symbol: String; Value: Word);
 begin
   if SymbolTable = nil then exit;
+  if SymbolTable.IndexOf(Symbol) = -1 then begin
+    WriteLn('[WARNING] Attempting to wordpoke unloaded symbol: ', symbol);
+    Exit;
+  end;
   wordpoke(SymbolTable.KeyData[Symbol], Value);
 end;
 
