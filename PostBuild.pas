@@ -24,7 +24,18 @@ uses SysUtils, StrUtils;
 procedure HTCopyFile(Source: String);
 begin
   {$ifdef WINDOWS}
-    ExecuteProcess('cmd.exe', '/c "xcopy /e /Y ' + ExpandFileName(Source) + ' ' + ParamStr(2) + ExtractFileName(Source) + '" > NUL');
+    ExecuteProcess('cmd.exe', '/c "copy ' + ExpandFileName(Source) + ' ' + ParamStr(2) + ExtractFileName(Source) + '"');
+  {$endif}
+
+  {$ifdef UNIX}
+    ExecuteProcess('/bin/bash', '-c "cp -rf ' + Source + ' ' + ParamStr(2) + ExtractFileName(Source) + '" > /dev/null');
+  {$endif}
+end;
+
+procedure HTCopyDir(Source: String);
+begin
+  {$ifdef WINDOWS}
+    ExecuteProcess('cmd.exe', '/c "robocopy /E ' + ExpandFileName(Source) + ' ' + ParamStr(2) + ExtractFileName(Source) + '"');
   {$endif}
 
   {$ifdef UNIX}
@@ -44,8 +55,8 @@ begin
   HTCopyFile('Resources/Fonts/PixeliteTTF.ttf');
 
   if not Dev then begin
-    HTCopyFile('hUGEDriver');
-    HTCopyFile('Resources/SampleSongs');
+    HTCopyDir('hUGEDriver');
+    HTCopyDir('Resources/SampleSongs');
   end else begin
     if not DirectoryExists(DestDir+'hUGEDriver') then
       Writeln('hUGEDriver not copied in development mode. Manually link it there yourself!');
