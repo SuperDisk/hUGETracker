@@ -73,6 +73,10 @@ _macro_begin:
     ld [rAUD4POLY], a
 
     ld a, [instr+1]
+    and %00111111
+    ld [rAUD4LEN], a
+
+    ld a, [instr+1]
     and %01000000 ; get only length enabled
     or  %10000000 ; restart sound
     ld [rAUD4GO], a
@@ -100,7 +104,8 @@ _macro_update:
     or d
     ld [rAUD4POLY], a
 
-    xor a
+    ld a, [instr+1]
+    and %01000000 ; get only length enabled
     ld [rAUD4GO], a
 
     ld a, [macro_index]
