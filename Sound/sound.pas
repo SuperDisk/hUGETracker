@@ -11,7 +11,7 @@
 
 unit sound;
 
-{$MODE objfpc}
+{$MODE objfpc}{$H+}
 
 interface
 

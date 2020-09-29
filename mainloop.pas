@@ -9,7 +9,7 @@
 
 unit mainloop;
 
-{$MODE objfpc}
+{$MODE objfpc}{$H+}
 
 interface
 

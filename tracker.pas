@@ -753,7 +753,12 @@ begin
       end;
       itNoise: begin
         Regs := NoiseInstrumentToRegisters(Freq, True, Instr);
-        Addr := SymbolTable.KeyData['instr'];
+        if Instr.LengthEnabled then
+          Regs.NR41 := Regs.NR41 or %01000000;
+        if Instr.CounterStep = swSeven then
+          Regs.NR41 := Regs.NR41 or %10000000;
+
+        Addr := SymbolTable.KeyData[SYM_HALT_INSTR];
         Spokeb(Addr, Regs.NR42);
         Spokeb(Addr+1, Regs.NR41);
 
@@ -761,14 +766,8 @@ begin
           Spokeb(Addr+2+I, Byte(Instr.NoiseMacro[I]));
         end;
 
-        PokeSymbol('macro_index', 1);
-        PokeSymbol('note', Note);
-
-        {Regs := NoiseInstrumentToRegisters(Freq, True, Instr);
-        Spokeb(NR41, Regs.NR41);
-        Spokeb(NR42, Regs.NR42);
-        Spokeb(NR43, Regs.NR43);
-        Spokeb(NR44, Regs.NR44);}
+        PokeSymbol(SYM_HALT_MACRO_INDEX, 1);
+        PokeSymbol(SYM_HALT_NOTE, Note);
       end;
     end;
   end;
@@ -1114,16 +1113,9 @@ begin
     end;
 
     itNoise: begin
-      {ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
-      DivRatioTrackbar.Position := CI^.DividingRatio;
+      //ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
+      //DivRatioTrackbar.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = swSeven;
-
-      Edit1.Text := IntToStr(CI^.NoiseMacro[0]);
-      Edit2.Text := IntToStr(CI^.NoiseMacro[1]);
-      Edit3.Text := IntToStr(CI^.NoiseMacro[2]);
-      Edit4.Text := IntToStr(CI^.NoiseMacro[3]);
-      Edit5.Text := IntToStr(CI^.NoiseMacro[4]);
-      Edit6.Text := IntToStr(CI^.NoiseMacro[5]);}
     end;
   end;
 

@@ -65,6 +65,11 @@ _macro_begin:
 
     ld a, [note]
     call _convert_ch4_note
+    ld d, a
+    ld a, [instr+1]
+    and %10000000
+    swap a
+    or d
     ld [rAUD4POLY], a
 
     ld a, [instr+1]
@@ -88,6 +93,11 @@ _macro_update:
     add b
 
     call _convert_ch4_note
+    ld d, a
+    ld a, [instr+1]
+    and %10000000
+    swap a
+    or d
     ld [rAUD4POLY], a
 
     xor a

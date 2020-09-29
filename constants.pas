@@ -1,6 +1,6 @@
 unit Constants;
 
-{$mode objfpc}
+{$MODE objfpc}
 
 interface
 
