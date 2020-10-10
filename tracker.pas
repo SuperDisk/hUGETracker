@@ -496,8 +496,8 @@ begin
   LoadInstrument(itSquare, 1);
   LoadWave(0);
 
-  RoutineSynedit.Text := Song.Routines[0];
-  RoutineNumberSpinner.Value := 0;
+  RoutineSynedit.Text := Song.Routines[1];
+  RoutineNumberSpinner.Value := 1;
 
   SongEdit.Text := Song.Name;
   ArtistEdit.Text := Song.Artist;
