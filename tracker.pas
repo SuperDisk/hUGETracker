@@ -326,7 +326,6 @@ type
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
     procedure DebugPlayNoteButtonClick(Sender: TObject);
-    procedure DebugShiteButtonClick(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
     procedure MenuItem12Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
@@ -496,8 +495,8 @@ begin
   LoadInstrument(itSquare, 1);
   LoadWave(0);
 
-  RoutineSynedit.Text := Song.Routines[1];
-  RoutineNumberSpinner.Value := 1;
+  RoutineSynedit.Text := Song.Routines[0];
+  RoutineNumberSpinner.Value := 0;
 
   SongEdit.Text := Song.Name;
   ArtistEdit.Text := Song.Artist;
@@ -1982,11 +1981,6 @@ procedure TfrmTracker.DebugPlayNoteButtonClick(Sender: TObject);
 begin
   PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
   //PreviewInstrument(NotesToFreqs.KeyData[C_5], InstrumentComboBox.ItemIndex);
-end;
-
-procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
-begin
-
 end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
