@@ -18,6 +18,8 @@ type
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
+    PreviewWhenPlacingCheck: TCheckBox;
+    PreviewWhenBumpingCheck: TCheckBox;
     KeymapCheckbox: TCheckBox;
     KeymapGroupBox: TGroupBox;
     OpenDialog1: TOpenDialog;
@@ -85,6 +87,8 @@ begin
   TrackerSettings.PatternEditorFontSize := FontSizeSpinner.Value;
   TrackerSettings.UseScopes := ScopesCheck.Checked;
   TrackerSettings.UseCustomKeymap := KeymapCheckbox.Checked;
+  TrackerSettings.PreviewWhenBumping := PreviewWhenBumpingCheck.Checked;
+  TrackerSettings.PreviewWhenPlacing := PreviewWhenPlacingCheck.Checked;
 end;
 
 procedure TfrmOptions.FormCreate(Sender: TObject);
@@ -95,6 +99,8 @@ begin
   FontSizeSpinner.Value := TrackerSettings.PatternEditorFontSize;
   ScopesCheck.Checked := TrackerSettings.UseScopes;
   KeymapCheckbox.Checked := TrackerSettings.UseCustomKeymap;
+  PreviewWhenBumpingCheck.Checked := TrackerSettings.PreviewWhenBumping;
+  PreviewWhenPlacingCheck.Checked := TrackerSettings.PreviewWhenPlacing;
 end;
 
 procedure TfrmOptions.KeymapCheckboxChange(Sender: TObject);

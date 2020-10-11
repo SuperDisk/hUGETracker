@@ -1343,6 +1343,7 @@ begin
   if TrackerGrid.Cursor.SelectedPart <> cpNote then Exit;
   if Shift <> [] then Exit;
   if not Keybindings.TryGetData(Key, Note) then Exit;
+  if not TrackerSettings.PreviewWhenPlacing then Exit;
 
   Inc(Note, OctaveSpinEdit.Value*12);
   EnsureRange(Note, LOWEST_NOTE, HIGHEST_NOTE);
@@ -2383,12 +2384,14 @@ end;
 
 procedure TfrmTracker.TrackerPopupTransposeOctaveDownClick(Sender: TObject);
 begin
-    TrackerGrid.TransposeSelection(-12)
+  TrackerGrid.TransposeSelection(-12)
+  if TrackerSettings.PreviewWhenBumping then
+    ; // TODO: preview the note
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeOctaveUpClick(Sender: TObject);
 begin
-    TrackerGrid.TransposeSelection(12)
+  TrackerGrid.TransposeSelection(12)
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeSemiDownClick(Sender: TObject);
