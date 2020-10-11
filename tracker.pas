@@ -452,8 +452,6 @@ type
     procedure FDCallback;
 
     procedure OnFD(var Msg: TLMessage); message LM_FD;
-    procedure OnUndoOccured(var Msg: TLMessage); message LM_UNDO_OCCURED;
-    procedure OnNotePlaced(var Msg: TLMessage); message LM_PREVIEW_NOTE;
     procedure OnSampleSongMenuItemClicked(Sender: TObject);
 
     procedure CreateKeymap;
@@ -993,21 +991,6 @@ begin
   TrackerGrid.HighlightedRow := PeekSymbol(SYM_ROW);
   OrderEditStringGrid.Row := (PeekSymbol(SYM_CURRENT_ORDER) div 2) + 1;
   InFDCallback := False; // HACK!!!!!!!!
-end;
-
-procedure TfrmTracker.OnUndoOccured(var Msg: TLMessage);
-begin
-  with OrderEditStringGrid do
-    {if (Msg.lParamhi <> StrToInt(Rows[Row][0])) or
-       (Msg.lParamhi <> StrToInt(Rows[Row][1])) or
-       (Msg.lParamhi <> StrToInt(Rows[Row][2])) or
-       (Msg.lParamhi <> StrToInt(Rows[Row][3])) then}
-         Row := -1;
-end;
-
-procedure TfrmTracker.OnNotePlaced(var Msg: TLMessage);
-begin
-  PreviewInstrument(msg.wParam, msg.lParam);
 end;
 
 procedure TfrmTracker.OnSampleSongMenuItemClicked(Sender: TObject);
