@@ -1041,9 +1041,8 @@ begin
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
-  RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
-
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
   ScopesOn := TrackerSettings.UseScopes;
 
   // Fix the size of the channel headers
@@ -2127,6 +2126,8 @@ begin
   frmOptions.ShowModal;
 
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
+
   ScopesOn := TrackerSettings.UseScopes;
 
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
