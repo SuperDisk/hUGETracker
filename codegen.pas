@@ -70,7 +70,7 @@ var
     SL.StrictDelimiter := True;
     SL.Delimiter := ',';
 
-    for I := Low(Order) to High(Order) do
+    for I := Low(Order) to High(Order)-1 do // HACK: account for off-by-one error
       SL.Add('P' + IntToStr(Order[I]));
 
     Result := 'static const unsigned char* const order' + IntToStr(Number) + '[] = {';
@@ -143,6 +143,8 @@ var
   end;
 
 begin
+  Song := OptimizeSong(Song);
+
   OutSL := TStringList.Create;
   OutSL.Add('#include "hUGEDriver.h"');
   OutSL.Add('#include <stddef.h>');
@@ -158,8 +160,9 @@ begin
   // TODO: Are keys and data defined to be aligned? Seems like they are but
   // should probably find out if that's just an implementation detail...
   for I := 0 to Song.Patterns.Count - 1 do
-    OutSL.Add(RenderGBDKPattern('P' + IntToStr(Song.Patterns.Keys[I]),
-      Song.Patterns.Data[I]^));
+    if PatternIsUsed(Song.Patterns.Keys[I], Song) then
+      OutSL.Add(RenderGBDKPattern('P' + IntToStr(Song.Patterns.Keys[I]),
+        Song.Patterns.Data[I]^));
   OutSL.Add('');
 
   OutSL.Add(RenderGBDKOrder(1, Song.OrderMatrix[0]));
@@ -199,7 +202,7 @@ function RenderOrderTable(OrderMatrix: TOrderMatrix): string;
     SL := TStringList.Create;
     SL.StrictDelimiter := True;
     SL.Delimiter := ',';
-    for I := Low(Ints) to High(Ints) do
+    for I := Low(Ints) to High(Ints)-1 do // HACK: account for the off-by-one error
       SL.Add('P' + IntToStr(Ints[I]));
     Result := SL.DelimitedText;
     SL.Free;

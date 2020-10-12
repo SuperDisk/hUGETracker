@@ -615,7 +615,7 @@ var
   begin
     for K := 0 to S.Patterns.Count-1 do
       if CompareByte(S.Patterns.KeyData[S.Patterns.Keys[K]]^, P, SizeOf(TPattern)) = 0 then
-        Result := S.Patterns.Keys[K];
+        Exit(S.Patterns.Keys[K]);
   end;
 begin
   Result := S;
