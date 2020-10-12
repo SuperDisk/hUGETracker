@@ -15,20 +15,6 @@ type
     class function hash(I: Integer; N: Integer): Integer;
   end;
 
-  TUsedMap = specialize THashSet<Integer, TIntegerHash>;
-
-  { TSongUsageReport }
-
-  TSongUsageReport = record
-    UsedInstruments: TUsedMap;
-    UsedRoutines: TUsedMap;
-    UsedPatterns: TUsedMap;
-
-    {UnusedInstruments: TUsedMap;
-    UnusedRoutines: TUsedMap;}
-    UnusedPatterns: TUsedMap;
-  end;
-
 function Lerp(v0, v1, t: Double): Double;
 function Snap(Value, Every: Integer): Integer;
 function ReMap(Value, Istart, Istop, Ostart, Ostop: Double): Double;
@@ -42,9 +28,6 @@ function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
 function ModInst(Inst: Integer): Integer;
 function UnmodInst(Bank: TInstrumentType; Inst: Integer): Integer;
 function InstBankName(Bank: TInstrumentType): String;
-
-function GetUsageReport(Song: TSong): TSongUsageReport;
-procedure FreeUsageReport(Report: TSongUsageReport);
 
 implementation
 
@@ -151,64 +134,6 @@ begin
     itWave: Result := 'Wave';
     itNoise: Result := 'Noise';
   end;
-end;
-
-function GetUsageReport(Song: TSong): TSongUsageReport;
-var
-  I, J, X, Y: Integer;
-  Pat: PPattern;
-begin
-  Result.UsedPatterns := TUsedMap.Create;
-  Result.UsedInstruments := TUsedMap.Create;
-  Result.UsedRoutines := TUsedMap.Create;
-  Result.UnusedPatterns := TUsedMap.Create;
-  {Result.UnusedInstruments := TUsedMap.Create;
-  Result.UnusedRoutines := TUsedMap.Create;}
-
-  for X := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do
-    for Y := Low(Song.OrderMatrix[X]) to High(Song.OrderMatrix[X]) do
-      Result.UsedPatterns.insert(Song.OrderMatrix[X, Y]);
-
-  for I := 0 to Song.Patterns.Count-1 do begin
-    if not Result.UsedPatterns.contains(Song.Patterns.Keys[I])
-      then Continue;
-
-    Pat := Song.Patterns[Song.Patterns.Keys[I]];
-
-    for J := Low(Pat^) to High(Pat^) do
-      with Pat^[J] do begin
-        if Instrument <> 0 then Result.UsedInstruments.insert(Instrument);
-        if EffectCode = $6 then // Call routine
-          Result.UsedRoutines.insert(EffectParams.Value);
-      end;
-  end;
-
-  for X := 0 to Song.Patterns.Count-1 do
-    if not Result.UsedPatterns.contains(Song.Patterns.Keys[X]) then
-      Result.UnusedPatterns.insert(Song.Patterns.Keys[X]);
-
-  {for I := Low(TInstrumentIndex) to High(TInstrumentIndex) do
-    Result.UnusedInstruments.insert(I);
-
-  for I in Result.UsedInstruments.Iterator do
-    Result.UnusedInstruments.delete(I);
-
-  for I := Low(TRoutineIndex) do High(TRoutineIndex) do
-    Result.UnusedRoutines.insert(I);
-
-  for I in Result.UsedRoutines do
-    Result.UnusedRoutines.delete(I);}
-end;
-
-procedure FreeUsageReport(Report: TSongUsageReport);
-begin
-  Report.UsedPatterns.Free;
-  Report.UsedInstruments.Free;
-  Report.UsedRoutines.Free;
-
-  Report.UnusedPatterns.Free;
-  //Report.UnusedInstruments.Free;
-  //Report.UnusedRoutines.Free;
 end;
 
 end.
