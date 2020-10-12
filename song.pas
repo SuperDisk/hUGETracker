@@ -95,6 +95,9 @@ function UpgradeSong(S: TSongV2): TSong; overload;
 function UpgradeSong(S: TSongV3): TSong; overload;
 function UpgradeSong(S: TSongV4): TSong; overload;
 
+function OptimizeSong(const S: TSong): TSong;
+function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
+
 implementation
 
 // Thanks to WP on the FreePascal forums for this code!
@@ -442,8 +445,6 @@ var
   I: Integer;
 begin
   S.Patterns.Free;
-  for I := Low(TOrderMatrix) to High(TOrderMatrix) do
-    SetLength(S.OrderMatrix[I], 0);
 end;
 
 function UpgradeSong(S: TSongV1): TSong;
@@ -602,6 +603,42 @@ end;
 function UpgradeSong(S: TSongV4): TSong;
 begin
   Result := S;
+end;
+
+function OptimizeSong(const S: TSong): TSong;
+var
+  I, J: Integer;
+
+  function FindMatchingPattern(const P: TPattern): Integer;
+  var
+    K: Integer;
+  begin
+    for K := 0 to S.Patterns.Count-1 do
+      if CompareByte(S.Patterns.KeyData[S.Patterns.Keys[K]]^, P, SizeOf(TPattern)) = 0 then
+        Result := S.Patterns.Keys[K];
+  end;
+begin
+  Result := S;
+
+  // Uniquify the order matrix (so modifying the original doesn't affect this one)
+  for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
+    SetLength(Result.OrderMatrix[I], Length(Result.OrderMatrix[I]));
+
+  // De-duplicate order matrix such that only unique numbers remain
+  for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
+    for J := Low(Result.OrderMatrix[I]) to High(Result.OrderMatrix[I])-1 do
+      Result.OrderMatrix[I, J] := FindMatchingPattern(Result.Patterns[Result.OrderMatrix[I, J]]^);
+end;
+
+function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
+var
+  I, J: Integer;
+begin
+  for I := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do
+    for J := Low(Song.OrderMatrix[I]) to High(Song.OrderMatrix[I])-1 do
+      if Song.OrderMatrix[I, J] = Idx then Exit(True);
+
+  Result := False;
 end;
 
 end.

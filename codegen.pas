@@ -464,6 +464,8 @@ var
 label
   AssemblyError, Cleanup; // Eh, screw good practice. How bad can it be?
 begin
+  Song := OptimizeSong(Song);
+
   FilePath := Filename;
   Filename := ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename));
 
@@ -482,8 +484,9 @@ begin
   // TODO: Are keys and data defined to be aligned? Seems like they are but
   // should probably find out if that's just an implementation detail...
   for I := 0 to Song.Patterns.Count - 1 do
-    Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]),
-      Song.Patterns.Data[I]^));
+    if PatternIsUsed(Song.Patterns.Keys[I], Song) then
+      Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]),
+        Song.Patterns.Data[I]^));
 
   CloseFile(OutFile);
 
@@ -624,6 +627,8 @@ begin
   end;
 
   Cleanup:
+  // No need to destroy Song-- OptimizeSong's output has the same lifetime
+  // as its argument.
   Proc.Free;
   OutSL.Free;
   Chdir('..');
