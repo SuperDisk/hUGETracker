@@ -12,27 +12,27 @@ The project's main branch currently isn't in a production-ready state (it's brok
 The only requirements to build hUGETracker are a recent version of [Lazarus](https://www.lazarus-ide.org/) for your platform.
 If you plan on building for other platforms than your own, you'll need the FPC crosscompilers for those platforms. (I recommend using [FPCUpDeluxe](https://github.com/LongDirtyAnimAlf/fpcupdeluxe) but honestly you probably don't need to do this)
 
-```
-# Download this repo
+```bat
+:: Download this repo
 git clone --recursive https://github.com/SuperDisk/hUGETracker
 
-# Go into the project directory
+:: Go into the project directory
 cd hUGETracker
 
-# Let Lazarus know about the dependencies that HT uses
+:: Let Lazarus know about the dependencies that HT uses
 lazbuild --add-package-link rackctls/RackCtlsPkg.lpk
 lazbuild --add-package-link bgrabitmap/bgrabitmap/bgrabitmappack.lpk
 
-# At this point if you want to develop HT, then open GBEmu.lpi in Lazarus, make sure you're in the 
-# Development build mode, and everything should build correctly. However, in order to allow for concurrent
-# development on the tracker (this repo) and the sound driver (https://github.com/SuperDisk/hUGEDriver),
-# the hUGEDriver folder is not copied to the output directory, and you're expected to symlink it there yourself;
-# Pick one of the following:
+:: At this point if you want to develop HT, then open GBEmu.lpi in Lazarus, make sure you're in the 
+:: Development build mode, and everything should build correctly. However, in order to allow for concurrent
+:: development on the tracker (this repo) and the sound driver (https://github.com/SuperDisk/hUGEDriver),
+:: the hUGEDriver folder is not copied to the output directory, and you're expected to symlink it there yourself;
+:: Pick one of the following:
 
 mklink/J lib\Development\x86_64-win64\hUGEDriver hUGEDriver
 ln -s hUGEDriver lib/Development/x86_64-linux/hUGEDriver
 
-# If you just want to build a release for whatever platform you have, pick one of the following:
+:: If you just want to build a release for whatever platform you have, pick one of the following:
 
 lazbuild GBEmu.lpi --build-mode="Production Windows"
 lazbuild GBEmu.lpi --build-mode="Production Mac"
