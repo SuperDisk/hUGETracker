@@ -39,3 +39,7 @@ lazbuild GBEmu.lpi --build-mode="Production Mac"
 lazbuild GBEmu.lpi --build-mode="Production Linux"
 
 ```
+
+# License
+
+hUGETracker itself is licensed under the [GPLv2](https://github.com/SuperDisk/hUGETracker/blob/hUGETracker/doc/Copying), however the music driver that powers hUGETracker is dedicated to the public domain, and completely free.
