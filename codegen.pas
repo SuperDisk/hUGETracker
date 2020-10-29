@@ -10,7 +10,7 @@ uses
   lclintf, process, rgb2sdas;
 
 type
-  TExportMode = (emNormal, emPreview, emGBS, emRGBDSObj, emGBDKObj);
+  TExportMode = (emNormal, emPreview, emGBS);
 
 function RenderPreviewRom(Song: TSong): boolean;
 function RenderSongToFile(Song: TSong; Filename: string;
@@ -504,12 +504,12 @@ begin
   // Assemble
   if Mode = emPreview then
   begin
-    if Assemble(Filename + '_driver.obj', 'driver.z80', ['PREVIEW_MODE']) <> 0 then
+    if Assemble(Filename + '_driver.obj', 'hUGEDriver.z80', ['PREVIEW_MODE']) <> 0 then
       goto AssemblyError;
   end
   else
   begin
-    if Assemble(Filename + '_driver.obj', 'driver.z80', []) <> 0 then
+    if Assemble(Filename + '_driver.obj', 'hUGEDriver.z80', []) <> 0 then
       goto AssemblyError;
   end;
 
@@ -561,12 +561,6 @@ begin
 
     case Mode of
       emGBS: RenameSucceeded := RenameFile(Filename + '.gbs', FilePath);
-      emRGBDSObj: RenameSucceeded := RenameFile(Filename + '_song.obj', FilePath);
-      emGBDKObj: begin
-        RenameSucceeded := RenameFile(Filename + '_song.obj', FilePath+'bj');
-        ConvertRGB2SDAS(FilePath+'bj', FilePath);
-        DeleteFile(FilePath+'bj');
-      end
       else RenameSucceeded := RenameFile(Filename + '.gb', FilePath);
     end;
 

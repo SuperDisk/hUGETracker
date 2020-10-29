@@ -30,9 +30,8 @@ type
     InsertRowAction: TAction;
     MenuItem39: TMenuItem;
     ExportCMenuItem: TMenuItem;
-    ExportGBDKMenuItem: TMenuItem;
-    ExportRGBDSMenuItem: TMenuItem;
     MenuItem40: TMenuItem;
+    MenuItem41: TMenuItem;
     MenuItem43: TMenuItem;
     MenuItem44: TMenuItem;
     MenuItem54: TMenuItem;
@@ -258,8 +257,6 @@ type
     procedure DeleteRowForAllActionUpdate(Sender: TObject);
     procedure Duty1VisualizerClick(Sender: TObject);
     procedure ExportCMenuItemClick(Sender: TObject);
-    procedure ExportGBDKMenuItemClick(Sender: TObject);
-    procedure ExportRGBDSMenuItemClick(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of String);
@@ -517,7 +514,8 @@ begin
   for I := Low(Song.Instruments.Noise) to High(song.Instruments.Noise) do
     InstrumentComboBox.Items.Add('Noise '+IntToStr(I)+': '+Song.Instruments.Noise[ModInst(I)].Name);
 
-  InstrumentComboBox.ItemIndex := 0;
+  InstrumentComboBox.ItemIndex := 1;
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 
   for I := Low(TInstrumentBank) to High(TInstrumentBank) do begin
     DutyInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Duty[I].Name;
@@ -1623,6 +1621,7 @@ end;
 procedure TfrmTracker.IncrementCurrentInstrumentActionExecute(Sender: TObject);
 begin
   InstrumentComboBox.ItemIndex := EnsureRange(InstrumentComboBox.ItemIndex+1, 0, InstrumentComboBox.Items.Count-1);
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 end;
 
 procedure TfrmTracker.InsertRowActionExecute(Sender: TObject);
@@ -1800,7 +1799,8 @@ end;
 
 procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);
 begin
-    InstrumentComboBox.ItemIndex := EnsureRange(InstrumentComboBox.ItemIndex-1, 0, InstrumentComboBox.Items.Count-1);
+  InstrumentComboBox.ItemIndex := EnsureRange(InstrumentComboBox.ItemIndex-1, 0, InstrumentComboBox.Items.Count-1);
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 end;
 
 procedure TfrmTracker.DeleteRowActionExecute(Sender: TObject);
@@ -1847,24 +1847,6 @@ begin
       S,
       GBDKCSaveDialog.FileName
     );
-end;
-
-procedure TfrmTracker.ExportGBDKMenuItemClick(Sender: TObject);
-var
-  S: String;
-begin
-  S := InputBox('Song descriptor', 'Enter the song descriptor (must be a valid C symbol):', 'song_descriptor');
-  if GBDKObjSaveDialog.Execute then
-    RenderSongToFile(Song, GBDKObjSaveDialog.FileName, emGBDKObj, S);
-end;
-
-procedure TfrmTracker.ExportRGBDSMenuItemClick(Sender: TObject);
-var
-  S: String;
-begin
-  S := InputBox('Song descriptor', 'Enter the song descriptor (must be a valid RGBDS symbol):', 'song_descriptor');
-  if RGBDSObjSaveDialog.Execute then
-    RenderSongToFile(Song, RGBDSObjSaveDialog.FileName, emRGBDSObj, S);
 end;
 
 procedure TfrmTracker.PasteActionExecute(Sender: TObject);

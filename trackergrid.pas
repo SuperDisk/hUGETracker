@@ -822,19 +822,13 @@ begin
   Temp := -1;
 
   with Patterns[Cursor.X]^[Cursor.Y] do
-    if Key = VK_DELETE then
-      Note := NO_NOTE
-    else begin
-      if Keybindings.TryGetData(Key, Temp) then begin
-        Note := Min(HIGHEST_NOTE, Temp+(SelectedOctave*12));
+    if Keybindings.TryGetData(Key, Temp) then begin
+      Note := Min(HIGHEST_NOTE, Temp+(SelectedOctave*12));
+      if SelectedInstrument <> 0 then
         Instrument := SelectedInstrument;
 
-        Inc(Cursor.Y, Step);
-        ClampCursors;
-
-        {if Instrument > 0 then
-          SendMessage(frmTracker.Handle, LM_PREVIEW_NOTE, Note, Instrument);}
-      end;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
     end;
 
   Invalidate;
