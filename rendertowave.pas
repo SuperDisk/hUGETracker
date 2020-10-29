@@ -156,8 +156,7 @@ begin
   enablesound;
 
   FDCallback := nil;
-  load('hUGEDriver/preview.gb');
-  chdir('hUGEDriver');
+  load('render/preview.gb');
 
   if format = rfWave then begin
     OutStream := TFileStream.Create(Filename, fmCreate);
@@ -188,8 +187,6 @@ begin
 
   finally
     EndWritingSoundToStream;
-
-    Chdir('..');
 
     try
       if Format = rfMP3 then begin

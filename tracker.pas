@@ -939,11 +939,11 @@ var
 begin
   if RenderPreviewROM(Song) then begin
     // Load the new symbol table
-    ParseSymFile('hUGEDriver/preview.sym');
+    ParseSymFile('render/preview.sym');
 
     // Start emulation on the rendered preview binary
     LockPlayback;
-    GetROMReady('hUGEDriver/preview.gb');
+    GetROMReady('render/preview.gb');
 
     for I := 1 to 4 do
       snd[I].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;

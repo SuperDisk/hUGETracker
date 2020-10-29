@@ -454,6 +454,8 @@ var
   begin
     Proc.Executable := 'rgbasm';
     Proc.Parameters.Clear;
+    Proc.Parameters.Add('-i' + 'render');
+    Proc.Parameters.Add('-i' + 'hUGEDriver');
     Proc.Parameters.Add('-o' + OutFile);
     for Define in Defines do
       Proc.Parameters.Add('-D' + Define);
@@ -500,17 +502,17 @@ begin
   Song := OptimizeSong(Song);
 
   FilePath := Filename;
-  Filename := ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename));
+  Filename := 'render/' + ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename));
 
-  WriteHTT('./hUGEDriver/wave.htt', RenderWaveforms(Song.Waves));
-  WriteHTT('./hUGEDriver/order.htt', RenderOrderTable(Song.OrderMatrix));
-  WriteHTT('./hUGEDriver/duty_instrument.htt',  RenderInstruments(Song.Instruments.Duty));
-  WriteHTT('./hUGEDriver/wave_instrument.htt',  RenderInstruments(Song.Instruments.Wave));
-  WriteHTT('./hUGEDriver/noise_instrument.htt', RenderInstruments(Song.Instruments.Noise));
+  WriteHTT('./render/wave.htt', RenderWaveforms(Song.Waves));
+  WriteHTT('./render/order.htt', RenderOrderTable(Song.OrderMatrix));
+  WriteHTT('./render/duty_instrument.htt',  RenderInstruments(Song.Instruments.Duty));
+  WriteHTT('./render/wave_instrument.htt',  RenderInstruments(Song.Instruments.Wave));
+  WriteHTT('./render/noise_instrument.htt', RenderInstruments(Song.Instruments.Noise));
   for I := Low(TRoutineBank) to High(TRoutineBank) do
-    WriteHTT('./hUGEDriver/routine'+IntToStr(I)+'.htt', Song.Routines[I]);
+    WriteHTT('./render/routine'+IntToStr(I)+'.htt', Song.Routines[I]);
 
-  AssignFile(OutFile, './hUGEDriver/pattern.htt');
+  AssignFile(OutFile, './render/pattern.htt');
   Rewrite(OutFile);
 
   // TODO: Are keys and data defined to be aligned? Seems like they are but
@@ -523,8 +525,6 @@ begin
   CloseFile(OutFile);
 
   // Build the file
-  Chdir('hUGEDriver');
-
   OutSL := TStringList.Create;
   Proc := TProcess.Create(nil);
   Proc.Options := Proc.Options + [poWaitOnExit, poUsePipes, poStdErrToOutput, poNoConsole];
@@ -532,24 +532,24 @@ begin
   // Assemble
   if Mode = emPreview then
   begin
-    if Assemble(Filename + '_driver.obj', 'hUGEDriver.asm', ['PREVIEW_MODE']) <> 0 then
+    if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', ['PREVIEW_MODE']) <> 0 then
       goto AssemblyError;
   end
   else
   begin
-    if Assemble(Filename + '_driver.obj', 'hUGEDriver.asm', []) <> 0 then
+    if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', []) <> 0 then
       goto AssemblyError;
   end;
 
   if Assemble(Filename + '_song.obj',
-              'song.asm',
+              'hUGEDriver/song.asm',
               ['SONG_DESCRIPTOR=song', 'TICKS='+IntToStr(Song.TicksPerRow)]) <> 0 then
     goto AssemblyError;
 
   if Mode = emGBS then
   begin
     if Assemble(
-          Filename + '_gbs.obj', 'gbs.asm',
+          Filename + '_gbs.obj', 'hUGEDriver/gbs.asm',
           ['SONG_DESCRIPTOR=song',
            'GBS_TITLE='+PadRight(Song.Name, 32),
            'GBS_AUTHOR='+PadRight(Song.Artist, 32),
@@ -558,23 +558,26 @@ begin
   end
   else
   begin
-    if Assemble(Filename + '_player.obj', 'player.asm', ['SONG_DESCRIPTOR=song']) <> 0 then
+    if Assemble(Filename + '_player.obj', 'hUGEDriver/player.asm', ['SONG_DESCRIPTOR=song']) <> 0 then
       goto AssemblyError;
   end;
 
   // Link
   if Mode = emGBS then
   begin
-    if Link(Filename + '.gbs', [Filename + '_driver.obj', Filename +
-      '_song.obj', Filename + '_gbs.obj']) <> 0 then
-      goto AssemblyError;
+    if Link(Filename + '.gbs',
+            [Filename + '_driver.obj',
+             Filename + '_song.obj',
+             Filename + '_gbs.obj']) <> 0 then goto AssemblyError;
   end
   else
   begin
-    if Link(Filename + '.gb', [Filename + '_driver.obj', Filename +
-      '_song.obj', Filename + '_player.obj'], Filename + '.map', Filename +
-      '.sym') <> 0 then
-      goto AssemblyError;
+    if Link(Filename + '.gb',
+            [Filename + '_driver.obj',
+             Filename + '_song.obj',
+             Filename + '_player.obj'],
+            Filename + '.map',
+            Filename + '.sym') <> 0 then goto AssemblyError;
   end;
 
   // Fix
@@ -661,7 +664,6 @@ begin
   // as its argument.
   Proc.Free;
   OutSL.Free;
-  Chdir('..');
 end;
 
 end.
