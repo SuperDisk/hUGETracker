@@ -31,15 +31,14 @@ type
     MenuItem39: TMenuItem;
     ExportCMenuItem: TMenuItem;
     MenuItem40: TMenuItem;
-    MenuItem41: TMenuItem;
+    ExportAsmMenuItem: TMenuItem;
     MenuItem43: TMenuItem;
     MenuItem44: TMenuItem;
     MenuItem54: TMenuItem;
     NoiseMacroPaintbox: TPaintBox;
     Panel6: TPanel;
     GBDKCSaveDialog: TSaveDialog;
-    RGBDSObjSaveDialog: TSaveDialog;
-    GBDKObjSaveDialog: TSaveDialog;
+    RGBDSAsmSaveDialog: TSaveDialog;
     StopAction: TAction;
     PlayOrderAction: TAction;
     PlayCursorAction: TAction;
@@ -274,6 +273,7 @@ type
     procedure InsertRowForAllActionUpdate(Sender: TObject);
     procedure MenuItem37Click(Sender: TObject);
     procedure MenuItem38Click(Sender: TObject);
+    procedure ExportAsmMenuItemClick(Sender: TObject);
     procedure NoiseMacroPaintboxMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NoiseMacroPaintboxMouseMove(Sender: TObject; Shift: TShiftState;
@@ -1653,6 +1653,19 @@ procedure TfrmTracker.MenuItem38Click(Sender: TObject);
 begin
   HexWaveEdit.Text := Clipboard.AsText;
   HexWaveEditEditingDone(nil);
+end;
+
+procedure TfrmTracker.ExportAsmMenuItemClick(Sender: TObject);
+var
+  S: String;
+begin
+  S := InputBox('Song descriptor', 'Enter the song descriptor (must be a valid RGBDS symbol):', 'song_descriptor');
+  if RGBDSAsmSaveDialog.Execute then
+    RenderSongToRGBDSAsm(
+      Song,
+      S,
+      RGBDSAsmSaveDialog.FileName
+    );
 end;
 
 procedure TfrmTracker.NoiseMacroPaintboxMouseDown(Sender: TObject;

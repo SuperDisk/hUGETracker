@@ -1926,8 +1926,9 @@ object frmTracker: TfrmTracker
       object MenuItem40: TMenuItem
         Caption = '-'
       end
-      object MenuItem41: TMenuItem
-        Caption = 'Export RGBDS .htt ...'
+      object ExportAsmMenuItem: TMenuItem
+        Caption = 'Export RGBDS .asm ...'
+        OnClick = ExportAsmMenuItemClick
       end
       object ExportCMenuItem: TMenuItem
         Caption = 'Export GBDK .c ...'
@@ -5379,14 +5380,9 @@ object frmTracker: TfrmTracker
     Left = 248
     Top = 24
   end
-  object RGBDSObjSaveDialog: TSaveDialog
-    Filter = 'RGBDS Object|*.obj'
+  object RGBDSAsmSaveDialog: TSaveDialog
+    Filter = 'RGBDS Assembly|*.asm'
     Left = 248
-    Top = 64
-  end
-  object GBDKObjSaveDialog: TSaveDialog
-    Filter = 'GBDK Object|*.o'
-    Left = 288
     Top = 64
   end
 end
