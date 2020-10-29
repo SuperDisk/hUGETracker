@@ -3,7 +3,7 @@
 
 This is the repository for hUGETracker, the music editing suite for the Gameboy.
 
-If you just want to download hUGETracker, check out [my homepage](https://nickfa.ro/index.php/hUGETracker) or the [releases section!](https://github.com/SuperDisk/hUGEDriver/releases)
+If you just want to download hUGETracker, check out [the homepage](https://nickfa.ro/index.php/hUGETracker) or the [releases section!](https://github.com/SuperDisk/hUGETracker/releases)
 
 If you're looking for the music driver you can include in your homebrew game, check out [hUGEDriver!](https://github.com/SuperDisk/hUGEDriver)
 
