@@ -514,8 +514,8 @@ begin
   for I := Low(Song.Instruments.Noise) to High(song.Instruments.Noise) do
     InstrumentComboBox.Items.Add('Noise '+IntToStr(I)+': '+Song.Instruments.Noise[ModInst(I)].Name);
 
-  InstrumentComboBox.ItemIndex := 1;
-  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
+  InstrumentComboBox.ItemIndex := 0;
+  //TrackerGrid.SelectedInstrument := 1; //ModInst(InstrumentComboBox.ItemIndex);
 
   for I := Low(TInstrumentBank) to High(TInstrumentBank) do begin
     DutyInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Duty[I].Name;

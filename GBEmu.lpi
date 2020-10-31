@@ -42,7 +42,7 @@
             <RelocatableUnit Value="True"/>
             <TargetOS Value="win64"/>
             <Optimizations>
-              <OptimizationLevel Value="4"/>
+              <OptimizationLevel Value="3"/>
             </Optimizations>
           </CodeGeneration>
           <Linking>
@@ -101,7 +101,7 @@
             <RelocatableUnit Value="True"/>
             <TargetOS Value="linux"/>
             <Optimizations>
-              <OptimizationLevel Value="4"/>
+              <OptimizationLevel Value="3"/>
             </Optimizations>
           </CodeGeneration>
           <Linking>
@@ -163,7 +163,7 @@
             <RelocatableUnit Value="True"/>
             <TargetOS Value="darwin"/>
             <Optimizations>
-              <OptimizationLevel Value="4"/>
+              <OptimizationLevel Value="3"/>
             </Optimizations>
           </CodeGeneration>
           <Linking>

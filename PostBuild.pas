@@ -51,6 +51,9 @@ begin
   DestDir := ParamStr(2);
   Dev := ContainsText(DestDir, 'Development');
 
+  if not DirectoryExists(DestDir+'render') then
+    MkDir(DestDir+'render');
+
   HTCopyFile('Resources/ROMs/halt.gb');
   HTCopyFile('Resources/Fonts/PixeliteTTF.ttf');
 
