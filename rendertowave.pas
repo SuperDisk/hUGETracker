@@ -236,8 +236,8 @@ begin
     ProgressBar1.Position := Trunc((TimesSeenTargetPattern / TimesToSeePattern)*100);
     if Random(500) = 1 then Application.ProcessMessages;
 
-    if (PatternsSeen > OrderCount) and (TimesSeenTargetPattern <= 1) then
-      raise EHaltingProblem.Create('The specified loop point cannot be reached more than once!');
+    //if (PatternsSeen > OrderCount) and (TimesSeenTargetPattern <= 1) then
+      //raise EHaltingProblem.Create('The specified loop point cannot be reached more than once!');
   end;
 
   FDCallback := OldFD;
