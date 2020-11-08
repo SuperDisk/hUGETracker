@@ -7,6 +7,8 @@ If you just want to download hUGETracker, check out [the homepage](https://nickf
 
 If you're looking for the music driver you can include in your homebrew game, check out [hUGEDriver!](https://github.com/SuperDisk/hUGEDriver)
 
+If you want help using the tracker, driver, or just want to chat, contact me on Discord (superdisk#5726) or by email (see my profile)!
+
 # Build instructions
 
 The project's main branch currently isn't in a production-ready state (it's broken) but that will change soon. So don't follow these instructions quite yet...
