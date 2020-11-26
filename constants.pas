@@ -5,7 +5,7 @@ unit Constants;
 interface
 
 uses
-  fgl, Graphics, LMessages;
+  fgl;
 
 type
   TIntToIntMap = specialize TFPGMap<Integer, Integer>;
@@ -18,18 +18,7 @@ type
   TRoutineIndex = 0..15;
 
 const
-  clGameboyBlack = TColor($211807);
-  clGameboyMidGreen = TColor($6CC086);
-
   UGE_FORMAT_VERSION = 4;
-
-  INSTRUMENTS_COUNT = 45;
-  ROUTINES_COUNT = 16;
-  WAVES_COUNT = 16;
-
-  LM_FD = LM_USER + 0;
-  LM_UNDO_OCCURED = LM_USER + 1;
-  LM_PREVIEW_NOTE = LM_USER + 2;
 
   SYM_ROW = 'row';
   SYM_TICK = 'tick';
@@ -150,8 +139,6 @@ var
 function NoteCodeToString(NoteCode: Integer): String;
 
 implementation
-
-uses LCLType;
 
 function NoteCodeToString(NoteCode: Integer): String;
 begin

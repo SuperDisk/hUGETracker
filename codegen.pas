@@ -6,14 +6,16 @@ interface
 
 uses
   Classes, SysUtils, Math, Instruments, Song, Utils,
-  HugeDatatypes, Constants, Dialogs, strutils, FileUtil, LazFileUtils,
-  lclintf, process;
+  HugeDatatypes, Constants, Dialogs, strutils, FileUtil, LazFileUtils, process;
 
 type
+  EAssemblyException = class(Exception);
+  ECodegenRenameError = class(Exception);
+
   TExportMode = (emNormal, emPreview, emGBS);
 
-function RenderPreviewRom(Song: TSong): boolean;
-function RenderSongToFile(Song: TSong; Filename: string; Mode: TExportMode = emNormal): boolean;
+procedure RenderPreviewRom(Song: TSong);
+procedure RenderSongToFile(Song: TSong; Filename: string; Mode: TExportMode = emNormal);
 procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string);
 procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: string);
 
@@ -425,20 +427,31 @@ begin
   Stream.Free;
 end;
 
-function RenderPreviewROM(Song: TSong): boolean;
+procedure RenderPreviewROM(Song: TSong);
 begin
-  Result := RenderSongToFile(Song, 'preview.gb', emPreview);
+  RenderSongToFile(Song, 'preview.gb', emPreview);
 end;
 
-function RenderSongToFile(Song: TSong; Filename: String; Mode: TExportMode = emNormal): boolean;
-{ TODO: Refactor this whole monstrosity. }
+procedure RenderSongToFile(Song: TSong; Filename: String; Mode: TExportMode = emNormal);
 var
   OutFile: Text;
   I: integer;
   Proc: TProcess;
-  OutSL: TStringList;
   FilePath: string;
   RenameSucceeded: Boolean;
+
+  procedure Die;
+  var
+    OutSL: TStringList;
+  begin
+    OutSL := TStringList.Create;
+    try
+      OutSL.LoadFromStream(Proc.Output);
+      raise EAssemblyException.Create(OutSL.Text);
+    finally
+      OutSL.Free;
+    end;
+  end;
 
   procedure WriteHTT(F: string; S: string);
   begin
@@ -495,9 +508,6 @@ var
 
     Result := Proc.ExitCode;
   end;
-
-label
-  AssemblyError, Cleanup; // Eh, screw good practice. How bad can it be?
 begin
   Song := OptimizeSong(Song);
 
@@ -525,111 +535,103 @@ begin
   CloseFile(OutFile);
 
   // Build the file
-  OutSL := TStringList.Create;
   Proc := TProcess.Create(nil);
   Proc.Options := Proc.Options + [poWaitOnExit, poUsePipes, poStdErrToOutput, poNoConsole];
 
-  // Assemble
-  if Mode = emPreview then
-  begin
-    if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', ['PREVIEW_MODE']) <> 0 then
-      goto AssemblyError;
-  end
-  else
-  begin
-    if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', []) <> 0 then
-      goto AssemblyError;
-  end;
-
-  if Assemble(Filename + '_song.obj',
-              'hUGEDriver/song.asm',
-              ['SONG_DESCRIPTOR=song', 'TICKS='+IntToStr(Song.TicksPerRow)]) <> 0 then
-    goto AssemblyError;
-
-  if Mode = emGBS then
-  begin
-    if Assemble(
-          Filename + '_gbs.obj', 'hUGEDriver/gbs.asm',
-          ['SONG_DESCRIPTOR=song',
-           'GBS_TITLE='+PadRight(Song.Name, 32),
-           'GBS_AUTHOR='+PadRight(Song.Artist, 32),
-           'GBS_COPYRIGHT='+PadRight(IntToStr(CurrentYear), 32)]
-       ) <> 0 then goto AssemblyError;
-  end
-  else
-  begin
-    if Assemble(Filename + '_player.obj', 'hUGEDriver/player.asm', ['SONG_DESCRIPTOR=song']) <> 0 then
-      goto AssemblyError;
-  end;
-
-  // Link
-  if Mode = emGBS then
-  begin
-    if Link(Filename + '.gbs',
-            [Filename + '_driver.obj',
-             Filename + '_song.obj',
-             Filename + '_gbs.obj']) <> 0 then goto AssemblyError;
-  end
-  else
-  begin
-    if Link(Filename + '.gb',
-            [Filename + '_driver.obj',
-             Filename + '_song.obj',
-             Filename + '_player.obj'],
-            Filename + '.map',
-            Filename + '.sym') <> 0 then goto AssemblyError;
-  end;
-
-  // Fix
-  if Mode = emGBS then
-    RectifyGBSFile(Filename + '.gbs')
-  else
-  begin
-    if (Fix(Filename + '.gb') <> 0) then
-      goto AssemblyError;
-  end;
-
-  // Move to destination
-  if Mode <> emPreview then
-  begin
-    if FileExists(FilePath) then
-      DeleteFile(FilePath);
-
-    case Mode of
-      emGBS: RenameSucceeded := RenameFile(Filename + '.gbs', FilePath);
-      else RenameSucceeded := RenameFile(Filename + '.gb', FilePath);
-    end;
-
-    if not RenameSucceeded then
+  try
+    // Assemble
+    if Mode = emPreview then
     begin
-      MessageDlg('Error!',
-        'Couldn''t create file at ' + FilePath +
-        '. Make sure your path is correct!',
-        mtError,
-        [mbOK],
-        0);
-      Result := False;
-      goto Cleanup;
+      if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', ['PREVIEW_MODE']) <> 0 then
+        Die;
+    end
+    else
+    begin
+      if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', []) <> 0 then
+        Die;
     end;
-    {$ifdef DEVELOPMENT}
-    RenameFile(Filename + '.sym',        FilePath + '.sym');
-    RenameFile(Filename + '.map',        FilePath + '.map');
-    {$endif}
-    {$ifdef PRODUCTION}
-    DeleteFile(Filename + '.sym');
-    DeleteFile(Filename + '.map');
-    {$endif}
 
-    DeleteFile(Filename + '_driver.obj');
-    DeleteFile(Filename + '_song.obj');
-    DeleteFile(Filename + '_player.obj');
-    DeleteFile(Filename + '_gbs.obj');
+    if Assemble(Filename + '_song.obj',
+                'hUGEDriver/song.asm',
+                ['SONG_DESCRIPTOR=song', 'TICKS='+IntToStr(Song.TicksPerRow)]) <> 0 then
+      Die;
+
+    if Mode = emGBS then
+    begin
+      if Assemble(
+            Filename + '_gbs.obj', 'hUGEDriver/gbs.asm',
+            ['SONG_DESCRIPTOR=song',
+             'GBS_TITLE='+PadRight(Song.Name, 32),
+             'GBS_AUTHOR='+PadRight(Song.Artist, 32),
+             'GBS_COPYRIGHT='+PadRight(IntToStr(CurrentYear), 32)]
+         ) <> 0 then Die;
+    end
+    else
+    begin
+      if Assemble(Filename + '_player.obj', 'hUGEDriver/player.asm', ['SONG_DESCRIPTOR=song']) <> 0 then
+        Die;
+    end;
+
+    // Link
+    if Mode = emGBS then
+    begin
+      if Link(Filename + '.gbs',
+              [Filename + '_driver.obj',
+               Filename + '_song.obj',
+               Filename + '_gbs.obj']) <> 0 then Die;
+    end
+    else
+    begin
+      if Link(Filename + '.gb',
+              [Filename + '_driver.obj',
+               Filename + '_song.obj',
+               Filename + '_player.obj'],
+              Filename + '.map',
+              Filename + '.sym') <> 0 then Die;
+    end;
+
+    // Fix
+    if Mode = emGBS then
+      RectifyGBSFile(Filename + '.gbs')
+    else
+    begin
+      if (Fix(Filename + '.gb') <> 0) then
+        Die;
+    end;
+
+    // Move to destination
+    if Mode <> emPreview then
+    begin
+      if FileExists(FilePath) then
+        DeleteFile(FilePath);
+
+      case Mode of
+        emGBS: RenameSucceeded := RenameFile(Filename + '.gbs', FilePath);
+        else RenameSucceeded := RenameFile(Filename + '.gb', FilePath);
+      end;
+
+      if not RenameSucceeded then
+        raise ECodegenRenameError.Create(FilePath);
+
+      {$ifdef DEVELOPMENT}
+      RenameFile(Filename + '.sym',        FilePath + '.sym');
+      RenameFile(Filename + '.map',        FilePath + '.map');
+      {$endif}
+      {$ifdef PRODUCTION}
+      DeleteFile(Filename + '.sym');
+      DeleteFile(Filename + '.map');
+      {$endif}
+
+      DeleteFile(Filename + '_driver.obj');
+      DeleteFile(Filename + '_song.obj');
+      DeleteFile(Filename + '_player.obj');
+      DeleteFile(Filename + '_gbs.obj');
+    end;
+  finally
+    Proc.Free;
   end;
 
-  Result := True;
-  goto Cleanup;
-
-  AssemblyError:
+  {AssemblyError:
     Result := False;
   OutSL.LoadFromStream(Proc.Output);
 
@@ -657,13 +659,7 @@ begin
     {$ifdef PRODUCTION}
     OpenURL('https://github.com/SuperDisk/hUGETracker/issues');
     {$endif}
-  end;
-
-  Cleanup:
-  // No need to destroy Song-- OptimizeSong's output has the same lifetime
-  // as its argument.
-  Proc.Free;
-  OutSL.Free;
+  end;}
 end;
 
 end.
