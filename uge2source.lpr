@@ -65,7 +65,6 @@ begin
       RenderSongToRGBDSAsm(Song, NonOpts[1], NonOpts[2]);
     end;
     else raise Exception.Create('Output file must be either .C or .ASM, but was ' + NonOpts[2]);
-    end;
   end;
 
   Terminate;
