@@ -12,6 +12,13 @@ uses
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
   modimport, mainloop, strutils, Types, Keymap, hUGESettings;
 
+// TODO: Move to config file?
+const
+  clGameboyBlack = TColor($211807);
+  clGameboyMidGreen = TColor($6CC086);
+// TODO: Move somewhere else...
+  LM_FD = LM_USER + 0;
+
 type
   { TfrmTracker }
 
@@ -441,6 +448,9 @@ type
     procedure CopyOrderMatrixToOrderGrid;
     procedure CopyWaveIntoWaveRam(Wave: Integer);
     function ConvertWaveToHexString(Wave: Integer): String;
+
+    function RenderPreviewROM: Boolean;
+    function RenderSongToFile(Filename: String; Mode: TExportMode = emNormal): Boolean;
 
     function GetPreviewReady: Boolean;
     procedure GetROMReady(ROM: String);
@@ -933,16 +943,54 @@ begin
     Result += hexStr(CurrentWave^[I], 1);
 end;
 
+function TfrmTracker.RenderPreviewROM: Boolean;
+begin
+  RenderSongToFile('preview.gb', emPreview);
+end;
+
+function TfrmTracker.RenderSongToFile(Filename: String; Mode: TExportMode = emNormal): Boolean;
+begin
+  try
+    AssembleSong(Song, Filename, Mode);
+  except
+    on E: ECodegenRenameException do begin
+      MessageDlg('Error!',
+        'Couldn''t create file at ' + Filename +
+        '. Make sure your path is correct!',
+        mtError,
+        [mbOK],
+        0);
+    end;
+    on E: EAssemblyException do begin
+      MessageDlg(
+        'Error!',
+        'There was an error assembling the song for playback.' + LineEnding +
+        LineEnding + E.ProgramName + ' output:' + LineEnding + E.Message +
+        LineEnding + LineEnding +
+        'Please report this issue on the hUGETracker GitHub issues page, and ' +
+        'post your song file!',
+        mtError,
+        [mbOK],
+        0);
+
+      {$ifdef PRODUCTION}
+      OpenURL('https://github.com/SuperDisk/hUGETracker/issues');
+      {$endif}
+    end;
+  end;
+end;
+
 function TfrmTracker.GetPreviewReady: Boolean;
 var
   I: Integer;
 begin
-  if RenderPreviewROM(Song) then begin
+  if RenderPreviewROM then begin
+    LockPlayback;
+
     // Load the new symbol table
     ParseSymFile('render/preview.sym');
 
     // Start emulation on the rendered preview binary
-    LockPlayback;
     GetROMReady('render/preview.gb');
 
     for I := 1 to 4 do
@@ -2260,12 +2308,12 @@ end;
 procedure TfrmTracker.ExportGBSButtonClick(Sender: TObject);
 begin
   if GBSSaveDialog.Execute then
-    RenderSongToFile(Song, GBSSaveDialog.FileName, emGBS);
+    RenderSongToFile(GBSSaveDialog.FileName, emGBS);
 end;
 
 procedure TfrmTracker.ToolButton10Click(Sender: TObject);
 begin
-  if RenderPreviewROM(Song) then begin
+  if RenderPreviewROM then begin
     StopPlayback;
     ParseSymFile('hUGEDriver/preview.sym');
     frmRenderToWave.ShowModal;
@@ -2277,7 +2325,7 @@ end;
 procedure TfrmTracker.ExportGBButtonClick(Sender: TObject);
 begin
   if GBSaveDialog.Execute then begin
-    RenderSongToFile(Song, GBSaveDialog.FileName);
+    RenderSongToFile(GBSaveDialog.FileName);
   end;
 end;
 

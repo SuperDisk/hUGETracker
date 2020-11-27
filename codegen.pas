@@ -9,13 +9,20 @@ uses
   HugeDatatypes, Constants, Dialogs, strutils, FileUtil, LazFileUtils, process;
 
 type
-  EAssemblyException = class(Exception);
-  ECodegenRenameError = class(Exception);
+
+  { EAssemblyException }
+
+  EAssemblyException = class(Exception)
+    public
+      ProgramName: String;
+      constructor Create(Prog, Msg: String);
+  end;
+
+  ECodegenRenameException = class(Exception);
 
   TExportMode = (emNormal, emPreview, emGBS);
 
-procedure RenderPreviewRom(Song: TSong);
-procedure RenderSongToFile(Song: TSong; Filename: string; Mode: TExportMode = emNormal);
+procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode = emNormal);
 procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string);
 procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: string);
 
@@ -427,12 +434,7 @@ begin
   Stream.Free;
 end;
 
-procedure RenderPreviewROM(Song: TSong);
-begin
-  RenderSongToFile(Song, 'preview.gb', emPreview);
-end;
-
-procedure RenderSongToFile(Song: TSong; Filename: String; Mode: TExportMode = emNormal);
+procedure AssembleSong(Song: TSong; Filename: String; Mode: TExportMode = emNormal);
 var
   OutFile: Text;
   I: integer;
@@ -447,7 +449,7 @@ var
     OutSL := TStringList.Create;
     try
       OutSL.LoadFromStream(Proc.Output);
-      raise EAssemblyException.Create(OutSL.Text);
+      raise EAssemblyException.Create(Proc.Executable, OutSL.Text);
     finally
       OutSL.Free;
     end;
@@ -611,7 +613,7 @@ begin
       end;
 
       if not RenameSucceeded then
-        raise ECodegenRenameError.Create(FilePath);
+        raise ECodegenRenameException.Create(FilePath);
 
       {$ifdef DEVELOPMENT}
       RenameFile(Filename + '.sym',        FilePath + '.sym');
@@ -660,6 +662,14 @@ begin
     OpenURL('https://github.com/SuperDisk/hUGETracker/issues');
     {$endif}
   end;}
+end;
+
+{ EAssemblyException }
+
+constructor EAssemblyException.Create(Prog, Msg: String);
+begin
+  inherited Create(Msg);
+  Self.ProgramName := Prog;
 end;
 
 end.
