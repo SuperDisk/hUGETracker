@@ -67,6 +67,11 @@ begin
     ExitProc := @WindowsExitProc;
   {$endif}
 
+  {$ifdef PRODUCTION}
+  Assign(Output, 'output.log');
+  Rewrite(Output);
+  {$endif}
+
   Application.Scaled:=True;
   Application.Title:='hUGETracker';
   Application.Initialize;

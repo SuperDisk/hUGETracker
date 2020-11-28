@@ -437,6 +437,8 @@ type
 
     InFDCallback: Boolean;
 
+    procedure CustomExceptionHandler(Sender: TObject; E: Exception);
+
     procedure ChangeToSquare;
     procedure ChangeToWave;
     procedure ChangeToNoise;
@@ -1202,6 +1204,36 @@ begin
   CurrentInstrument^.OutputLevel := WaveVolumeCombobox.ItemIndex;
 end;
 
+procedure TfrmTracker.CustomExceptionHandler(Sender: TObject; E: Exception);
+var
+  Stream: TStream;
+  G: TGUID;
+  OutName: String;
+begin
+  CreateGuid(G);
+  OutName := 'BACKUP_'+GUIDToString(G)+'.uge';
+
+  stream := TFileStream.Create(OutName, fmCreate);
+  try
+    WriteSongToStream(stream, Song);
+  finally
+    stream.Free;
+  end;
+
+  MessageDlg('Error',
+    'An exception in hUGETracker has occured.' + LineEnding +
+    'Your song has been backed up to the hUGETracker folder, so don''t worry!' + LineEnding+LineEnding+
+    'Please report this issue on GitHub, or contact me directly via Discord or Email.'+LineEnding+LineEnding+
+    'Email: yux50000@hotmail.com'+LineEnding+
+    'Discord: SuperDisk#5726'+LineEnding+LineEnding+
+    'The error is: '+E.ClassName+' with message '+E.Message+LineEnding+LineEnding+
+    'Thank you.',
+    mtError,
+    [mbOK], 0);
+
+  Application.Terminate;
+end;
+
 procedure TfrmTracker.PaintBox1Paint(Sender: TObject);
 begin
   PaintBox1.Canvas.Brush.Color := clBlack;
@@ -1291,6 +1323,10 @@ begin
       mtError, [mbOk], 0);
     Application.Terminate;
   end;
+
+  {$ifdef PRODUCTION}
+  Application.OnException := @CustomExceptionHandler;
+  {$endif}
 
   VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
 

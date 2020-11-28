@@ -632,36 +632,6 @@ begin
   finally
     Proc.Free;
   end;
-
-  {AssemblyError:
-    Result := False;
-  OutSL.LoadFromStream(Proc.Output);
-
-  if OutSL.Text.Contains('routine') then
-    MessageDlg(
-      'Error!',
-      'There was an error assembling the song for playback.' + LineEnding +
-      LineEnding + Proc.Executable + ' output:' + LineEnding + OutSL.Text,
-      mtError,
-      [mbOK],
-      0)
-  else
-  begin
-    MessageDlg(
-      'Error!',
-      'There was an error assembling the song for playback.' + LineEnding +
-      LineEnding + Proc.Executable + ' output:' + LineEnding + OutSL.Text +
-      LineEnding + LineEnding +
-      'Please report this issue on the hUGETracker GitHub issues page, and ' +
-      'post your song file!',
-      mtError,
-      [mbOK],
-      0);
-
-    {$ifdef PRODUCTION}
-    OpenURL('https://github.com/SuperDisk/hUGETracker/issues');
-    {$endif}
-  end;}
 end;
 
 { EAssemblyException }
