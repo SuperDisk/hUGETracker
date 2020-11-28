@@ -945,13 +945,15 @@ end;
 
 function TfrmTracker.RenderPreviewROM: Boolean;
 begin
-  RenderSongToFile('preview.gb', emPreview);
+  Result := RenderSongToFile('preview.gb', emPreview);
 end;
 
 function TfrmTracker.RenderSongToFile(Filename: String; Mode: TExportMode = emNormal): Boolean;
 begin
+  Result := False;
   try
     AssembleSong(Song, Filename, Mode);
+    Result := True;
   except
     on E: ECodegenRenameException do begin
       MessageDlg('Error!',

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, EditBtn,
-  ExtCtrls, Spin, ComCtrls, constants, process;
+  ExtCtrls, Spin, ComCtrls, constants, process, bufstream;
 
 type
   TRenderFormat = (rfWave, rfMP3);
@@ -159,7 +159,7 @@ begin
   load('render/preview.gb');
 
   if format = rfWave then begin
-    OutStream := TFileStream.Create(Filename, fmCreate);
+    OutStream := TBufferedFileStream.Create(Filename, fmCreate);
   end
   else begin
     Proc := TProcess.Create(nil);
@@ -236,8 +236,8 @@ begin
     ProgressBar1.Position := Trunc((TimesSeenTargetPattern / TimesToSeePattern)*100);
     if Random(500) = 1 then Application.ProcessMessages;
 
-    //if (PatternsSeen > OrderCount) and (TimesSeenTargetPattern <= 1) then
-      //raise EHaltingProblem.Create('The specified loop point cannot be reached more than once!');
+    if (PatternsSeen > OrderCount) and (TimesSeenTargetPattern <= 1) then
+      raise EHaltingProblem.Create('The specified loop point cannot be reached more than once!');
   end;
 
   FDCallback := OldFD;

@@ -2122,7 +2122,7 @@ end;
 
 function PFX_FD: byte;
 begin
-  if Assigned(@FDCallback) then FDCallback;
+  if Assigned(FDCallback) then FDCallback;
   Result := 0;
 end;
 

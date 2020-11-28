@@ -178,7 +178,7 @@ var
 
 implementation
 
-uses mainloop, vars, htWaveWriter;
+uses mainloop, vars, fpWavWriter;
 
 const
   SampleSize = SizeOf(Single)*2;

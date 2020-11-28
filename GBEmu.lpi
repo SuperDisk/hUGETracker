@@ -230,7 +230,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="24">
       <Unit0>
         <Filename Value="GBEmu.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -343,25 +343,20 @@
         <UnitName Value="RenderToWave"/>
       </Unit20>
       <Unit21>
-        <Filename Value="htwavewriter.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="htWaveWriter"/>
-      </Unit21>
-      <Unit22>
         <Filename Value="modimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MODImport"/>
-      </Unit22>
-      <Unit23>
+      </Unit21>
+      <Unit22>
         <Filename Value="keymap.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Keymap"/>
-      </Unit23>
-      <Unit24>
+      </Unit22>
+      <Unit23>
         <Filename Value="hugesettings.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="hUGESettings"/>
-      </Unit24>
+      </Unit23>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
