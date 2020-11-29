@@ -513,18 +513,21 @@ var
 begin
   Song := OptimizeSong(Song);
 
+  if not DirectoryExists('render') then
+    CreateDir('render');
+
   FilePath := Filename;
   Filename := 'render/' + ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename));
 
-  WriteHTT('./render/wave.htt', RenderWaveforms(Song.Waves));
-  WriteHTT('./render/order.htt', RenderOrderTable(Song.OrderMatrix));
-  WriteHTT('./render/duty_instrument.htt',  RenderInstruments(Song.Instruments.Duty));
-  WriteHTT('./render/wave_instrument.htt',  RenderInstruments(Song.Instruments.Wave));
-  WriteHTT('./render/noise_instrument.htt', RenderInstruments(Song.Instruments.Noise));
+  WriteHTT('render/wave.htt', RenderWaveforms(Song.Waves));
+  WriteHTT('render/order.htt', RenderOrderTable(Song.OrderMatrix));
+  WriteHTT('render/duty_instrument.htt',  RenderInstruments(Song.Instruments.Duty));
+  WriteHTT('render/wave_instrument.htt',  RenderInstruments(Song.Instruments.Wave));
+  WriteHTT('render/noise_instrument.htt', RenderInstruments(Song.Instruments.Noise));
   for I := Low(TRoutineBank) to High(TRoutineBank) do
-    WriteHTT('./render/routine'+IntToStr(I)+'.htt', Song.Routines[I]);
+    WriteHTT('render/routine'+IntToStr(I)+'.htt', Song.Routines[I]);
 
-  AssignFile(OutFile, './render/pattern.htt');
+  AssignFile(OutFile, 'render/pattern.htt');
   Rewrite(OutFile);
 
   // TODO: Are keys and data defined to be aligned? Seems like they are but
