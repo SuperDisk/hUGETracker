@@ -2353,7 +2353,7 @@ procedure TfrmTracker.ToolButton10Click(Sender: TObject);
 begin
   if RenderPreviewROM then begin
     StopPlayback;
-    ParseSymFile('hUGEDriver/preview.sym');
+    ParseSymFile('render/preview.sym');
     frmRenderToWave.ShowModal;
     StartPlayback;
     HaltPlayback;
