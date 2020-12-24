@@ -14,6 +14,8 @@ uses
 
 // TODO: Move to config file?
 const
+  MaintainerEmail = 'yux50000@hotmail.com';
+  MaintainerDiscord = 'SuperDisk#5726';
   clGameboyBlack = TColor($211807);
   clGameboyMidGreen = TColor($6CC086);
 // TODO: Move somewhere else...
@@ -1224,10 +1226,9 @@ begin
     'An exception in hUGETracker has occured.' + LineEnding +
     'Your song has been backed up to the hUGETracker folder, so don''t worry!' + LineEnding+LineEnding+
     'Please report this issue on GitHub, or contact me directly via Discord or Email.'+LineEnding+LineEnding+
-    'Email: yux50000@hotmail.com'+LineEnding+
-    'Discord: SuperDisk#5726'+LineEnding+LineEnding+
-    'The error is: '+E.ClassName+' with message '+E.Message+LineEnding+LineEnding+
-    'Thank you.',
+    'Email: '+MaintainerEmail+LineEnding+
+    'Discord: '+MaintainerDiscord+LineEnding+LineEnding+
+    'The error is: '+E.ClassName+' with message '+E.Message,
     mtError,
     [mbOK], 0);
 
@@ -2441,7 +2442,7 @@ end;
 
 procedure TfrmTracker.TreeView1DblClick(Sender: TObject);
 begin
-  if TreeView1.Selected = nil then Exit;
+  if not Assigned(TreeView1.Selected) then Exit;
 
   if TreeView1.Selected.Parent = DutyInstrumentsNode then begin
     LoadInstrument(itSquare, {%H-}PtrUInt(TreeView1.Selected.Data));
