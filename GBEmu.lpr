@@ -26,7 +26,14 @@ uses
 
   Forms,
   Interfaces,
-  machine, mainloop, sound, vars, Z80CPU;
+  Tracker in 'Tracker.pas',
+  EffectEditor in 'effecteditor.pas',
+  Z80CPU in 'CPU\z80cpu.pas',
+  sound in 'Sound\sound.pas',
+  vars in 'Global\vars.pas',
+  options in 'options.pas',
+  about_hugetracker in 'about_hugetracker.pas',
+  rendertowave in 'rendertowave.pas';
 
 {$R *.res}
 
@@ -68,5 +75,10 @@ begin
   Application.Scaled:=True;
   Application.Title:='hUGETracker';
   Application.Initialize;
+  Application.CreateForm(TfrmTracker, frmTracker);
+  Application.CreateForm(TfrmAboutHugeTracker, frmAboutHugetracker);
+  Application.CreateForm(TfrmEffectEditor, frmEffectEditor);
+  Application.CreateForm(TfrmRenderToWave, frmRenderToWave);
+  Application.CreateForm(TfrmOptions, frmOptions);
   Application.Run;
 end.
