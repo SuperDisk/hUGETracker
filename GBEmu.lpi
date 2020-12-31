@@ -27,8 +27,8 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="Cpu;Sound;Global;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="Pascal-SDL-2-Headers;forms"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="emulation;forms;Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -86,8 +86,8 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="Cpu;Sound;Global;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="Pascal-SDL-2-Headers;forms"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="emulation;forms;Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -148,8 +148,8 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="Cpu;Sound;Global;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="Pascal-SDL-2-Headers;forms"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="emulation;forms;Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -352,7 +352,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="emulation;Pascal-SDL-2-Headers;forms"/>
+      <OtherUnitFiles Value="emulation;forms;Pascal-SDL-2-Headers"/>
       <UnitOutputDirectory Value="lib\Development\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
