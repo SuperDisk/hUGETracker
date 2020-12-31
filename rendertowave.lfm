@@ -1,21 +1,20 @@
 object frmRenderToWave: TfrmRenderToWave
   Left = 1086
-  Height = 548
+  Height = 313
   Top = 105
-  Width = 789
+  Width = 451
   BorderStyle = bsSingle
   Caption = 'Render song'
-  ClientHeight = 548
-  ClientWidth = 789
-  DesignTimePPI = 168
+  ClientHeight = 313
+  ClientWidth = 451
   OnShow = FormShow
   Position = poDefault
-  LCLVersion = '2.0.9.0'
+  LCLVersion = '2.0.11.0'
   object RenderButton: TButton
-    Left = 30
-    Height = 44
-    Top = 476
-    Width = 462
+    Left = 17
+    Height = 25
+    Top = 272
+    Width = 264
     Caption = 'Render'
     Enabled = False
     OnClick = RenderButtonClick
@@ -23,15 +22,15 @@ object frmRenderToWave: TfrmRenderToWave
     TabOrder = 0
   end
   object FileNameEdit1: TFileNameEdit
-    Left = 126
-    Height = 38
-    Top = 14
-    Width = 634
+    Left = 72
+    Height = 23
+    Top = 8
+    Width = 362
     OnAcceptFileName = FileNameEdit1AcceptFileName
     Filter = 'Wave Files|*.wav|MP3 Files|*.mp3'
     FilterIndex = 0
     HideDirectories = False
-    ButtonWidth = 40
+    ButtonWidth = 23
     NumGlyphs = 1
     MaxLength = 0
     ParentFont = False
@@ -39,19 +38,19 @@ object frmRenderToWave: TfrmRenderToWave
     OnChange = FileNameEdit1Change
   end
   object Label1: TLabel
-    Left = 14
-    Height = 30
-    Top = 28
-    Width = 83
+    Left = 8
+    Height = 15
+    Top = 16
+    Width = 48
     Caption = 'Filename'
     ParentColor = False
     ParentFont = False
   end
   object RadioGroup1: TRadioGroup
-    Left = 14
-    Height = 102
-    Top = 70
-    Width = 338
+    Left = 8
+    Height = 58
+    Top = 40
+    Width = 193
     AutoFill = True
     Caption = 'Duration'
     ChildSizing.LeftRightSpacing = 6
@@ -61,8 +60,8 @@ object frmRenderToWave: TfrmRenderToWave
     ChildSizing.ShrinkVertical = crsScaleChilds
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 67
-    ClientWidth = 334
+    ClientHeight = 38
+    ClientWidth = 189
     Columns = 2
     ItemIndex = 0
     Items.Strings = (
@@ -74,27 +73,27 @@ object frmRenderToWave: TfrmRenderToWave
     TabOrder = 2
   end
   object Notebook1: TNotebook
-    Left = 14
-    Height = 196
-    Top = 182
-    Width = 744
+    Left = 8
+    Height = 112
+    Top = 104
+    Width = 425
     PageIndex = 0
     TabOrder = 3
     object Page1: TPage
       object Label2: TLabel
-        Left = 28
-        Height = 30
-        Top = 42
-        Width = 77
+        Left = 16
+        Height = 15
+        Top = 24
+        Width = 44
         Caption = 'Seconds'
         ParentColor = False
         ParentFont = False
       end
       object SecondsSpinEdit: TSpinEdit
-        Left = 126
-        Height = 38
-        Top = 28
-        Width = 602
+        Left = 72
+        Height = 23
+        Top = 16
+        Width = 344
         MaxValue = 0
         ParentFont = False
         TabOrder = 0
@@ -102,45 +101,45 @@ object frmRenderToWave: TfrmRenderToWave
     end
     object Page2: TPage
       object Label3: TLabel
-        Left = 28
+        Left = 16
         Height = 15
-        Top = 28
+        Top = 16
         Width = 129
         Caption = 'Stop playing when order'
         ParentColor = False
         ParentFont = False
       end
       object OrderSpinEdit: TSpinEdit
-        Left = 280
+        Left = 160
         Height = 23
-        Top = 14
-        Width = 434
+        Top = 8
+        Width = 248
         MaxValue = 0
         ParentFont = False
         TabOrder = 0
       end
       object Label4: TLabel
-        Left = 28
+        Left = 16
         Height = 15
-        Top = 84
+        Top = 48
         Width = 92
         Caption = 'has been reached'
         ParentColor = False
         ParentFont = False
       end
       object LoopTimesSpinEdit: TSpinEdit
-        Left = 280
+        Left = 160
         Height = 23
-        Top = 70
-        Width = 434
+        Top = 40
+        Width = 248
         MaxValue = 0
         ParentFont = False
         TabOrder = 1
       end
       object Label5: TLabel
-        Left = 28
+        Left = 16
         Height = 15
-        Top = 140
+        Top = 80
         Width = 29
         Caption = 'times'
         ParentColor = False
@@ -149,18 +148,18 @@ object frmRenderToWave: TfrmRenderToWave
     end
   end
   object ProgressBar1: TProgressBar
-    Left = 30
-    Height = 49
-    Top = 406
-    Width = 730
+    Left = 17
+    Height = 28
+    Top = 232
+    Width = 417
     ParentFont = False
     TabOrder = 4
   end
   object CancelButton: TButton
-    Left = 504
-    Height = 44
-    Top = 476
-    Width = 256
+    Left = 288
+    Height = 25
+    Top = 272
+    Width = 146
     Caption = 'Cancel'
     Enabled = False
     OnClick = CancelButtonClick
