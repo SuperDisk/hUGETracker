@@ -105,7 +105,7 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
       SL.Add(IntToStr(HighMask));
 
       for J := Low(TNoiseMacro) to High(TNoiseMacro) do
-        SL.Add(IntToStr(Instrument.NoiseMacro[J]));
+        SL.Add(IntToStr(Byte(Instrument.NoiseMacro[J])));
     end
     else
       for J := Low(AsmInstrument) to High(AsmInstrument) do
