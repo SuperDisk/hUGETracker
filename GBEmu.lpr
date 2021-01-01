@@ -38,10 +38,11 @@ uses
 {$R *.res}
 
 {$ifdef MSWINDOWS}
-procedure WindowsExitProc;
-begin
-  RemoveFontResource('PixeliteTTF.ttf');
-end;
+// https://forum.lazarus.freepascal.org/index.php?topic=39124.0
+Function AddFont    (Dir : PAnsiChar;
+                      Flag: DWORD): LongBool; StdCall;
+                      External GDI32
+                      Name 'AddFontResourceExA';
 {$endif}
 
 begin
@@ -61,10 +62,9 @@ begin
     ifdef mess. }
 
   {$ifdef MSWINDOWS}
-    if AddFontResource('PixeliteTTF.ttf') = 0 then
+    // $10 is FR_PRIVATE which uninstalls the font when the process ends
+    if not AddFont(PChar('PixeliteTTF.ttf'), $10) then
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
-
-    ExitProc := @WindowsExitProc;
   {$endif}
 
   {$ifdef PRODUCTION}
