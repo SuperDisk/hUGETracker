@@ -2023,7 +2023,6 @@ object frmTracker: TfrmTracker
     object DebugShiteButton: TMenuItem
       Caption = 'Debug shite'
       Visible = False
-      OnClick = DebugShiteButtonClick
     end
   end
   object MenuBarActionList: TActionList

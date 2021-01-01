@@ -571,7 +571,7 @@ var
 
       Ch4Freq := Trunc((524288 / RealR) / 2**(PolyCounter.ShiftClockFrequency+1));
       if not Ch4FreqToNoteCodeMap.TryGetData(Ch4Freq, Pat[I].Note) then
-        writeln('[DEBUG] Note value ', Pat[I].Note, ' not found.');
+        writeln(StdErr, '[DEBUG] Note value ', Pat[I].Note, ' not found.');
     end;
   end;
 begin

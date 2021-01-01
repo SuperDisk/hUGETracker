@@ -258,7 +258,6 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
-    procedure DebugShiteButtonClick(Sender: TObject);
     procedure DecrementCurrentInstrumentActionExecute(Sender: TObject);
     procedure DeleteRowActionExecute(Sender: TObject);
     procedure DeleteRowActionUpdate(Sender: TObject);
@@ -1894,11 +1893,6 @@ end;
 procedure TfrmTracker.Button1Click(Sender: TObject);
 begin
   PreviewC5;
-end;
-
-procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
-begin
-  Writeln('current row is ', OrderEditStringGrid.row);
 end;
 
 procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);

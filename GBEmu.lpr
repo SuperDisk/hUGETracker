@@ -2,28 +2,19 @@ program GBEmu;
 
 {$MODE Delphi}
 
+{$ifdef DARWIN}
+  {$linklib SDL2}
+{$endif}
+
 uses
 {$ifdef unix}
-  cthreads,
-  // cmem, // the c memory manager is on some systems much faster for multi-threading
+  // cthreads,
 {$endif}
-
 {$ifdef MSWINDOWS}
-  windows,
+  Windows,
 {$endif}
-
-{$ifdef UNIX}
-// font includes here
-{$endif}
-
-{$ifdef DARWIN}
-// font includes here
-{$endif}
-
-{$ifdef DEVELOPMENT}
- SysUtils,
-{$endif}
-
+  FileUtil,
+  SysUtils,
   Forms,
   Interfaces,
   Tracker in 'Tracker.pas',
@@ -58,13 +49,21 @@ begin
   {$endIf}
 
   { Before the LCL starts, embed Pixelite so users dont have to install it.
-    Unfortunately there isn't really a cross-platform way to do it, so here's an
-    ifdef mess. }
+    Unfortunately there isn't really a cross-platform way to do it. }
 
   {$ifdef MSWINDOWS}
     // $10 is FR_PRIVATE which uninstalls the font when the process ends
     if not AddFont(PChar('PixeliteTTF.ttf'), $10) then
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
+  {$endif}
+
+  {$ifdef UNIX}
+    if not DirectoryExists(GetUserDir+'.fonts') then
+      CreateDir(GetUserDir+'.fonts');
+
+    if not (CopyFile('./PixeliteTTF.ttf', GetUserDir+'.fonts/PixeliteTTF.ttf')
+    and    (ExecuteProcess('/bin/bash', '-c fc-cache') = 0))
+    then    Writeln(StdErr, '[ERROR] Couldn''t copy Pixelite to ~/.fonts !!!');
   {$endif}
 
   {$ifdef PRODUCTION}

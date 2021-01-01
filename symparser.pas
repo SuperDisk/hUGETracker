@@ -55,7 +55,7 @@ end;
 function SymbolAddress(Symbol: String): Integer;
 begin
   if not SymbolTable.TryGetData(Symbol, Result) then begin
-    Writeln('[WARNING] Attempting to read address of unloaded symbol: ', symbol);
+    Writeln(StdErr, '[WARNING] Attempting to read address of unloaded symbol: ', symbol);
     Result := 0;
   end;
 end;
@@ -64,7 +64,7 @@ function PeekSymbol(Symbol: String): Integer;
 begin
   if SymbolTable = nil then exit(0);
   if SymbolTable.IndexOf(Symbol) = -1 then begin
-    WriteLn('[WARNING] Attempting to peek unloaded symbol: ', symbol);
+    WriteLn(StdErr, '[WARNING] Attempting to peek unloaded symbol: ', symbol);
     Exit(0);
   end;
 
@@ -75,7 +75,7 @@ procedure PokeSymbol(Symbol: String; Value: Byte);
 begin
   if SymbolTable = nil then exit;
   if SymbolTable.IndexOf(Symbol) = -1 then begin
-    WriteLn('[WARNING] Attempting to poke unloaded symbol: ', symbol);
+    WriteLn(StdErr, '[WARNING] Attempting to poke unloaded symbol: ', symbol);
     Exit;
   end;
   spokeb(SymbolTable.KeyData[Symbol], Value);
@@ -85,7 +85,7 @@ function WordPeekSymbol(Symbol: String): Integer;
 begin
   if SymbolTable = nil then exit(0);
   if SymbolTable.IndexOf(Symbol) = -1 then begin
-    WriteLn('[WARNING] Attempting to wordpeek unloaded symbol: ', symbol);
+    WriteLn(StdErr, '[WARNING] Attempting to wordpeek unloaded symbol: ', symbol);
     Exit(0);
   end;
 
@@ -96,7 +96,7 @@ procedure WordPokeSymbol(Symbol: String; Value: Word);
 begin
   if SymbolTable = nil then exit;
   if SymbolTable.IndexOf(Symbol) = -1 then begin
-    WriteLn('[WARNING] Attempting to wordpoke unloaded symbol: ', symbol);
+    WriteLn(StdErr, '[WARNING] Attempting to wordpoke unloaded symbol: ', symbol);
     Exit;
   end;
   wordpoke(SymbolTable.KeyData[Symbol], Value);
