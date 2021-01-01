@@ -299,7 +299,6 @@ object frmTracker: TfrmTracker
           OnColRowDeleted = OrderEditStringGridColRowDeleted
           OnColRowExchanged = OrderEditStringGridColRowExchanged
           OnColRowInserted = OrderEditStringGridColRowInserted
-          OnColRowMoved = OrderEditStringGridColRowMoved
           OnDblClick = OrderEditStringGridDblClick
           OnKeyDown = OrderEditStringGridKeyDown
           OnValidateEntry = OrderEditStringGridValidateEntry
@@ -2024,6 +2023,7 @@ object frmTracker: TfrmTracker
     object DebugShiteButton: TMenuItem
       Caption = 'Debug shite'
       Visible = False
+      OnClick = DebugShiteButtonClick
     end
   end
   object MenuBarActionList: TActionList

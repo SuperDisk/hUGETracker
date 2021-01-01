@@ -258,6 +258,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
+    procedure DebugShiteButtonClick(Sender: TObject);
     procedure DecrementCurrentInstrumentActionExecute(Sender: TObject);
     procedure DeleteRowActionExecute(Sender: TObject);
     procedure DeleteRowActionUpdate(Sender: TObject);
@@ -359,8 +360,6 @@ type
     procedure OrderEditStringGridColRowExchanged(Sender: TObject;
       IsColumn: Boolean; sIndex, tIndex: Integer);
     procedure OrderEditStringGridColRowInserted(Sender: TObject;
-      IsColumn: Boolean; sIndex, tIndex: Integer);
-    procedure OrderEditStringGridColRowMoved(Sender: TObject;
       IsColumn: Boolean; sIndex, tIndex: Integer);
     procedure OrderEditStringGridDblClick(Sender: TObject);
     procedure OrderEditStringGridKeyDown(Sender: TObject; var Key: Word;
@@ -1897,6 +1896,11 @@ begin
   PreviewC5;
 end;
 
+procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
+begin
+  Writeln('current row is ', OrderEditStringGrid.row);
+end;
+
 procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);
 begin
   InstrumentComboBox.ItemIndex := EnsureRange(InstrumentComboBox.ItemIndex-1, 0, InstrumentComboBox.Items.Count-1);
@@ -2261,12 +2265,6 @@ begin
 end;
 
 procedure TfrmTracker.OrderEditStringGridColRowInserted(Sender: TObject;
-  IsColumn: Boolean; sIndex, tIndex: Integer);
-begin
-  ReloadPatterns;
-end;
-
-procedure TfrmTracker.OrderEditStringGridColRowMoved(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
   ReloadPatterns;
