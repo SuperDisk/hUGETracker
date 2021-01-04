@@ -61,10 +61,10 @@ object frmTracker: TfrmTracker
       Height = 521
       Top = 0
       Width = 1034
-      ActivePage = PatternTabSheet
+      ActivePage = CommentsTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 4
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -5273,7 +5273,7 @@ object frmTracker: TfrmTracker
       SecondaryShortCuts.Strings = (
         'F5'
       )
-      ShortCut = 8205
+      ShortCut = 24589
     end
     object PlayCursorAction: TAction
       Caption = '▶️ Cursor'
@@ -5282,7 +5282,7 @@ object frmTracker: TfrmTracker
       SecondaryShortCuts.Strings = (
         'F6'
       )
-      ShortCut = 16397
+      ShortCut = 8205
     end
     object PlayOrderAction: TAction
       Caption = '▶️ Order'
@@ -5291,7 +5291,7 @@ object frmTracker: TfrmTracker
       SecondaryShortCuts.Strings = (
         'F7'
       )
-      ShortCut = 13
+      ShortCut = 16397
     end
     object StopAction: TAction
       Caption = '⏹ Stop'
