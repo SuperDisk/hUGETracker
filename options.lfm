@@ -1,7 +1,7 @@
 object frmOptions: TfrmOptions
-  Left = 2176
+  Left = 1344
   Height = 615
-  Top = 189
+  Top = 391
   Width = 305
   BorderStyle = bsDialog
   Caption = 'Options'
@@ -10,7 +10,7 @@ object frmOptions: TfrmOptions
   OnClose = FormClose
   OnCreate = FormCreate
   Position = poMainFormCenter
-  LCLVersion = '2.0.9.0'
+  LCLVersion = '2.0.11.0'
   object Label1: TLabel
     Left = 14
     Height = 15
@@ -59,7 +59,7 @@ object frmOptions: TfrmOptions
     Height = 418
     Top = 151
     Width = 279
-    Caption = 'Key map'
+    Caption = 'Custom key map'
     ClientHeight = 398
     ClientWidth = 275
     Enabled = False
@@ -76,13 +76,9 @@ object frmOptions: TfrmOptions
       ColCount = 2
       Columns = <      
         item
-          MinSize = 10
-          MaxSize = 200
           Title.Caption = 'Key'
         end      
         item
-          MinSize = 10
-          MaxSize = 200
           Title.Caption = 'Note'
         end>
       DefaultColWidth = 120
