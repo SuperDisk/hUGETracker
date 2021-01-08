@@ -8,7 +8,7 @@ program GBEmu;
 
 uses
 {$ifdef unix}
-  // cthreads,
+  cthreads,
 {$endif}
 {$ifdef MSWINDOWS}
   Windows,

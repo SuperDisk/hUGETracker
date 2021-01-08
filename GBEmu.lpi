@@ -72,9 +72,6 @@
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
-            <ExecuteAfter>
-              <Command Value="$MakeExe(ide,$Path($(CompPath))/instantfpc) --compiler=&quot;$(CompPath)&quot; PostBuild.pas &quot;$Path($(TargetFile))&quot;"/>
-            </ExecuteAfter>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -190,9 +187,6 @@
               <ShowHintsForSenderNotUsed Value="True"/>
             </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
-            <ExecuteAfter>
-              <Command Value="$MakeExe(ide,$Path($(CompPath))/instantfpc) --compiler=&quot;$(CompPath)&quot; PostBuild.pas &quot;$Path($(TargetFile))&quot;"/>
-            </ExecuteAfter>
           </Other>
         </CompilerOptions>
       </Item4>
