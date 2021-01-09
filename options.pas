@@ -93,6 +93,8 @@ end;
 
 procedure TfrmOptions.FormCreate(Sender: TObject);
 begin
+  KeyMapStringGrid.SaveOptions := soAll;
+
   if FileExists('custom_keymap.km') then
     KeyMapStringGrid.LoadFromFile('custom_keymap.km');
 

@@ -1056,6 +1056,7 @@ begin
   else begin
     StringGrid := TStringGrid.Create(nil); // UGH!
     try
+      StringGrid.SaveOptions := soAll;
       StringGrid.LoadFromFile('custom_keymap.km');
       LoadCustomKeybindings(StringGrid);
     finally
