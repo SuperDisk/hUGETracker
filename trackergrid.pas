@@ -28,6 +28,9 @@ const
   clLineFour = TColor($C3D1D8);
   clLineSixteen = TColor($B5C5CE);
 
+  clDots = clGray;
+  clDividers = TColor($ABB7BC);
+
   NUM_COLUMNS = 4;
   NUM_ROWS = 64;
   UNDO_STACK_SIZE = 100;
@@ -288,7 +291,7 @@ begin
   end;
 
   // Draw borders between columns
-  Canvas.Pen.Color := TColor($ABB7BC);
+  Canvas.Pen.Color := clDividers;
   Canvas.Pen.Width := 2;
   R := TRect.Create(0, 0, ColumnWidth+1, Height);
   Canvas.Rectangle(R);
@@ -914,7 +917,7 @@ begin
       TextOut(PenPos.X, PenPos.Y, NoteString);
     end
     else begin
-      Font.Color := clGray;
+      Font.Color := clDots;
       TextOut(PenPos.X, PenPos.Y, '...');
     end;
 
@@ -925,12 +928,12 @@ begin
       TextOut(PenPos.X, PenPos.Y, FormatFloat('00', Cell.Instrument));
     end
     else begin
-      Font.Color := clGray;
+      Font.Color := clDots;
       TextOut(PenPos.X, PenPos.Y, '..');
     end;
 
     //Font.Color := clDark; //clGreen;
-    Font.Color := clGray;
+    Font.Color := clDots;
     TextOut(PenPos.X, PenPos.Y, '...');
 
     if (Cell.EffectCode <> 0) or (Cell.EffectParams.Value <> 0) then begin
@@ -944,7 +947,7 @@ begin
       );
     end
     else begin
-      Font.Color := clGray;
+      Font.Color := clDots;
       TextOut(PenPos.X, PenPos.Y, '...');
     end;
 
