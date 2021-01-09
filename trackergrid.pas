@@ -13,16 +13,20 @@ uses
 const
   clNote = TColor($7F4A00);
   clInstrument = TColor($7F7F00);
-  clVolume = TColor($99FFB7);
+  //clVolume = TColor($99FFB7); unused
 
   clFxMisc = TColor($3F3F7C);
   clFxPitch = TColor($006262);
   clFxVolume = TColor($007F26);
-  clFxPan = clInstrument;
+  clFxPan = TColor($7F7F00);
   clFxSong = TColor($00007F);
 
+  clBackground = TColor($D0DBE1);
   clHighlighted = TColor($7A99A9);
   clSelected = TColor($9EB4C0);
+
+  clLineFour = TColor($C3D1D8);
+  clLineSixteen = TColor($B5C5CE);
 
   NUM_COLUMNS = 4;
   NUM_ROWS = 64;
@@ -264,14 +268,14 @@ begin
   inherited Paint;
 
   with Canvas do begin
-    Brush.Color := RGBToColor(225, 219, 208);
+    Brush.Color := clBackground;
     Clear;
 
     for I := 0 to High(TPattern) do begin
       if (I mod 4) = 0 then
-        Brush.Color := RGBToColor(216, 209, 195);
+        Brush.Color := clLineFour;
       if (I mod 16) = 0 then
-        Brush.Color := RGBToColor(206, 197, 181);
+        Brush.Color := clLineSixteen;
       if I = Cursor.Y then
         Brush.Color := clSelected;
       if I = FHighlightedRow then
