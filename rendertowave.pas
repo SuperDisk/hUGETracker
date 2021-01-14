@@ -134,21 +134,22 @@ begin
   Proc := TProcess.Create(nil);
   Proc.Executable := 'ffmpeg';
   with Proc.Parameters do begin
-      // HACK: to prevent ffmpeg from writing to stderr, we disable all output
-      // This is needed because ffmpeg blocks unless you read what it writes
-      Add('-nostats');
-      Add('-loglevel');
-      Add('0');
+    // HACK: to prevent ffmpeg from writing to stderr, we disable all output
+    // This is needed because ffmpeg blocks unless you read what it writes
+    Add('-nostats');
+    Add('-loglevel');
+    Add('0');
 
-      Add('-sample_rate');
-      Add(IntToStr(PlaybackFrequency));
-      Add('-f');
-      Add('f32le');
-      Add('-channels');
-      Add('2');
-      Add('-i');
-      Add('-');
-      Add(Filename);
+    Add('-sample_rate');
+    Add(IntToStr(PlaybackFrequency));
+    Add('-y');
+    Add('-f');
+    Add('f32le');
+    Add('-channels');
+    Add('2');
+    Add('-i');
+    Add('-');
+    Add(Filename);
   end;
   Proc.Options := [poUsePipes, poNoConsole];
   Proc.Execute;

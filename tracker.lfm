@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 778
+  Left = 1280
   Height = 653
-  Top = 307
+  Top = 417
   Width = 1232
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -2023,6 +2023,7 @@ object frmTracker: TfrmTracker
     object DebugShiteButton: TMenuItem
       Caption = 'Debug shite'
       Visible = False
+      OnClick = DebugShiteButtonClick
     end
   end
   object MenuBarActionList: TActionList

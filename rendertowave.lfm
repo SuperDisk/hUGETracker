@@ -27,7 +27,7 @@ object frmRenderToWave: TfrmRenderToWave
     Top = 8
     Width = 353
     OnAcceptFileName = FileNameEdit1AcceptFileName
-    Filter = 'Wave Files|*.wav|MP3 Files|*.mp3'
+    Filter = 'Wave|*.wav|Ogg Vorbis|*.ogg|MP3|*.mp3|FLAC|*.flac|AAC|*.aac'
     FilterIndex = 0
     HideDirectories = False
     ButtonWidth = 23
