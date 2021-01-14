@@ -1899,7 +1899,7 @@ end;
 
 procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
 begin
-  writeln(UniqueOrdersDuringPlayback(Song, 0, 99999));
+  //writeln(UniqueOrdersDuringPlayback(Song, 0, 99999));
 end;
 
 procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);
