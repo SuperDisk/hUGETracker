@@ -465,6 +465,7 @@ type
 
     procedure CreateKeymap;
     procedure RecreateTrackerGrid;
+    procedure RecreateRowNumbers;
     procedure UpdateUIAfterLoad(FileName: String = '');
     procedure UpdateWindowTitle;
     procedure UpdateHexWaveTextbox;
@@ -1086,6 +1087,20 @@ begin
   TrackerGrid.PopupMenu := TrackerGridPopup;
 end;
 
+procedure TfrmTracker.RecreateRowNumbers;
+var
+  I: Integer;
+begin
+  RowNumberStringGrid.Clean;
+  // Add the row numbers to the string grid
+  for I := 0 to RowNumberStringGrid.RowCount-1 do begin
+    if TrackerSettings.DisplayRowNumbersAsHex then
+      RowNumberStringGrid.Cells[0, I] := IntToHex(I, 2)
+    else
+      RowNumberStringGrid.Cells[0, I] := IntToStr(I)
+  end;
+end;
+
 procedure TfrmTracker.LoadInstrument(Bank: TInstrumentType; Instr: Integer);
 var
   CI: ^TInstrument;
@@ -1359,6 +1374,9 @@ begin
   InitializeSong(Song);
   LoadDefaultInstruments(Song);
 
+  // Create row numbers
+  RecreateRowNumbers;
+
   // Create pattern editor control
   RecreateTrackerGrid;
   CreateKeymap;
@@ -1386,10 +1404,6 @@ begin
 
   // Switch to general tab sheet
   PageControl1.ActivePageIndex := 0;
-
-  // Add the row numbers to the string grid
-  for I := 0 to RowNumberStringGrid.RowCount-1 do
-    RowNumberStringGrid.Cells[0, I] := IntToStr(I);
 
   {$ifdef DEVELOPMENT}
   DebugShiteButton.Visible := True;
@@ -2152,6 +2166,8 @@ begin
 
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
   Panel2.Visible := ScopesOn;
+
+  RecreateRowNumbers;
 
   CreateKeymap
 end;

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls,
-  ComCtrls, hugeDatatypes, utils;
+  ComCtrls, hugeDatatypes, utils, LCLType;
 
 type
 
@@ -52,13 +52,12 @@ type
     Value2: TLabel;
     VibratoPage: TPage;
     TwoParamsPage: TPage;
-    procedure Button1Click(Sender: TObject);
     procedure CheckBox1Change(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
     procedure DutyRadioGroupSelectionChanged(Sender: TObject);
-    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormCreate(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure OneParamTrackBarChange(Sender: TObject);
     procedure RightVolumeTrackBarChange(Sender: TObject);
     procedure TwoParamsTrackBar1Change(Sender: TObject);
@@ -122,11 +121,6 @@ begin
   LoadEffect;
 end;
 
-procedure TfrmEffectEditor.Button1Click(Sender: TObject);
-begin
-  Close;
-end;
-
 procedure TfrmEffectEditor.CheckBox1Change(Sender: TObject);
 var
   Val: Integer;
@@ -156,11 +150,6 @@ begin
   end;
 end;
 
-procedure TfrmEffectEditor.FormClose(Sender: TObject;
-  var CloseAction: TCloseAction);
-begin
-end;
-
 procedure TfrmEffectEditor.FormCloseQuery(Sender: TObject; var CanClose: boolean
   );
 begin
@@ -174,6 +163,13 @@ begin
     LoadEffect;
     Value.Caption := EffectToExplanation(Cell^.EffectCode, Cell^.EffectParams);
   end;
+end;
+
+procedure TfrmEffectEditor.FormKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TfrmEffectEditor.OneParamTrackBarChange(Sender: TObject);

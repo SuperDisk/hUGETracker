@@ -1,11 +1,11 @@
 object frmOptions: TfrmOptions
-  Left = 1344
-  Height = 615
-  Top = 391
+  Left = 1806
+  Height = 641
+  Top = 123
   Width = 305
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 615
+  ClientHeight = 641
   ClientWidth = 305
   OnClose = FormClose
   OnCreate = FormCreate
@@ -25,7 +25,7 @@ object frmOptions: TfrmOptions
     AnchorSideBottom.Side = asrBottom
     Left = 169
     Height = 25
-    Top = 576
+    Top = 602
     Width = 123
     Anchors = [akRight, akBottom]
     Caption = 'OK'
@@ -57,7 +57,7 @@ object frmOptions: TfrmOptions
   object KeymapGroupBox: TGroupBox
     Left = 14
     Height = 418
-    Top = 151
+    Top = 175
     Width = 279
     Caption = 'Custom key map'
     ClientHeight = 398
@@ -161,7 +161,16 @@ object frmOptions: TfrmOptions
     Caption = 'Play preview when bumping notes up/down'
     ParentFont = False
     TabOrder = 6
-    Visible = False
+  end
+  object DisplayHexRowNumbersCheck: TCheckBox
+    Left = 14
+    Height = 19
+    Top = 147
+    Width = 262
+    Alignment = taLeftJustify
+    Caption = 'Display row numbers in hexadecimal notation'
+    ParentFont = False
+    TabOrder = 7
   end
   object SaveDialog1: TSaveDialog
     Left = 240

@@ -1,7 +1,7 @@
 object frmEffectEditor: TfrmEffectEditor
-  Left = 1941
+  Left = 1357
   Height = 238
-  Top = 453
+  Top = 431
   Width = 391
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsDialog
@@ -9,12 +9,13 @@ object frmEffectEditor: TfrmEffectEditor
   ClientHeight = 238
   ClientWidth = 391
   FormStyle = fsStayOnTop
-  OnClose = FormClose
+  KeyPreview = True
   OnCloseQuery = FormCloseQuery
+  OnKeyDown = FormKeyDown
   OnShow = FormCreate
   Position = poMainFormCenter
   ShowInTaskBar = stNever
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.11.0'
   object ComboBox1: TComboBox
     Left = 78
     Height = 23
@@ -61,7 +62,7 @@ object frmEffectEditor: TfrmEffectEditor
     Height = 183
     Top = 46
     Width = 367
-    PageIndex = 2
+    PageIndex = 0
     TabOrder = 1
     object OneParamPage: TPage
       object OneParamTrackBar: TTrackBar

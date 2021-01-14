@@ -18,6 +18,7 @@ type
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
+    DisplayHexRowNumbersCheck: TCheckBox;
     PreviewWhenPlacingCheck: TCheckBox;
     PreviewWhenBumpingCheck: TCheckBox;
     KeymapCheckbox: TCheckBox;
@@ -88,7 +89,7 @@ begin
   TrackerSettings.UseScopes := ScopesCheck.Checked;
   TrackerSettings.UseCustomKeymap := KeymapCheckbox.Checked;
   TrackerSettings.PreviewWhenBumping := PreviewWhenBumpingCheck.Checked;
-  TrackerSettings.PreviewWhenPlacing := PreviewWhenPlacingCheck.Checked;
+  TrackerSettings.DisplayRowNumbersAsHex := DisplayHexRowNumbersCheck.Checked;
 end;
 
 procedure TfrmOptions.FormCreate(Sender: TObject);
@@ -102,7 +103,7 @@ begin
   ScopesCheck.Checked := TrackerSettings.UseScopes;
   KeymapCheckbox.Checked := TrackerSettings.UseCustomKeymap;
   PreviewWhenBumpingCheck.Checked := TrackerSettings.PreviewWhenBumping;
-  PreviewWhenPlacingCheck.Checked := TrackerSettings.PreviewWhenPlacing;
+  DisplayHexRowNumbersCheck.Checked := TrackerSettings.DisplayRowNumbersAsHex;
 end;
 
 procedure TfrmOptions.KeymapCheckboxChange(Sender: TObject);
