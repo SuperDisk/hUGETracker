@@ -77,6 +77,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure DblClick; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(var Key: Word; Shift: TShiftState); override;
   private
     function GetSelection: TSelection;
     procedure PerformPaste(Paste: TSelection); overload;
@@ -124,7 +125,8 @@ type
     Selecting: Boolean;
     DraggingSelection: Boolean;
     MouseMoveHappened: Boolean;
-    DragSelCursor, DragSelOther: TSelectionPos;
+    ShiftClicking: Boolean;
+    DragSelCursor, DragSelOther, ShiftClickOrigin: TSelectionPos;
     DragOffsetY: Integer;
 
     NestedUndoCount: Integer;
@@ -325,8 +327,14 @@ begin
 
   Clicked := MousePosToSelection(X, Y);
 
-  if ssShift in Shift then
+  if ssShift in Shift then begin
+    if not ShiftClicking then begin
+      ShiftClickOrigin := Cursor;
+      ShiftClicking :=  True;
+    end;
+    Cursor := ShiftClickOrigin;
     Other := Clicked
+  end
   else begin
     if not SelectionsToRect(Cursor, Other).IntersectsWith(SelectionToRect(Clicked)) then begin
       Cursor := Clicked;
@@ -392,7 +400,7 @@ var
 begin
   inherited MouseUp(Button, Shift, X, Y);
 
-  if (not Selecting) and (not MouseMoveHappened) then begin
+  if (not Selecting) and (not MouseMoveHappened) and (not (ssShift in Shift)) then begin
     Cursor := MousePosToSelection(X, Y);
     Other := Cursor;
   end;
@@ -469,6 +477,14 @@ begin
 
   ClampCursors;
   Invalidate
+end;
+
+procedure TTrackerGrid.KeyUp(var Key: Word; Shift: TShiftState);
+begin
+  inherited KeyUp(Key, Shift);
+
+  if key = VK_SHIFT then
+    ShiftClicking := False;
 end;
 
 function TTrackerGrid.GetSelection: TSelection;
