@@ -16,7 +16,7 @@ procedure BlankPattern(Pat: PPattern);
 procedure BlankCell(var Cell: TCell);
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
-function UniqueOrdersDuringPlayback(Song: TSong; FromPos, ToPos: Integer): Integer;
+//function UniqueOrdersDuringPlayback(Song: TSong; FromPos, ToPos: Integer): Integer;
 
 function ModInst(Inst: Integer): Integer;
 function UnmodInst(Bank: TInstrumentType; Inst: Integer): Integer;
