@@ -6,53 +6,48 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, EditBtn,
-  ExtCtrls, Spin, ComCtrls, constants, process, bufstream;
+  ExtCtrls, Spin, ComCtrls, Arrow, constants, process;
 
 type
-  TRenderFormat = (rfWave, rfMP3);
+  { EInvalidOrder }
 
-  { EHaltingProblem }
-
-  EHaltingProblem = class(Exception);
+  EInvalidOrder = class(Exception);
 
   { TfrmRenderToWave }
 
   TfrmRenderToWave = class(TForm)
+    Label2: TLabel;
+    Label3: TLabel;
+    PlayEntireSongRadioButton: TRadioButton;
+    FromPositionRadioButton: TRadioButton;
     RenderButton: TButton;
     CancelButton: TButton;
     FileNameEdit1: TFileNameEdit;
     Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Notebook1: TNotebook;
-    Page1: TPage;
-    Page2: TPage;
     ProgressBar1: TProgressBar;
-    RadioGroup1: TRadioGroup;
-    SecondsSpinEdit: TSpinEdit;
-    OrderSpinEdit: TSpinEdit;
-    LoopTimesSpinEdit: TSpinEdit;
+    PlayEntireSongSpinEdit: TSpinEdit;
+    FromPositionLowerSpinEdit: TSpinEdit;
+    FromPositionUpperSpinEdit: TSpinEdit;
     procedure CancelButtonClick(Sender: TObject);
     procedure RenderButtonClick(Sender: TObject);
-    procedure ComboBox1Change(Sender: TObject);
     procedure FileNameEdit1AcceptFileName(Sender: TObject; var Value: String);
     procedure FileNameEdit1Change(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure RadioGroup1Click(Sender: TObject);
   private
-    PatternsSeen, CurrentSeenPattern, TimesSeenTargetPattern: Integer;
+    SeenPatterns: array of Integer;
+    StartOfSong, CurrentPattern: Integer;
 
     Rendering: Boolean;
     CancelRequested: Boolean;
 
     procedure UpdateButtonEnabledStates;
 
-    procedure ExportWaveToFile(Filename: String; Format: TRenderFormat);
+    procedure ExportWaveToFile(Filename: String);
 
-    procedure RenderSeconds(Seconds: Integer);
-    procedure RenderLoops(TargetOrder: Integer; Loops: Integer);
+    {procedure RenderSeconds(Seconds: Integer);
+    procedure RenderLoops(TargetOrder: Integer; Loops: Integer);}
+    procedure RenderEntireSong(Times: Integer);
+    procedure RenderFromPosition(FromPos, ToPos: Integer);
 
     procedure OrderCheckFD;
   public
@@ -75,22 +70,14 @@ begin
 end;
 
 procedure TfrmRenderToWave.RenderButtonClick(Sender: TObject);
-var
-  RF: TRenderFormat;
 begin
   ProgressBar1.Position := 0;
   Rendering := True;
   CancelRequested := False;
   UpdateButtonEnabledStates;
 
-  case LowerCase(ExtractFileExt(FileNameEdit1.FileName)) of
-    '.wav': RF := rfWave;
-    '.mp3': RF := rfMP3;
-    else RF := rfWave;
-  end;
-
   try
-    ExportWaveToFile(FileNameEdit1.FileName, RF);
+    ExportWaveToFile(FileNameEdit1.FileName);
   except
     on E: Exception do begin
       MessageDlg('Error!', 'Couldn''t write ' + FileNameEdit1.FileName + '!' + LineEnding +
@@ -110,14 +97,6 @@ begin
   UpdateButtonEnabledStates;
 end;
 
-procedure TfrmRenderToWave.ComboBox1Change(Sender: TObject);
-begin
-  {case ComboBox1.ItemIndex of
-    0: FileNameEdit1.Filter := 'Wave Files|*.wav';
-    1: FileNameEdit1.Filter := 'MP3 Files|*.mp3';
-  end;}
-end;
-
 procedure TfrmRenderToWave.FileNameEdit1Change(Sender: TObject);
 begin
   UpdateButtonEnabledStates;
@@ -127,15 +106,10 @@ procedure TfrmRenderToWave.FormShow(Sender: TObject);
 begin
   ProgressBar1.Position:=0;
   FileNameEdit1.FileName:='';
-  RadioGroup1.ItemIndex:=0;
-  SecondsSpinEdit.Value:=0;
-  OrderSpinEdit.Value:=0;
-  LoopTimesSpinEdit.Value:=0;
-end;
-
-procedure TfrmRenderToWave.RadioGroup1Click(Sender: TObject);
-begin
-  Notebook1.PageIndex := RadioGroup1.ItemIndex;
+  PlayEntireSongRadioButton.Checked:=True;
+  PlayEntireSongSpinEdit.Value:=0;
+  FromPositionLowerSpinEdit.Value:=0;
+  FromPositionUpperSpinEdit.Value:=0;
 end;
 
 procedure TfrmRenderToWave.UpdateButtonEnabledStates;
@@ -144,9 +118,8 @@ begin
   CancelButton.Enabled := Rendering and not CancelRequested;
 end;
 
-procedure TfrmRenderToWave.ExportWaveToFile(Filename: String; Format: TRenderFormat);
+procedure TfrmRenderToWave.ExportWaveToFile(Filename: String);
 var
-  OutStream: TStream;
   Proc: TProcess;
 begin
   ProgressBar1.Position := 0;
@@ -158,88 +131,100 @@ begin
   FDCallback := nil;
   load('render/preview.gb');
 
-  if format = rfWave then begin
-    OutStream := TBufferedFileStream.Create(Filename, fmCreate);
-  end
-  else begin
-    Proc := TProcess.Create(nil);
-    Proc.Executable := 'lame';
-    with Proc.Parameters do begin
-        Add('-');
-        Add(Filename);
-    end;
-    Proc.Options := [poUsePipes];
-    Proc.Execute;
+  Proc := TProcess.Create(nil);
+  Proc.Executable := 'ffmpeg';
+  with Proc.Parameters do begin
+      // HACK: to prevent ffmpeg from writing to stderr, we disable all output
+      // This is needed because ffmpeg blocks unless you read what it writes
+      Add('-nostats');
+      Add('-loglevel');
+      Add('0');
 
-    OutStream := TMemoryStream.Create;
+      Add('-sample_rate');
+      Add(IntToStr(PlaybackFrequency));
+      Add('-f');
+      Add('f32le');
+      Add('-channels');
+      Add('2');
+      Add('-i');
+      Add('-');
+      Add(Filename);
   end;
+  Proc.Options := [poUsePipes, poNoConsole];
+  Proc.Execute;
 
   try
-    BeginWritingSoundToStream(OutStream);
+    BeginWritingSoundToStream(Proc.Input);
 
-    // Choose which rendering time strategy to use
-    case RadioGroup1.ItemIndex of
-      0: RenderSeconds(SecondsSpinEdit.Value);
-      1: RenderLoops(OrderSpinEdit.Value, LoopTimesSpinEdit.Value);
-    end;
+    if PlayEntireSongRadioButton.Checked then
+      RenderEntireSong(PlayEntireSongSpinEdit.Value)
+    else if FromPositionRadioButton.Checked then
+      RenderFromPosition(FromPositionLowerSpinEdit.Value, FromPositionUpperSpinEdit.Value);
 
     if CancelRequested then Exit;
 
   finally
     EndWritingSoundToStream;
-
-    try
-      if Format = rfMP3 then begin
-        OutStream.Seek(0, soFromBeginning);
-        Proc.Input.CopyFrom(OutStream, OutStream.Size);
-        Proc.CloseInput;
-        Proc.WaitOnExit;
-      end;
-    finally
-      if Format = rfMP3 then Proc.Free;
-      OutStream.Free
-    end;
+    Proc.CloseInput;
+    Proc.WaitOnExit;
+    Proc.Free;
   end;
 end;
 
-procedure TfrmRenderToWave.RenderSeconds(Seconds: Integer);
+procedure TfrmRenderToWave.RenderEntireSong(Times: Integer);
 var
-  CompletedCycles: QWord = 0;
-  CyclesToDo: QWord;
-begin
-  CyclesToDo := (70224*60)*Seconds;
-  while (CompletedCycles < CyclesToDo) and not CancelRequested do begin
-    Inc(CompletedCycles, z80_decode);
-    ProgressBar1.Position := Trunc((CompletedCycles / CyclesToDo)*100);
-    if Random(500) = 1 then Application.ProcessMessages;
-  end;
-end;
-
-procedure TfrmRenderToWave.RenderLoops(TargetOrder: Integer; Loops: Integer);
-var
-  TimesToSeePattern: Integer;
   OldFD: TFDCallback;
-  OrderCount: Integer;
 begin
   OldFD := FDCallback;
   FDCallback := @OrderCheckFD;
 
-  OrderCount := PeekSymbol(SYM_ORDER_COUNT) div 2;
+  SetLength(SeenPatterns, PeekSymbol(SYM_ORDER_COUNT) div 2);
+  StartOfSong := -1;
+  CurrentPattern := -1;
 
-  CurrentSeenPattern := -1;
-  TimesSeenTargetPattern := 0;
-  PatternsSeen := 0;
-  TimesToSeePattern := (LoopTimesSpinEdit.Value+1);
-
-  while (TimesSeenTargetPattern < TimesToSeePattern) and not CancelRequested do begin
+  repeat
     z80_decode;
-    ProgressBar1.Position := Trunc((TimesSeenTargetPattern / TimesToSeePattern)*100);
     if Random(500) = 1 then Application.ProcessMessages;
+  until ((StartOfSong <> -1) and (SeenPatterns[StartOfSong]-1 = PlayEntireSongSpinEdit.Value)) or CancelRequested;
 
-    if (PatternsSeen > OrderCount) and (TimesSeenTargetPattern <= 1) then
-      raise EHaltingProblem.Create('The specified loop point cannot be reached more than once!');
-  end;
+  SetLength(SeenPatterns, 0);
+  FDCallback := OldFD;
+end;
 
+procedure TfrmRenderToWave.RenderFromPosition(FromPos, ToPos: Integer);
+var
+  OldFD: TFDCallback;
+  StartPattern, TargetPattern: Integer;
+  SawTargetPattern: Boolean;
+begin
+  OldFD := FDCallback;
+  FDCallback := @OrderCheckFD;
+
+  SetLength(SeenPatterns, PeekSymbol(SYM_ORDER_COUNT) div 2);
+  StartOfSong := -1;
+  CurrentPattern := -1;
+  StartPattern := FromPositionLowerSpinEdit.Value;
+  TargetPattern := FromPositionUpperSpinEdit.Value;
+  SawTargetPattern := False;
+
+  if StartPattern > High(SeenPatterns) then
+      raise EInvalidOrder.Create('The specified order doesn''t exist!');
+
+  PokeSymbol(SYM_CURRENT_ORDER, 2*StartPattern);
+  PokeSymbol(SYM_ROW, 0);
+
+  repeat
+    z80_decode;
+
+    if CurrentPattern = TargetPattern then
+      SawTargetPattern := True;
+
+    if Random(500) = 1 then Application.ProcessMessages;
+  until (StartOfSong <> -1) or
+        (SawTargetPattern and (CurrentPattern <> TargetPattern)) or
+        CancelRequested;
+
+  SetLength(SeenPatterns, 0);
   FDCallback := OldFD;
 end;
 
@@ -248,13 +233,13 @@ var
   Pat: Integer;
 begin
   Pat := (PeekSymbol(SYM_CURRENT_ORDER) div 2);
-  if CurrentSeenPattern <> Pat then begin
-    Inc(PatternsSeen);
-    CurrentSeenPattern := Pat;
+  if Pat = CurrentPattern then Exit;
 
-    if Pat = OrderSpinEdit.Value then
-      Inc(TimesSeenTargetPattern);
-  end;
+  if (SeenPatterns[Pat] <> 0) and (StartOfSong = -1) then
+      StartOfSong := Pat;
+
+  Inc(SeenPatterns[Pat]);
+  CurrentPattern := Pat;
 end;
 
 end.

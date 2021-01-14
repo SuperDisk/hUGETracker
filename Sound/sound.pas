@@ -132,6 +132,7 @@ uses Classes, sysutils, sdl2;
 
 const
   SAMPLE_BUFFER_SIZE = 1024;
+  PlaybackFrequency = 44100;
 
 type
   PSingle = ^Single;
@@ -151,9 +152,6 @@ procedure EnableSound;
 procedure DisableSound;
 procedure ResetSound;
 procedure SoundUpdate(cycles: integer);
-
-function SoundBufferTooFull: Boolean;
-function SoundBufferSize: Integer;
 
 procedure BeginWritingSoundToStream(Stream: TStream);
 procedure EndWritingSoundToStream;
@@ -178,13 +176,11 @@ var
 
 implementation
 
-uses mainloop, vars, fpWavWriter;
+uses mainloop, vars;
 
 const
   SampleSize = SizeOf(Single)*2;
-  playbackFrequency = 44100;
-  sampleCycles: longint = (8192 * 1024) div playbackFrequency;
-  TooFullThreshold: Integer = (playbackFrequency div 10)*sizeof(single); //0.1s
+  SampleCycles: LongInt = (8192 * 1024) div PlaybackFrequency;
 
 var
   PlayStream: TSDL_AudioDeviceID;
@@ -196,7 +192,7 @@ var
   lfsr: Cardinal = 0;
 
   WritingSoundToStream: Boolean;
-  WaveWriter: TWavWriter;
+  SoundStream: TStream;
 
 procedure ResetSound;
 var
@@ -217,33 +213,15 @@ begin
   end;
 end;
 
-function SoundBufferTooFull: Boolean;
-begin
-  Result := SoundBufferSize > TooFullThreshold
-end;
-
-function SoundBufferSize: Integer;
-begin
-  Result := SDL_GetQueuedAudioSize(PlayStream)
-end;
-
 procedure BeginWritingSoundToStream(Stream: TStream);
 begin
   WritingSoundToStream := True;
-  WaveWriter := TWavWriter.Create;
-  {$push}{$R-}WaveWriter.StoreToStream(Stream);{$pop}
-  with WaveWriter.fmt do begin
-    SampleRate := playbackFrequency;
-    BitsPerSample := 16;
-    Channels := 2;
-    ByteRate := SampleRate * Channels * (BitsPerSample div 8);
-  end;
+  SoundStream := Stream;
 end;
 
 procedure EndWritingSoundToStream;
 begin
   WritingSoundToStream := False;
-  WaveWriter.Free;
 end;
 
 procedure StartPlayback;
@@ -332,9 +310,7 @@ begin
     bufRVal := 0;
 
     if WritingSoundToStream then begin
-      buf2[0] := Trunc(buf[0]*High(Smallint));
-      buf2[1] := Trunc(buf[1]*High(Smallint));
-      WaveWriter.WriteBuf(buf2, SizeOf(Smallint)*2);
+      SoundStream.Write(buf, SizeOf(Single)*2);
     end
     else begin
       sndBuffer^ := buf[0];

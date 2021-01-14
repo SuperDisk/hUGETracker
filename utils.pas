@@ -7,14 +7,6 @@ interface
 uses
   Classes, SysUtils, Song, Waves, HugeDatatypes, Constants, gHashSet, fgl, instruments;
 
-type
-
-  { TIntegerHash }
-
-  TIntegerHash = class
-    class function hash(I: Integer; N: Integer): Integer;
-  end;
-
 function Lerp(v0, v1, t: Double): Double;
 function Snap(Value, Every: Integer): Integer;
 function ReMap(Value, Istart, Istop, Ostart, Ostop: Double): Double;
@@ -30,13 +22,6 @@ function UnmodInst(Bank: TInstrumentType; Inst: Integer): Integer;
 function InstBankName(Bank: TInstrumentType): String;
 
 implementation
-
-{ TIntegerHash }
-
-class function TIntegerHash.hash(I: Integer; N: Integer): Integer;
-begin
-  Result := I mod N;
-end;
 
 function Lerp(v0, v1, t: Double): Double;
 begin
