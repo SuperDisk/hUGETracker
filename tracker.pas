@@ -475,6 +475,7 @@ type
     procedure DrawEnvelope(PB: TPaintBox);
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
+    procedure PreviewNoteUnderCursor;
     procedure PreviewInstrument(Note: Integer; Instr: Integer; SquareOnCh2: Boolean = False); overload;
     procedure PreviewInstrument(Note: Integer; Instr: TInstrument; SquareOnCh2: Boolean = False); overload;
     procedure PreviewC5;
@@ -713,6 +714,45 @@ begin
   end;
 
   VisualizerBuffer.Draw(PB.Canvas, 0, 0, True);
+end;
+
+procedure TfrmTracker.PreviewNoteUnderCursor;
+var
+  Note: Integer;
+  Instr: Integer;
+  C: TSelectionPos;
+  R: TRect;
+begin
+  // TODO: Deduplicate this code from the form keydown handler which
+  // plays back the current instrument previews when entering a note
+  if TrackerGrid.Cursor.SelectedPart <> cpNote then Exit;
+  R := TrackerGrid.SelectionGridRect;
+  if (R.Width <> 0) or (R.Height <> 0) then Exit;
+
+  C := TrackerGrid.Cursor;
+  Note := TrackerGrid.GetAt(C);
+  IncSelectionPos(C);
+  Instr := TrackerGrid.GetAt(C);
+
+  if PreviewingInstrument <> Note then
+    PreviewingInstrument := -1;
+
+  if (PreviewingInstrument > -1) or (Instr <= 0) then
+    Exit;
+
+  case TrackerGrid.Cursor.X of
+    0..1: InstrumentComboBox.ItemIndex := UnmodInst(itSquare, Instr);
+    2:    InstrumentComboBox.ItemIndex := UnmodInst(itWave, Instr);
+    3:    InstrumentComboBox.ItemIndex := UnmodInst(itNoise, Instr);
+  end;
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
+
+  if TrackerGrid.Cursor.X = 1 then
+    PreviewInstrument(Note, InstrumentComboBox.ItemIndex, True)
+  else
+    PreviewInstrument(Note, InstrumentComboBox.ItemIndex, False);
+
+  PreviewingInstrument := Note;
 end;
 
 procedure TfrmTracker.PreviewInstrument(Note: Integer; Instr: Integer;
@@ -1461,6 +1501,7 @@ begin
     2:    InstrumentComboBox.ItemIndex := UnmodInst(itWave, TrackerGrid.SelectedInstrument);
     3:    InstrumentComboBox.ItemIndex := UnmodInst(itNoise, TrackerGrid.SelectedInstrument);
   end;
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 
   if TrackerGrid.Cursor.X = 1 then
     PreviewInstrument(Note, InstrumentComboBox.ItemIndex, True)
@@ -2430,24 +2471,30 @@ end;
 
 procedure TfrmTracker.TrackerPopupTransposeOctaveDownClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(-12)
-  {if TrackerSettings.PreviewWhenBumping then
-    ; // TODO: preview the note}
+  TrackerGrid.TransposeSelection(-12);
+  if TrackerSettings.PreviewWhenBumping then
+    PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeOctaveUpClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(12)
+  TrackerGrid.TransposeSelection(12);
+  if TrackerSettings.PreviewWhenBumping then
+    PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeSemiDownClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(-1)
+  TrackerGrid.TransposeSelection(-1);
+  if TrackerSettings.PreviewWhenBumping then
+    PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeSemiUpClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(1)
+  TrackerGrid.TransposeSelection(1);
+  if TrackerSettings.PreviewWhenBumping then
+    PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupUndoClick(Sender: TObject);

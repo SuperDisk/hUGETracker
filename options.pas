@@ -88,6 +88,7 @@ begin
   TrackerSettings.PatternEditorFontSize := FontSizeSpinner.Value;
   TrackerSettings.UseScopes := ScopesCheck.Checked;
   TrackerSettings.UseCustomKeymap := KeymapCheckbox.Checked;
+  TrackerSettings.PreviewWhenPlacing := PreviewWhenPlacingCheck.Checked;
   TrackerSettings.PreviewWhenBumping := PreviewWhenBumpingCheck.Checked;
   TrackerSettings.DisplayRowNumbersAsHex := DisplayHexRowNumbersCheck.Checked;
 end;
@@ -102,6 +103,7 @@ begin
   FontSizeSpinner.Value := TrackerSettings.PatternEditorFontSize;
   ScopesCheck.Checked := TrackerSettings.UseScopes;
   KeymapCheckbox.Checked := TrackerSettings.UseCustomKeymap;
+  PreviewWhenPlacingCheck.Checked := TrackerSettings.PreviewWhenPlacing;
   PreviewWhenBumpingCheck.Checked := TrackerSettings.PreviewWhenBumping;
   DisplayHexRowNumbersCheck.Checked := TrackerSettings.DisplayRowNumbersAsHex;
 end;
