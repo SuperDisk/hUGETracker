@@ -49,7 +49,7 @@ type
     procedure RenderEntireSong(Times: Integer);
     procedure RenderFromPosition(FromPos, ToPos: Integer);
 
-    procedure OrderCheckFD;
+    procedure OrderCheckCallback;
   public
 
   end;
@@ -128,7 +128,7 @@ begin
   ResetSound;
   enablesound;
 
-  FDCallback := nil;
+  FCCallback := nil;
   load('render/preview.gb');
 
   Proc := TProcess.Create(nil);
@@ -174,10 +174,10 @@ end;
 
 procedure TfrmRenderToWave.RenderEntireSong(Times: Integer);
 var
-  OldFD: TCPUCallback;
+  OldFC: TCPUCallback;
 begin
-  OldFD := FDCallback;
-  FDCallback := @OrderCheckFD;
+  OldFC := FCCallback;
+  FCCallback := @OrderCheckCallback;
 
   SetLength(SeenPatterns, PeekSymbol(SYM_ORDER_COUNT) div 2);
   StartOfSong := -1;
@@ -189,17 +189,17 @@ begin
   until ((StartOfSong <> -1) and (SeenPatterns[StartOfSong]-1 = PlayEntireSongSpinEdit.Value)) or CancelRequested;
 
   SetLength(SeenPatterns, 0);
-  FDCallback := OldFD;
+  FCCallback := OldFC;
 end;
 
 procedure TfrmRenderToWave.RenderFromPosition(FromPos, ToPos: Integer);
 var
-  OldFD: TCPUCallback;
+  OldFC: TCPUCallback;
   StartPattern, TargetPattern: Integer;
   SawTargetPattern: Boolean;
 begin
-  OldFD := FDCallback;
-  FDCallback := @OrderCheckFD;
+  OldFC := FCCallback;
+  FCCallback := @OrderCheckCallback;
 
   SetLength(SeenPatterns, PeekSymbol(SYM_ORDER_COUNT) div 2);
   StartOfSong := -1;
@@ -226,15 +226,14 @@ begin
         CancelRequested;
 
   SetLength(SeenPatterns, 0);
-  FDCallback := OldFD;
+  FCCallback := OldFC;
 end;
 
-procedure TfrmRenderToWave.OrderCheckFD;
+procedure TfrmRenderToWave.OrderCheckCallback;
 var
   Pat: Integer;
 begin
   Pat := (PeekSymbol(SYM_CURRENT_ORDER) div 2);
-  if Pat = CurrentPattern then Exit;
 
   if (SeenPatterns[Pat] <> 0) and (StartOfSong = -1) then
       StartOfSong := Pat;

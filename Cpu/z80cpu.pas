@@ -2129,7 +2129,6 @@ end;
 function uge_fc: byte;
 begin
   if Assigned(FCCallback) then FCCallback;
-  writeln('fc');
   Result := 0;
 end;
 
