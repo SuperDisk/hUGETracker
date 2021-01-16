@@ -174,7 +174,7 @@ end;
 
 procedure TfrmRenderToWave.RenderEntireSong(Times: Integer);
 var
-  OldFD: TFDCallback;
+  OldFD: TCPUCallback;
 begin
   OldFD := FDCallback;
   FDCallback := @OrderCheckFD;
@@ -194,7 +194,7 @@ end;
 
 procedure TfrmRenderToWave.RenderFromPosition(FromPos, ToPos: Integer);
 var
-  OldFD: TFDCallback;
+  OldFD: TCPUCallback;
   StartPattern, TargetPattern: Integer;
   SawTargetPattern: Boolean;
 begin

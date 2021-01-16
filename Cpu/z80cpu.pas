@@ -2120,9 +2120,16 @@ begin
   Result := 12;
 end;
 
-function PFX_FD: byte;
+function uge_fd: byte;
 begin
   if Assigned(FDCallback) then FDCallback;
+  Result := 0;
+end;
+
+function uge_fc: byte;
+begin
+  if Assigned(FCCallback) then FCCallback;
+  writeln('fc');
   Result := 0;
 end;
 
@@ -4383,8 +4390,8 @@ begin
   Z80[249] := @ld_sp_hl;
   Z80[250] := @ld_a_nn;
   Z80[251] := @ei;
-  Z80[252] := @unimplemented;
-  Z80[253] := @PFX_FD;
+  Z80[252] := @uge_fc;
+  Z80[253] := @uge_fd;
   Z80[254] := @cp_XX;
   Z80[255] := @rst_56;
 

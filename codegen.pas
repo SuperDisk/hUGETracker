@@ -23,12 +23,12 @@ type
   TExportMode = (emNormal, emPreview, emGBS);
 
 procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode = emNormal);
-procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string);
+procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
 procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: string);
 
 implementation
 
-procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string);
+procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
   function RenderGBDKCell(Cell: TCell): string;
   var
     SL: TStringList;
@@ -154,6 +154,12 @@ begin
   Song := OptimizeSong(Song);
 
   OutSL := TStringList.Create;
+
+  if Bank <> -1 then begin
+    OutSL.Add('#pragma bank '+IntToStr(Bank));
+    OutSL.Add('');
+  end;
+
   OutSL.Add('#include "hUGEDriver.h"');
   OutSL.Add('#include <stddef.h>');
   OutSL.Add('');
@@ -186,6 +192,9 @@ begin
 
   OutSL.Add(RenderGBDKWaves(Song.Waves));
   OutSL.Add('');
+
+  if Bank <> -1 then
+    OutSL.Add(Format('const void __at(%d) __bank_%s;', [Bank, DescriptorName]));
 
   OutSL.Add(Format(
     'const hUGESong_t %s = {%d, &order_cnt, order1, order2, order3,'+
@@ -434,7 +443,7 @@ begin
   Stream.Free;
 end;
 
-procedure AssembleSong(Song: TSong; Filename: String; Mode: TExportMode = emNormal);
+procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode);
 var
   OutFile: Text;
   I: integer;

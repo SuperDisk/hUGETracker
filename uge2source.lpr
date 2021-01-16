@@ -30,9 +30,10 @@ var
   Song: TSong;
   NonOpts: TStringArray;
   S: TStream;
+  Bank: Integer;
 begin
   // quick check parameters
-  ErrorMsg:=CheckOptions('h', 'help');
+  ErrorMsg:=CheckOptions('hb:', ['help', 'bank:']);
   if ErrorMsg<>'' then begin
     ShowException(Exception.Create(ErrorMsg));
     Terminate;
@@ -47,7 +48,7 @@ begin
   end;
 
   // Grab non-options
-  NonOpts := GetNonOptions('h', ['help']);
+  NonOpts := GetNonOptions('hb:', ['help', 'bank:']);
 
   S := TFileStream.Create(NonOpts[0], fmOpenRead);
 
@@ -57,9 +58,14 @@ begin
     S.Free;
   end;
 
+  if HasOption('b', 'bank') then
+    Bank := StrToInt(GetOptionValue('b', 'bank'))
+  else
+    Bank := -1;
+
   case LowerCase(ExtractFileExt(NonOpts[2])) of
     '.c': begin
-      RenderSongToGBDKC(Song, NonOpts[1], NonOpts[2]);
+      RenderSongToGBDKC(Song, NonOpts[1], NonOpts[2], Bank);
     end;
     '.asm': begin
       RenderSongToRGBDSAsm(Song, NonOpts[1], NonOpts[2]);

@@ -8,7 +8,7 @@ unit vars;
 interface
 
 type
-  TFDCallback = procedure of object;
+  TCPUCallback = procedure of object;
 
 const
   thr_f: integer = 1;
@@ -16,7 +16,7 @@ const
   isddraw: boolean = True; // DirectDraw;
 
 var
-  FDCallback: TFDCallback;
+  FDCallback, FCCallback: TCPUCallback;
 
   bdrop, dirname, dirload: string;
   romname, speicher: string[128];
