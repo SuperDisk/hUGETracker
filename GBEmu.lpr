@@ -58,6 +58,8 @@ begin
   {$endif}
 
   {$ifdef UNIX}
+    // This is the correct way to load a font on Linux according to
+    // #linux on freenode.
     if not DirectoryExists(GetUserDir+'.fonts') then
       CreateDir(GetUserDir+'.fonts');
 

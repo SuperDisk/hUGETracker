@@ -79,7 +79,7 @@ const
     ($79,$BC,$DE,$EF,$FF,$EE,$DC,$B9,$75,$43,$21,$10,$00,$11,$23,$45));
 
 var
-  PeriodsToCodeMap: TPeriodToCodeMap;
+  PeriodToCodeMap: TPeriodToCodeMap;
 
 implementation
 
@@ -96,7 +96,7 @@ begin
   if Note = 0 then
     Result := NO_NOTE
   else
-    Result := PeriodsToCodeMap.KeyData[Note];
+    Result := PeriodToCodeMap.KeyData[Note];
 end;
 
 function ConvertInstrument(Instr: Integer): Integer;
@@ -235,79 +235,79 @@ begin
 end;
 
 begin
-  PeriodsToCodeMap := TPeriodToCodeMap.Create;
+  PeriodToCodeMap := TPeriodToCodeMap.Create;
 
-  PeriodsToCodeMap.add(1712,0);
-  PeriodsToCodeMap.add(1616,1);
-  PeriodsToCodeMap.add(1524,2);
-  PeriodsToCodeMap.add(1440,3);
-  PeriodsToCodeMap.add(1356,4);
-  PeriodsToCodeMap.add(1280,5);
-  PeriodsToCodeMap.add(1208,6);
-  PeriodsToCodeMap.add(1140,7);
-  PeriodsToCodeMap.add(1076,8);
-  PeriodsToCodeMap.add(1016,9);
-  PeriodsToCodeMap.add(960,10);
-  PeriodsToCodeMap.add(907,11);
-  PeriodsToCodeMap.add(856,12);
-  PeriodsToCodeMap.add(808,13);
-  PeriodsToCodeMap.add(762,14);
-  PeriodsToCodeMap.add(720,15);
-  PeriodsToCodeMap.add(678,16);
-  PeriodsToCodeMap.add(640,17);
-  PeriodsToCodeMap.add(604,18);
-  PeriodsToCodeMap.add(570,19);
-  PeriodsToCodeMap.add(538,20);
-  PeriodsToCodeMap.add(508,21);
-  PeriodsToCodeMap.add(480,22);
-  PeriodsToCodeMap.add(453,23);
-  PeriodsToCodeMap.add(428,24);
-  PeriodsToCodeMap.add(404,25);
-  PeriodsToCodeMap.add(381,26);
-  PeriodsToCodeMap.add(360,27);
-  PeriodsToCodeMap.add(339,28);
-  PeriodsToCodeMap.add(320,29);
-  PeriodsToCodeMap.add(302,30);
-  PeriodsToCodeMap.add(285,31);
-  PeriodsToCodeMap.add(269,32);
-  PeriodsToCodeMap.add(254,33);
-  PeriodsToCodeMap.add(240,34);
-  PeriodsToCodeMap.add(226,35);
-  PeriodsToCodeMap.add(214,36);
-  PeriodsToCodeMap.add(202,37);
-  PeriodsToCodeMap.add(190,38);
-  PeriodsToCodeMap.add(180,39);
-  PeriodsToCodeMap.add(170,40);
-  PeriodsToCodeMap.add(160,41);
-  PeriodsToCodeMap.add(151,42);
-  PeriodsToCodeMap.add(143,43);
-  PeriodsToCodeMap.add(135,44);
-  PeriodsToCodeMap.add(127,45);
-  PeriodsToCodeMap.add(120,46);
-  PeriodsToCodeMap.add(113,47);
-  PeriodsToCodeMap.add(107,48);
-  PeriodsToCodeMap.add(101,49);
-  PeriodsToCodeMap.add(95, 50);
-  PeriodsToCodeMap.add(90, 51);
-  PeriodsToCodeMap.add(85, 52);
-  PeriodsToCodeMap.add(80, 53);
-  PeriodsToCodeMap.add(75, 54);
-  PeriodsToCodeMap.add(71, 55);
-  PeriodsToCodeMap.add(67, 56);
-  PeriodsToCodeMap.add(63, 57);
-  PeriodsToCodeMap.add(60, 58);
-  PeriodsToCodeMap.add(56, 59);
-  PeriodsToCodeMap.add(53, 60);
-  PeriodsToCodeMap.add(50, 61);
-  PeriodsToCodeMap.add(47, 62);
-  PeriodsToCodeMap.add(45, 63);
-  PeriodsToCodeMap.add(42, 64);
-  PeriodsToCodeMap.add(40, 65);
-  PeriodsToCodeMap.add(37, 66);
-  PeriodsToCodeMap.add(35, 67);
-  PeriodsToCodeMap.add(33, 68);
-  PeriodsToCodeMap.add(31, 69);
-  PeriodsToCodeMap.add(30, 70);
-  PeriodsToCodeMap.add(28, 71);
+  PeriodToCodeMap.add(1712,0);
+  PeriodToCodeMap.add(1616,1);
+  PeriodToCodeMap.add(1524,2);
+  PeriodToCodeMap.add(1440,3);
+  PeriodToCodeMap.add(1356,4);
+  PeriodToCodeMap.add(1280,5);
+  PeriodToCodeMap.add(1208,6);
+  PeriodToCodeMap.add(1140,7);
+  PeriodToCodeMap.add(1076,8);
+  PeriodToCodeMap.add(1016,9);
+  PeriodToCodeMap.add(960,10);
+  PeriodToCodeMap.add(907,11);
+  PeriodToCodeMap.add(856,12);
+  PeriodToCodeMap.add(808,13);
+  PeriodToCodeMap.add(762,14);
+  PeriodToCodeMap.add(720,15);
+  PeriodToCodeMap.add(678,16);
+  PeriodToCodeMap.add(640,17);
+  PeriodToCodeMap.add(604,18);
+  PeriodToCodeMap.add(570,19);
+  PeriodToCodeMap.add(538,20);
+  PeriodToCodeMap.add(508,21);
+  PeriodToCodeMap.add(480,22);
+  PeriodToCodeMap.add(453,23);
+  PeriodToCodeMap.add(428,24);
+  PeriodToCodeMap.add(404,25);
+  PeriodToCodeMap.add(381,26);
+  PeriodToCodeMap.add(360,27);
+  PeriodToCodeMap.add(339,28);
+  PeriodToCodeMap.add(320,29);
+  PeriodToCodeMap.add(302,30);
+  PeriodToCodeMap.add(285,31);
+  PeriodToCodeMap.add(269,32);
+  PeriodToCodeMap.add(254,33);
+  PeriodToCodeMap.add(240,34);
+  PeriodToCodeMap.add(226,35);
+  PeriodToCodeMap.add(214,36);
+  PeriodToCodeMap.add(202,37);
+  PeriodToCodeMap.add(190,38);
+  PeriodToCodeMap.add(180,39);
+  PeriodToCodeMap.add(170,40);
+  PeriodToCodeMap.add(160,41);
+  PeriodToCodeMap.add(151,42);
+  PeriodToCodeMap.add(143,43);
+  PeriodToCodeMap.add(135,44);
+  PeriodToCodeMap.add(127,45);
+  PeriodToCodeMap.add(120,46);
+  PeriodToCodeMap.add(113,47);
+  PeriodToCodeMap.add(107,48);
+  PeriodToCodeMap.add(101,49);
+  PeriodToCodeMap.add(95, 50);
+  PeriodToCodeMap.add(90, 51);
+  PeriodToCodeMap.add(85, 52);
+  PeriodToCodeMap.add(80, 53);
+  PeriodToCodeMap.add(75, 54);
+  PeriodToCodeMap.add(71, 55);
+  PeriodToCodeMap.add(67, 56);
+  PeriodToCodeMap.add(63, 57);
+  PeriodToCodeMap.add(60, 58);
+  PeriodToCodeMap.add(56, 59);
+  PeriodToCodeMap.add(53, 60);
+  PeriodToCodeMap.add(50, 61);
+  PeriodToCodeMap.add(47, 62);
+  PeriodToCodeMap.add(45, 63);
+  PeriodToCodeMap.add(42, 64);
+  PeriodToCodeMap.add(40, 65);
+  PeriodToCodeMap.add(37, 66);
+  PeriodToCodeMap.add(35, 67);
+  PeriodToCodeMap.add(33, 68);
+  PeriodToCodeMap.add(31, 69);
+  PeriodToCodeMap.add(30, 70);
+  PeriodToCodeMap.add(28, 71);
 end.
 
