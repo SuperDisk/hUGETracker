@@ -1219,7 +1219,7 @@ begin
 
       cpInstrument:
         if Instrument <> 0 then
-          Instrument := Max(Instrument+Value, 1);
+          Instrument := EnsureRange(Instrument+Value, 1, 15);
 
       cpVolume:;
 
