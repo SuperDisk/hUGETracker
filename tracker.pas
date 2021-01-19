@@ -1060,15 +1060,15 @@ end;
 
 procedure TfrmTracker.HaltPlayback;
 begin
-  Playing := False;
-
-  TrackerGrid.HighlightedRow := -1;
-  ToolButton2.ImageIndex := 74;
-
   LockPlayback;
   GetROMReady('halt.gb');
   ParseSymFile('halt.sym');
   UnlockPlayback;
+
+  Playing := False;
+
+  TrackerGrid.HighlightedRow := -1;
+  ToolButton2.ImageIndex := 74;
 end;
 
 procedure TfrmTracker.FDCallback;
@@ -2044,7 +2044,6 @@ end;
 
 procedure TfrmTracker.StopActionExecute(Sender: TObject);
 begin
-  TrackerGrid.HighlightedRow := -1;
   HaltPlayback;
 end;
 

@@ -61,15 +61,15 @@ object frmTracker: TfrmTracker
       Height = 521
       Top = 0
       Width = 1034
-      ActivePage = InstrumentTabSheet
+      ActivePage = GeneralTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 0
-        ClientWidth = 0
+        ClientHeight = 493
+        ClientWidth = 1026
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
           Left = 8
