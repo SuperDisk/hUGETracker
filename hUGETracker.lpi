@@ -223,7 +223,7 @@
     </RequiredPackages>
     <Units Count="24">
       <Unit0>
-        <Filename Value="GBEmu.lpr"/>
+        <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>

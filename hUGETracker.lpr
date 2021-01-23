@@ -1,4 +1,4 @@
-program GBEmu;
+program hUGETracker;
 
 {$MODE Delphi}
 
