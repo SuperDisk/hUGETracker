@@ -588,14 +588,14 @@ end;
 
 procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
 var
-  Interval{, HInterval}: Integer;
+  Interval{, HInterval}: Single;
   I: Integer;
   W, H : Integer;
 begin
   W := PB.Width;
-  H := PB.Height;
+  H := PB.Height-4;
 
-  Interval := W div 31;
+  Interval := W / 32;
   //HInterval := H div $10;
   With PB.Canvas do begin
     Brush.Color := clGameboyBlack;
@@ -614,7 +614,7 @@ begin
     Pen.Width := 2;
     MoveTo(0, H);
     for I := Low(Wave) to High(Wave) do
-      LineTo(I*Interval, Trunc((Wave[I]/$F)*H));
+      LineTo(Round(I*Interval), Trunc((Wave[I]/$F)*H)+2);
     LineTo(W, Trunc((Wave[0]/$F)*H));
   end;
 end;
@@ -2565,8 +2565,8 @@ begin
   X := EnsureRange(X, 0, WaveEditPaintBox.Width);
   Y := EnsureRange(Y, 0, WaveEditPaintBox.Height);
   if DrawingWave then begin
-    Idx := EnsureRange(Trunc((X / WaveEditPaintBox.Width)*High(TWave)), Low(TWave), High(TWave));
-    CurrentWave^[Idx] := EnsureRange(Trunc((Y / WaveEditPaintBox.Height)*$F), 0, $F);
+    Idx := EnsureRange(Round((X / WaveEditPaintBox.Width)*32), Low(TWave), High(TWave));
+    CurrentWave^[Idx] := EnsureRange(Round((Y / WaveEditPaintBox.Height)*$F), 0, $F);
     UpdateHexWaveTextbox;
     WaveEditPaintBox.Invalidate;
     if PlayWaveWhileDrawingCheckbox.Checked then

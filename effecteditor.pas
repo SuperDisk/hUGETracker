@@ -365,9 +365,8 @@ end;
 
 procedure TfrmEffectEditor.fxC;
 begin
-  Notebook1.PageIndex := 0;
-  OneParamTrackBar.Max := $F;
-  LoadOneParamData;
+  Notebook1.PageIndex := 1;
+  LoadTwoParamData;
 end;
 
 procedure TfrmEffectEditor.fxD;
