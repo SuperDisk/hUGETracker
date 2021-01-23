@@ -2565,7 +2565,7 @@ begin
   X := EnsureRange(X, 0, WaveEditPaintBox.Width);
   Y := EnsureRange(Y, 0, WaveEditPaintBox.Height);
   if DrawingWave then begin
-    Idx := EnsureRange(Trunc((X / WaveEditPaintBox.Width)*High(TWave)), Low(TWave), High(TWave));
+    Idx := EnsureRange(Round((X / WaveEditPaintBox.Width)*High(TWave)), Low(TWave), High(TWave));
     CurrentWave^[Idx] := EnsureRange(Trunc((Y / WaveEditPaintBox.Height)*$F), 0, $F);
     UpdateHexWaveTextbox;
     WaveEditPaintBox.Invalidate;
