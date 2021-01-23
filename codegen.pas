@@ -575,9 +575,9 @@ begin
       if Assemble(
             Filename + '_gbs.obj', 'hUGEDriver/gbs.asm',
             ['SONG_DESCRIPTOR=song',
-             'GBS_TITLE='+PadRight(Song.Name, 32),
-             'GBS_AUTHOR='+PadRight(Song.Artist, 32),
-             'GBS_COPYRIGHT='+PadRight(IntToStr(CurrentYear), 32)]
+             'GBS_TITLE="""'+PadRight(LeftStr(Song.Name, 32), 32)+'"""',
+             'GBS_AUTHOR="""'+PadRight(LeftStr(Song.Artist, 32), 32)+'"""',
+             'GBS_COPYRIGHT="""'+PadRight(IntToStr(CurrentYear), 32)+'"""']
          ) <> 0 then Die;
     end
     else
