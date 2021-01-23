@@ -1,26 +1,25 @@
 object frmAboutHugetracker: TfrmAboutHugetracker
   Left = 849
-  Height = 502
+  Height = 287
   Top = 334
-  Width = 917
+  Width = 524
   BorderStyle = bsNone
   Caption = 'About hUGETracker'
-  ClientHeight = 502
-  ClientWidth = 917
+  ClientHeight = 287
+  ClientWidth = 524
   Color = clMoneyGreen
-  DesignTimePPI = 168
   OnDeactivate = FormDeactivate
   Position = poDesktopCenter
-  LCLVersion = '2.0.6.0'
+  LCLVersion = '2.0.11.0'
   object Panel1: TPanel
-    Left = 47
-    Height = 224
-    Top = 47
-    Width = 821
+    Left = 27
+    Height = 128
+    Top = 27
+    Width = 469
     Caption = 'hUGETracker'
     Font.CharSet = ANSI_CHARSET
     Font.Color = clBlack
-    Font.Height = -112
+    Font.Height = -64
     Font.Name = 'Gill Sans MT'
     Font.Pitch = fpVariable
     Font.Quality = fqDraft
@@ -29,21 +28,22 @@ object frmAboutHugetracker: TfrmAboutHugetracker
     TabOrder = 0
   end
   object Label1: TLabel
-    Left = 98
-    Height = 103
-    Top = 308
-    Width = 685
+    Left = 27
+    Height = 80
+    Top = 168
+    Width = 469
     Alignment = taCenter
     AutoSize = False
-    Caption = 'Created by Nick "SuperDisk" Faro and Eldred "ISSOtm" Habert'#13#10#13#10'Soundchip emulator written by Christian Hackbart and Rusty Wagner'
+    Caption = 'Created by Nick "SuperDisk" Faro'#13#10#13#10'Special thanks to: Christian Hackbart, Rusty Wagner, LIJI32, Toxa, ISSOtm, Eevee, RichardULZ, Daid, B00daW, MelonadeM, the RGBDS development team, Goodnight Girl, Kabcorp, and TakuikaNinja'
     ParentColor = False
     ParentFont = False
+    WordWrap = True
   end
   object Button1: TButton
-    Left = 341
-    Height = 44
-    Top = 429
-    Width = 236
+    Left = 195
+    Height = 25
+    Top = 256
+    Width = 135
     Caption = 'Close'
     OnClick = Button1Click
     ParentFont = False
