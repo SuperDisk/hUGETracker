@@ -115,6 +115,10 @@ begin
   end
   else
     case Code of
+      $9: begin
+        OutCode := $C;
+        OutParams.Value := Swap(Params);
+      end;
       $C: begin
         OutCode := $C;
         OutParams.Value := Trunc((Params / $40)*$F);
