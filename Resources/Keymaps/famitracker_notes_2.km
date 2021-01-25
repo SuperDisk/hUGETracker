@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <grid version="3">
+    <saveoptions create="True" position="True" content="True"/>
+    <design columncount="2" rowcount="30" fixedcols="0" fixedrows="1" defaultcolwidth="120" isdefaultcolwidth="1" defaultrowheight="22" isdefaultrowheight="0" color="clWindow">
+      <columns columnsenabled="True" columncount="2">
+        <column0>
+          <index value="0"/>
+          <buttonstyle value="0"/>
+          <title>
+            <caption value="Key"/>
+          </title>
+        </column0>
+        <column1>
+          <index value="1"/>
+          <buttonstyle value="0"/>
+          <title>
+            <caption value="Note"/>
+          </title>
+        </column1>
+      </columns>
+      <options>
+        <goFixedVertLine value="True"/>
+        <goFixedHorzLine value="True"/>
+        <goVertLine value="True"/>
+        <goHorzLine value="True"/>
+        <goRangeSelect value="True"/>
+        <goDrawFocusSelected value="False"/>
+        <goRowSizing value="False"/>
+        <goColSizing value="False"/>
+        <goRowMoving value="False"/>
+        <goColMoving value="False"/>
+        <goEditing value="True"/>
+        <goAutoAddRows value="True"/>
+        <goTabs value="True"/>
+        <goRowSelect value="False"/>
+        <goAlwaysShowEditor value="False"/>
+        <goThumbTracking value="False"/>
+        <goColSpanning value="False"/>
+        <goRelaxedRowSelect value="False"/>
+        <goDblClickAutoSize value="False"/>
+        <goSmoothScroll value="True"/>
+        <goAutoAddRowsSkipContentCheck value="False"/>
+        <goRowHighlight value="False"/>
+        <goScrollToLastCol value="False"/>
+        <goScrollToLastRow value="False"/>
+      </options>
+    </design>
+    <position topleftcol="0" topleftrow="15" col="1" row="29">
+      <selection left="1" top="29" right="1" bottom="29"/>
+    </position>
+    <content>
+      <cells cellcount="58">
+        <cell1 column="0" row="1" text="z"/>
+        <cell2 column="0" row="2" text="s"/>
+        <cell3 column="0" row="3" text="x"/>
+        <cell4 column="0" row="4" text="d"/>
+        <cell5 column="0" row="5" text="c"/>
+        <cell6 column="0" row="6" text="v"/>
+        <cell7 column="0" row="7" text="g"/>
+        <cell8 column="0" row="8" text="b"/>
+        <cell9 column="0" row="9" text="h"/>
+        <cell10 column="0" row="10" text="n"/>
+        <cell11 column="0" row="11" text="j"/>
+        <cell12 column="0" row="12" text="m"/>
+        <cell13 column="0" row="13" text="q"/>
+        <cell14 column="0" row="14" text="2"/>
+        <cell15 column="0" row="15" text="w"/>
+        <cell16 column="0" row="16" text="3"/>
+        <cell17 column="0" row="17" text="e"/>
+        <cell18 column="0" row="18" text="r"/>
+        <cell19 column="0" row="19" text="5"/>
+        <cell20 column="0" row="20" text="t"/>
+        <cell21 column="0" row="21" text="6"/>
+        <cell22 column="0" row="22" text="y"/>
+        <cell23 column="0" row="23" text="7"/>
+        <cell24 column="0" row="24" text="u"/>
+        <cell25 column="0" row="25" text="i"/>
+        <cell26 column="0" row="26" text="9"/>
+        <cell27 column="0" row="27" text="o"/>
+        <cell28 column="0" row="28" text="0"/>
+        <cell29 column="0" row="29" text="p"/>
+        <cell30 column="1" row="1" text="C-3"/>
+        <cell31 column="1" row="2" text="C#3"/>
+        <cell32 column="1" row="3" text="D-3"/>
+        <cell33 column="1" row="4" text="D#3"/>
+        <cell34 column="1" row="5" text="E-3"/>
+        <cell35 column="1" row="6" text="F-3"/>
+        <cell36 column="1" row="7" text="F#3"/>
+        <cell37 column="1" row="8" text="G-3"/>
+        <cell38 column="1" row="9" text="G#3"/>
+        <cell39 column="1" row="10" text="A-3"/>
+        <cell40 column="1" row="11" text="A#3"/>
+        <cell41 column="1" row="12" text="B-3"/>
+        <cell42 column="1" row="13" text="C-3"/>
+        <cell43 column="1" row="14" text="C#4"/>
+        <cell44 column="1" row="15" text="D-4"/>
+        <cell45 column="1" row="16" text="D#4"/>
+        <cell46 column="1" row="17" text="E-4"/>
+        <cell47 column="1" row="18" text="F-4"/>
+        <cell48 column="1" row="19" text="F#4"/>
+        <cell49 column="1" row="20" text="G-4"/>
+        <cell50 column="1" row="21" text="G#4"/>
+        <cell51 column="1" row="22" text="A-4"/>
+        <cell52 column="1" row="23" text="A#4"/>
+        <cell53 column="1" row="24" text="B-4"/>
+        <cell54 column="1" row="25" text="C-5"/>
+        <cell55 column="1" row="26" text="C#5"/>
+        <cell56 column="1" row="27" text="D-5"/>
+        <cell57 column="1" row="28" text="D#5"/>
+        <cell58 column="1" row="29" text="E-5"/>
+      </cells>
+    </content>
+  </grid>
+</CONFIG>
