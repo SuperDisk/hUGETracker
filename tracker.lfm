@@ -934,10 +934,10 @@ object frmTracker: TfrmTracker
           Left = 8
           Height = 139
           Top = 8
-          Width = 560
+          Width = 568
           Caption = 'Wave Editor'
           ClientHeight = 119
-          ClientWidth = 556
+          ClientWidth = 564
           ParentFont = False
           TabOrder = 0
           object Label20: TLabel
@@ -982,13 +982,10 @@ object frmTracker: TfrmTracker
             TabOrder = 2
           end
           object HexWaveEdit: TEdit
-            AnchorSideLeft.Control = Label13
-            AnchorSideLeft.Side = asrBottom
-            Left = 284
+            Left = 288
             Height = 23
             Top = 8
             Width = 264
-            BorderSpacing.Left = 8
             MaxLength = 32
             OnChange = HexWaveEditEditingDone
             OnEditingDone = HexWaveEditEditingDone
@@ -1801,7 +1798,7 @@ object frmTracker: TfrmTracker
       Height = 22
       Top = 0
       Width = 43
-      Align = alLeft
+      AutoSize = False
       Caption = 'Octave  '
       Layout = tlCenter
       ParentColor = False
@@ -1812,7 +1809,7 @@ object frmTracker: TfrmTracker
       Height = 22
       Top = 0
       Width = 70
-      Align = alLeft
+      AutoSize = False
       Caption = '  Instrument  '
       Layout = tlCenter
       ParentColor = False
@@ -1841,7 +1838,7 @@ object frmTracker: TfrmTracker
       Height = 22
       Top = 0
       Width = 35
-      Align = alLeft
+      AutoSize = False
       Caption = '  Step  '
       Layout = tlCenter
       ParentColor = False
