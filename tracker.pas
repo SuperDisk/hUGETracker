@@ -2071,6 +2071,10 @@ procedure TfrmTracker.InstrumentNameEditChange(Sender: TObject);
 var
   S: String;
 begin
+  // Fixes a weird bug on Linux where the LCL accesses something out of bounds
+  // when this function fires before the form is active...
+  {$ifdef UNIX}if not Active then Exit;{$endif}
+
   S := IntToStr(InstrumentNumberSpinner.Value) + ': ' + InstrumentNameEdit.Text;
   CurrentInstrument^.Name := InstrumentNameEdit.Text;
   case CurrentInstrumentBank of
