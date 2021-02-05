@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 712
+  Left = 484
   Height = 653
-  Top = 264
+  Top = 122
   Width = 1232
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -1993,9 +1993,11 @@ object frmTracker: TfrmTracker
       Caption = 'Help'
       object MenuItem15: TMenuItem
         Action = HelpLookupManual
+        Visible = False
       end
       object N3: TMenuItem
         Caption = '-'
+        Visible = False
       end
       object SampleSongsMenuItem: TMenuItem
         Caption = 'Example Songs'
