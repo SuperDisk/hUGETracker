@@ -1371,6 +1371,7 @@ begin
 
   if (not FileExists('PixeliteTTF.ttf'))
   or (not FileExists('halt.gb'))
+  or (not FileExists('halt.sym'))
   or (not DirectoryExists('hUGEDriver')) then begin
     MessageDlg('Error',
       'hUGETracker can''t load a required file which comes with '+
