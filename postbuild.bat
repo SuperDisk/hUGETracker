@@ -4,7 +4,7 @@ for /f %%i in ('where rgbasm') do set rgbasm=%%i
 for /f %%i in ('where rgblink') do set rgblink=%%i
 for /f %%i in ('where rgbfix') do set rgbfix=%%i
 
-set outdir=%1
+set outdir=Release
 
 :: Build halt.gb
 %rgbasm% -o halt.o halt.asm

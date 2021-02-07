@@ -18,7 +18,7 @@ type
   TRoutineIndex = 0..15;
 
 const
-  UGE_FORMAT_VERSION = 4;
+  UGE_FORMAT_VERSION = 5;
 
   SYM_ROW = 'row';
   SYM_TICK = 'tick';
