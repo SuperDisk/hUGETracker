@@ -7,17 +7,21 @@ for /f %%i in ('where rgbfix') do set rgbfix=%%i
 set outdir=Release
 
 :: Build halt.gb
-%rgbasm% -o halt.o halt.asm
+%rgbasm% -o halt.obj halt.asm
 if not errorlevel 0 goto buildfail
-%rgblink% -n %outdir%\halt.sym -o %outdir%\halt.gb halt.o
+%rgblink% -n %outdir%\halt.sym -o %outdir%\halt.gb halt.obj
 if not errorlevel 0 goto buildfail
 
-erase halt.o
+erase halt.obj
 
 %rgbfix% -p0 -v %outdir%\halt.gb
 if not errorlevel 0 goto fixfail
 
 :: Copy needed stuff
+
+copy %rgbasm% %outdir%\
+copy %rgbalink% %outdir%\
+copy %rgbfix% %outdir%\
 
 copy Resources\Fonts\PixeliteTTF.ttf %outdir%\
 if not errorlevel 0 goto copyfail
