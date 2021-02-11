@@ -13,4 +13,6 @@ lib
 *trace*.txt
 *.so
 ~*
-Release
+Release-windows
+Release-mac
+Release-linux
