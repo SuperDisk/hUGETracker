@@ -6,6 +6,7 @@ for /f %%i in ('where rgbfix') do set rgbfix=%%i
 for /f %%i in ('where ffmpeg') do set ffmpeg=%%i
 
 set outdir=%1
+if x%outdir%==x goto no_outdir
 
 :: Build halt.gb
 %rgbasm% -o halt.obj halt.asm
@@ -68,4 +69,8 @@ exit/b 1
 
 :copyfail
 echo Error while copying required things from resources!
+exit/b 1
+
+:no_outdir
+echo Output directory not specified!
 exit/b 1
