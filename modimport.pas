@@ -104,7 +104,7 @@ begin
   Result := EnsureRange(Instr, 0, 15);
 end;
 
-procedure ConvertEffect(Code, Params: Integer; out OutCode: Integer; out OutParams: TEffectParams);
+procedure ConvertEffect(Code, Params: Byte; out OutCode: Integer; out OutParams: TEffectParams);
 var
   EP: TEffectParams absolute Params;
 label IdentityEffect;
@@ -117,11 +117,17 @@ begin
     case Code of
       $9: begin
         OutCode := $C;
-        OutParams.Value := Swap(Params);
+        OutParams.Param1 := Lo(Params);
+        OutParams.Param2 := Hi(Params);
       end;
       $C: begin
-        OutCode := $C;
-        OutParams.Value := Trunc((Params / $40)*$F);
+        if Params <> 0 then begin
+          OutCode := $C;
+          OutParams.Value := Trunc((Params / $40)*$F);
+        end else begin
+          OutCode := $E;
+          OutParams.Value := 0;
+        end;
       end;
       $E: begin
         if EP.Param1 = $C then begin
@@ -157,9 +163,12 @@ begin
   for I := Low(MP) to High(MP) do begin
     Pat^[I] := ConvertCell(MP[I, Column]);
 
-    if (Pat^[I].EffectCode = $C) and (Pat^[I].Note = NO_NOTE) then begin
-      Pat^[I].Note := LastPlayedNote;
-      Pat^[I].Instrument := LastPlayedInstrument;
+    if (Pat^[I].EffectCode = $C) then begin
+      if (Pat^[I].Instrument = 0) then
+        Pat^[I].Instrument := LastPlayedInstrument;
+
+      if (Pat^[I].Note = NO_NOTE) then
+        Pat^[I].Note := LastPlayedNote;
     end;
 
     if (Pat^[I].Note <> NO_NOTE) then LastPlayedNote := Pat^[I].Note;
