@@ -1,11 +1,28 @@
-rem @echo off
+@echo on
 
 for /f %%i in ('where rgbasm') do set rgbasm=%%i
 for /f %%i in ('where rgblink') do set rgblink=%%i
 for /f %%i in ('where rgbfix') do set rgbfix=%%i
 for /f %%i in ('where ffmpeg') do set ffmpeg=%%i
 
-set outdir=%1
+if x%rgbasm%==x (
+   echo rgbasm not found!
+   exit/b 1
+)
+if x%rgblink%==x (
+   echo rgblink not found!
+   exit/b 1
+)
+if x%rgbfix%==x (
+   echo rgbfix not found!
+   exit/b 1
+)
+if x%ffmpeg%==x (
+   echo ffmpeg not found!
+   exit/b 1
+)
+
+set) outdir=%1
 if x%outdir%==x goto no_outdir
 
 :: Build halt.gb
@@ -34,7 +51,7 @@ if not errorlevel 0 goto copyfail
 
 mkdir %outdir%\hUGEDriver
 pushd %outdir%\hUGEDriver
-curl -L https://api.github.com/repos/SuperDisk/hUGEDriver/tarball | tar xf - --strip 1
+curl -L https://api.github.com/repos/SuperDisk/hUGEDriver/tarball | tar xzf - --strip 1
 popd
 
 Xcopy /E /I /Y "Resources\Sample Songs" "%outdir%\Sample Songs"
