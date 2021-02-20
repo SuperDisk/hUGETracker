@@ -6,10 +6,10 @@ link=$(which rgblink)
 fix=$(which rgbfix)
 ffm=$(which ffmpeg)
 
-if [ -z "$asm" ]; then {echo "rgbasm not found!"; exit 1; } fi
-if [ -z "$link" ]; then {echo "rgblink not found!"; exit 1; } fi
-if [ -z "$fix" ]; then {echo "rgbfix not found!"; exit 1; } fi
-if [ -z "$ffm" ]; then {echo "ffmpeg not found!"; exit 1; } fi
+if [ -z "$asm" ]; then { echo "rgbasm not found!"; exit 1; } fi
+if [ -z "$link" ]; then { echo "rgblink not found!"; exit 1; } fi
+if [ -z "$fix" ]; then { echo "rgbfix not found!"; exit 1; } fi
+if [ -z "$ffm" ]; then { echo "ffmpeg not found!"; exit 1; } fi
 
 outdir="$1"
 if [ -z "$outdir" ]
@@ -21,7 +21,7 @@ fi
 # Build halt.gb
 
 function check_fail() {
-    if [ $? -eq 0 ]
+    if [ $? -ne 0 ]
     then
         echo "Failed, aborting."
         exit 1

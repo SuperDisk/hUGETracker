@@ -22,18 +22,18 @@ if x%ffmpeg%==x (
    exit/b 1
 )
 
-set) outdir=%1
+set outdir=%1
 if x%outdir%==x goto no_outdir
 
 :: Build halt.gb
-%rgbasm% -o halt.obj halt.asm
+rgbasm -o halt.obj halt.asm
 if not errorlevel 0 goto buildfail
-%rgblink% -n %outdir%\halt.sym -o %outdir%\halt.gb halt.obj
+rgblink -n %outdir%\halt.sym -o %outdir%\halt.gb halt.obj
 if not errorlevel 0 goto buildfail
 
 erase halt.obj
 
-%rgbfix% -p0 -v %outdir%\halt.gb
+rgbfix -p0 -v %outdir%\halt.gb
 if not errorlevel 0 goto fixfail
 
 :: Copy needed stuff
