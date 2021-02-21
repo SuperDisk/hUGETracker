@@ -1884,9 +1884,12 @@ end;
 procedure TfrmTracker.OrderEditStringGridValidateEntry(sender: TObject; aCol,
   aRow: Integer; const OldValue: string; var NewValue: String);
 var
-  _: Integer;
+  X: Integer;
 begin
-  if not TryStrToInt(NewValue, _) then NewValue := OldValue;
+  if TryStrToInt(NewValue, X) then
+    NewValue := IntToStr(Abs(X))
+  else
+    NewValue := OldValue;
 end;
 
 procedure TfrmTracker.PlayCursorActionExecute(Sender: TObject);

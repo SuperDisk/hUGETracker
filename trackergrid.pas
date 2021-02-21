@@ -449,6 +449,8 @@ begin
     VK_NEXT: Inc(Cursor.Y, 16);
     VK_LEFT: DecSelectionPos(Cursor);
     VK_RIGHT: IncSelectionPos(Cursor);
+    VK_HOME: Cursor.Y := Low(TPattern);
+    VK_END: Cursor.Y := High(TPattern);
     VK_TAB: begin
       if ssShift in Shift then  begin
         Dec(Cursor.X);
