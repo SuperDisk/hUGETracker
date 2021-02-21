@@ -588,7 +588,7 @@ end;
 
 procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
 var
-  Interval{, HInterval}: Single;
+  Interval: Single;
   I: Integer;
   W, H : Integer;
 begin
@@ -596,26 +596,16 @@ begin
   H := PB.Height-4;
 
   Interval := W / 32;
-  //HInterval := H div $10;
   With PB.Canvas do begin
     Brush.Color := clGameboyBlack;
     Clear;
 
-    {Pen.Width := 1;
-    Pen.Color := StringToColor('$103800');
-    for I := 0 to 32 do
-      Line(I*Interval, 0, I*Interval, H);
-
-    for I := 0 to $10 do
-      Line(0, I*HInterval, W, I*HInterval);}
-
-    Brush.Color := clGameboyMidGreen;
     Pen.Color := clGameboyMidGreen;
     Pen.Width := 2;
     MoveTo(0, H);
     for I := Low(Wave) to High(Wave) do
-      LineTo(Round(I*Interval), Trunc((Wave[I]/$F)*H)+2);
-    LineTo(W, Trunc((Wave[0]/$F)*H));
+      LineTo(Round(I*Interval), H-Trunc((Wave[I]/$F)*H)+2);
+    LineTo(W, H-Trunc((Wave[0]/$F)*H));
   end;
 end;
 
@@ -2139,7 +2129,7 @@ begin
 
   with OrderEditStringGrid do
     InsertRowWithValues(
-      Row,
+      Row+1,
       ['',
       IntToStr(Highest),
       IntToStr(Highest+1),
@@ -2156,7 +2146,7 @@ end;
 procedure TfrmTracker.MenuItem18Click(Sender: TObject);
 begin
   with OrderEditStringGrid do
-    InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
+    InsertRowWithValues(Row+1, ['', '0', '0', '0', '0']);
 
   ReloadPatterns;
 end;
@@ -2187,7 +2177,7 @@ begin
 
   with OrderEditStringGrid do begin
     InsertRowWithValues(
-      Row,
+      Row+1,
       ['',
       IntToStr(Highest),
       IntToStr(Highest+1),
@@ -2574,7 +2564,7 @@ begin
   Y := EnsureRange(Y, 0, WaveEditPaintBox.Height);
   if DrawingWave then begin
     Idx := EnsureRange(Round((X / WaveEditPaintBox.Width)*32), Low(TWave), High(TWave));
-    CurrentWave^[Idx] := EnsureRange(Round((Y / WaveEditPaintBox.Height)*$F), 0, $F);
+    CurrentWave^[Idx] := EnsureRange(Round($F-((Y / WaveEditPaintBox.Height)*$F)), 0, $F);
     UpdateHexWaveTextbox;
     WaveEditPaintBox.Invalidate;
     if PlayWaveWhileDrawingCheckbox.Checked then
