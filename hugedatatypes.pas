@@ -54,7 +54,6 @@ type
   //TPatternMap = specialize TFPGMap<Integer, PPattern>;
   TPatternMap = class(specialize TFPGMap<Integer, PPattern>)
     function GetOrCreateNew(Key: Integer): PPattern;
-    function CreateNewPattern(Key: Integer): PPattern;
     function MaxKey: Integer;
 
     procedure DeletePattern(Key: Integer);
@@ -162,15 +161,6 @@ begin
     BlankPattern(Result);
     Self.Add(Key, Result);
   end;
-end;
-
-function TPatternMap.CreateNewPattern(Key: Integer): PPattern;
-begin
-  if IndexOf(Key) <> -1 then Exit(KeyData[Key]);
-
-  New(Result);
-  BlankPattern(Result);
-  Self.Add(Key, Result);
 end;
 
 function TPatternMap.MaxKey: Integer;

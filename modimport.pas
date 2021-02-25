@@ -229,10 +229,10 @@ begin
 
   // Convert all patterns
   for I := Low(ModFile.Patterns) to High(ModFile.Patterns) do begin
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.CreateNewPattern(I*10 + 0), 1);
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.CreateNewPattern(I*10 + 1), 2);
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.CreateNewPattern(I*10 + 2), 3);
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.CreateNewPattern(I*10 + 3), 4);
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 0), 1);
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 1), 2);
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 2), 3);
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 3), 4);
   end;
 
   // Import the order table. Uses a weird numbering scheme because hUGE has

@@ -10,7 +10,7 @@ uses
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
-  modimport, mainloop, strutils, Types, Keymap, hUGESettings;
+  modimport, beepboximport, mainloop, strutils, Types, Keymap, hUGESettings;
 
 // TODO: Move to config file?
 const
@@ -170,7 +170,7 @@ type
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
-    DebugShiteButton: TMenuItem;
+    DebugButton: TMenuItem;
     N3: TMenuItem;
     N2: TMenuItem;
     MenuItem6: TMenuItem;
@@ -258,7 +258,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
-    procedure DebugShiteButtonClick(Sender: TObject);
+    procedure DebugButtonClick(Sender: TObject);
     procedure DecrementCurrentInstrumentActionExecute(Sender: TObject);
     procedure DeleteRowActionExecute(Sender: TObject);
     procedure DeleteRowActionUpdate(Sender: TObject);
@@ -1436,9 +1436,9 @@ begin
   // Switch to general tab sheet
   PageControl1.ActivePageIndex := 0;
 
-  {$ifdef DEVELOPMENT}
-  DebugShiteButton.Visible := True;
-  DebugPlayNoteButton.Visible := True;
+  {$ifdef PRODUCTION}
+  DebugButton.Visible := False;
+  DebugPlayNoteButton.Visible := False;
   {$endif}
 
   // Load sample songs list
@@ -1946,9 +1946,19 @@ begin
   PreviewC5;
 end;
 
-procedure TfrmTracker.DebugShiteButtonClick(Sender: TObject);
+procedure TfrmTracker.DebugButtonClick(Sender: TObject);
+var
+  S: TStream;
 begin
-  //writeln(UniqueOrdersDuringPlayback(Song, 0, 99999));
+  S := TFileStream.Create('C:/test/bbs.json', fmOpenRead);
+  try
+    DestroySong(Song);
+    Song := LoadSongFromBeepBoxJsonStream(S);
+  finally
+    S.Free;
+  end;
+
+  UpdateUIAfterLoad('Yeah!');
 end;
 
 procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);
@@ -2138,7 +2148,7 @@ begin
     );
 
   for X := 0 to 3 do
-    Song.Patterns.CreateNewPattern(Highest+X);
+    Song.Patterns.GetOrCreateNew(Highest+X);
 
   ReloadPatterns;
 end;
@@ -2186,7 +2196,7 @@ begin
     );
 
     for X := 0 to 3 do
-      Song.Patterns.CreateNewPattern(Highest+X)^ :=
+      Song.Patterns.GetOrCreateNew(Highest+X)^ :=
         Song.Patterns.KeyData[StrToInt(Rows[Row][X+1])]^;
   end;
 

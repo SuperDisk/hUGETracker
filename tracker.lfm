@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 484
+  Left = 487
   Height = 653
-  Top = 122
+  Top = 125
   Width = 1232
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -2019,13 +2019,11 @@ object frmTracker: TfrmTracker
     end
     object DebugPlayNoteButton: TMenuItem
       Caption = 'Debug play note'
-      Visible = False
       OnClick = DebugPlayNoteButtonClick
     end
-    object DebugShiteButton: TMenuItem
-      Caption = 'Debug shite'
-      Visible = False
-      OnClick = DebugShiteButtonClick
+    object DebugButton: TMenuItem
+      Caption = 'Debug button'
+      OnClick = DebugButtonClick
     end
   end
   object MenuBarActionList: TActionList

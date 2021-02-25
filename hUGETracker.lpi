@@ -221,7 +221,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="24">
+    <Units Count="25">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -348,6 +348,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="hUGESettings"/>
       </Unit23>
+      <Unit24>
+        <Filename Value="beepboximport.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BeepBoxImport"/>
+      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

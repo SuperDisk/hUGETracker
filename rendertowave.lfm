@@ -1,7 +1,7 @@
 object frmRenderToWave: TfrmRenderToWave
-  Left = 1806
+  Left = 1810
   Height = 219
-  Top = 236
+  Top = 240
   Width = 451
   BorderStyle = bsSingle
   Caption = 'Render song'
