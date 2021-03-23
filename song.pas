@@ -678,8 +678,11 @@ begin
 
   // De-duplicate order matrix such that only unique numbers remain
   for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
-    for J := Low(Result.OrderMatrix[I]) to High(Result.OrderMatrix[I])-1 do
-      Result.OrderMatrix[I, J] := FindMatchingPattern(Result.Patterns[Result.OrderMatrix[I, J]]^);
+    for J := Low(Result.OrderMatrix[I]) to High(Result.OrderMatrix[I])-1 do begin
+      if Result.Patterns.IndexOf(Result.OrderMatrix[I, J]) = -1 then
+        WriteLn(StdErr, '[ERROR] Nonexistent pattern number in order table: ', Result.OrderMatrix[I, J], '!!!');
+      Result.OrderMatrix[I, J] := FindMatchingPattern(Result.Patterns.GetOrCreateNew(Result.OrderMatrix[I, J])^);
+    end;
 end;
 
 function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;

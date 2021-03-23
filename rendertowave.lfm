@@ -1,5 +1,5 @@
 object frmRenderToWave: TfrmRenderToWave
-  Left = 1810
+  Left = 1811
   Height = 219
   Top = 240
   Width = 451
