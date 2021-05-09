@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1675
+  Left = 1698
   Height = 653
-  Top = 120
+  Top = 248
   Width = 1232
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -5376,6 +5376,16 @@ object frmTracker: TfrmTracker
       Caption = 'DecrementCurrentInstrumentAction'
       OnExecute = DecrementCurrentInstrumentActionExecute
       ShortCut = 8381
+    end
+    object IncreaseOctaveAction: TAction
+      Caption = 'IncreaseOctaveAction'
+      OnExecute = IncreaseOctaveActionExecute
+      ShortCut = 106
+    end
+    object DecreaseOctaveAction: TAction
+      Caption = 'DecreaseOctaveAction'
+      OnExecute = DecreaseOctaveActionExecute
+      ShortCut = 111
     end
   end
   object GBDKCSaveDialog: TSaveDialog

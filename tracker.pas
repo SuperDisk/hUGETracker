@@ -25,6 +25,8 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    DecreaseOctaveAction: TAction;
+    IncreaseOctaveAction: TAction;
     IncrementCurrentInstrumentAction: TAction;
     DecrementCurrentInstrumentAction: TAction;
     GotoGeneralAction: TAction;
@@ -259,6 +261,7 @@ type
     TrackerGrid: TTrackerGrid;
     procedure Button1Click(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
+    procedure DecreaseOctaveActionExecute(Sender: TObject);
     procedure DecrementCurrentInstrumentActionExecute(Sender: TObject);
     procedure DeleteRowActionExecute(Sender: TObject);
     procedure DeleteRowActionUpdate(Sender: TObject);
@@ -276,6 +279,7 @@ type
     procedure GotoRoutinesActionExecute(Sender: TObject);
     procedure GotoWavesActionExecute(Sender: TObject);
     procedure HexWaveEditEditingDone(Sender: TObject);
+    procedure IncreaseOctaveActionExecute(Sender: TObject);
     procedure IncrementCurrentInstrumentActionExecute(Sender: TObject);
     procedure InsertRowActionExecute(Sender: TObject);
     procedure InsertRowActionUpdate(Sender: TObject);
@@ -1751,6 +1755,12 @@ begin
   end;
 end;
 
+procedure TfrmTracker.IncreaseOctaveActionExecute(Sender: TObject);
+begin
+  OctaveSpinEdit.Value := OctaveSpinEdit.Value + 1;
+  TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+end;
+
 procedure TfrmTracker.IncrementCurrentInstrumentActionExecute(Sender: TObject);
 begin
   InstrumentComboBox.ItemIndex := EnsureRange(InstrumentComboBox.ItemIndex+1, 0, InstrumentComboBox.Items.Count-1);
@@ -1959,6 +1969,12 @@ begin
   end;
 
   UpdateUIAfterLoad('Yeah!');
+end;
+
+procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);
+begin
+  OctaveSpinEdit.Value := OctaveSpinEdit.Value - 1;
+  TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
 
 procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);

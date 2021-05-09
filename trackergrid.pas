@@ -452,12 +452,18 @@ begin
     VK_HOME: Cursor.Y := Low(TPattern);
     VK_END: Cursor.Y := High(TPattern);
     VK_TAB: begin
-      if ssShift in Shift then  begin
+      if ssShift in Shift then begin
         Dec(Cursor.X);
         Exclude(Shift, ssShift)
       end
       else
         Inc(Cursor.X);
+
+      if Cursor.X > High(TPatternGrid) then
+        Cursor.X := Low(TPatternGrid);
+      if Cursor.X < Low(TPatternGrid) then
+        Cursor.X := High(TPatternGrid);
+
       Key := 0;
     end
     else
