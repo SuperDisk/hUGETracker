@@ -95,8 +95,8 @@ function ConvertNote(Note: Integer): Integer;
 begin
   if Note = 0 then
     Result := NO_NOTE
-  else
-    Result := PeriodToCodeMap.KeyData[Note];
+  else if not PeriodToCodeMap.TryGetData(Note, Result) then
+    Result := LOWEST_NOTE;
 end;
 
 function ConvertInstrument(Instr: Integer): Integer;
