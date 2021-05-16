@@ -7,11 +7,11 @@ If you just want to download hUGETracker, check out [the homepage](https://nickf
 
 If you're looking for the music driver you can include in your homebrew game, check out [hUGEDriver!](https://github.com/SuperDisk/hUGEDriver)
 
-If you want help using the tracker, driver, or just want to chat, contact me on Discord (superdisk#5726)!
+If you want help using the tracker, driver, or just want to chat, join the [hUGETracker Discord server](https://discord.gg/abbHjEj5WH)!
 
 # Build instructions
 
-The project's main branch currently isn't in a production-ready state (it's broken) but that will change soon. So don't follow these instructions quite yet...
+The general build instructions are yet to be 100% solidified, but these steps will guide you in the right direction.
 
 The only requirements to build hUGETracker are a recent version of [Lazarus](https://www.lazarus-ide.org/) for your platform.
 If you plan on building for other platforms than your own, you'll need the FPC crosscompilers for those platforms. (I recommend using [FPCUpDeluxe](https://github.com/LongDirtyAnimAlf/fpcupdeluxe) but honestly you probably don't need to do this)
