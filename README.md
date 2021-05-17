@@ -7,7 +7,7 @@ If you just want to download hUGETracker, check out [the homepage](https://nickf
 
 If you're looking for the music driver you can include in your homebrew game, check out [hUGEDriver!](https://github.com/SuperDisk/hUGEDriver)
 
-If you want help using the tracker, driver, or just want to chat, join the [hUGETracker Discord server](https://discord.gg/abbHjEj5WH)!
+If you want help using the tracker, driver, or just want to chat, join the [hUGETracker Discord server!](https://discord.gg/abbHjEj5WH)
 
 # Build instructions
 
@@ -46,4 +46,4 @@ lazbuild GBEmu.lpi --build-mode="Production Linux"
 
 # License
 
-hUGETracker itself is licensed under the [GPLv2](https://github.com/SuperDisk/hUGETracker/blob/hUGETracker/Copying), however [the music driver that powers hUGETracker](https://github.com/SuperDisk/hUGEDriver) is dedicated to the public domain, and completely free and open source.
+hUGETracker itself is licensed under the [GPLv2](https://github.com/SuperDisk/hUGETracker/blob/hUGETracker/Copying), however [the music driver that powers hUGETracker](https://github.com/SuperDisk/hUGEDriver) is dedicated to the public domain, and is completely free and open source.
