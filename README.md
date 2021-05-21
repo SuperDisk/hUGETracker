@@ -27,7 +27,7 @@ cd hUGETracker
 lazbuild --add-package-link rackctls/RackCtlsPkg.lpk
 lazbuild --add-package-link bgrabitmap/bgrabitmap/bgrabitmappack.lpk
 
-:: At this point if you want to develop HT, then open GBEmu.lpi in Lazarus, make sure you're in the 
+:: At this point if you want to develop HT, then open hUGETracker.lpi in Lazarus, make sure you're in the 
 :: Development build mode, and everything should build correctly. However, in order to allow for concurrent
 :: development on the tracker (this repo) and the sound driver (https://github.com/SuperDisk/hUGEDriver),
 :: the hUGEDriver folder is not copied to the output directory, and you're expected to symlink it there yourself;
@@ -38,9 +38,9 @@ ln -s hUGEDriver lib/Development/x86_64-linux/hUGEDriver
 
 :: If you just want to build a release for whatever platform you have, pick one of the following:
 
-lazbuild GBEmu.lpi --build-mode="Production Windows"
-lazbuild GBEmu.lpi --build-mode="Production Mac"
-lazbuild GBEmu.lpi --build-mode="Production Linux"
+lazbuild hUGETracker.lpi --build-mode="Production Windows"
+lazbuild hUGETracker.lpi --build-mode="Production Mac"
+lazbuild hUGETracker.lpi --build-mode="Production Linux"
 
 ```
 
