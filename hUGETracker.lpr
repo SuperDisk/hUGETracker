@@ -36,6 +36,8 @@ Function AddFont    (Dir : PAnsiChar;
                       Name 'AddFontResourceExA';
 {$endif}
 
+var
+  outputIndex : Integer;
 begin
   ReturnNilIfGrowHeapFails := False;
 
@@ -69,8 +71,21 @@ begin
   {$endif}
 
   {$ifdef PRODUCTION}
-  Assign(Output, 'output.log');
-  Rewrite(Output);
+    // Add a number to the log file name if the file is in use.
+    outputIndex := 0;
+    while True do
+    begin
+      Assign(Output, 'output' + IntToStr(outputIndex) + '.log');
+      try
+        Rewrite(Output);
+        // if Rewrite is successful, exit loop
+        Break;
+      except
+        inc(outputIndex);
+      end;
+      // Give up if the file access fails more than 5 times
+      if outputIndex > 5 then Break;
+    end;
   {$endif}
 
   Application.Scaled:=True;
