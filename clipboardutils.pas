@@ -62,8 +62,17 @@ begin
     SL.Text := Clipboard.AsText;
 
     // Delete lines until we reach the note data
-    while not SL.Strings[0].StartsWith('|') do
+    while not SL.Strings[0].StartsWith('|') do begin
       SL.Delete(0);
+      if SL.Count = 0 then begin
+         // Copied text doesn't contain any note data
+         WriteLn(StdErr, '[DEBUG] Clipboard did not contain valid note data!');
+         // Result has to contain something, so populate it with an empty note
+         SetLength(Result, 1, 1);
+         Result[0,0] := ParseCell('...   ...');
+         exit;
+      end;
+    end;
     SetLength(Result, SL.Count);
 
     I := 0;
