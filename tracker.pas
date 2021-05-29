@@ -1632,6 +1632,9 @@ begin
     P.X := X;
     P.Y := Y;
 
+    if HeaderControl1.GetSectionAt(P) = 0 then
+      Exit;
+
     for I := 1 to 4 do
       HeaderControl1.Sections[I].ImageIndex := 0;
 
