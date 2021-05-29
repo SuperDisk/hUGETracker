@@ -69,8 +69,7 @@ begin
   {$endif}
 
   {$ifdef PRODUCTION}
-  Assign(Output, 'output.log');
-  Rewrite(Output);
+  Output := StdErr;
   {$endif}
 
   Application.Scaled:=True;
