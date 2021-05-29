@@ -88,6 +88,7 @@ type
     procedure DoCut(var Msg: TLMessage); message LM_CUT;
     procedure BeginUndoAction;
     procedure EndUndoAction;
+    procedure RevertUndoAction;
 
     procedure RenderSelectedArea;
     procedure ClampCursors;
@@ -560,12 +561,20 @@ var
 begin
   BeginUndoAction;
 
-  Selection := GetPastedCells;
-  I := Cursor.Y;
-  while I <= High(TPattern) do begin
-    Cursor.Y := I;
-    PerformPaste(Selection);
-    Inc(I, High(Selection)+1);
+  try
+    Selection := GetPastedCells;
+    I := Cursor.Y;
+    while I <= High(TPattern) do begin
+      Cursor.Y := I;
+      PerformPaste(Selection);
+      Inc(I, High(Selection)+1);
+    end;
+  except
+    on E: EClipboardFormatException do begin
+      WriteLn(StdErr, '[WARNING] ', E.Message);
+      RevertUndoAction;
+      Exit
+    end;
   end;
 
   Invalidate;
@@ -576,7 +585,15 @@ procedure TTrackerGrid.DoPaste(var Msg: TLMessage);
 begin
   BeginUndoAction;
 
-  PerformPaste(GetPastedCells);
+  try
+    PerformPaste(GetPastedCells);
+  except
+    on E: EClipboardFormatException do begin
+      WriteLn(StdErr, '[WARNING] ', E.Message);
+      RevertUndoAction;
+      Exit
+    end;
+  end;
 
   Invalidate;
   EndUndoAction;
@@ -635,6 +652,12 @@ begin
       Performed.PopBack;
   end;
 
+  Dec(NestedUndoCount);
+end;
+
+procedure TTrackerGrid.RevertUndoAction;
+begin
+  // Don't save the undo action, just decrement the nested undo count.
   Dec(NestedUndoCount);
 end;
 

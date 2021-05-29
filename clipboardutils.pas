@@ -7,6 +7,9 @@ interface
 uses
   Classes, SysUtils, Constants, Clipbrd, HugeDatatypes, Utils;
 
+type
+  EClipboardFormatException = class(Exception);
+
 function GetPastedCells: TSelection;
 procedure CopyCells(Selection: TSelection);
 
@@ -59,21 +62,26 @@ var
 begin
   SL := TStringList.Create;
   try
-    SL.Text := Clipboard.AsText;
+    try
+      SL.Text := Clipboard.AsText;
 
-    // Delete lines until we reach the note data
-    while not SL.Strings[0].StartsWith('|') do
-      SL.Delete(0);
-    SetLength(Result, SL.Count);
+      // Delete lines until we reach the note data
+      while not SL.Strings[0].StartsWith('|') do
+        SL.Delete(0);
+      SetLength(Result, SL.Count);
 
-    I := 0;
-    for Row in SL do begin
-      StringCells := Row.Split('|');
+      I := 0;
+      for Row in SL do begin
+        StringCells := Row.Split('|');
 
-      SetLength(Result[I], Length(StringCells)-1);
-      for J := 0 to High(StringCells)-1 do
-        Result[I, J] := ParseCell(StringCells[J+1]);
-      Inc(I);
+        SetLength(Result[I], Length(StringCells)-1);
+        for J := 0 to High(StringCells)-1 do
+          Result[I, J] := ParseCell(StringCells[J+1]);
+        Inc(I);
+      end;
+    except
+      on E: Exception do
+        raise EClipboardFormatException.Create('Clipboard contained invalid data!');
     end;
   finally
     SL.Free;
