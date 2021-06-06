@@ -2235,6 +2235,7 @@ begin
   Panel2.Visible := ScopesOn;
 
   RecreateRowNumbers;
+  TrackerGrid.Invalidate;
 
   CreateKeymap
 end;
