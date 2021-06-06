@@ -93,11 +93,11 @@ begin
     $A: Result := 'Increase volume by '+IntToStr(Params.Param1)+' units, decrease volume by '+IntToStr(Params.Param2)+' units';
     $B: Result := 'Jump to order '+P;
     $C: begin
-    if (Params.Value < 16) then Result := 'Keep envelope, Set volume to '+IntToStr(Params.Param2)+'/15'
-    else if (Params.Value < 128) then Result := 'Envelope Down '+IntToStr(Params.Param1)+'/64Hz, Set volume to '+IntToStr(Params.Param2)+'/15'
-    else if (Params.Value < 144) then Result := 'Envelope Off, Set volume to '+IntToStr(Params.Param2)+'/15'
-    else Result := 'Envelope Up '+IntToStr(Params.Param1-8)+'/64Hz, Set volume to '+IntToStr(Params.Param2)+'/15'
-         end;
+      if (Params.Value < 16) then Result := 'Keep envelope, Set volume to '+IntToStr(Params.Param2)+'/15'
+      else if (Params.Value < 128) then Result := 'Envelope Down '+IntToStr(Params.Param1)+'/64Hz, Set volume to '+IntToStr(Params.Param2)+'/15'
+      else if (Params.Value < 144) then Result := 'Envelope Off, Set volume to '+IntToStr(Params.Param2)+'/15'
+      else Result := 'Envelope Up '+IntToStr(Params.Param1-8)+'/64Hz, Set volume to '+IntToStr(Params.Param2)+'/15'
+    end;
     $D: Result := 'Jump to row '+P+' on the next pattern';
     $E: Result := 'Cut note after '+P+' ticks';
     $F: Result := 'Set speed to '+P+' ticks';

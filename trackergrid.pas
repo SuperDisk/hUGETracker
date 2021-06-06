@@ -11,26 +11,6 @@ uses
 
 // TODO: Maybe read these from a config file
 const
-  clNote = TColor($7F4A00);
-  clInstrument = TColor($7F7F00);
-  //clVolume = TColor($99FFB7); unused
-
-  clFxMisc = TColor($3F3F7C);
-  clFxPitch = TColor($006262);
-  clFxVolume = TColor($007F26);
-  clFxPan = TColor($7F7F00);
-  clFxSong = TColor($00007F);
-
-  clBackground = TColor($D0DBE1);
-  clHighlighted = TColor($7A99A9);
-  clSelected = TColor($9EB4C0);
-
-  clLineFour = TColor($C3D1D8);
-  clLineSixteen = TColor($B5C5CE);
-
-  clDots = clGray;
-  clDividers = TColor($ABB7BC);
-
   NUM_COLUMNS = 4;
   NUM_ROWS = 64;
   UNDO_STACK_SIZE = 100;
@@ -178,6 +158,26 @@ type
       PatternMap: TPatternMap); reintroduce;
     destructor Destroy; override;
   end;
+
+var
+  clNote: TColor = TColor($7F4A00);
+  clInstrument: TColor = TColor($7F7F00);
+
+  clFxMisc: TColor = TColor($3F3F7C);
+  clFxPitch: TColor = TColor($006262);
+  clFxVolume: TColor = TColor($007F26);
+  clFxPan: TColor = TColor($7F7F00);
+  clFxSong: TColor = TColor($00007F);
+
+  clBackground: TColor = TColor($D0DBE1);
+  clHighlighted: TColor = TColor($7A99A9);
+  clSelected: TColor = TColor($9EB4C0);
+
+  clLineFour: TColor = TColor($C3D1D8);
+  clLineSixteen: TColor = TColor($B5C5CE);
+
+  clDots: TColor = clGray;
+  clDividers: TColor = TColor($ABB7BC);
 
 implementation
 
