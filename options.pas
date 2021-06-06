@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Spin, Grids,
-  LCLProc, Constants, Keymap, hUGESettings;
+  LCLProc, Buttons, ExtCtrls, Constants, Keymap, hUGESettings;
 
 type
 
@@ -18,7 +18,39 @@ type
     Button3: TButton;
     Button4: TButton;
     Button5: TButton;
+    ColorButton1: TColorButton;
+    ColorButton10: TColorButton;
+    ColorButton11: TColorButton;
+    ColorButton12: TColorButton;
+    ColorButton13: TColorButton;
+    ColorButton14: TColorButton;
+    ColorButton2: TColorButton;
+    ColorButton3: TColorButton;
+    ColorButton4: TColorButton;
+    ColorButton5: TColorButton;
+    ColorButton6: TColorButton;
+    ColorButton7: TColorButton;
+    ColorButton8: TColorButton;
+    ColorButton9: TColorButton;
+    ColorDialog1: TColorDialog;
     DisplayHexRowNumbersCheck: TCheckBox;
+    CustomizationGroupBox: TGroupBox;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
+    Label5: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label9: TLabel;
+    OptionsGroupBox: TGroupBox;
+    Panel1: TPanel;
     PreviewWhenPlacingCheck: TCheckBox;
     PreviewWhenBumpingCheck: TCheckBox;
     KeymapCheckbox: TCheckBox;
