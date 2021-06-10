@@ -10,7 +10,8 @@ uses
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
-  modimport, beepboximport, mainloop, strutils, Types, Keymap, hUGESettings;
+  modimport, beepboximport, mainloop, strutils, Types, Keymap, hUGESettings,
+  dmfimport;
 
 // TODO: Move to config file?
 const
@@ -43,6 +44,7 @@ type
     ExportCMenuItem: TMenuItem;
     MenuItem40: TMenuItem;
     ExportAsmMenuItem: TMenuItem;
+    MenuItem41: TMenuItem;
     MenuItem43: TMenuItem;
     MenuItem44: TMenuItem;
     MenuItem54: TMenuItem;
@@ -288,6 +290,7 @@ type
     procedure MenuItem37Click(Sender: TObject);
     procedure MenuItem38Click(Sender: TObject);
     procedure ExportAsmMenuItemClick(Sender: TObject);
+    procedure MenuItem41Click(Sender: TObject);
     procedure NoiseMacroPaintboxMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure NoiseMacroPaintboxMouseMove(Sender: TObject; Shift: TShiftState;
@@ -1814,6 +1817,24 @@ begin
     );
 end;
 
+procedure TfrmTracker.MenuItem41Click(Sender: TObject);
+var
+  Stream: TStream;
+begin
+  if not CheckUnsavedChanges then Exit;
+
+  if True then begin
+    DestroySong(Song);
+
+    Stream := TFileStream.Create('C:/test/pokemon2.dmf', fmOpenRead);
+    Song := LoadSongFromDmfStream(Stream);
+
+    Stream.Free;
+
+    UpdateUIAfterLoad('Bargus');
+  end;
+end;
+
 procedure TfrmTracker.NoiseMacroPaintboxMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
@@ -2268,6 +2289,7 @@ begin
   if MODOpenDialog.Execute then begin
     DestroySong(Song);
 
+    // TODO: Add error checking
     Stream := TFileStream.Create(MODOpenDialog.FileName, fmOpenRead);
     Song := LoadSongFromModStream(Stream);
 

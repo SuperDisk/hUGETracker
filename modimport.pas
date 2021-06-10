@@ -8,6 +8,10 @@ uses
   Classes, SysUtils, Song, hugedatatypes, fgl, math, constants,
   instruments;
 
+function LoadSongFromModStream(Stream: TStream): TSong;
+
+implementation
+
 type
   TPeriodToCodeMap = specialize TFPGMap<Integer, Integer>;
 
@@ -64,8 +68,6 @@ type
     Patterns: array of TMODPattern;
   end;
 
-function LoadSongFromModStream(Stream: TStream): TSong;
-
 const
   // https://github.com/AntonioND/gbt-player/blob/master/rgbds_example/gbt_player_bank1.asm
   GBT_WAVEFORMS: array[0..7] of array[0..15] of Byte =
@@ -80,8 +82,6 @@ const
 
 var
   PeriodToCodeMap: TPeriodToCodeMap;
-
-implementation
 
 function RawRowToRegularRow(RawRow: TMODRawRow): TMODRow;
 begin

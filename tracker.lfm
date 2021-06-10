@@ -1912,6 +1912,10 @@ object frmTracker: TfrmTracker
         Caption = 'Import GBT Player ...'
         OnClick = MenuItem34Click
       end
+      object MenuItem41: TMenuItem
+        Caption = 'Import DefleMask ...'
+        OnClick = MenuItem41Click
+      end
       object MenuItem35: TMenuItem
         Caption = '-'
       end
