@@ -965,7 +965,10 @@ begin
     end
     else begin
       Font.Color := clDots;
-      TextOut(PenPos.X, PenPos.Y, '...');
+      if Cell.Note = NO_NOTE then
+        TextOut(PenPos.X, PenPos.Y, '...')
+      else
+        TextOut(PenPos.X, PenPos.Y, '???');
     end;
 
     TextOut(PenPos.X, PenPos.Y, ' ');

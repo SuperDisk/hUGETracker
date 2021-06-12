@@ -1826,7 +1826,7 @@ begin
   if True then begin
     DestroySong(Song);
 
-    Stream := TFileStream.Create('C:/test/pokemon2.dmf', fmOpenRead);
+    Stream := TFileStream.Create('C:/test/pokemon3.dmf', fmOpenRead);
     Song := LoadSongFromDmfStream(Stream);
 
     Stream.Free;

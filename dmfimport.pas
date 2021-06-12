@@ -5,7 +5,7 @@ unit DMFImport;
 interface
 
 uses
-  Classes, SysUtils, ZStream, Song, hUGEDataTypes;
+  Classes, SysUtils, ZStream, Song, hUGEDataTypes, Constants;
 
 type
   EDMFException = class(Exception);
@@ -30,6 +30,7 @@ var
   Temp: QWord;
   TempS: String;
   Pat: PPattern;
+  DmfNote, DmfOctave: Integer;
 begin
   InitializeSong(Result);
 
@@ -79,12 +80,13 @@ begin
   //1 Byte:   Custom HZ value 3
   DS.Seek(5, soCurrent);
   //4 Bytes:  TOTAL_ROWS_PER_PATTERN
-  Temp := DS.ReadQWord;
+  Temp := DS.ReadDWord;
   Writeln(temp);
   if Temp <> 64 then
     raise EDMFException.Create('DMF file needs 64 rows per pattern!');
   //1 Byte:   TOTAL_ROWS_IN_PATTERN_MATRIX
   Temp := DS.ReadByte;
+  writeln('rows in pattern matrix ', temp);
   for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
     SetLength(Result.OrderMatrix[I], Temp);
 
@@ -99,16 +101,17 @@ begin
     raise EDMFException.Create('DMF file must have 15 instruments or less!');
 
   // Read all instruments
+  writeln('total instruments ', totalinstruments);
   for I := 0 to TotalInstruments-1 do begin
     //	1 Byte:   Instrument Name Chars Count (0-255)
     //	N Bytes:  Instrument Name Chars
     TempS := DS.ReadDMFString;
-    Result.Instruments.Duty[I].Name := TempS;
-    Result.Instruments.Wave[I].Name := TempS;
-    Result.Instruments.Noise[I].Name := TempS;
+    Result.Instruments.Duty[I+1].Name := TempS;
+    Result.Instruments.Wave[I+1].Name := TempS;
+    Result.Instruments.Noise[I+1].Name := TempS;
 
     // 1 Byte:   Instrument Mode (0 = STANDARD INS, 1 = FM INS)
-    if DS.ReadByte <> 1 then
+    if DS.ReadByte <> 0 then
       raise EDMFException.Create('DMF file contains a non-standard instrument!');
 
     //ARPEGGIO MACRO
@@ -161,20 +164,39 @@ begin
   //		4 Bytes: Wavetable Data
   TotalWavetables := DS.ReadByte;
   for I := 0 to TotalWavetables-1 do
-    DS.Seek(DS.ReadQWord * 4, soCurrent);
+    DS.Seek(DS.ReadDWord * 4, soCurrent);
 
   for I := Low(TOrderMatrix) to High(TOrderMatrix) do begin
-    if DS.ReadByte <> 1 then
+    Temp := DS.readbyte;
+    writeln('fx columns ', temp);
+    if Temp <> 1 then
       raise EDMFException.Create('DMF file contains patterns with more than one effect column!');
 
+    writeln('iterating '+inttostr(High(Result.OrderMatrix[I]) - Low(Result.OrderMatrix[I]) + 1), ' times');
     for J := Low(Result.OrderMatrix[I]) to High(Result.OrderMatrix[I]) do begin
       Pat := Result.Patterns.GetOrCreateNew(((I+1)*100) + J);
       for Row := Low(TPattern) to High(TPattern) do begin
         with Pat^[Row] do begin
-          Note := DS.ReadWord + (12*DS.ReadWord);
-          EffectCode := DS.ReadWord;
-          EffectParams.Value := DS.ReadWord;
-          Instrument := DS.ReadWord;
+          DmfNote := DS.ReadWord;
+          DmfOctave := DS.ReadWord;
+          if (DmfNote = 0) and (DmfOctave = 0) then
+            Note := NO_NOTE
+          else
+            Note := DmfNote + (12*DmfOctave) - (12*3);
+
+          DS.Seek(2,soCurrent); //volume
+
+          EffectCode := Byte(DS.ReadWord);
+          if EffectCode = High(Byte) then
+            EffectCode := 0;
+
+          EffectParams.Value := Byte(DS.ReadWord);
+          if EffectParams.Value = High(Byte) then
+            EffectParams.Value := 0;
+
+          Instrument := Byte(DS.ReadWord);
+          if Instrument = High(Byte) then
+            Instrument := 0;
         end;
       end;
     end;
