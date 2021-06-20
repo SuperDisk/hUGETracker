@@ -648,13 +648,13 @@ begin
     end
     else begin
       case CurrentInstrument^.VolSweepDirection of
-        Down: begin  // Envelope down, check length cut
+        stDown: begin  // Envelope stDown, check length cut
            For I := 0 to V do
               LineTo( Min(I*S,L)*Interval, H-(V-I)*HInterval);
            LineTo(W, H);
            LineTo(Trunc(L*Interval), H);
            end;
-        Up: begin    // Envelope up, check length cut
+        stUp: begin    // Envelope stUp, check length cut
             For I := 0 to 15-V do
                 LineTo( Min(I*S,L)*Interval, (15-V-I)*HInterval+9);
             LineTo(L*Interval, H-15*HInterval);
@@ -1173,8 +1173,8 @@ begin
 
   StartVolTrackbar.Position := CI^.InitialVolume;
   case CI^.VolSweepDirection of
-    Up: DirectionComboBox.Text := 'Up';
-    Down: DirectionComboBox.Text := 'Down';
+    stUp: DirectionComboBox.Text := 'Up';
+    stDown: DirectionComboBox.Text := 'Down';
   end;
   EnvChangeTrackbar.Position := CI^.VolSweepAmount;
 
@@ -1182,8 +1182,8 @@ begin
     itSquare: begin
       SweepTimeCombobox.ItemIndex := CI^.SweepTime;
       case CI^.SweepIncDec of
-        Up: SweepDirectionCombobox.Text := 'Up';
-        Down: SweepDirectionCombobox.Text := 'Down';
+        stUp: SweepDirectionCombobox.Text := 'Up';
+        stDown: SweepDirectionCombobox.Text := 'Down';
       end;
       SweepSizeTrackbar.Position := CI^.SweepShift;
       DutyCombobox.ItemIndex := CI^.Duty;
@@ -1319,8 +1319,8 @@ end;
 procedure TfrmTracker.SweepDirectionComboboxChange(Sender: TObject);
 begin
   case SweepDirectionComboBox.Text of
-    'Up': CurrentInstrument^.SweepIncDec := Up;
-    'Down': CurrentInstrument^.SweepIncDec := Down;
+    'Up': CurrentInstrument^.SweepIncDec := stUp;
+    'Down': CurrentInstrument^.SweepIncDec := stDown;
   end;
   EnvelopePaintBox.Invalidate;
 end;
@@ -1570,8 +1570,8 @@ end;
 procedure TfrmTracker.DirectionComboBoxChange(Sender: TObject);
 begin
   case DirectionComboBox.Text of
-    'Up': CurrentInstrument^.VolSweepDirection := Up;
-    'Down': CurrentInstrument^.VolSweepDirection := Down;
+    'Up': CurrentInstrument^.VolSweepDirection := stUp;
+    'Down': CurrentInstrument^.VolSweepDirection := stDown;
   end;
   EnvelopePaintBox.Invalidate;
 end;

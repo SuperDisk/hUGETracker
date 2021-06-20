@@ -391,11 +391,11 @@ begin
       Length := 0;
       LengthEnabled := False;
       InitialVolume := High(TEnvelopeVolume);
-      VolSweepDirection := Down;
+      VolSweepDirection := stDown;
       VolSweepAmount := 0;
 
       SweepTime := 0;
-      SweepIncDec := Down;
+      SweepIncDec := stDown;
       SweepShift := 0;
 
       Duty := 2;
@@ -419,7 +419,7 @@ begin
       Length := 0;
       LengthEnabled := False;
       InitialVolume := High(TEnvelopeVolume);
-      VolSweepDirection := Down;
+      VolSweepDirection := stDown;
       VolSweepAmount := 0;
       NoiseMacro := Default(TNoiseMacro);
       ShiftClockFreq := 0;
@@ -537,11 +537,11 @@ begin
       Length := 0;
       LengthEnabled := False;
       InitialVolume := High(TEnvelopeVolume);
-      VolSweepDirection := Down;
+      VolSweepDirection := stDown;
       VolSweepAmount := 0;
 
       SweepTime := 0;
-      SweepIncDec := Down;
+      SweepIncDec := stDown;
       SweepShift := 0;
 
       Duty := 2;
@@ -565,7 +565,7 @@ begin
       Length := 0;
       LengthEnabled := False;
       InitialVolume := High(TEnvelopeVolume);
-      VolSweepDirection := Down;
+      VolSweepDirection := stDown;
       VolSweepAmount := 0;
       ShiftClockFreq := 0;
       DividingRatio := 0;

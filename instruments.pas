@@ -10,7 +10,7 @@ uses
 type
   TInstrumentType = (itSquare = 0, itWave = 1, itNoise = 2);
   TDutyType = 0..3;
-  TSweepType = (Up, Down);
+  TSweepType = (stUp, stDown);
   TStepWidth = (swFifteen, swSeven);
   TEnvelopeVolume = 0..15;
   TEnvelopeSweepAmount = 0..7;
@@ -316,7 +316,7 @@ begin
 
   NR42.InitialVolume := Instr.InitialVolume;
   NR42.SweepNumber := Instr.VolSweepAmount;
-  NR42.Direction := Instr.VolSweepDirection = Up;
+  NR42.Direction := Instr.VolSweepDirection = stUp;
 
   NR43.ShiftClockFrequency := $F - (Frequency shr 7); // Quantize CH4 note
 
@@ -352,12 +352,12 @@ begin
 
   NR10.SweepTime := Instr.SweepTime;
   NR10.Shift := Instr.SweepShift;
-  NR10.IncDec := Instr.SweepIncDec = Down;
+  NR10.IncDec := Instr.SweepIncDec = stDown;
 
   NR11.Duty := Instr.Duty;
   NR11.Length := Instr.Length;
 
-  NR12.Direction := Instr.VolSweepDirection = Up;
+  NR12.Direction := Instr.VolSweepDirection = stUp;
   NR12.InitialVolume := Instr.InitialVolume;
   NR12.SweepNumber := Instr.VolSweepAmount;
 

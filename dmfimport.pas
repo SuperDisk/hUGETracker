@@ -5,7 +5,7 @@ unit DMFImport;
 interface
 
 uses
-  Classes, SysUtils, ZStream, Song, hUGEDataTypes, Constants;
+  Classes, SysUtils, ZStream, Song, Instruments, hUGEDataTypes, Constants;
 
 type
   EDMFException = class(Exception);
@@ -110,6 +110,9 @@ begin
     Result.Instruments.Wave[I+1].Name := TempS;
     Result.Instruments.Noise[I+1].Name := TempS;
 
+    // TODO
+    Result.Instruments.Wave[I+1].Waveform := 0;
+
     // 1 Byte:   Instrument Mode (0 = STANDARD INS, 1 = FM INS)
     if DS.ReadByte <> 0 then
       raise EDMFException.Create('DMF file contains a non-standard instrument!');
@@ -153,7 +156,19 @@ begin
     //1 Byte: Envelope Direction
     //1 Byte: Envelope Length
     //1 Byte: Sound Length
-    DS.Seek(4, soCurrent);
+    with Result.Instruments.Duty[I+1] do begin
+      InitialVolume := DS.ReadByte;
+
+      VolSweepDirection := TSweepType(DS.ReadByte);
+      if VolSweepDirection = stUp then
+        VolSweepDirection := stDown
+      else
+        VolSweepDirection := stUp;
+
+      VolSweepAmount := TEnvelopeSweepAmount(DS.ReadByte);
+      //Length := DS.ReadByte;
+      DS.Seek(1, soCurrent);
+    end;
   end;
 
   //WAVETABLES DATA
@@ -163,8 +178,14 @@ begin
   //	Repeat this WAVETABLE_SIZE times
   //		4 Bytes: Wavetable Data
   TotalWavetables := DS.ReadByte;
-  for I := 0 to TotalWavetables-1 do
-    DS.Seek(DS.ReadDWord * 4, soCurrent);
+  for I := 0 to TotalWavetables-1 do begin
+    Temp := DS.ReadDWord;
+    writeln('wave length was ', temp);
+    for J := 0 to Temp-1 do begin
+      writeln(i, ' ', j);
+      Result.Waves[I, J] := Byte(DS.ReadDWord);
+    end;
+  end;
 
   for I := Low(TOrderMatrix) to High(TOrderMatrix) do begin
     Temp := DS.readbyte;
@@ -182,7 +203,7 @@ begin
           if (DmfNote = 0) and (DmfOctave = 0) then
             Note := NO_NOTE
           else
-            Note := DmfNote + (12*DmfOctave) - (12*3);
+            Note := DmfNote + (12*DmfOctave) - (12*2);
 
           DS.Seek(2,soCurrent); //volume
 
@@ -196,7 +217,9 @@ begin
 
           Instrument := Byte(DS.ReadWord);
           if Instrument = High(Byte) then
-            Instrument := 0;
+            Instrument := 0
+          else
+            Inc(Instrument);
         end;
       end;
     end;
