@@ -482,7 +482,9 @@ var
     Proc.Parameters.Add('-i' + 'hUGEDriver');
     Proc.Parameters.Add('-o' + OutFile);
     for Define in Defines do
-      Proc.Parameters.Add('-D' + Define);
+      // HACK: This just removes all instances of double quotes to avoid a bug
+      // where arguments don't get passed in right with double quotes.
+      Proc.Parameters.Add('-D' + ReplaceStr(Define, '"', ''));
     Proc.Parameters.Add(InFile);
     Proc.Execute;
 
@@ -575,9 +577,9 @@ begin
       if Assemble(
             Filename + '_gbs.obj', 'hUGEDriver/gbs.asm',
             ['SONG_DESCRIPTOR=song',
-             'GBS_TITLE="""'+PadRight(LeftStr(Song.Name, 32), 32)+'"""',
-             'GBS_AUTHOR="""'+PadRight(LeftStr(Song.Artist, 32), 32)+'"""',
-             'GBS_COPYRIGHT="""'+PadRight(IntToStr(CurrentYear), 32)+'"""']
+             'GBS_TITLE="'+PadRight(LeftStr(Song.Name, 32), 32)+'"',
+             'GBS_AUTHOR="'+PadRight(LeftStr(Song.Artist, 32), 32)+'"',
+             'GBS_COPYRIGHT="'+PadRight(IntToStr(CurrentYear), 32)+'"']
          ) <> 0 then Die;
     end
     else

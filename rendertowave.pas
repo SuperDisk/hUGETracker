@@ -174,10 +174,12 @@ end;
 
 procedure TfrmRenderToWave.RenderEntireSong(Times: Integer);
 var
-  OldFC: TCPUCallback;
+  OldFC, OldFD: TCPUCallback;
 begin
   OldFC := FCCallback;
+  OldFD := FDCallback;
   FCCallback := @OrderCheckCallback;
+  FDCallback := nil;
 
   SetLength(SeenPatterns, PeekSymbol(SYM_ORDER_COUNT) div 2);
   StartOfSong := -1;
@@ -190,16 +192,19 @@ begin
 
   SetLength(SeenPatterns, 0);
   FCCallback := OldFC;
+  FDCallback := OldFD;
 end;
 
 procedure TfrmRenderToWave.RenderFromPosition(FromPos, ToPos: Integer);
 var
-  OldFC: TCPUCallback;
+  OldFC, OldFD: TCPUCallback;
   StartPattern, TargetPattern: Integer;
   SawTargetPattern: Boolean;
 begin
   OldFC := FCCallback;
+  OldFD := FDCallback;
   FCCallback := @OrderCheckCallback;
+  FDCallback := nil;
 
   SetLength(SeenPatterns, PeekSymbol(SYM_ORDER_COUNT) div 2);
   StartOfSong := -1;
@@ -227,6 +232,7 @@ begin
 
   SetLength(SeenPatterns, 0);
   FCCallback := OldFC;
+  FDCallback := OldFD;
 end;
 
 procedure TfrmRenderToWave.OrderCheckCallback;

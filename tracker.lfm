@@ -1,11 +1,11 @@
 object frmTracker: TfrmTracker
-  Left = 1232
-  Height = 653
-  Top = 271
+  Left = 1536
+  Height = 654
+  Top = 406
   Width = 1232
   AllowDropFiles = True
   Caption = 'hUGETracker'
-  ClientHeight = 633
+  ClientHeight = 634
   ClientWidth = 1232
   KeyPreview = True
   Menu = MainMenu1
@@ -20,7 +20,7 @@ object frmTracker: TfrmTracker
   LCLVersion = '2.0.12.0'
   object TreeView1: TTreeView
     Left = 0
-    Height = 521
+    Height = 522
     Top = 89
     Width = 193
     Align = alLeft
@@ -41,34 +41,34 @@ object frmTracker: TfrmTracker
   end
   object Splitter1: TSplitter
     Left = 193
-    Height = 521
+    Height = 522
     Top = 89
     Width = 5
   end
   object Panel1: TPanel
     Left = 198
-    Height = 521
+    Height = 522
     Top = 89
     Width = 1034
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 521
+    ClientHeight = 522
     ClientWidth = 1034
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 521
+      Height = 522
       Top = 0
       Width = 1034
-      ActivePage = PatternTabSheet
+      ActivePage = GeneralTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 493
+        ClientHeight = 494
         ClientWidth = 1026
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
@@ -1686,7 +1686,7 @@ object frmTracker: TfrmTracker
   object StatusBar1: TStatusBar
     Left = 0
     Height = 23
-    Top = 610
+    Top = 611
     Width = 1232
     AutoHint = True
     Panels = <    
@@ -1751,7 +1751,7 @@ object frmTracker: TfrmTracker
       Top = 0
       AutoSize = True
       Caption = 'Export .GB'
-      ImageIndex = 76
+      ImageIndex = 81
       OnClick = ExportGBButtonClick
     end
     object ToolButton8: TToolButton
@@ -1865,7 +1865,7 @@ object frmTracker: TfrmTracker
       Hint = 'Export the song as a GBS soundtrack'
       Top = 0
       Caption = 'Export .GBS'
-      ImageIndex = 76
+      ImageIndex = 80
       OnClick = ExportGBSButtonClick
     end
     object ToolButton5: TToolButton
