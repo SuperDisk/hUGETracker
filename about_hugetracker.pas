@@ -13,7 +13,11 @@ type
 
   TfrmAboutHugetracker = class(TForm)
     Button1: TButton;
+    Image1: TImage;
     Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Label4: TLabel;
     Panel1: TPanel;
     procedure Button1Click(Sender: TObject);
     procedure FormDeactivate(Sender: TObject);

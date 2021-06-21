@@ -71,11 +71,9 @@ type
     ImageList2: TImageList;
     GBSaveDialog: TSaveDialog;
     Label13: TLabel;
-    MenuItem10: TMenuItem;
     MenuItem16: TMenuItem;
     MenuItem23: TMenuItem;
     MenuItem24: TMenuItem;
-    FontSizeToggleMenuItem: TMenuItem;
     MenuItem25: TMenuItem;
     MenuItem26: TMenuItem;
     MenuItem27: TMenuItem;
