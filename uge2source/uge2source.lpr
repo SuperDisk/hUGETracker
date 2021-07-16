@@ -89,7 +89,7 @@ end;
 
 procedure TUGE2Source.WriteHelp;
 begin
-  writeln('Usage: ', ExeName, ' infile.uge descriptor outfile.(asm|c)');
+  writeln('Usage: ', ExtractFileName(ExeName), ' infile.uge [-b<BANK>] descriptor outfile.(asm|c)');
 end;
 
 var
