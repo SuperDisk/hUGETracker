@@ -221,7 +221,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="26">
+    <Units Count="27">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -358,6 +358,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="DMFImport"/>
       </Unit25>
+      <Unit26>
+        <Filename Value="fontconfig.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FontConfig"/>
+      </Unit26>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
