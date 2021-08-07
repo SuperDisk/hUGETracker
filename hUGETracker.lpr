@@ -9,6 +9,7 @@ program hUGETracker;
 uses
 {$ifdef unix}
   cthreads,
+  fontconfig,
 {$endif}
 {$ifdef MSWINDOWS}
   Windows,
@@ -30,7 +31,7 @@ uses
 
 {$ifdef MSWINDOWS}
 // https://forum.lazarus.freepascal.org/index.php?topic=39124.0
-Function AddFont    (Dir : PAnsiChar;
+function AddFont    (Dir : PAnsiChar;
                       Flag: DWORD): LongBool; StdCall;
                       External GDI32
                       Name 'AddFontResourceExA';
@@ -58,14 +59,12 @@ begin
   {$endif}
 
   {$ifdef UNIX}
-    // This is the correct way to load a font on Linux according to
-    // #linux on freenode.
-    if not DirectoryExists(GetUserDir+'.fonts') then
-      CreateDir(GetUserDir+'.fonts');
+    // This is the correct way to load a font on Linux according to... I dunno man, but this seems to work
+    if FcConfigAppFontAddFile(nil, PChar('PixeliteTTF.ttf')) = 0 then
+      Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
 
-    if not (CopyFile('./PixeliteTTF.ttf', GetUserDir+'.fonts/PixeliteTTF.ttf')
-    and    (ExecuteProcess('/bin/bash', '-c fc-cache') = 0))
-    then    Writeln(StdErr, '[ERROR] Couldn''t copy Pixelite to ~/.fonts !!!');
+    PangoFcFontMapConfigChanged(PangoCairoFontMapGetDefault);
+
   {$endif}
 
   {$ifdef PRODUCTION}
