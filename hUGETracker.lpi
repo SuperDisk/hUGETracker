@@ -143,6 +143,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="CPU;Sound;Global;$(ProjOutDir)"/>
+            <Libraries Value="\usr\local\lib\"/>
             <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
