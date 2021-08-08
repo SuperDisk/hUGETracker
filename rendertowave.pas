@@ -16,6 +16,7 @@ type
   { TfrmRenderToWave }
 
   TfrmRenderToWave = class(TForm)
+    ComboBox1: TComboBox;
     Label2: TLabel;
     Label3: TLabel;
     PlayEntireSongRadioButton: TRadioButton;
@@ -30,7 +31,6 @@ type
     FromPositionUpperSpinEdit: TSpinEdit;
     procedure CancelButtonClick(Sender: TObject);
     procedure RenderButtonClick(Sender: TObject);
-    procedure FileNameEdit1AcceptFileName(Sender: TObject; var Value: String);
     procedure FileNameEdit1Change(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -40,12 +40,12 @@ type
     Rendering: Boolean;
     CancelRequested: Boolean;
 
+    function FilenameToFormatIndex: Integer;
+    function GetFFMPEGFormat: String;
     procedure UpdateButtonEnabledStates;
 
     procedure ExportWaveToFile(Filename: String);
 
-    {procedure RenderSeconds(Seconds: Integer);
-    procedure RenderLoops(TargetOrder: Integer; Loops: Integer);}
     procedure RenderEntireSong(Times: Integer);
     procedure RenderFromPosition(FromPos, ToPos: Integer);
 
@@ -62,12 +62,6 @@ implementation
 uses sound, machine, mainloop, vars, symparser;
 
 {$R *.lfm}
-
-procedure TfrmRenderToWave.FileNameEdit1AcceptFileName(Sender: TObject;
-  var Value: String);
-begin
-  UpdateButtonEnabledStates;
-end;
 
 procedure TfrmRenderToWave.RenderButtonClick(Sender: TObject);
 begin
@@ -99,6 +93,7 @@ end;
 
 procedure TfrmRenderToWave.FileNameEdit1Change(Sender: TObject);
 begin
+  ComboBox1.ItemIndex := FilenameToFormatIndex;
   UpdateButtonEnabledStates;
 end;
 
@@ -110,6 +105,26 @@ begin
   PlayEntireSongSpinEdit.Value:=0;
   FromPositionLowerSpinEdit.Value:=0;
   FromPositionUpperSpinEdit.Value:=0;
+end;
+
+function TfrmRenderToWave.FilenameToFormatIndex: Integer;
+begin
+  case LowerCase(ExtractFileExt(FileNameEdit1.FileName)) of
+    '.wav': Result := 0;
+    '.mp3': Result := 1;
+    '.flac': Result := 2;
+    else Result := 0;
+  end;
+end;
+
+function TfrmRenderToWave.GetFFMPEGFormat: String;
+begin
+  case ComboBox1.ItemIndex of
+    0: Result := 'wav';
+    1: Result := 'mp3';
+    2: Result := 'flac';
+    else Result := 'wav';
+  end;
 end;
 
 procedure TfrmRenderToWave.UpdateButtonEnabledStates;
@@ -149,6 +164,8 @@ begin
     Add('2');
     Add('-i');
     Add('-');
+    Add('-f');
+    Add(GetFFMPEGFormat);
     Add(Filename);
   end;
   Proc.Options := [poUsePipes, poNoConsole];

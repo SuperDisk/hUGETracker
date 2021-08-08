@@ -1,20 +1,21 @@
 object frmRenderToWave: TfrmRenderToWave
-  Left = 1811
-  Height = 219
-  Top = 240
-  Width = 451
+  Left = 2188
+  Height = 365
+  Top = 290
+  Width = 789
   BorderStyle = bsSingle
   Caption = 'Render song'
-  ClientHeight = 219
-  ClientWidth = 451
+  ClientHeight = 365
+  ClientWidth = 789
+  DesignTimePPI = 168
   OnShow = FormShow
   Position = poDefault
-  LCLVersion = '2.0.11.0'
+  LCLVersion = '2.0.12.0'
   object RenderButton: TButton
-    Left = 16
-    Height = 25
-    Top = 176
-    Width = 264
+    Left = 24
+    Height = 44
+    Top = 289
+    Width = 462
     Caption = 'Render'
     Enabled = False
     OnClick = RenderButtonClick
@@ -22,15 +23,14 @@ object frmRenderToWave: TfrmRenderToWave
     TabOrder = 0
   end
   object FileNameEdit1: TFileNameEdit
-    Left = 80
-    Height = 23
-    Top = 8
-    Width = 353
-    OnAcceptFileName = FileNameEdit1AcceptFileName
-    Filter = 'Wave|*.wav|Ogg Vorbis|*.ogg|MP3|*.mp3|FLAC|*.flac|AAC|*.aac'
+    Left = 140
+    Height = 38
+    Top = 14
+    Width = 402
+    Filter = 'Wave|*.wav|MP3|*.mp3|FLAC|*.flac'
     FilterIndex = 0
     HideDirectories = False
-    ButtonWidth = 23
+    ButtonWidth = 40
     NumGlyphs = 1
     MaxLength = 0
     ParentFont = False
@@ -38,28 +38,28 @@ object frmRenderToWave: TfrmRenderToWave
     OnChange = FileNameEdit1Change
   end
   object Label1: TLabel
-    Left = 16
-    Height = 15
-    Top = 16
-    Width = 48
+    Left = 24
+    Height = 30
+    Top = 22
+    Width = 83
     Caption = 'Filename'
     ParentColor = False
     ParentFont = False
   end
   object ProgressBar1: TProgressBar
-    Left = 16
-    Height = 28
-    Top = 136
-    Width = 417
+    Left = 24
+    Height = 49
+    Top = 219
+    Width = 730
     ParentFont = False
     Smooth = True
     TabOrder = 2
   end
   object CancelButton: TButton
-    Left = 287
-    Height = 25
-    Top = 176
-    Width = 146
+    Left = 498
+    Height = 44
+    Top = 289
+    Width = 256
     Caption = 'Cancel'
     Enabled = False
     OnClick = CancelButtonClick
@@ -67,62 +67,85 @@ object frmRenderToWave: TfrmRenderToWave
     TabOrder = 3
   end
   object PlayEntireSongRadioButton: TRadioButton
-    Left = 16
-    Height = 19
-    Top = 56
-    Width = 104
+    Left = 24
+    Height = 34
+    Top = 79
+    Width = 182
     Caption = 'Play entire song'
     Checked = True
+    ParentFont = False
     TabOrder = 8
     TabStop = True
   end
   object FromPositionRadioButton: TRadioButton
-    Left = 16
-    Height = 19
-    Top = 96
-    Width = 94
+    Left = 24
+    Height = 34
+    Top = 149
+    Width = 161
     Caption = 'From position'
+    ParentFont = False
     TabOrder = 7
   end
   object PlayEntireSongSpinEdit: TSpinEdit
-    Left = 136
-    Height = 23
-    Top = 52
-    Width = 98
+    Left = 234
+    Height = 38
+    Top = 72
+    Width = 172
     MinValue = 1
+    ParentFont = False
     TabOrder = 4
     Value = 1
   end
   object Label2: TLabel
-    Left = 248
-    Height = 15
-    Top = 58
-    Width = 29
+    Left = 430
+    Height = 30
+    Top = 83
+    Width = 50
     Caption = 'times'
     ParentColor = False
+    ParentFont = False
   end
   object FromPositionLowerSpinEdit: TSpinEdit
-    Left = 136
-    Height = 23
-    Top = 92
-    Width = 72
+    Left = 234
+    Height = 38
+    Top = 142
+    Width = 126
     MaxValue = 9999999
+    ParentFont = False
     TabOrder = 5
   end
   object FromPositionUpperSpinEdit: TSpinEdit
-    Left = 256
-    Height = 23
-    Top = 92
-    Width = 72
+    Left = 444
+    Height = 38
+    Top = 142
+    Width = 126
     MaxValue = 99999999
+    ParentFont = False
     TabOrder = 6
   end
   object Label3: TLabel
-    Left = 226
-    Height = 15
-    Top = 98
-    Width = 11
+    Left = 392
+    Height = 30
+    Top = 153
+    Width = 19
     Caption = 'to'
     ParentColor = False
+    ParentFont = False
+  end
+  object ComboBox1: TComboBox
+    Left = 560
+    Height = 38
+    Top = 14
+    Width = 207
+    ItemHeight = 30
+    ItemIndex = 0
+    Items.Strings = (
+      'Wave'
+      'MP3'
+      'FLAC'
+    )
+    Style = csDropDownList
+    TabOrder = 9
+    Text = 'Wave'
   end
 end
