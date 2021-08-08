@@ -7,8 +7,10 @@ program hUGETracker;
 {$endif}
 
 uses
-{$ifdef unix}
+{$ifdef UNIX}
   cthreads,
+{$endif}
+{$ifdef LINUX}
   fontconfig,
 {$endif}
 {$ifdef MSWINDOWS}
@@ -58,8 +60,8 @@ begin
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
   {$endif}
 
-  {$ifdef UNIX}
-    // This is the correct way to load a font on Linux according to... I dunno man, but this seems to work
+  {$ifdef LINUX}
+    // https://gitlab.gnome.org/GNOME/gtk/-/issues/3886
     if FcConfigAppFontAddFile(nil, PChar('PixeliteTTF.ttf')) = 0 then
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
 
