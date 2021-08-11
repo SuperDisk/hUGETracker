@@ -40,6 +40,7 @@ type
     DeleteRowForAllAction: TAction;
     InsertRowForAllAction: TAction;
     InsertRowAction: TAction;
+    Label14: TLabel;
     MenuItem39: TMenuItem;
     ExportCMenuItem: TMenuItem;
     MenuItem40: TMenuItem;
@@ -57,7 +58,7 @@ type
     PlayCursorAction: TAction;
     PlayStartAction: TAction;
     ShortcutsActionList: TActionList;
-    Button1: TButton;
+    TestOctave5Button: TButton;
     MenuItem37: TMenuItem;
     MenuItem38: TMenuItem;
     PlayWaveWhileDrawingCheckbox: TCheckBox;
@@ -97,6 +98,11 @@ type
     NoiseVisualizer: TPaintBox;
     MODOpenDialog: TOpenDialog;
     RowNumberStringGrid: TStringGrid;
+    TestOctave5Button1: TButton;
+    TestOctave5Button2: TButton;
+    TestOctave5Button3: TButton;
+    TestOctave5Button4: TButton;
+    TestOctave5Button5: TButton;
     WaveEditPopup: TPopupMenu;
     SynAnySyn1: TSynAnySyn;
     WavSaveDialog: TSaveDialog;
@@ -259,7 +265,7 @@ type
     StatusBar1: TStatusBar;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
-    procedure Button1Click(Sender: TObject);
+    procedure TestOctaveButtonClick(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
     procedure DecreaseOctaveActionExecute(Sender: TObject);
     procedure DecrementCurrentInstrumentActionExecute(Sender: TObject);
@@ -483,7 +489,7 @@ type
     procedure PreviewNoteUnderCursor;
     procedure PreviewInstrument(Note: Integer; Instr: Integer; SquareOnCh2: Boolean = False); overload;
     procedure PreviewInstrument(Note: Integer; Instr: TInstrument; SquareOnCh2: Boolean = False); overload;
-    procedure PreviewC5;
+    procedure PreviewNote(Note: Integer);
     procedure Panic;
   public
     procedure OnTrackerGridResize(Sender: TObject);
@@ -817,10 +823,10 @@ begin
   UnlockPlayback;
 end;
 
-procedure TfrmTracker.PreviewC5;
+procedure TfrmTracker.PreviewNote(Note: Integer);
 begin
   if not LoadingFile then begin
-    PreviewInstrument(C_5, UnmodInst(CurrentInstrumentBank, InstrumentNumberSpinner.Value));
+    PreviewInstrument(Note, UnmodInst(CurrentInstrumentBank, InstrumentNumberSpinner.Value));
     NoteHaltTimer.Enabled := False;
     NoteHaltTimer.Enabled := True
   end;
@@ -1974,9 +1980,16 @@ begin
   ReloadPatterns
 end;
 
-procedure TfrmTracker.Button1Click(Sender: TObject);
+procedure TfrmTracker.TestOctaveButtonClick(Sender: TObject);
 begin
-  PreviewC5;
+  case (Sender as TButton).Tag of
+    3: PreviewNote(C_3);
+    4: PreviewNote(C_4);
+    5: PreviewNote(C_5);
+    6: PreviewNote(C_6);
+    7: PreviewNote(C_7);
+    8: PreviewNote(C_8);
+  end;
 end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);

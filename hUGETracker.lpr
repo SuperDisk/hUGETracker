@@ -66,7 +66,6 @@ begin
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
 
     PangoFcFontMapConfigChanged(PangoCairoFontMapGetDefault);
-
   {$endif}
 
   {$ifdef PRODUCTION}

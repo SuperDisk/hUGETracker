@@ -437,6 +437,9 @@ begin
     S.OrderMatrix[I, 0] := I;
   end;
 
+  for I := Low(TRoutineBank) to High(TRoutineBank) do
+    S.Routines[I] := '';
+
   S.TicksPerRow := 7;
   S.Patterns := TPatternMap.Create;
 end;
