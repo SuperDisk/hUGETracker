@@ -488,7 +488,7 @@ var
     Proc.Parameters.Add(InFile);
     Proc.Execute;
 
-    Result := Proc.ExitCode;
+    Result := Proc.ExitStatus;
   end;
 
   function Link(OutFile: string; InFiles: array of string; Map: string = '';
@@ -507,7 +507,7 @@ var
       Proc.Parameters.Add(InFile);
     Proc.Execute;
 
-    Result := Proc.ExitCode;
+    Result := Proc.ExitStatus;
   end;
 
   function Fix(GBFile: string): integer;
@@ -519,7 +519,7 @@ var
     Proc.Parameters.Add(GBFile);
     Proc.Execute;
 
-    Result := Proc.ExitCode;
+    Result := Proc.ExitStatus;
   end;
 begin
   Song := OptimizeSong(Song);
