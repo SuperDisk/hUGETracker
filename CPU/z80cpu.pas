@@ -3283,7 +3283,7 @@ end;
 
 function res0: byte;
 begin
-  spokeb(Addr, speekb(Addr) and 254);
+  spokeb(hl.w, speekb(hl.w) and 254);
 
   Result := 16;
 end;
@@ -3339,7 +3339,7 @@ end;
 
 function res1: byte;
 begin
-  spokeb(Addr, speekb(Addr) and 253);
+  spokeb(hl.w, speekb(hl.w) and 253);
 
   Result := 16;
 end;
@@ -3395,7 +3395,7 @@ end;
 
 function res2: byte;
 begin
-  spokeb(Addr, speekb(Addr) and 251);
+  spokeb(hl.w, speekb(hl.w) and 251);
 
   Result := 16;
 end;
@@ -3451,7 +3451,7 @@ end;
 
 function res3: byte;
 begin
-  spokeb(Addr, speekb(Addr) and 247);
+  spokeb(hl.w, speekb(hl.w) and 247);
 
   Result := 16;
 end;
@@ -3507,7 +3507,7 @@ end;
 
 function res4: byte;
 begin
-  spokeb(Addr, speekb(Addr) and 239);
+  spokeb(hl.w, speekb(hl.w) and 239);
 
   Result := 16;
 end;
@@ -3563,7 +3563,7 @@ end;
 
 function res5: byte;
 begin
-  spokeb(Addr, speekb(Addr) and 223);
+  spokeb(hl.w, speekb(hl.w) and 223);
 
   Result := 16;
 end;
@@ -3619,7 +3619,7 @@ end;
 
 function res6: byte;
 begin
-  spokeb(Addr, speekb(Addr) and 191);
+  spokeb(hl.w, speekb(hl.w) and 191);
 
   Result := 16;
 end;
@@ -3675,7 +3675,7 @@ end;
 
 function res7: byte;
 begin
-  spokeb(Addr, speekb(Addr) and 127);
+  spokeb(hl.w, speekb(hl.w) and 127);
 
   Result := 16;
 end;
