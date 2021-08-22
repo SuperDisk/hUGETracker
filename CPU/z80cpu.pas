@@ -1993,7 +1993,7 @@ end;
 
 function ld_a_ff00plusc: byte;
 begin
-  af.h := speekb($ff00 + speekb(bc.l));
+  af.h := speekb($ff00 + bc.l);
 
   Result := 8;
 end;
