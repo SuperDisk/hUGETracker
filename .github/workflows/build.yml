@@ -2,6 +2,7 @@ name: Build hUGETracker
 
 on:
   - push
+  - pull_request
 
 jobs:
   build:
@@ -24,7 +25,8 @@ jobs:
       - name: Install Ubuntu dependencies
         if: matrix.name == 'Linux'
         run: |
-          sudo apt install lcl-2.0 libsdl2-dev   bison
+          sudo apt -qq update
+          sudo apt install -yq lcl-2.0 libsdl2-dev   bison
           curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.5.1/rgbds-0.5.1.tar.gz'
           tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
           cd rgbds
