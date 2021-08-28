@@ -2,7 +2,7 @@
 <CONFIG>
   <grid version="3">
     <saveoptions create="True" position="True" content="True"/>
-    <design columncount="2" rowcount="30" fixedcols="0" fixedrows="1" defaultcolwidth="120" isdefaultcolwidth="1" defaultrowheight="22" isdefaultrowheight="0" color="clWindow">
+    <design columncount="2" rowcount="38" fixedcols="0" fixedrows="1" defaultcolwidth="120" isdefaultcolwidth="1" defaultrowheight="22" isdefaultrowheight="0" color="clWindow">
       <columns columnsenabled="True" columncount="2">
         <column0>
           <index value="0"/>
@@ -46,11 +46,11 @@
         <goScrollToLastRow value="False"/>
       </options>
     </design>
-    <position topleftcol="0" topleftrow="15" col="1" row="29">
-      <selection left="1" top="29" right="1" bottom="29"/>
+    <position topleftcol="0" topleftrow="23" col="1" row="36">
+      <selection left="1" top="36" right="1" bottom="36"/>
     </position>
     <content>
-      <cells cellcount="58">
+      <cells cellcount="74">
         <cell1 column="0" row="1" text="z"/>
         <cell2 column="0" row="2" text="s"/>
         <cell3 column="0" row="3" text="x"/>
@@ -80,35 +80,51 @@
         <cell27 column="0" row="27" text="o"/>
         <cell28 column="0" row="28" text="0"/>
         <cell29 column="0" row="29" text="p"/>
-        <cell30 column="1" row="1" text="C-3"/>
-        <cell31 column="1" row="2" text="C#3"/>
-        <cell32 column="1" row="3" text="D-3"/>
-        <cell33 column="1" row="4" text="D#3"/>
-        <cell34 column="1" row="5" text="E-3"/>
-        <cell35 column="1" row="6" text="F-3"/>
-        <cell36 column="1" row="7" text="F#3"/>
-        <cell37 column="1" row="8" text="G-3"/>
-        <cell38 column="1" row="9" text="G#3"/>
-        <cell39 column="1" row="10" text="A-3"/>
-        <cell40 column="1" row="11" text="A#3"/>
-        <cell41 column="1" row="12" text="B-3"/>
-        <cell42 column="1" row="13" text="C-3"/>
-        <cell43 column="1" row="14" text="C#4"/>
-        <cell44 column="1" row="15" text="D-4"/>
-        <cell45 column="1" row="16" text="D#4"/>
-        <cell46 column="1" row="17" text="E-4"/>
-        <cell47 column="1" row="18" text="F-4"/>
-        <cell48 column="1" row="19" text="F#4"/>
-        <cell49 column="1" row="20" text="G-4"/>
-        <cell50 column="1" row="21" text="G#4"/>
-        <cell51 column="1" row="22" text="A-4"/>
-        <cell52 column="1" row="23" text="A#4"/>
-        <cell53 column="1" row="24" text="B-4"/>
-        <cell54 column="1" row="25" text="C-5"/>
-        <cell55 column="1" row="26" text="C#5"/>
-        <cell56 column="1" row="27" text="D-5"/>
-        <cell57 column="1" row="28" text="D#5"/>
-        <cell58 column="1" row="29" text="E-5"/>
+        <cell30 column="0" row="30" text="["/>
+        <cell31 column="0" row="31" text="+"/>
+        <cell32 column="0" row="32" text="]"/>
+        <cell33 column="0" row="33" text=","/>
+        <cell34 column="0" row="34" text="l"/>
+        <cell35 column="0" row="35" text="."/>
+        <cell36 column="0" row="36" text=";"/>
+        <cell37 column="0" row="37" text="/"/>
+        <cell38 column="1" row="1" text="C-3"/>
+        <cell39 column="1" row="2" text="C#3"/>
+        <cell40 column="1" row="3" text="D-3"/>
+        <cell41 column="1" row="4" text="D#3"/>
+        <cell42 column="1" row="5" text="E-3"/>
+        <cell43 column="1" row="6" text="F-3"/>
+        <cell44 column="1" row="7" text="F#3"/>
+        <cell45 column="1" row="8" text="G-3"/>
+        <cell46 column="1" row="9" text="G#3"/>
+        <cell47 column="1" row="10" text="A-3"/>
+        <cell48 column="1" row="11" text="A#3"/>
+        <cell49 column="1" row="12" text="B-3"/>
+        <cell50 column="1" row="13" text="C-4"/>
+        <cell51 column="1" row="14" text="C#4"/>
+        <cell52 column="1" row="15" text="D-4"/>
+        <cell53 column="1" row="16" text="D#4"/>
+        <cell54 column="1" row="17" text="E-4"/>
+        <cell55 column="1" row="18" text="F-4"/>
+        <cell56 column="1" row="19" text="F#4"/>
+        <cell57 column="1" row="20" text="G-4"/>
+        <cell58 column="1" row="21" text="G#4"/>
+        <cell59 column="1" row="22" text="A-4"/>
+        <cell60 column="1" row="23" text="A#4"/>
+        <cell61 column="1" row="24" text="B-4"/>
+        <cell62 column="1" row="25" text="C-5"/>
+        <cell63 column="1" row="26" text="C#5"/>
+        <cell64 column="1" row="27" text="D-5"/>
+        <cell65 column="1" row="28" text="D#5"/>
+        <cell66 column="1" row="29" text="E-5"/>
+        <cell67 column="1" row="30" text="F-5"/>
+        <cell68 column="1" row="31" text="F#5"/>
+        <cell69 column="1" row="32" text="G-5"/>
+        <cell70 column="1" row="33" text="C-4"/>
+        <cell71 column="1" row="34" text="C#4"/>
+        <cell72 column="1" row="35" text="D-4"/>
+        <cell73 column="1" row="36" text="D#4"/>
+        <cell74 column="1" row="37" text="E-4"/>
       </cells>
     </content>
   </grid>
