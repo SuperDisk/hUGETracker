@@ -42,6 +42,9 @@ function AddFont    (Dir : PAnsiChar;
 begin
   ReturnNilIfGrowHeapFails := False;
 
+  // Change working directory to the tracker directory
+  ChDir(ExtractFileDir(ParamStr(0)));
+
   {$if declared(useHeapTrace)}
     // Set up -gh output for the Leakview package:
     if FileExists('heap.trc') then
