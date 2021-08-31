@@ -228,7 +228,7 @@
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="Cpu\machine.pas"/>
+        <Filename Value="CPU\machine.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
       <Unit2>
