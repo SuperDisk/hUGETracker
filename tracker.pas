@@ -432,6 +432,7 @@ type
     LoadedFileName: String;
 
     PreviewingInstrument: Integer;
+    PreviewingWithKey: Word;
     DrawingWave, DrawingMacro: Boolean;
     Playing: Boolean;
     LoadingFile: Boolean;
@@ -504,7 +505,6 @@ implementation
 {$R *.lfm}
 
 { TfrmTracker }
-
 procedure TfrmTracker.UpdateUIAfterLoad(FileName: String = '');
 var
   I: Integer;
@@ -1512,13 +1512,17 @@ begin
     PreviewInstrument(Note, InstrumentComboBox.ItemIndex, False);
 
   PreviewingInstrument := Note;
+  PreviewingWithKey := Key;
 end;
 
 procedure TfrmTracker.FormKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if PreviewingInstrument <> -1 then
+  if PreviewingInstrument <> -1 then begin
+    if PreviewingWithKey <> Key then Exit;
+    PreviewingWithKey := VK_UNDEFINED;
     Panic;
+  end;
   PreviewingInstrument := -1;
 end;
 
