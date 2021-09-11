@@ -10,9 +10,6 @@ uses
 {$ifdef UNIX}
   cthreads,
 {$endif}
-{$ifdef LINUX}
-  fontconfig,
-{$endif}
 {$ifdef MSWINDOWS}
   Windows,
 {$endif}
@@ -33,10 +30,13 @@ uses
 
 {$ifdef MSWINDOWS}
 // https://forum.lazarus.freepascal.org/index.php?topic=39124.0
-function AddFont    (Dir : PAnsiChar;
-                      Flag: DWORD): LongBool; StdCall;
-                      External GDI32
-                      Name 'AddFontResourceExA';
+function AddFontResourceExA(Dir: PAnsiChar; Flag: DWORD): LongBool; StdCall; External GDI32;
+{$endif}
+
+{$ifdef UNIX}
+function FcConfigAppFontAddFile(Config: Pointer; _File: PChar): Integer; cdecl; External 'libfontconfig.so';
+function PangoCairoFontMapGetDefault: Pointer; cdecl; External 'libpangocairo-1.0.so' Name 'pango_cairo_font_map_get_default';
+procedure PangoFcFontMapConfigChanged(FcFontMap: Pointer); cdecl; External 'libpangoft2-1.0.so' Name 'pango_fc_font_map_config_changed';
 {$endif}
 
 begin
@@ -59,11 +59,11 @@ begin
 
   {$ifdef MSWINDOWS}
     // $10 is FR_PRIVATE which uninstalls the font when the process ends
-    if not AddFont(PChar('PixeliteTTF.ttf'), $10) then
+    if not AddFontResourceExA(PChar('PixeliteTTF.ttf'), $10) then
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
   {$endif}
 
-  {$ifdef LINUX}
+  {$ifdef UNIX}
     // https://gitlab.gnome.org/GNOME/gtk/-/issues/3886
     if FcConfigAppFontAddFile(nil, PChar('PixeliteTTF.ttf')) = 0 then
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');

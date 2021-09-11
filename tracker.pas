@@ -1363,13 +1363,6 @@ var
   MenuItem: TMenuItem;
   I: Integer;
 begin
-  {if Screen.Fonts.IndexOf('PixeliteTTF') = -1 then
-    MessageDlg('Warning', 'You don''t have the Pixelite font installed. '+
-    'On Windows, this probably means you didn''t extract hUGETracker before running it, '+
-    'so please extract the .zip and run again! On Linux, you need to manually install the '+
-    'font file, so please install PixeliteTTF.ttf and relaunch. Thanks!',
-    mtWarning, [mbOk], 0);}
-
   if (not FileExists('PixeliteTTF.ttf'))
   or (not FileExists('halt.gb'))
   or (not FileExists('halt.sym'))
