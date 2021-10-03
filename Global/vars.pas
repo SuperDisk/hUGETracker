@@ -115,8 +115,6 @@ var
   sio_count: byte;
 
   m_cgbram: array[0..32767] of byte;
-  {pal_b, pal_o: array[0..7, 0..3, 0..2] of byte;
-  pal_dx_b, pal_dx_o: array[0..7, 0..3] of DWord;}
   palramb, palramo: array[0..16383] of byte;
   hdma: DWord;
   gb_speed: byte;
@@ -312,49 +310,7 @@ procedure load(Name: string);
 function ReadGameState(filename: string): byte;
 function SaveGameState(filename: string): boolean;
 
-procedure make_pix;
-function finde(Data: DWord): DWord;
-function zaehle(Data: DWord): Dword;
-
 implementation
-
-function finde(Data: DWord): DWord;
-var
-  res: DWord;
-begin
-  if Data = 0 then
-    Result := 0
-  else
-  begin
-    res := 0;
-    while True do
-    begin
-      if (Data and 1) > 0 then
-      begin
-        Result := res;
-        exit;
-        exit;
-      end;
-      Data := Data shr 1;
-      Inc(res);
-    end;
-  end;
-end;
-
-function zaehle(Data: DWord): Dword;
-var
-  res: DWord;
-  i: integer;
-begin
-  res := 0;
-  for i := 0 to 31 do
-  begin
-    if (Data and 1) > 0 then
-      Inc(res);
-    Data := Data shr 1;
-  end;
-  Result := res;
-end;
 
 procedure load(Name: string);
 var
@@ -652,36 +608,5 @@ begin
     Result := 3; // no valid savegame
   closefile(f);
 end;
-
-procedure make_pix;
-var
-  o0, o1: word;
-  zm: word;
-begin
-  for zm := 0 to 65535 do
-  begin
-    o0 := zm shr 8;
-    o1 := zm and $ff;
-    pix[zm][7][0] := ((o0 and 1) shl 1) or (o1 and 1);
-    pix[zm][6][0] := ((o0 and 2)) or ((o1 and 2) shr 1);
-    pix[zm][5][0] := ((o0 and 4) shr 1) or ((o1 and 4) shr 2);
-    pix[zm][4][0] := ((o0 and 8) shr 2) or ((o1 and 8) shr 3);
-    pix[zm][3][0] := ((o0 and 16) shr 3) or ((o1 and 16) shr 4);
-    pix[zm][2][0] := ((o0 and 32) shr 4) or ((o1 and 32) shr 5);
-    pix[zm][1][0] := ((o0 and 64) shr 5) or ((o1 and 64) shr 6);
-    pix[zm][0][0] := ((o0 and 128) shr 6) or ((o1 and 128) shr 7);
-    pix[zm][0][1] := ((o0 and 1) shl 1) or (o1 and 1);
-    pix[zm][1][1] := ((o0 and 2)) or ((o1 and 2) shr 1);
-    pix[zm][2][1] := ((o0 and 4) shr 1) or ((o1 and 4) shr 2);
-    pix[zm][3][1] := ((o0 and 8) shr 2) or ((o1 and 8) shr 3);
-    pix[zm][4][1] := ((o0 and 16) shr 3) or ((o1 and 16) shr 4);
-    pix[zm][5][1] := ((o0 and 32) shr 4) or ((o1 and 32) shr 5);
-    pix[zm][6][1] := ((o0 and 64) shr 5) or ((o1 and 64) shr 6);
-    pix[zm][7][1] := ((o0 and 128) shr 6) or ((o1 and 128) shr 7);
-  end;
-end;
-
-
-
 
 end.

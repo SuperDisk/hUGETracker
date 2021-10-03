@@ -1,4 +1,4 @@
-include "hUGEDriver/include/HARDWARE.INC"
+include "hardware.inc"
 
 ;; This is a short program which just contains the noise macro logic found
 ;; in hUGEDriver. Values are poked by the tracker into RAM, and they are played back
