@@ -33,7 +33,7 @@ uses
 function AddFontResourceExA(Dir: PAnsiChar; Flag: DWORD): LongBool; StdCall; External GDI32;
 {$endif}
 
-{$ifdef UNIX}
+{$if defined(LINUX) or defined(BSD)}
 function FcConfigAppFontAddFile(Config: Pointer; _File: PChar): Integer; cdecl; External 'libfontconfig.so';
 function PangoCairoFontMapGetDefault: Pointer; cdecl; External 'libpangocairo-1.0.so' Name 'pango_cairo_font_map_get_default';
 procedure PangoFcFontMapConfigChanged(FcFontMap: Pointer); cdecl; External 'libpangoft2-1.0.so' Name 'pango_fc_font_map_config_changed';
@@ -63,7 +63,7 @@ begin
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
   {$endif}
 
-  {$ifdef UNIX}
+  {$ifdef defined(LINUX) or defined(BSD)}
     // https://gitlab.gnome.org/GNOME/gtk/-/issues/3886
     if FcConfigAppFontAddFile(nil, PChar('PixeliteTTF.ttf')) = 0 then
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
