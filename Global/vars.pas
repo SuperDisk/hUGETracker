@@ -320,6 +320,7 @@ var
   S: string;
 begin
   assignfile(cf, Name);
+  Filemode:=0;
   reset(cf, 1);
   blockread(cf, {%H-}m_rom, $180);
   closefile(cf);
