@@ -63,7 +63,7 @@ begin
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
   {$endif}
 
-  {$ifdef defined(LINUX) or defined(BSD)}
+  {$if defined(LINUX) or defined(BSD)}
     // https://gitlab.gnome.org/GNOME/gtk/-/issues/3886
     if FcConfigAppFontAddFile(nil, PChar('PixeliteTTF.ttf')) = 0 then
       Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
