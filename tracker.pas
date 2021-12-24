@@ -1038,7 +1038,7 @@ begin
   if RenderPreviewROM then begin
     LockPlayback;
 
-    // Load the new symbol TableGroupBox
+    // Load the new symbol table
     ParseSymFile('render/preview.sym');
 
     // Start emulation on the rendered preview binary
@@ -1423,7 +1423,7 @@ begin
   LoadInstrument(itSquare, 1);
   LoadWave(0);
 
-  // Initialize order table (InitializeSong creates the default order TableGroupBox)
+  // Initialize order table (InitializeSong creates the default order table)
   CopyOrderMatrixToOrderGrid;
 
   // Manually resize the fixed column in the order editor
