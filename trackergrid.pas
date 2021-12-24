@@ -81,7 +81,7 @@ type
     procedure InputEffectParams(Key: Word);
 
     procedure RenderRow(Row: Integer);
-    procedure RenderCell(const Cell: TCell);
+    procedure RenderCell(const Cell: TCell); virtual;
 
     procedure SetHighlightedRow(Row: Integer);
     procedure SetSelectionGridRect(R: TRect);
@@ -159,6 +159,12 @@ type
     destructor Destroy; override;
   end;
 
+  { TTableGrid }
+
+  TTableGrid = class(TTrackerGrid)
+    procedure RenderCell(const Cell: TCell); override;
+  end;
+
 var
   clNote: TColor = TColor($7F4A00);
   clInstrument: TColor = TColor($7F7F00);
@@ -168,6 +174,8 @@ var
   clFxVolume: TColor = TColor($007F26);
   clFxPan: TColor = TColor($7F7F00);
   clFxSong: TColor = TColor($00007F);
+
+  clTblJump: TColor = TColor($72004E);
 
   clBackground: TColor = TColor($D0DBE1);
   clHighlighted: TColor = TColor($7A99A9);
@@ -180,6 +188,59 @@ var
   clDividers: TColor = TColor($ABB7BC);
 
 implementation
+
+{ TTableGrid }
+
+procedure TTableGrid.RenderCell(const Cell: TCell);
+var
+  NoteString: ShortString;
+begin
+  with Canvas do begin
+    if NoteMap.TryGetData(Cell.Note, NoteString) then begin
+      Font.Color := clNote;
+      TextOut(PenPos.X, PenPos.Y, NoteString);
+    end
+    else begin
+      Font.Color := clDots;
+      if Cell.Note = NO_NOTE then
+        TextOut(PenPos.X, PenPos.Y, '...')
+      else
+        TextOut(PenPos.X, PenPos.Y, '???');
+    end;
+
+    TextOut(PenPos.X, PenPos.Y, ' ');
+
+    // Instrument column empty
+    Font.Color := clDots;
+    TextOut(PenPos.X, PenPos.Y, '..');
+
+    if Cell.Volume <> 0 then begin
+      Font.Color := clTblJump;
+      TextOut(PenPos.X, PenPos.Y, 'J'+FormatFloat('00', Cell.Volume));
+    end
+    else begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '...');
+    end;
+
+    if (Cell.EffectCode <> 0) or (Cell.EffectParams.Value <> 0) then begin
+      Font.Color := GetEffectColor(Cell.EffectCode);
+      TextOut(
+        PenPos.X,
+        PenPos.Y,
+        IntToHex(Cell.EffectCode, 1)
+          + IntToHex(Cell.EffectParams.Param1, 1)
+          + IntToHex(Cell.EffectParams.Param2, 1)
+      );
+    end
+    else begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '...');
+    end;
+
+    TextOut(PenPos.X, PenPos.Y, ' ');
+  end;
+end;
 
 { TSelectionEnumerator }
 

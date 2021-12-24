@@ -200,9 +200,16 @@
       <OpenInFileMan Value="True"/>
     </PublishOptions>
     <RunParams>
+      <local>
+        <CommandLineParams Value="&quot;C:\Projects\GB-Stuff\uge\Resources\Sample Songs\raphaelgoulart - The Murderous Funk Machine (intro).uge&quot;"/>
+      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default"/>
+        <Mode0 Name="default">
+          <local>
+            <CommandLineParams Value="&quot;C:\Projects\GB-Stuff\uge\Resources\Sample Songs\raphaelgoulart - The Murderous Funk Machine (intro).uge&quot;"/>
+          </local>
+        </Mode0>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">
@@ -222,7 +229,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="26">
+    <Units Count="25">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -350,15 +357,10 @@
         <UnitName Value="hUGESettings"/>
       </Unit23>
       <Unit24>
-        <Filename Value="beepboximport.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="BeepBoxImport"/>
-      </Unit24>
-      <Unit25>
         <Filename Value="dmfimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="DMFImport"/>
-      </Unit25>
+      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

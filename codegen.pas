@@ -273,9 +273,14 @@ begin
       for J := Low(TNoiseMacro) to High(TNoiseMacro) do
         SL.Add(IntToStr(Instruments[I].NoiseMacro[J]));
     end
-    else
+    else begin
       for J := Low(AsmInstrument) to High(AsmInstrument) do
         SL.Add(IntToStr(AsmInstrument[J]));
+      SL.Add('0');
+      SL.Add('0');
+      SL.Add('0');
+      SL.Add('0');
+    end;
 
     WriteStr(TypePrefix, Instruments[I].Type_);
     ResultSL.Add(Format('%s%s: db %s', [TypePrefix, 'inst' + IntToStr(I),

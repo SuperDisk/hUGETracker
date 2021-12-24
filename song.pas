@@ -22,7 +22,7 @@ type
 
     TicksPerRow: Integer;
 
-    Patterns: TPatternMap;
+    Patterns: TPatternMapV1;
     OrderMatrix: TOrderMatrix;
   end;
 
@@ -38,7 +38,7 @@ type
 
     TicksPerRow: Integer;
 
-    Patterns: TPatternMap;
+    Patterns: TPatternMapV1;
     OrderMatrix: TOrderMatrix;
 
     Routines: TRoutineBank;
@@ -52,11 +52,11 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentCollectionV1;
-    Waves: TWaveBankV2;
+    Waves: TWaveBank;
 
     TicksPerRow: Integer;
 
-    Patterns: TPatternMap;
+    Patterns: TPatternMapV1;
     OrderMatrix: TOrderMatrix;
 
     Routines: TRoutineBank;
@@ -69,8 +69,28 @@ type
     Artist: ShortString;
     Comment: ShortString;
 
-    Instruments: TInstrumentCollectionV2;
-    Waves: TWaveBankV2;
+    Instruments: TInstrumentCollection;
+    Waves: TWaveBank;
+
+    TicksPerRow: Integer;
+
+    Patterns: TPatternMapV1;
+    OrderMatrix: TOrderMatrix;
+
+    Routines: TRoutineBank;
+  end;
+
+  TSongV5 = TSongV4; // no structural differences
+
+  TSongV6 = packed record
+    Version: Integer;
+
+    Name: ShortString;
+    Artist: ShortString;
+    Comment: ShortString;
+
+    Instruments: TInstrumentCollection;
+    Waves: TWaveBank;
 
     TicksPerRow: Integer;
 
@@ -79,8 +99,6 @@ type
 
     Routines: TRoutineBank;
   end;
-
-  TSongV5 = TSongV4; // no structural differences
 
   { TSong }
 
@@ -96,6 +114,7 @@ function UpgradeSong(S: TSongV1): TSong; overload;
 function UpgradeSong(S: TSongV2): TSong; overload;
 function UpgradeSong(S: TSongV3): TSong; overload;
 function UpgradeSong(S: TSongV4): TSong; overload;
+function UpgradeSong(S: TSongV5): TSong; overload;
 
 function OptimizeSong(const S: TSong): TSong;
 function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
@@ -108,21 +127,21 @@ implementation
 procedure ReadSongFromStreamV1(S: TStream; out ASong: TSongV1);
 var
   i, n: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
-  n := SizeOf(TSongV1) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
+  n := SizeOf(TSongV1) - SizeOf(TPatternMapV1) - SizeOf(TOrderMatrix);
   S.Read(ASong, n);
 
   // Create the patterns
-  ASong.Patterns := TPatternMap.Create;
+  ASong.Patterns := TPatternMapV1.Create;
   // Read the pattern count
   S.Read(n, SizeOf(Integer));
   for i:=0 to n - 1 do begin
     // Allocate memory for each pattern ...
     New(pat);
     // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
+    S.Read(pat^, SizeOf(TPatternV1));
     // Add the pattern to the list
     ASong.Patterns.Add(i, pat);
   end;
@@ -142,25 +161,25 @@ end;
 procedure ReadSongFromStreamV2(S: TStream; out ASong: TSongV2);
 var
   i, n: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
   n := SizeOf(TSongV2)
-     - SizeOf(TPatternMap)
+     - SizeOf(TPatternMapV1)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
 
   S.Read(ASong, n);
 
   // Create the patterns
-  ASong.Patterns := TPatternMap.Create;
+  ASong.Patterns := TPatternMapV1.Create;
   // Read the pattern count
   S.Read(n, SizeOf(Integer));
   for i:=0 to n - 1 do begin
     // Allocate memory for each pattern ...
     New(pat);
     // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
+    S.Read(pat^, SizeOf(TPatternV1));
     // Add the pattern to the list
     ASong.Patterns.Add(i, pat);
   end;
@@ -183,25 +202,25 @@ end;
 procedure ReadSongFromStreamV3(S: TStream; out ASong: TSongV3);
 var
   i, n: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
   n := SizeOf(TSongV3)
-     - SizeOf(TPatternMap)
+     - SizeOf(TPatternMapV1)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
 
   S.Read(ASong, n);
 
   // Create the patterns
-  ASong.Patterns := TPatternMap.Create;
+  ASong.Patterns := TPatternMapV1.Create;
   // Read the pattern count
   S.Read(n, SizeOf(Integer));
   for i:=0 to n - 1 do begin
     // Allocate memory for each pattern ...
     New(pat);
     // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
+    S.Read(pat^, SizeOf(TPatternV1));
     // Add the pattern to the list
     ASong.Patterns.Add(i, pat);
   end;
@@ -224,25 +243,25 @@ end;
 procedure ReadSongFromStreamV4(S: TStream; out ASong: TSongV4);
 var
   i, n: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
   n := SizeOf(TSongV4)
-     - SizeOf(TPatternMap)
+     - SizeOf(TPatternMapV1)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
 
   S.Read(ASong, n);
 
   // Create the patterns
-  ASong.Patterns := TPatternMap.Create;
+  ASong.Patterns := TPatternMapV1.Create;
   // Read the pattern count
   S.Read(n, SizeOf(Integer));
   for i:=0 to n - 1 do begin
     // Allocate memory for each pattern ...
     New(pat);
     // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
+    S.Read(pat^, SizeOf(TPatternV1));
     // Add the pattern to the list
     ASong.Patterns.Add(i, pat);
   end;
@@ -265,10 +284,53 @@ end;
 procedure ReadSongFromStreamV5(S: TStream; out ASong: TSongV5);
 var
   i, n, PatKey: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
   n := SizeOf(TSongV5)
+     - SizeOf(TPatternMapV1)
+     - SizeOf(TOrderMatrix)
+     - SizeOf(TRoutineBank);
+
+  S.Read(ASong, n);
+
+  // Create the patterns
+  ASong.Patterns := TPatternMapV1.Create;
+  // Read the pattern count
+  S.Read(n, SizeOf(Integer));
+  for i:=0 to n - 1 do begin
+    // Read pattern key
+    S.Read(PatKey, SizeOf(Integer));
+    // Allocate memory for each pattern ...
+    New(pat);
+    // and read the pattern content
+    S.Read(pat^, SizeOf(TPatternV1));
+    // Add the pattern to the list
+    ASong.Patterns.Add(PatKey, pat);
+  end;
+
+  // Read the OrderMatrix
+  for i := 0 to 3 do
+  begin
+    // Read length of each OrderMatrix array
+    S.Read(n, SizeOf(Integer));
+    // Allocate memory for it
+    SetLength(ASong.OrderMatrix[i], n);
+    // Read content of OrderMatrix array
+    S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
+  end;
+
+  for I := Low(TRoutineBank) to High(TRoutineBank) do
+    ASong.Routines[I] := S.ReadAnsiString;
+end;
+
+procedure ReadSongFromStreamV6(S: TStream; out ASong: TSongV6);
+var
+  i, n, PatKey: Integer;
+  pat: PPattern;
+begin
+  // Read the fixed elements first
+  n := SizeOf(TSongV6)
      - SizeOf(TPatternMap)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
@@ -310,7 +372,7 @@ var
   i, n: Integer;
 begin
   // Write the fixed record elements first
-  n := SizeOf(TSongV5)
+  n := SizeOf(TSong)
      - SizeOf(TPatternMap)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
@@ -345,6 +407,7 @@ var
   SV2: TSongV2;
   SV3: TSongV3;
   SV4: TSongV4;
+  SV5: TSongV5;
 begin
   S.Read(Version, SizeOf(Integer));
   S.Seek(0, soBeginning);
@@ -366,7 +429,11 @@ begin
       ASong := UpgradeSong(SV4);
     end;
     5: begin
-      ReadSongFromStreamV5(S, ASong);
+      ReadSongFromStreamV5(S, SV5);
+      ASong := UpgradeSong(SV5);
+    end;
+    6: begin
+      ReadSongFromStreamV6(S, ASong);
     end;
   end;
 end;

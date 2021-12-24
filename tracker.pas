@@ -10,7 +10,7 @@ uses
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
-  modimport, beepboximport, mainloop, strutils, Types, Keymap, hUGESettings,
+  modimport, mainloop, strutils, Types, Keymap, hUGESettings,
   dmfimport;
 
 // TODO: Move to config file?
@@ -26,7 +26,11 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    CheckBox1: TCheckBox;
     DecreaseOctaveAction: TAction;
+    RowNumberStringGrid1: TStringGrid;
+    ScrollBox2: TScrollBox;
+    TableGroupBox: TGroupBox;
     IncreaseOctaveAction: TAction;
     IncrementCurrentInstrumentAction: TAction;
     DecrementCurrentInstrumentAction: TAction;
@@ -250,7 +254,6 @@ type
     SampleSongsMenuItem: TMenuItem;
     MenuItem5: TMenuItem;
     PageControl1: TPageControl;
-    PaintBox1: TPaintBox;
     WavePaintbox: TPaintBox;
     Panel1: TPanel;
     Panel2: TPanel;
@@ -265,6 +268,7 @@ type
     StatusBar1: TStatusBar;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
+    TableGrid: TTableGrid;
     procedure TestOctaveButtonClick(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
     procedure DecreaseOctaveActionExecute(Sender: TObject);
@@ -413,7 +417,6 @@ type
     procedure WaveEditPaintBoxPaint(Sender: TObject);
     procedure InstrumentTypeComboboxChange(Sender: TObject);
     procedure LengthEnabledCheckboxChange(Sender: TObject);
-    procedure PaintBox1Paint(Sender: TObject);
     procedure SevenBitCounterCheckboxChange(Sender: TObject);
     procedure SongEditChange(Sender: TObject);
     procedure StartVolSpinnerChange(Sender: TObject);
@@ -914,6 +917,7 @@ begin
       OrderNum
     );
     TrackerGrid.LoadPattern(I, OrderNum);
+    TableGrid.LoadPattern(I, OrderNum);
   end;
 
   CopyOrderGridToOrderMatrix;
@@ -1034,7 +1038,7 @@ begin
   if RenderPreviewROM then begin
     LockPlayback;
 
-    // Load the new symbol table
+    // Load the new symbol TableGroupBox
     ParseSymFile('render/preview.sym');
 
     // Start emulation on the rendered preview binary
@@ -1126,6 +1130,12 @@ begin
     HeaderControl1.Sections.Items[I].Width := TrackerGrid.ColumnWidth;
 
   TrackerGrid.PopupMenu := TrackerGridPopup;
+
+  if Assigned(TableGrid) then TableGrid.Free;
+  TableGrid := TTableGrid.Create(Self, ScrollBox2, Song.Patterns);
+  TableGrid.Left := RowNumberStringGrid1.Left + RowNumberStringGrid1.Width;
+  TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
 end;
 
 procedure TfrmTracker.RecreateRowNumbers;
@@ -1291,15 +1301,6 @@ begin
   Application.Terminate;
 end;
 
-procedure TfrmTracker.PaintBox1Paint(Sender: TObject);
-begin
-  PaintBox1.Canvas.Brush.Color := clBlack;
-  PaintBox1.Canvas.Pen.Color := clBlack;
-  PaintBox1.Canvas.Clear;
-  if WaveformCombobox.ItemIndex > -1 then
-    DrawWaveform(PaintBox1, Song.Waves[WaveformCombobox.ItemIndex]);
-end;
-
 procedure TfrmTracker.SevenBitCounterCheckboxChange(Sender: TObject);
 begin
   if SevenBitCounterCheckbox.Checked then
@@ -1422,7 +1423,7 @@ begin
   LoadInstrument(itSquare, 1);
   LoadWave(0);
 
-  // Initialize order table (InitializeSong creates the default order table)
+  // Initialize order table (InitializeSong creates the default order TableGroupBox)
   CopyOrderMatrixToOrderGrid;
 
   // Manually resize the fixed column in the order editor
@@ -1993,15 +1994,7 @@ procedure TfrmTracker.DebugButtonClick(Sender: TObject);
 var
   S: TStream;
 begin
-  S := TFileStream.Create('C:/test/bbs.json', fmOpenRead);
-  try
-    DestroySong(Song);
-    Song := LoadSongFromBeepBoxJsonStream(S);
-  finally
-    S.Free;
-  end;
-
-  UpdateUIAfterLoad('Yeah!');
+  TableGrid.Invalidate;
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);

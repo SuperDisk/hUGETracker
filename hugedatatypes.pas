@@ -40,18 +40,32 @@ type
       False: (Value: Byte);
   end;
 
-  TCell = packed record
+  TCellV1 = packed record
     Note: Integer;
     Instrument: Integer;
     EffectCode: Integer;
     EffectParams: TEffectParams;
   end;
+
+  TCellV2 = packed record
+    Note: Integer;
+    Instrument: Integer;
+    Volume: Integer;
+    EffectCode: Integer;
+    EffectParams: TEffectParams;
+  end;
+
+  TCell = TCellV2;
   PCell = ^TCell;
 
-  TPattern = packed array[0..63] of TCell;
-  PPattern = ^TPattern;
+  TPatternV1 = packed array[0..63] of TCellV1;
+  PPaternV1 = ^TPatternV1;
 
-  //TPatternMap = specialize TFPGMap<Integer, PPattern>;
+  TPatternV2 = packed array[0..63] of TCellV2;
+  TPattern = TPatternV2;
+  PPattern = ^TPatternV2;
+
+  TPatternMapV1 = specialize TFPGMap<Integer, PPatternV1>;
   TPatternMap = class(specialize TFPGMap<Integer, PPattern>)
     function GetOrCreateNew(Key: Integer): PPattern;
     function MaxKey: Integer;
