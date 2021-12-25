@@ -28,9 +28,9 @@ type
   TfrmTracker = class(TForm)
     CheckBox1: TCheckBox;
     DecreaseOctaveAction: TAction;
+    GroupBox1: TGroupBox;
     RowNumberStringGrid1: TStringGrid;
     ScrollBox2: TScrollBox;
-    TableGroupBox: TGroupBox;
     IncreaseOctaveAction: TAction;
     IncrementCurrentInstrumentAction: TAction;
     DecrementCurrentInstrumentAction: TAction;
@@ -1130,8 +1130,8 @@ begin
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
-  TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
   ScopesOn := TrackerSettings.UseScopes;
 
@@ -1143,9 +1143,10 @@ begin
 
   if Assigned(TableGrid) then TableGrid.Free;
   TableGrid := TTableGrid.Create(Self, ScrollBox2, Song.Patterns, 1);
-  TableGrid.Left := RowNumberStringGrid1.Left + RowNumberStringGrid1.Width;
+
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
+  TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
 end;
 
 procedure TfrmTracker.RecreateRowNumbers;
@@ -1153,12 +1154,17 @@ var
   I: Integer;
 begin
   RowNumberStringGrid.Clean;
+  RowNumberStringGrid1.Clean;
   // Add the row numbers to the string grid
   for I := 0 to RowNumberStringGrid.RowCount-1 do begin
-    if TrackerSettings.DisplayRowNumbersAsHex then
-      RowNumberStringGrid.Cells[0, I] := IntToHex(I, 2)
-    else
-      RowNumberStringGrid.Cells[0, I] := IntToStr(I)
+    if TrackerSettings.DisplayRowNumbersAsHex then begin
+      RowNumberStringGrid.Cells[0, I] := IntToHex(I, 2);
+      RowNumberStringGrid1.Cells[0, I] := IntToHex(I, 2)
+    end
+    else begin
+      RowNumberStringGrid.Cells[0, I] := IntToStr(I);
+      RowNumberStringGrid1.Cells[0, I] := IntToStr(I)
+    end;
   end;
 end;
 

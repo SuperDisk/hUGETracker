@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 651
+  Left = 1181
   Height = 902
-  Top = 282
+  Top = 246
   Width = 1458
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -315,10 +315,10 @@ object frmTracker: TfrmTracker
         ParentFont = False
         object FlowPanel1: TFlowPanel
           Left = 0
-          Height = 695
+          Height = 742
           Top = 0
-          Width = 1252
-          Align = alTop
+          Width = 943
+          Align = alClient
           AutoSize = True
           BevelOuter = bvNone
           ControlList = <          
@@ -346,11 +346,6 @@ object frmTracker: TfrmTracker
               Control = NoiseGroupBox
               WrapAfter = waAuto
               Index = 4
-            end          
-            item
-              Control = TableGroupBox
-              WrapAfter = waAuto
-              Index = 5
             end>
           FlowLayout = tlTop
           FlowStyle = fsLeftRightTopBottom
@@ -673,9 +668,9 @@ object frmTracker: TfrmTracker
             end
           end
           object SquareGroupBox: TGroupBox
-            Left = 897
+            Left = 7
             Height = 169
-            Top = 7
+            Top = 294
             Width = 319
             Anchors = []
             BorderSpacing.Left = 7
@@ -800,7 +795,7 @@ object frmTracker: TfrmTracker
             end
           end
           object WaveGroupBox: TGroupBox
-            Left = 7
+            Left = 340
             Height = 169
             Top = 294
             Width = 297
@@ -907,9 +902,9 @@ object frmTracker: TfrmTracker
             end
           end
           object NoiseGroupBox: TGroupBox
-            Left = 318
+            Left = 7
             Height = 223
-            Top = 294
+            Top = 477
             Width = 397
             Anchors = []
             BorderSpacing.Left = 7
@@ -957,52 +952,51 @@ object frmTracker: TfrmTracker
               end
             end
           end
-          object TableGroupBox: TGroupBox
-            Left = 729
-            Height = 394
-            Top = 294
-            Width = 327
-            Anchors = []
-            BorderSpacing.Left = 7
-            BorderSpacing.Top = 7
-            BorderSpacing.Right = 7
-            BorderSpacing.Bottom = 7
-            Caption = 'Subpattern'
-            ClientHeight = 374
-            ClientWidth = 323
-            TabOrder = 5
-            object ScrollBox2: TScrollBox
-              Left = 0
-              Height = 374
+        end
+        object GroupBox1: TGroupBox
+          Left = 943
+          Height = 735
+          Top = 7
+          Width = 309
+          Align = alRight
+          Anchors = []
+          BorderSpacing.Top = 7
+          Caption = 'Subpattern'
+          ClientHeight = 715
+          ClientWidth = 305
+          TabOrder = 1
+          object ScrollBox2: TScrollBox
+            Left = 0
+            Height = 715
+            Top = 0
+            Width = 305
+            HorzScrollBar.Increment = 3
+            HorzScrollBar.Page = 32
+            HorzScrollBar.Smooth = True
+            HorzScrollBar.Tracking = True
+            VertScrollBar.Increment = 5
+            VertScrollBar.Page = 50
+            VertScrollBar.Smooth = True
+            VertScrollBar.Tracking = True
+            Align = alClient
+            BorderStyle = bsNone
+            ClientHeight = 715
+            ClientWidth = 305
+            TabOrder = 0
+            object RowNumberStringGrid1: TStringGrid
+              Left = 273
+              Height = 715
               Top = 0
-              Width = 323
-              HorzScrollBar.Increment = 3
-              HorzScrollBar.Page = 32
-              HorzScrollBar.Smooth = True
-              HorzScrollBar.Tracking = True
-              VertScrollBar.Increment = 5
-              VertScrollBar.Page = 50
-              VertScrollBar.Smooth = True
-              VertScrollBar.Tracking = True
-              Align = alClient
-              ClientHeight = 370
-              ClientWidth = 319
+              Width = 32
+              Align = alRight
+              BorderStyle = bsNone
+              ColCount = 1
+              DefaultColWidth = 32
+              Enabled = False
+              ParentFont = False
+              RowCount = 64
+              ScrollBars = ssNone
               TabOrder = 0
-              object RowNumberStringGrid1: TStringGrid
-                Left = 0
-                Height = 370
-                Top = 0
-                Width = 32
-                Align = alLeft
-                BorderStyle = bsNone
-                ColCount = 1
-                DefaultColWidth = 32
-                Enabled = False
-                ParentFont = False
-                RowCount = 64
-                ScrollBars = ssNone
-                TabOrder = 0
-              end
             end
           end
         end
