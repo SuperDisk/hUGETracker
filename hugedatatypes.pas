@@ -59,7 +59,7 @@ type
   PCell = ^TCell;
 
   TPatternV1 = packed array[0..63] of TCellV1;
-  PPaternV1 = ^TPatternV1;
+  PPatternV1 = ^TPatternV1;
 
   TPatternV2 = packed array[0..63] of TCellV2;
   TPattern = TPatternV2;

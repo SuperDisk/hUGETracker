@@ -7,9 +7,11 @@ unit Song;
 
 interface
 
-uses Classes, HugeDatatypes, instruments, Constants, waves, math;
+uses Classes, HugeDatatypes, instruments, Constants, waves, math, sysutils;
 
 type
+  ESongVersionException = class(Exception);
+
   TSongV1 = packed record
     Version: Integer;
 
@@ -102,7 +104,7 @@ type
 
   { TSong }
 
-  TSong = TSongV5;
+  TSong = TSongV6;
 
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
@@ -114,7 +116,7 @@ function UpgradeSong(S: TSongV1): TSong; overload;
 function UpgradeSong(S: TSongV2): TSong; overload;
 function UpgradeSong(S: TSongV3): TSong; overload;
 function UpgradeSong(S: TSongV4): TSong; overload;
-function UpgradeSong(S: TSongV5): TSong; overload;
+//function UpgradeSong(S: TSongV5): TSong; overload;
 
 function OptimizeSong(const S: TSong): TSong;
 function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
@@ -435,6 +437,9 @@ begin
     6: begin
       ReadSongFromStreamV6(S, ASong);
     end;
+    else begin
+      raise ESongVersionException.Create(IntToStr(Version));
+    end;
   end;
 end;
 
@@ -673,7 +678,7 @@ var
     Result := False;
   end;
 
-  procedure ConvertPattern(var Pat: TPattern);
+  procedure ConvertPattern(var Pat: TPatternV1);
   var
     I: Integer;
     Regs: TRegisters;
@@ -722,9 +727,44 @@ begin
 end;
 
 function UpgradeSong(S: TSongV4): TSong;
+var
+  SV6: TSongV6;
+  I: Integer;
+
+  function ConvertPattern(Pat: PPatternV1): PPattern;
+  var
+    J: Integer;
+  begin
+    New(Result);
+    for J := Low(TPatternV1) to High(TPatternV1) do begin
+      Result^[J].Instrument := Pat^[J].Instrument;
+      Result^[J].EffectCode := Pat^[J].EffectCode;
+      Result^[J].EffectParams.Value := Pat^[J].EffectParams.Value;
+      Result^[J].Note := Pat^[J].Note;
+      Result^[J].Volume := 0;
+    end;
+  end;
 begin
-  S.Version := 5;
-  Result := S;
+  SV6.Version:=6;
+
+  SV6.Name:=S.Name;
+  SV6.Artist:=S.Artist;
+  SV6.Comment:=S.Comment;
+
+  SV6.Instruments:=S.Instruments;
+  SV6.Waves := S.Waves;
+
+  SV6.TicksPerRow:=S.TicksPerRow;
+  SV6.OrderMatrix:=S.OrderMatrix;
+
+  SV6.Routines:=S.Routines;
+
+  SV6.Patterns := TPatternMap.Create;
+  // Update patterns to new format
+  for I := 0 to S.Patterns.Count-1 do
+    SV6.Patterns.Add(S.Patterns.Keys[I], ConvertPattern(S.Patterns.Data[I]));
+
+  Result := SV6;
 end;
 
 function OptimizeSong(const S: TSong): TSong;

@@ -889,18 +889,20 @@ end;
 procedure TfrmTracker.LoadSong(Filename: String);
 var
   Stream: TStream;
+  TempSong: TSong;
 begin
-  DestroySong(Song);
-
-  stream := TFileStream.Create(FileName, fmOpenRead);
+  Stream := TFileStream.Create(FileName, fmOpenRead);
   try
-    ReadSongFromStream(stream, Song);
-  finally
-    stream.Free;
+    ReadSongFromStream(stream, TempSong);
+    DestroySong(Song);
+    Song := TempSong;
+    FileSaveAs1.Dialog.FileName := FileName;
+    UpdateUIAfterLoad(Filename);
+  except
+    on E: ESongVersionException do
+      ShowMessage('This song was created with a newer version of hUGETracker, and cannot be loaded.');
   end;
-  FileSaveAs1.Dialog.FileName := FileName;
-
-  UpdateUIAfterLoad(Filename);
+  Stream.Free;
 end;
 
 procedure TfrmTracker.ReloadPatterns;

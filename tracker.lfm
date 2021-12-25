@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1656
+  Left = 674
   Height = 902
-  Top = 134
+  Top = 72
   Width = 1458
   AllowDropFiles = True
   Caption = 'hUGETracker'
