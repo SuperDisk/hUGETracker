@@ -919,6 +919,14 @@ begin
       OrderNum
     );
     TrackerGrid.LoadPattern(I, OrderNum);
+  end;
+
+  for I := 0 to 0 do begin
+    OrderNum := 0;
+    TryStrToInt(
+      OrderEditStringGrid.Cells[I+1, OrderEditStringGrid.Row],
+      OrderNum
+    );
     TableGrid.LoadPattern(I, OrderNum);
   end;
 
@@ -1119,7 +1127,7 @@ var
   I: Integer;
 begin
   if Assigned(TrackerGrid) then TrackerGrid.Free;
-  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
@@ -1134,7 +1142,7 @@ begin
   TrackerGrid.PopupMenu := TrackerGridPopup;
 
   if Assigned(TableGrid) then TableGrid.Free;
-  TableGrid := TTableGrid.Create(Self, ScrollBox2, Song.Patterns);
+  TableGrid := TTableGrid.Create(Self, ScrollBox2, Song.Patterns, 1);
   TableGrid.Left := RowNumberStringGrid1.Left + RowNumberStringGrid1.Width;
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;

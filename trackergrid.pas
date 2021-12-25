@@ -11,12 +11,11 @@ uses
 
 // TODO: Maybe read these from a config file
 const
-  NUM_COLUMNS = 4;
   NUM_ROWS = 64;
   UNDO_STACK_SIZE = 100;
 
 type
-  TPatternGrid = array[0..3] of PPattern;
+  TPatternGrid = array of PPattern;
 
   { TSavedPattern }
 
@@ -25,7 +24,7 @@ type
     Pattern: TPattern;
   end;
 
-  TSavedPatternSet = array[0..3] of TSavedPattern;
+  TSavedPatternSet = array of TSavedPattern;
   TUndoRedoAction = record
     Before, After: TSavedPatternSet;
   end;
@@ -97,7 +96,7 @@ type
   private
     PatternMap: TPatternMap;
     Patterns: TPatternGrid;
-    PatternNumbers: array[0..3] of Integer;
+    PatternNumbers: array of Integer;
 
     CharHeight: Integer;
     CharWidth: Integer;
@@ -121,6 +120,7 @@ type
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
+    NumColumns: Integer;
 
     SelectedInstrument, SelectedOctave, Step: Integer;
 
@@ -155,7 +155,8 @@ type
     constructor Create(
       AOwner: TComponent;
       Parent: TWinControl;
-      PatternMap: TPatternMap); reintroduce;
+      PatternMap: TPatternMap;
+      NumColumns: Integer); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -296,13 +297,18 @@ end;
 constructor TTrackerGrid.Create(
   AOwner: TComponent;
   Parent: TWinControl;
-  PatternMap: TPatternMap);
+  PatternMap: TPatternMap;
+  NumColumns: Integer);
 begin
   inherited Create(AOwner);
 
   FFontSize := 12;
 
   Self.PatternMap := PatternMap;
+  Self.NumColumns := NumColumns;
+
+  SetLength(Patterns, NumColumns);
+  SetLength(PatternNumbers, NumColumns);
 
   NestedUndoCount := 0;
   Performed := TUndoDeque.Create;
@@ -357,16 +363,12 @@ begin
   // Draw borders between columns
   Canvas.Pen.Color := clDividers;
   Canvas.Pen.Width := 2;
-  R := TRect.Create(0, 0, ColumnWidth+1, Height);
-  Canvas.Rectangle(R);
-  R := TRect.Create(ColumnWidth, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);
-  R := TRect.Create(ColumnWidth*2, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);
-  R := TRect.Create(ColumnWidth*3, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);
-  R := TRect.Create(ColumnWidth*4, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);
+
+  for I := 0 to NumColumns do begin
+    //TODO: WTF? Why do we need this IfThen?
+    R := TRect.Create(ColumnWidth*I, 0, ColumnWidth + IfThen(I=0, 1, 0), Height);
+    Canvas.Rectangle(R);
+  end;
 
   RenderSelectedArea;
   if DraggingSelection then
@@ -521,10 +523,10 @@ begin
       else
         Inc(Cursor.X);
 
-      if Cursor.X > High(TPatternGrid) then
-        Cursor.X := Low(TPatternGrid);
-      if Cursor.X < Low(TPatternGrid) then
-        Cursor.X := High(TPatternGrid);
+      if Cursor.X > (NumColumns-1) then
+        Cursor.X := 0;
+      if Cursor.X < 0 then
+        Cursor.X := (NumColumns-1);
 
       Key := 0;
     end
@@ -679,11 +681,14 @@ begin
     // Save the "before" to our current undo action, so that EndUndoAction
     // can save the "after" and commit it to the Performed stack.
     CurrentUndoAction := Default(TUndoRedoAction);
-    for I := Low(Patterns) to High(Patterns) do
+    for I := Low(Patterns) to High(Patterns) do begin
+      SetLength(CurrentUndoAction.Before, NumColumns);
+      SetLength(CurrentUndoAction.After, NumColumns);
       with CurrentUndoAction.Before[I] do begin
         Pattern := Patterns[I]^;
         PatternNumber := PatternNumbers[I];
       end;
+    end;
   end;
 
   Inc(NestedUndoCount);
@@ -783,20 +788,20 @@ end;
 
 procedure TTrackerGrid.ClampCursors;
 begin
-  if Cursor.X < Low(TPatternGrid) then
+  if Cursor.X < 0 then
     Cursor.SelectedPart := Low(TCellPart);
-  if Cursor.X > High(TPatternGrid) then
+  if Cursor.X > (NumColumns-1) then
     Cursor.SelectedPart := High(TCellPart);
 
-  if Other.X < Low(TPatternGrid) then
+  if Other.X < 0 then
     Other.SelectedPart := Low(TCellPart);
-  if Other.X > High(TPatternGrid) then
+  if Other.X > (NumColumns-1) then
     Other.SelectedPart := High(TCellPart);
 
   Cursor.Y := EnsureRange(Cursor.Y, Low(TPattern), High(TPattern));
-  Cursor.X := EnsureRange(Cursor.X, Low(TPatternGrid), High(TPatternGrid));
+  Cursor.X := EnsureRange(Cursor.X, Low(TPatternGrid), (NumColumns-1));
   Other.Y := EnsureRange(Other.Y, Low(TPattern), High(TPattern));
-  Other.X := EnsureRange(Other.X, Low(TPatternGrid), High(TPatternGrid));
+  Other.X := EnsureRange(Other.X, Low(TPatternGrid), (NumColumns-1));
 end;
 
 procedure TTrackerGrid.NormalizeCursors;
@@ -1191,7 +1196,7 @@ begin
   X := EnsureRange(Width-1, 0, X);
   Y := EnsureRange(Height-1, 0, Y);
 
-  Result.X := Trunc((X/Width)*NUM_COLUMNS);
+  Result.X := Trunc((X/Width)*NumColumns);
   Result.Y := Trunc((Y/Height)*NUM_ROWS);
 
   if OrigX <= 0 then
@@ -1265,7 +1270,7 @@ begin
     CharWidth := GetTextWidth('C');
   end;
 
-  Width := ColumnWidth*4;
+  Width := ColumnWidth*NumColumns;
   Height := RowHeight*64;
 end;
 
