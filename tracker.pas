@@ -1468,7 +1468,7 @@ begin
 
   // If a command line param was passed, try to open it
   if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then
-    LoadSong(ParamStr(1));
+    LoadSong(ParamStr(1))
   else
     UpdateUIAfterLoad;
 end;
