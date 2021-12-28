@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 674
+  Left = 1043
   Height = 902
-  Top = 72
+  Top = 99
   Width = 1458
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -1971,12 +1971,12 @@ object frmTracker: TfrmTracker
         Caption = '-'
       end
       object MenuItem34: TMenuItem
-        Caption = 'Import GBT Player ...'
+        Caption = 'Import GBT Player MOD ...'
         ImageIndex = 78
         OnClick = MenuItem34Click
       end
       object MenuItem41: TMenuItem
-        Caption = 'Import DefleMask ...'
+        Caption = 'Import DefleMask DMF ...'
         ImageIndex = 79
         OnClick = MenuItem41Click
       end

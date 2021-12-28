@@ -10,8 +10,7 @@ uses
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
-  modimport, mainloop, strutils, Types, Keymap, hUGESettings,
-  dmfimport;
+  modimport, mainloop, strutils, Types, Keymap, hUGESettings;
 
 // TODO: Move to config file?
 const
@@ -1220,8 +1219,6 @@ begin
     end;
 
     itNoise: begin
-      //ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
-      //DivRatioTrackbar.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = swSeven;
     end;
   end;
@@ -1470,10 +1467,8 @@ begin
     SampleSongsMenuItem.Enabled := False;
 
   // If a command line param was passed, try to open it
-  if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then begin
+  if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then
     LoadSong(ParamStr(1));
-    UpdateUIAfterLoad(ParamStr(1));
-  end
   else
     UpdateUIAfterLoad;
 end;
@@ -1632,7 +1627,6 @@ end;
 procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
 begin
   LoadSong(FileOpen1.Dialog.FileName);
-  UpdateUIAfterLoad(FileOpen1.Dialog.FileName);
 end;
 
 procedure TfrmTracker.HeaderControl1MouseDown(Sender: TObject;
@@ -1831,21 +1825,8 @@ begin
 end;
 
 procedure TfrmTracker.MenuItem41Click(Sender: TObject);
-var
-  Stream: TStream;
 begin
-  if not CheckUnsavedChanges then Exit;
 
-  if True then begin
-    DestroySong(Song);
-
-    Stream := TFileStream.Create('C:/test/pokemon3.dmf', fmOpenRead);
-    Song := LoadSongFromDmfStream(Stream);
-
-    Stream.Free;
-
-    UpdateUIAfterLoad('Bargus');
-  end;
 end;
 
 procedure TfrmTracker.NoiseMacroPaintboxMouseDown(Sender: TObject;
