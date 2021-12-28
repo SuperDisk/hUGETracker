@@ -5,193 +5,7 @@ unit instruments;
 interface
 
 uses
-  Classes, SysUtils;
-
-type
-  TInstrumentType = (itSquare = 0, itWave = 1, itNoise = 2);
-  TDutyType = 0..3;
-  TSweepType = (stUp, stDown);
-  TStepWidth = (swFifteen, swSeven);
-  TEnvelopeVolume = 0..15;
-  TEnvelopeSweepAmount = 0..7;
-  TNoiseMacro = array[0..5] of -31..32;
-
-  TInstrumentV1 = packed record
-    Type_: TInstrumentType;
-
-    Name: ShortString;
-    Length: Integer;
-    // Highmask
-    LengthEnabled: Boolean;
-
-    InitialVolume: TEnvelopeVolume;
-    VolSweepDirection: TSweepType;
-    VolSweepAmount: TEnvelopeSweepAmount;
-
-    // itSquare
-    // NR10
-    SweepTime: Integer;
-    SweepIncDec: TSweepType;
-    SweepShift: Integer;
-
-    // NR11
-    Duty: TDutyType;
-
-    // itWave
-
-    // NR32
-    OutputLevel: Integer;
-    // itWave
-    Waveform: Integer;
-
-    // itNoise
-    // NR42
-    ShiftClockFreq: Integer; // Unused
-    CounterStep: TStepWidth;
-    DividingRatio: Integer;
-  end;
-
-  TInstrumentV2 = packed record
-    Type_: TInstrumentType;
-
-    Name: ShortString;
-    Length: Integer;
-    // Highmask
-    LengthEnabled: Boolean;
-
-    InitialVolume: TEnvelopeVolume;
-    VolSweepDirection: TSweepType;
-    VolSweepAmount: TEnvelopeSweepAmount;
-
-    // itSquare
-    // NR10
-    SweepTime: Integer;
-    SweepIncDec: TSweepType;
-    SweepShift: Integer;
-
-    // NR11
-    Duty: TDutyType;
-
-    // itWave
-
-    // NR32
-    OutputLevel: Integer;
-    // itWave
-    Waveform: Integer;
-
-    // itNoise
-    // NR42
-    ShiftClockFreq: Integer; // Unused
-    CounterStep: TStepWidth;
-    DividingRatio: Integer;
-    NoiseMacro: TNoiseMacro;
-  end;
-
-  TInstrument = TInstrumentV2;
-
-  TAsmInstrument = array[0..3] of Byte;
-
-  TRegisters = record
-    case Type_: TInstrumentType of
-      itSquare: (NR10, NR11, NR12, NR13, NR14: Byte);
-      itWave: (NR30, NR31, NR32, NR33, NR34: Byte);
-      itNoise: (NR41, NR42, NR43, NR44: Byte);
-  end;
-
-  Bit = Boolean;
-  TwoBits = 0..%11;
-  ThreeBits = 0..%111;
-  FourBits = 0..%1111;
-  FiveBits = 0..%11111;
-  SixBits = 0..%111111;
-  SevenBits = 0..%1111111;
-  EightBits = Byte;
-
-  TSweepRegister = bitpacked record
-    case Boolean of
-      True: (
-        Shift: ThreeBits;
-        IncDec: Bit;
-        SweepTime: ThreeBits;
-        _: Bit;
-      );
-      False: (ByteValue: Byte);
-  end;
-
-  TSquareLengthRegister = bitpacked record
-    case Boolean of
-    True: (
-      Length: SixBits;
-      Duty: TwoBits;
-    );
-    False: (ByteValue: Byte);
-  end;
-
-  TEnvelopeRegister = bitpacked record
-    case Boolean of
-      True: (
-        SweepNumber: ThreeBits;
-        Direction: Bit;
-        InitialVolume: FourBits;
-      );
-      False: (ByteValue: Byte);
-  end;
-
-  TLowByteRegister = Byte;
-
-  THighByteRegister = bitpacked record
-    case Boolean of
-      True: (
-        FrequencyBits: ThreeBits;
-        _Padding: ThreeBits;
-        UseLength: Bit;
-        Initial: Bit;
-      );
-      False: (ByteValue: Byte);
-  end;
-
-  TCh3SoundOnOffRegister = bitpacked record
-    case Boolean of
-      True: (
-        _Padding: SevenBits;
-        Playback: Bit;
-      );
-      False: (ByteValue: Byte);
-  end;
-
-  TCh3SoundLengthRegister = Byte;
-
-  TCh3OutputLevelRegister = bitpacked record
-    case Boolean of
-      True: (
-        _Padding: FiveBits;
-        OutputLevel: TwoBits;
-        _Padding2: Bit;
-      );
-      False: (ByteValue: Byte);
-  end;
-
-  TCh4SoundLengthRegister = 0..63;
-
-  TPolynomialCounterRegister = bitpacked record
-    case Boolean of
-      True: (
-        DividingRatio: ThreeBits;
-        SevenBitCounter: Bit;
-        ShiftClockFrequency: FourBits;
-      );
-      False: (ByteValue: Byte);
-  end;
-
-  TCh4HighByteRegister = bitpacked record
-    case Boolean of
-      True: (
-        _Padding: SixBits;
-        UseLength: Bit;
-        Initial: Bit;
-      );
-      False: (ByteValue: Byte);
-  end;
+  Classes, SysUtils, HugeDatatypes;
 
 function NoiseInstrumentToRegisters(
   Frequency: Word;
@@ -246,8 +60,8 @@ begin
 
   // Because *InstrumentToRegisters is meant for previewing, it puts in
   // a value for shift clock freq, so we have to remove it and put in the mask
-  // instead.
-  Poly.ShiftClockFrequency := Instrument.ShiftClockFreq;
+  // instead. The mask is a leftover from old versions, so it's always zero.
+  Poly.ShiftClockFrequency := 0;
   Result[3] := Regs.NR44;
 end;
 
@@ -320,7 +134,7 @@ begin
 
   NR43.ShiftClockFrequency := $F - (Frequency shr 7); // Quantize CH4 note
 
-  NR43.DividingRatio:= Instr.DividingRatio;
+  NR43.DividingRatio:= 0; //Instr.DividingRatio;
   NR43.SevenBitCounter:=Instr.CounterStep = swSeven;
 
   NR44.Initial:= Initial;

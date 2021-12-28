@@ -127,6 +127,7 @@ const
   As8 = 70;
   B_8 = 71;
   HIGHEST_NOTE = 71;
+  MIDDLE_NOTE = ((HIGHEST_NOTE - LOWEST_NOTE) div 2)+1;
   LAST_NOTE = 72;
   NO_NOTE = 90;
 

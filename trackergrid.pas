@@ -197,17 +197,16 @@ var
   NoteString: ShortString;
 begin
   with Canvas do begin
-    if NoteMap.TryGetData(Cell.Note, NoteString) then begin
-      Font.Color := clNote;
-      TextOut(PenPos.X, PenPos.Y, NoteString);
-    end
-    else begin
+    Font.Color := clNote;
+
+    if (Cell.Note = NO_NOTE) or (Cell.Note = MIDDLE_NOTE) then begin
       Font.Color := clDots;
-      if Cell.Note = NO_NOTE then
-        TextOut(PenPos.X, PenPos.Y, '...')
-      else
-        TextOut(PenPos.X, PenPos.Y, '???');
-    end;
+      TextOut(PenPos.X, PenPos.Y, '...')
+    end
+    else if Cell.Note > 36 then
+      TextOut(PenPos.X, PenPos.Y, '+'+FormatFloat('00', Cell.Note - MIDDLE_NOTE))
+    else if Cell.Note < 36 then
+      TextOut(PenPos.X, PenPos.Y, '-'+FormatFloat('00', MIDDLE_NOTE - Cell.Note));
 
     TextOut(PenPos.X, PenPos.Y, ' ');
 

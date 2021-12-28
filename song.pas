@@ -7,7 +7,7 @@ unit Song;
 
 interface
 
-uses Classes, HugeDatatypes, instruments, Constants, waves, math, sysutils;
+uses Classes, HugeDatatypes, instruments, Constants, math, sysutils;
 
 type
   ESongVersionException = class(Exception);
@@ -71,7 +71,7 @@ type
     Artist: ShortString;
     Comment: ShortString;
 
-    Instruments: TInstrumentCollection;
+    Instruments: TInstrumentCollectionV2;
     Waves: TWaveBank;
 
     TicksPerRow: Integer;
@@ -122,6 +122,8 @@ function OptimizeSong(const S: TSong): TSong;
 function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
 
 implementation
+
+uses Utils;
 
 // Thanks to WP on the FreePascal forums for this code!
 // https://forum.lazarus.freepascal.org/index.php/topic,47892.msg344152.html#msg344152
@@ -454,8 +456,10 @@ begin
     Comment := '';
   end;
 
-  for I := Low(S.Instruments.All) to High(S.Instruments.All) do
+  for I := Low(S.Instruments.All) to High(S.Instruments.All) do begin
     S.Instruments.All[I] := Default(TInstrument);
+    BlankPattern(@S.Instruments.All[I].Subpattern);
+  end;
 
   for I := Low(S.Instruments.Duty) to High(S.Instruments.Duty) do begin
     with S.Instruments.Duty[I] do begin
@@ -493,9 +497,6 @@ begin
       InitialVolume := High(TEnvelopeVolume);
       VolSweepDirection := stDown;
       VolSweepAmount := 0;
-      NoiseMacro := Default(TNoiseMacro);
-      ShiftClockFreq := 0;
-      DividingRatio := 0;
       CounterStep := swFifteen;
     end;
 
@@ -678,7 +679,7 @@ var
     Result := False;
   end;
 
-  procedure ConvertPattern(var Pat: TPatternV1);
+  procedure ConvertPattern(var Pat: TPatternV2);
   var
     I: Integer;
     Regs: TRegisters;
@@ -689,7 +690,7 @@ var
     for I := Low(Pat) to High(Pat) do begin
       if (Pat[I].Instrument = 0) or (Pat[I].Note = NO_NOTE) then Continue;
 
-      Regs := NoiseInstrumentToRegisters(NotesToFreqs.KeyData[Pat[I].Note], False, SV4.Instruments.Noise[Pat[I].Instrument]);
+      Regs := NoiseInstrumentToRegisters(NotesToFreqs.KeyData[Pat[I].Note], False, Result.Instruments.Noise[Pat[I].Instrument]);
       if PolyCounter.DividingRatio = 0 then
         RealR := 0.5
       else
@@ -717,13 +718,13 @@ begin
     SV4.Instruments.All[I].NoiseMacro := Default(TNoiseMacro);
   end;
 
-  // Rewrite noise patterns to accomodate the new noise instruments...
-  for I := 0 to SV4.Patterns.Count-1 do
-    if UsedInCH4(SV4.Patterns.Keys[I]) then begin
-      ConvertPattern(SV4.Patterns.Data[I]^);
-    end;
-
   Result := UpgradeSong(SV4);
+
+  // Rewrite noise patterns to accomodate the new noise instruments...
+  for I := 0 to Result.Patterns.Count-1 do
+    if UsedInCH4(Result.Patterns.Keys[I]) then begin
+      ConvertPattern(Result.Patterns.Data[I]^);
+    end;
 end;
 
 function UpgradeSong(S: TSongV4): TSong;
@@ -751,7 +752,24 @@ begin
   SV6.Artist:=S.Artist;
   SV6.Comment:=S.Comment;
 
-  SV6.Instruments:=S.Instruments;
+  for I := Low(S.Instruments.All) to High(S.Instruments.All) do begin
+    SV6.Instruments.All[I].Type_ := S.Instruments.All[I].Type_;
+    SV6.Instruments.All[I].Name := S.Instruments.All[I].Name;
+    SV6.Instruments.All[I].Length := S.Instruments.All[I].Length;
+    SV6.Instruments.All[I].LengthEnabled := S.Instruments.All[I].LengthEnabled;
+    SV6.Instruments.All[I].InitialVolume := S.Instruments.All[I].InitialVolume;
+    SV6.Instruments.All[I].VolSweepDirection := S.Instruments.All[I].VolSweepDirection;
+    SV6.Instruments.All[I].VolSweepAmount := S.Instruments.All[I].VolSweepAmount;
+    SV6.Instruments.All[I].SweepTime := S.Instruments.All[I].SweepTime;
+    SV6.Instruments.All[I].SweepIncDec := S.Instruments.All[I].SweepIncDec;
+    SV6.Instruments.All[I].SweepShift := S.Instruments.All[I].SweepShift;
+    SV6.Instruments.All[I].Duty := S.Instruments.All[I].Duty;
+    SV6.Instruments.All[I].OutputLevel := S.Instruments.All[I].OutputLevel;
+    SV6.Instruments.All[I].Waveform := S.Instruments.All[I].Waveform;
+    SV6.Instruments.All[I].CounterStep := S.Instruments.All[I].CounterStep;
+    BlankPattern(@SV6.Instruments.All[I].Subpattern);
+  end;
+
   SV6.Waves := S.Waves;
 
   SV6.TicksPerRow:=S.TicksPerRow;

@@ -5,7 +5,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Song, Waves, HugeDatatypes, Constants, gHashSet, fgl, instruments, math;
+  Classes, SysUtils, Song, HugeDatatypes, Constants, gHashSet, fgl, instruments, math;
 
 function Lerp(v0, v1, t: Double): Double;
 function Snap(Value, Every: Integer): Integer;
@@ -16,7 +16,6 @@ procedure BlankPattern(Pat: PPattern);
 procedure BlankCell(var Cell: TCell);
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
-//function UniqueOrdersDuringPlayback(Song: TSong; FromPos, ToPos: Integer): Integer;
 
 function ModInst(Inst: Integer): Integer;
 function UnmodInst(Bank: TInstrumentType; Inst: Integer): Integer;
@@ -103,76 +102,6 @@ begin
     $F: Result := 'Set speed to '+P+' ticks';
   end;
 end;
-
-{function UniqueOrdersDuringPlayback(Song: TSong; FromPos, ToPos: Integer
-  ): Integer;
-var
-  Seen: array of Integer;
-  CurOrder, CurRow: Integer;
-  OrderChanged: Boolean;
-  NextOrder, NextRow: Integer;
-  OrderCount, TotalSeenOrders: Integer;
-  Cell: TCell;
-  I: Integer;
-  Pat: TPattern;
-begin
-  CurOrder := FromPos;
-  CurRow := 0;
-  OrderChanged := True;
-  TotalSeenOrders := 0;
-
-  with Song do
-    OrderCount := MaxIntValue([High(OrderMatrix[0]), High(OrderMatrix[1]),
-      High(OrderMatrix[2]), High(OrderMatrix[3])]);
-
-  SetLength(Seen, OrderCount);
-
-  NextOrder := -1;
-  NextRow := -1;
-  repeat
-    if OrderChanged then begin
-      OrderChanged := False;
-      Inc(Seen[CurOrder]);
-      Inc(TotalSeenOrders);
-    end;
-
-    for I := 0 to 3 do begin
-      Pat := Song.Patterns[Song.OrderMatrix[I, CurOrder]]^;
-      Cell := Pat[CurRow];
-      case Cell.EffectCode of
-        $B: NextOrder := Max(Cell.EffectParams.Value-1, OrderCount-1);
-        $D: NextRow := Cell.EffectParams.Value;
-      end;
-    end;
-
-    if NextOrder = -1 then
-      NextOrder := CurOrder;
-
-    if NextRow = -1 then
-      NextRow := CurRow + 1;
-
-    if NextRow > High(TPattern) then begin
-      NextRow := 0;
-      NextOrder := CurOrder + 1;
-    end;
-
-    if NextOrder > OrderCount-1 then begin
-      OrderChanged := True;
-      NextOrder := 0;
-    end;
-
-    if CurOrder <> NextOrder then
-      OrderChanged := True;
-
-    CurOrder := NextOrder;
-    CurRow := NextRow;
-    NextOrder := -1;
-    NextRow := -1;
-    writeln(CurOrder, ' ', curRow);
-  until (Seen[CurOrder] > 1) or (CurOrder = ToPos);
-
-  Result := TotalSeenOrders;
-end;}
 
 function ModInst(Inst: Integer): Integer;
 begin

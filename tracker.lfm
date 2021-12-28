@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1181
+  Left = 674
   Height = 902
-  Top = 246
+  Top = 72
   Width = 1458
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -902,18 +902,18 @@ object frmTracker: TfrmTracker
             end
           end
           object NoiseGroupBox: TGroupBox
-            Left = 7
-            Height = 223
-            Top = 477
-            Width = 397
+            Left = 651
+            Height = 59
+            Top = 294
+            Width = 237
             Anchors = []
             BorderSpacing.Left = 7
             BorderSpacing.Top = 7
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Noise'
-            ClientHeight = 203
-            ClientWidth = 393
+            ClientHeight = 39
+            ClientWidth = 233
             ParentFont = False
             TabOrder = 4
             object SevenBitCounterCheckbox: TCheckBox
@@ -927,29 +927,6 @@ object frmTracker: TfrmTracker
               OnChange = SevenBitCounterCheckboxChange
               ParentFont = False
               TabOrder = 0
-            end
-            object Panel6: TPanel
-              Left = 8
-              Height = 152
-              Top = 40
-              Width = 376
-              BevelOuter = bvLowered
-              ClientHeight = 152
-              ClientWidth = 376
-              ParentFont = False
-              TabOrder = 1
-              object NoiseMacroPaintbox: TPaintBox
-                Left = 1
-                Height = 150
-                Top = 1
-                Width = 374
-                Align = alClient
-                ParentFont = False
-                OnMouseDown = NoiseMacroPaintboxMouseDown
-                OnMouseMove = NoiseMacroPaintboxMouseMove
-                OnMouseUp = NoiseMacroPaintboxMouseUp
-                OnPaint = NoiseMacroPaintboxPaint
-              end
             end
           end
         end

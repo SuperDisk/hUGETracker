@@ -6,7 +6,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, SynHighlighterAny,
-  FileUtil, math, Instruments, Waves, Song, Utils, Constants,
+  FileUtil, math, Instruments, Song, Utils, Constants,
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
@@ -53,8 +53,6 @@ type
     MenuItem43: TMenuItem;
     MenuItem44: TMenuItem;
     MenuItem54: TMenuItem;
-    NoiseMacroPaintbox: TPaintBox;
-    Panel6: TPanel;
     GBDKCSaveDialog: TSaveDialog;
     RGBDSAsmSaveDialog: TSaveDialog;
     StopAction: TAction;
@@ -301,11 +299,8 @@ type
     procedure MenuItem41Click(Sender: TObject);
     procedure NoiseMacroPaintboxMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure NoiseMacroPaintboxMouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
     procedure NoiseMacroPaintboxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure NoiseMacroPaintboxPaint(Sender: TObject);
     procedure OrderEditStringGridCellProcess(Sender: TObject; aCol,
       aRow: Integer; processType: TCellProcessType; var aValue: string);
     procedure OrderEditStringGridValidateEntry(sender: TObject; aCol,
@@ -815,7 +810,7 @@ begin
         Spokeb(Addr+1, Regs.NR41);
 
         for I := 0 to 5 do begin
-          Spokeb(Addr+2+I, Byte(Instr.NoiseMacro[I]));
+          Spokeb(Addr+2+I, Byte(0));
         end;
 
         PokeSymbol(SYM_HALT_MACRO_INDEX, 1);
@@ -1233,7 +1228,6 @@ begin
 
   WavePaintbox.Invalidate;
   EnvelopePaintBox.Invalidate;
-  NoiseMacroPaintbox.Invalidate;
 end;
 
 procedure TfrmTracker.ChangeToSquare;
@@ -1860,59 +1854,10 @@ begin
   DrawingMacro := True;
 end;
 
-procedure TfrmTracker.NoiseMacroPaintboxMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
-var
-  MacroIdx, Val: Integer;
-begin
-  if DrawingMacro then begin
-    MacroIdx := EnsureRange(Trunc((X/NoiseMacroPaintbox.Width) * 6), 0, 5);
-    Val := 32-EnsureRange(Trunc((Y/NoiseMacroPaintbox.Height) * 63), 0, 63);
-
-    CurrentInstrument^.NoiseMacro[MacroIdx] := Val;
-    NoiseMacroPaintbox.Invalidate;
-  end;
-end;
-
 procedure TfrmTracker.NoiseMacroPaintboxMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   DrawingMacro := False;
-end;
-
-procedure TfrmTracker.NoiseMacroPaintboxPaint(Sender: TObject);
-var
-  BarWidth, BarStep: Double;
-  I: Integer;
-  Rect: TRect;
-
-  function FormatMacroNumber(Val: Integer): string;
-  begin
-    if Val = 0 then Exit('')
-    else if Val > 0 then Exit('+'+IntToStr(Val))
-    else Exit(IntToStr(Val));
-  end;
-
-begin
-  BarWidth := (NoiseMacroPaintbox.Width / 6); // TODO: change this constant?
-  BarStep := (NoiseMacroPaintbox.Height / 63);
-  with NoiseMacroPaintbox.Canvas do begin
-    Brush.Color := clGameboyBlack;
-    Clear;
-
-    Brush.Color := clGameboyMidGreen;
-    Pen.Color := clGameboyBlack;
-    for I := Low(TNoiseMacro) to High(TNoiseMacro) do begin
-      Rect := TRect.Create(
-        Trunc(I*BarWidth),
-        NoiseMacroPaintbox.Height div 2,
-        Trunc((I+1)*BarWidth),
-        Ceil((NoiseMacroPaintbox.Height / 2) - (CurrentInstrument^.NoiseMacro[I] * BarStep))
-      );
-      FillRect(Rect);
-      TextOut(Rect.Left + Trunc(Rect.Width/2.5), Rect.Top + (Rect.Height div 2), FormatMacroNumber(CurrentInstrument^.NoiseMacro[I]));
-    end;
-  end;
 end;
 
 procedure TfrmTracker.OrderEditStringGridCellProcess(Sender: TObject; aCol,
