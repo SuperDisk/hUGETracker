@@ -202,7 +202,6 @@ type
     WaveEditNumberSpinner: TSpinEdit;
     WaveEditGroupBox: TGroupBox;
     Label19: TLabel;
-    DebugPlayNoteButton: TMenuItem;
     WaveEditPaintBox: TPaintBox;
     RoutineNumberSpinner: TSpinEdit;
     Label17: TLabel;
@@ -341,7 +340,6 @@ type
     procedure InstrumentNameEditChange(Sender: TObject);
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
-    procedure DebugPlayNoteButtonClick(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
     procedure MenuItem12Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
@@ -2090,12 +2088,6 @@ procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.Length := Round(LengthTrackbar.Position);
   EnvelopePaintBox.Invalidate;
-end;
-
-procedure TfrmTracker.DebugPlayNoteButtonClick(Sender: TObject);
-begin
-  PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
-  //PreviewInstrument(NotesToFreqs.KeyData[C_5], InstrumentComboBox.ItemIndex);
 end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
