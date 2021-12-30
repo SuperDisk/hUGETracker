@@ -265,6 +265,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     TableGrid: TTableGrid;
+    procedure FormShow(Sender: TObject);
     procedure TestOctaveButtonClick(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
     procedure DecreaseOctaveActionExecute(Sender: TObject);
@@ -309,7 +310,6 @@ type
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
-    procedure FormShow(Sender: TObject);
     procedure InstrumentComboBoxChange(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
     procedure CutActionExecute(Sender: TObject);
@@ -425,6 +425,7 @@ type
     CurrentWave: ^TWave;
     CurrentInstrumentBank: TInstrumentType;
     LoadedFileName: String;
+    SubpatternMap: TPatternMap;
 
     PreviewingInstrument: Integer;
     PreviewingWithKey: Word;
@@ -434,7 +435,6 @@ type
     SaveSucceeded: Boolean;
     ScopesOn: Boolean;
 
-    {PatternsNode, }
     WaveInstrumentsNode,
     NoiseInstrumentsNode,
     DutyInstrumentsNode,
@@ -506,9 +506,11 @@ var
 begin
   HaltPlayback;
 
+  SubpatternMap.Clear;
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
+    SubpatternMap.Add(I, @Song.Instruments.All[I].Subpattern);
+
   LoadingFile := True; // HACK!!!!!
-  LoadInstrument(itSquare, 1);
-  LoadWave(0);
 
   RoutineSynedit.Text := Song.Routines[0];
   RoutineNumberSpinner.Value := 0;
@@ -536,13 +538,15 @@ begin
     InstrumentComboBox.Items.Add('Noise '+IntToStr(I)+': '+Song.Instruments.Noise[ModInst(I)].Name);
 
   InstrumentComboBox.ItemIndex := 0;
-  //TrackerGrid.SelectedInstrument := 1; //ModInst(InstrumentComboBox.ItemIndex);
 
   for I := Low(TInstrumentBank) to High(TInstrumentBank) do begin
     DutyInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Duty[I].Name;
     WaveInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Wave[I].Name;
     NoiseInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Noise[I].Name;
   end;
+
+  LoadInstrument(itSquare, 1);
+  LoadWave(0);
 
   LoadingFile := False; // HACK!!!!
 
@@ -913,15 +917,6 @@ begin
     TrackerGrid.LoadPattern(I, OrderNum);
   end;
 
-  for I := 0 to 0 do begin
-    OrderNum := 0;
-    TryStrToInt(
-      OrderEditStringGrid.Cells[I+1, OrderEditStringGrid.Row],
-      OrderNum
-    );
-    TableGrid.LoadPattern(I, OrderNum);
-  end;
-
   CopyOrderGridToOrderMatrix;
 end;
 
@@ -1118,27 +1113,27 @@ procedure TfrmTracker.RecreateTrackerGrid;
 var
   I: Integer;
 begin
+  // Recreate TrackerGrid
   if Assigned(TrackerGrid) then TrackerGrid.Free;
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
-  RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
-  ScopesOn := TrackerSettings.UseScopes;
-
-  // Fix the size of the channel headers
-  for I := 1 to HeaderControl1.Sections.Count-1 do
-    HeaderControl1.Sections.Items[I].Width := TrackerGrid.ColumnWidth;
-
   TrackerGrid.PopupMenu := TrackerGridPopup;
+  RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
 
+  // Recreate TableGrid
   if Assigned(TableGrid) then TableGrid.Free;
-  TableGrid := TTableGrid.Create(Self, ScrollBox2, Song.Patterns, 1);
+  TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1);
 
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
   TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
+
+  // Fix the size of the channel headers
+  for I := 1 to HeaderControl1.Sections.Count-1 do
+    HeaderControl1.Sections.Items[I].Width := TrackerGrid.ColumnWidth;
 end;
 
 procedure TfrmTracker.RecreateRowNumbers;
@@ -1171,6 +1166,8 @@ begin
     itNoise:  CurrentInstrument := @Song.Instruments.Noise[Instr];
   end;
   CI := CurrentInstrument;
+
+  TableGrid.LoadPattern(0, UnmodInst(Bank, Instr));
 
   InstrumentTypeComboBox.ItemIndex := Integer(CurrentInstrumentBank);
   InstrumentNumberSpinner.Value := Instr;
@@ -1386,6 +1383,7 @@ begin
   {$endif}
 
   VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
+  SubpatternMap := TPatternMap.Create;
 
   PreviewingInstrument := -1;
 
@@ -1424,9 +1422,6 @@ begin
 
   // Initialize ticks per row
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
-
-  LoadInstrument(itSquare, 1);
-  LoadWave(0);
 
   // Initialize order table (InitializeSong creates the default order table)
   CopyOrderMatrixToOrderGrid;
@@ -1770,6 +1765,7 @@ procedure TfrmTracker.IncreaseOctaveActionExecute(Sender: TObject);
 begin
   OctaveSpinEdit.Value := OctaveSpinEdit.Value + 1;
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+  TableGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
 
 procedure TfrmTracker.IncrementCurrentInstrumentActionExecute(Sender: TObject);
@@ -1911,13 +1907,6 @@ begin
     Handled := False;
 end;
 
-procedure TfrmTracker.FormShow(Sender: TObject);
-begin
-  // HACK: This needs to be done due to a scaling bug in the LCL.
-  RecreateTrackerGrid;
-  ReloadPatterns
-end;
-
 procedure TfrmTracker.TestOctaveButtonClick(Sender: TObject);
 begin
   case (Sender as TButton).Tag of
@@ -1930,17 +1919,30 @@ begin
   end;
 end;
 
+procedure TfrmTracker.FormShow(Sender: TObject);
+begin
+  { HACK: This needs to be done due to a scaling bug in the LCL.
+  For some reason, omitting these two lines causes the window to
+  appear at a weird size, not the one defined by the form editor. }
+
+  // TODO: Look into this! This makes literally zero sense.
+  RecreateTrackerGrid;
+  ReloadPatterns;
+  LoadInstrument(itSquare, 1) // Load default pattern for tablegrid
+end;
+
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
 var
   S: TStream;
 begin
-  TableGrid.Invalidate;
+  UpdateUIAfterLoad();
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);
 begin
   OctaveSpinEdit.Value := OctaveSpinEdit.Value - 1;
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+  TableGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
 
 procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);
@@ -2003,6 +2005,7 @@ end;
 procedure TfrmTracker.OctaveSpinEditChange(Sender: TObject);
 begin
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+  TableGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
 
 procedure TfrmTracker.RoutineNumberSpinnerChange(Sender: TObject);
@@ -2026,6 +2029,7 @@ end;
 procedure TfrmTracker.StepSpinEditChange(Sender: TObject);
 begin
   TrackerGrid.Step := StepSpinEdit.Value;
+  TableGrid.Step := StepSpinEdit.Value;
 end;
 
 procedure TfrmTracker.StopActionExecute(Sender: TObject);
