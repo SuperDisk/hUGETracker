@@ -75,7 +75,7 @@ type
 
     procedure InputNote(Key: Word);
     procedure InputInstrument(Key: Word);
-    procedure InputVolume(Key: Word);
+    procedure InputVolume(Key: Word); virtual;
     procedure InputEffectCode(Key: Word);
     procedure InputEffectParams(Key: Word);
 
@@ -164,6 +164,7 @@ type
 
   TTableGrid = class(TTrackerGrid)
     procedure RenderCell(const Cell: TCell); override;
+    procedure InputVolume(Key: Word); override;
   end;
 
 var
@@ -193,8 +194,6 @@ implementation
 { TTableGrid }
 
 procedure TTableGrid.RenderCell(const Cell: TCell);
-var
-  NoteString: ShortString;
 begin
   with Canvas do begin
     Font.Color := clNote;
@@ -203,9 +202,9 @@ begin
       Font.Color := clDots;
       TextOut(PenPos.X, PenPos.Y, '...')
     end
-    else if Cell.Note > 36 then
+    else if Cell.Note > MIDDLE_NOTE then
       TextOut(PenPos.X, PenPos.Y, '+'+FormatFloat('00', Cell.Note - MIDDLE_NOTE))
-    else if Cell.Note < 36 then
+    else if Cell.Note < MIDDLE_NOTE then
       TextOut(PenPos.X, PenPos.Y, '-'+FormatFloat('00', MIDDLE_NOTE - Cell.Note));
 
     TextOut(PenPos.X, PenPos.Y, ' ');
@@ -240,6 +239,21 @@ begin
 
     TextOut(PenPos.X, PenPos.Y, ' ');
   end;
+end;
+
+procedure TTableGrid.InputVolume(Key: Word);
+var
+  Temp: Nibble;
+begin
+  BeginUndoAction;
+  with Patterns[Cursor.X]^[Cursor.Y] do begin
+    if Key = VK_DELETE then Volume := 0
+    else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
+      Volume := ((Volume mod 10) * 10) + Temp;
+  end;
+
+  Invalidate;
+  EndUndoAction;
 end;
 
 { TSelectionEnumerator }
@@ -579,14 +593,15 @@ begin
 end;
 
 procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos);
-procedure OverlayCell(var Cell1: TCell; const Cell2: TSelectedCell);
-begin
-  if cpNote in Cell2.Parts then Cell1.Note := Cell2.Cell.Note;
-  if cpInstrument in Cell2.Parts then Cell1.Instrument := Cell2.Cell.Instrument;
-  if cpEffectCode in Cell2.Parts then Cell1.EffectCode:=Cell2.Cell.EffectCode;
-  if cpEffectParams in Cell2.Parts then
-    Cell1.EffectParams.Value := Cell2.Cell.EffectParams.Value;
-end;
+  procedure OverlayCell(var Cell1: TCell; const Cell2: TSelectedCell);
+  begin
+    if cpNote in Cell2.Parts then Cell1.Note := Cell2.Cell.Note;
+    if cpInstrument in Cell2.Parts then Cell1.Instrument := Cell2.Cell.Instrument;
+    if cpVolume in Cell2.Parts then Cell1.Volume := Cell2.Cell.Volume;
+    if cpEffectCode in Cell2.Parts then Cell1.EffectCode:=Cell2.Cell.EffectCode;
+    if cpEffectParams in Cell2.Parts then
+      Cell1.EffectParams.Value := Cell2.Cell.EffectParams.Value;
+  end;
 var
   X, Y: Integer;
 begin
@@ -1344,7 +1359,7 @@ begin
     case SelectionPos.SelectedPart of
       cpNote: Note := NO_NOTE;
       cpInstrument: Instrument := 0;
-      cpVolume:;
+      cpVolume: Volume := 0;
       cpEffectCode: EffectCode := 0;
       cpEffectParams: EffectParams.Value := 0;
     end;
