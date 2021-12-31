@@ -25,7 +25,7 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
-    CheckBox1: TCheckBox;
+    EnableSubpatternCheckbox: TCheckBox;
     DecreaseOctaveAction: TAction;
     GroupBox1: TGroupBox;
     RowNumberStringGrid1: TStringGrid;
@@ -265,6 +265,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     TableGrid: TTableGrid;
+    procedure EnableSubpatternCheckboxChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure TestOctaveButtonClick(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
@@ -1174,6 +1175,7 @@ begin
   InstrumentNameEdit.Text := CI^.Name;
   LengthEnabledCheckbox.Checked := CI^.LengthEnabled;
   LengthTrackbar.Position := CI^.Length;
+  EnableSubpatternCheckbox.Checked := CI^.SubpatternEnabled;
 
   case CI^.Type_ of
     itSquare: begin
@@ -1928,6 +1930,11 @@ begin
   RecreateTrackerGrid;
   ReloadPatterns;
   LoadInstrument(itSquare, 1) // Load default pattern for tablegrid
+end;
+
+procedure TfrmTracker.EnableSubpatternCheckboxChange(Sender: TObject);
+begin
+  CurrentInstrument^.SubpatternEnabled := EnableSubpatternCheckbox.Checked;
 end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);

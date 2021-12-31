@@ -61,10 +61,10 @@ object frmTracker: TfrmTracker
       Height = 725
       Top = 0
       Width = 1120
-      ActivePage = PatternTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -556,12 +556,13 @@ object frmTracker: TfrmTracker
               ParentFont = False
               TabOrder = 12
             end
-            object CheckBox1: TCheckBox
+            object EnableSubpatternCheckbox: TCheckBox
               Left = 12
               Height = 19
               Top = 184
               Width = 115
               Caption = 'Enable subpattern'
+              OnChange = EnableSubpatternCheckboxChange
               TabOrder = 13
             end
           end

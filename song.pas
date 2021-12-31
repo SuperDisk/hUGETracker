@@ -767,8 +767,10 @@ begin
     SV6.Instruments.All[I].OutputLevel := S.Instruments.All[I].OutputLevel;
     SV6.Instruments.All[I].Waveform := S.Instruments.All[I].Waveform;
     SV6.Instruments.All[I].CounterStep := S.Instruments.All[I].CounterStep;
+    SV6.Instruments.All[I].SubpatternEnabled := False;
     BlankPattern(@SV6.Instruments.All[I].Subpattern);
   end;
+  // TODO: Port over noise macro
 
   SV6.Waves := S.Waves;
 

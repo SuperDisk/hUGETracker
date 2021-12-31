@@ -269,23 +269,22 @@ begin
       if Instruments[I].CounterStep = swSeven then
         HighMask := HighMask or %10000000;
       SL.Add(IntToStr(HighMask));
-
-      for J := Low(TNoiseMacro) to High(TNoiseMacro) do
-        SL.Add(IntToStr(0));
     end
     else begin
       for J := Low(AsmInstrument) to High(AsmInstrument) do
         SL.Add(IntToStr(AsmInstrument[J]));
-      SL.Add('0');
-      SL.Add('0');
-      SL.Add('0');
-      SL.Add('0');
     end;
 
     WriteStr(TypePrefix, Instruments[I].Type_);
-    ResultSL.Add(Format('%s%s: db %s', [TypePrefix, 'inst' + IntToStr(I),
+    ResultSL.Add(Format('%s%s:'+LineEnding+'db %s', [TypePrefix, 'inst' + IntToStr(I),
       SL.DelimitedText]));
     SL.Free;
+
+    if Instruments[I].SubpatternEnabled then
+      ResultSL.Add(Format('dw %sSP%d', [TypePrefix, I]))
+    else
+      ResultSL.Add('dw 0');
+    ResultSL.Add('ds '+IfThen(Instruments[I].Type_ = itNoise, '4', '2'));
   end;
 
   Result := ResultSL.Text;
@@ -452,6 +451,7 @@ procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode);
 var
   OutFile: Text;
   I: integer;
+  TypePrefix: String;
   Proc: TProcess;
   FilePath: string;
   RenameSucceeded: Boolean;
@@ -552,6 +552,21 @@ begin
     if PatternIsUsed(Song.Patterns.Keys[I], Song) then
       Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]),
         Song.Patterns.Data[I]^));
+
+  CloseFile(OutFile);
+
+  AssignFile(OutFile, 'render/subpattern.htt');
+  Rewrite(OutFile);
+
+  // TODO: Are keys and data defined to be aligned? Seems like they are but
+  // should probably find out if that's just an implementation detail...
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
+    with Song.Instruments.All[I] do begin
+      if SubpatternEnabled then begin
+        WriteStr(TypePrefix, Type_);
+        Write(OutFile, RenderPattern(TypePrefix+'SP' + IntToStr(I), Subpattern));
+      end;
+    end;
 
   CloseFile(OutFile);
 

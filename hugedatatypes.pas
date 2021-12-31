@@ -168,6 +168,7 @@ type
     // itNoise
     // NR42
     CounterStep: TStepWidth;
+    SubpatternEnabled: Boolean;
     Subpattern: TPattern;
   end;
 
