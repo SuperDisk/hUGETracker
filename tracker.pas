@@ -1443,7 +1443,6 @@ begin
 
   {$ifdef PRODUCTION}
   DebugButton.Visible := False;
-  DebugPlayNoteButton.Visible := False;
   MenuItem41.Visible := False;
   {$endif}
 
