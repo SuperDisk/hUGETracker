@@ -1932,10 +1932,7 @@ begin
 end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
-var
-  S: TStream;
 begin
-  UpdateUIAfterLoad();
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);
