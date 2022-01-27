@@ -13,19 +13,169 @@ type
 function GetPastedCells: TSelection;
 procedure CopyCells(Selection: TSelection);
 
+function GetFamitrackerPastedCells: TSelection;
+
 implementation
 
-function ParseCell(Cell: String): TSelectedCell;
+const
+  // FamiTrackerTypes.h
+  FTM_EFFECTS: array[0..44] of Integer = (
+    $0, //EF_NONE = 0,
+	  $F, //EF_SPEED,           	// Speed
+	  $B, //EF_JUMP,            	// Jump
+	  $D, //EF_SKIP,            	// Skip
+	  $0, //EF_HALT,            	// Halt
+	  $C, //EF_VOLUME,          	// Volume
+	  $3, //EF_PORTAMENTO,      	// Porta on
+	  $0, //EF_PORTAOFF,        	// Porta off		// unused
+	  $0, //EF_SWEEPUP,         	// Sweep up
+	  $0, //EF_SWEEPDOWN,       	// Sweep down
+	  $0, //EF_ARPEGGIO,        	// Arpeggio
+	  $4, //EF_VIBRATO,         	// Vibrato
+	  $0, //EF_TREMOLO,         	// Tremolo
+	  $0, //EF_PITCH,           	// Pitch
+	  $0, //EF_DELAY,           	// Note delay
+	  $0, //EF_DAC,             	// DAC setting
+	  $1, //EF_PORTA_UP,        	// Portamento up
+	  $2, //EF_PORTA_DOWN,      	// Portamento down
+	  $9, //EF_DUTY_CYCLE,      	// Duty cycle
+	  $0, //EF_SAMPLE_OFFSET,   	// Sample offset
+	  $0, //EF_SLIDE_UP,        	// Slide up
+	  $0, //EF_SLIDE_DOWN,      	// Slide down
+	  $A, //EF_VOLUME_SLIDE,    	// Volume slide
+	  $E, //EF_NOTE_CUT,        	// Note cut
+	  $0, //EF_RETRIGGER,       	// DPCM retrigger
+	  $0, //EF_DELAYED_VOLUME,  	// // // Delayed channel volume
+	  $0, //EF_FDS_MOD_DEPTH,   	// FDS modulation depth
+	  $0, //EF_FDS_MOD_SPEED_HI,	// FDS modulation speed hi
+	  $0, //EF_FDS_MOD_SPEED_LO,	// FDS modulation speed lo
+	  $0, //EF_DPCM_PITCH,      	// DPCM Pitch
+	  $0, //EF_SUNSOFT_ENV_TYPE,	// Sunsoft envelope type
+	  $0, //EF_SUNSOFT_ENV_HI,  	// Sunsoft envelope high
+	  $0, //EF_SUNSOFT_ENV_LO,  	// Sunsoft envelope low
+	  $0, //EF_SUNSOFT_NOISE,   	// // // 050B Sunsoft noise period
+	  $0, //EF_VRC7_PORT,       	// // // 050B VRC7 custom patch port
+	  $0, //EF_VRC7_WRITE,      	// // // 050B VRC7 custom patch write
+	  $E, //EF_NOTE_RELEASE,    	// // // Delayed release
+	  $0, //EF_GROOVE,          	// // // Groove
+	  $0, //EF_TRANSPOSE,       	// // // Delayed transpose
+	  $0, //EF_N163_WAVE_BUFFER,	// // // N163 wave buffer
+	  $0, //EF_FDS_VOLUME,      	// // // FDS volume envelope
+	  $0, //EF_FDS_MOD_BIAS,    	// // // FDS auto-FM bias
+	  $0, //EF_PHASE_RESET,  // Reset waveform phase without retriggering note (VRC6-only so far)
+	  $0, //EF_HARMONIC,  // Multiply the note pitch by an integer
+    $0 //EF_COUNT
+  );
 
-function StrToInt_(S: String; out I: Integer; Hex: Boolean = False): Boolean;
+type
+  // PatternEditorTypes.h
+  {$PACKENUM 4} // https://www.freepascal.org/docs-html/ref/refsu4.html
+  TFTMColumn = (
+	  COLUMN_NOTE = 0,
+	  COLUMN_INSTRUMENT = 1,
+	  COLUMN_VOLUME = 2,
+	  COLUMN_EFF1 = 3,
+	  COLUMN_EFF2 = 4,
+	  COLUMN_EFF3 = 5,
+	  COLUMN_EFF4 = 6
+  );
+  {$PACKENUM 1}
+
+  // PatternEditorTypes.h
+  TFTMClipInfo = packed record
+    Channels: Integer;
+    Rows: Integer;
+    StartColumn: TFTMColumn;
+    EndColumn: TFTMColumn;
+    OleInfo: record
+      ChanOffset: Integer;
+      RowOffset: Integer;
+    end;
+  end;
+
+  // PatternNote.h
+  TFTMChanNote = packed record
+    Note: Byte;
+    Octave: Byte;
+    Vol: Byte;
+    Instrument: Byte;
+    EffNumber: array[0..3] of Byte;
+    EffParam: array[0..3] of Byte;
+  end;
+
+function GetFamitrackerPastedCells: TSelection;
+  function FTMNoteToCell(Note: TFTMChanNote): TCell;
+  begin
+    case Note.Note of
+      0, 13, 14, 15: Result.Note := NO_NOTE;
+      else Result.Note := (C_3 + (Note.Note-1)) + (12*(Note.Octave - 1));
+    end;
+
+    if Note.Instrument = 64 then
+      Result.Instrument := 0
+    else
+      Result.Instrument := Note.Instrument;
+
+    if Note.Note in [13, 14, 15] then begin
+      Result.EffectCode := $E;
+      Result.EffectParams.Value := $00;
+    end else begin
+      Result.EffectCode := FTM_EFFECTS[Note.EffNumber[0]];
+      Result.EffectParams.Value := Note.EffParam[0];
+    end;
+  end;
+  function FTMColumnToPart(Col: TFTMColumn): TCellPart;
+  begin
+    case Col of
+      COLUMN_NOTE: Exit(cpNote);
+      COLUMN_INSTRUMENT: Exit(cpInstrument);
+      COLUMN_VOLUME: Exit(cpVolume);
+      COLUMN_EFF1..COLUMN_EFF4: Exit(cpEffectParams);
+    end;
+  end;
+var
+  ClipInfo: TFTMClipInfo;
+  FTMNotes: packed array of TFTMChanNote;
+  S: TMemoryStream;
+  CH, I: Integer;
 begin
-  if Trim(S) = '' then Exit(False);
-  if Hex then S := 'x'+S;
-  if not TryStrToInt(S, I) then
-    I := 0;
-  Result := True;
+  S := TMemoryStream.Create;
+  try
+    Clipboard.GetFormat(Clipboard.FindFormatID('FamiTracker Pattern'), S);
+    S.Seek(0, soBeginning);
+
+    S.Read(ClipInfo, SizeOf(ClipInfo));
+    SetLength(FTMNotes, ClipInfo.Channels * ClipInfo.Rows);
+    S.Read(FTMNotes[0], SizeOf(TFTMChanNote) * ClipInfo.Channels * ClipInfo.Rows);
+
+    SetLength(Result, ClipInfo.Rows);
+
+    for I := 0 to ClipInfo.Rows-1 do begin
+      SetLength(Result[I], ClipInfo.Channels);
+      for CH := 0 to ClipInfo.Channels-1 do begin
+        Result[I, CH].Cell := FTMNoteToCell(FTMNotes[(CH * ClipInfo.Rows) + I]);
+        Result[I, CH].Parts := [cpNote, cpInstrument, cpVolume, cpEffectCode, cpEffectParams];
+      end;
+    end;
+
+    for I := 0 to ClipInfo.Rows-1 do begin
+      Result[I, 0].Parts *= [FTMColumnToPart(ClipInfo.StartColumn)..cpEffectParams];
+      Result[I, ClipInfo.Channels-1].Parts *= [cpNote..FTMColumnToPart(ClipInfo.EndColumn)];
+    end;
+  finally
+    S.Free;
+  end;
 end;
 
+function ParseCell(Cell: String): TSelectedCell;
+  function StrToInt_(S: String; out I: Integer; Hex: Boolean = False): Boolean;
+  begin
+    if Trim(S) = '' then Exit(False);
+    if Hex then S := 'x'+S;
+    if not TryStrToInt(S, I) then
+      I := 0;
+    Result := True;
+  end;
 var
   Note, Instr, EffectCode, EffectParam: String;
   Temp: Integer;
@@ -34,8 +184,6 @@ begin
   Instr := Cell.Substring(3, 2);
   EffectCode := Cell.Substring(8, 1);
   EffectParam := Cell.Substring(9, 2);
-  //EffectParam1 := Cell.Substring(9, 1);
-  //EffectParam2 := Cell.Substring(10, 1);
 
   Result.Parts := [cpNote, cpInstrument, cpEffectCode, cpEffectParams];
 
@@ -60,7 +208,11 @@ var
   Row: String;
   I, J: Integer;
 begin
+  if Clipboard.HasFormatName('FamiTracker Pattern') then
+    Exit(GetFamitrackerPastedCells);
+
   SL := TStringList.Create;
+
   try
     try
       SL.Text := Clipboard.AsText;
