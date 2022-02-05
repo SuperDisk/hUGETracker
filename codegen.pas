@@ -573,6 +573,9 @@ begin
   Proc.Options := Proc.Options + [poWaitOnExit, poUsePipes, poStdErrToOutput, poNoConsole];
 
   try
+    if Assemble('render/unapack.obj', 'hUGEDriver/unapack.asm', []) <> 0 then
+      Die;
+
     // Assemble
     if Mode = emPreview then
     begin
@@ -619,7 +622,8 @@ begin
       if Link(Filename + '.gb',
               [Filename + '_driver.obj',
                Filename + '_song.obj',
-               Filename + '_player.obj'],
+               Filename + '_player.obj',
+               'render/unapack.obj'],
               Filename + '.map',
               Filename + '.sym') <> 0 then Die;
     end;
