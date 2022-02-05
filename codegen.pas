@@ -319,12 +319,29 @@ var
 begin
   SL := TStringList.Create;
   SL.Add(Name + ':');
-
-  for I := Low(TPattern) to High(TPattern) do
-    SL.Add(RenderCell(Pattern[I]));
+  SL.Add('incbin "'+Name+'.pat"');
 
   Result := SL.Text;
   SL.Free;
+end;
+
+procedure GeneratePatternData(Name: String; Pattern: TPattern);
+var
+  I: Integer;
+  F: file of Byte;
+begin
+//    db \1
+//    db ((\2 << 4) | (\3 >> 8))
+//    db LOW(\3)
+  Assign(F, Name+'.tmp');
+  Rewrite(F);
+  for I := Low(TPattern) to High(TPattern) do begin
+    Write(F, Byte(Pattern[I].Note));
+    Write(F, Byte((Pattern[I].Instrument shl 4) or (Pattern[I].EffectCode)));
+    Write(F, Byte(Pattern[I].EffectParams.Value));
+  end;
+  Close(F);
+  ExecuteProcess('apultra.exe', [Name+'.tmp', Name]);
 end;
 
 function RenderWaveforms(Waves: TWaveBank): string;
@@ -544,9 +561,10 @@ begin
   // TODO: Are keys and data defined to be aligned? Seems like they are but
   // should probably find out if that's just an implementation detail...
   for I := 0 to Song.Patterns.Count - 1 do
-    if PatternIsUsed(Song.Patterns.Keys[I], Song) then
-      Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]),
-        Song.Patterns.Data[I]^));
+    if PatternIsUsed(Song.Patterns.Keys[I], Song) then begin
+      GeneratePatternData('render/P' + IntToStr(Song.Patterns.Keys[I])+'.pat', Song.Patterns.Data[I]^);
+      Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]), Song.Patterns.Data[I]^));
+    end;
 
   CloseFile(OutFile);
 
