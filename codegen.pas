@@ -329,6 +329,7 @@ procedure GeneratePatternData(Name: String; Pattern: TPattern);
 var
   I: Integer;
   F: file of Byte;
+  O: string;
 begin
 //    db \1
 //    db ((\2 << 4) | (\3 >> 8))
@@ -341,7 +342,7 @@ begin
     Write(F, Byte(Pattern[I].EffectParams.Value));
   end;
   Close(F);
-  ExecuteProcess('apultra.exe', [Name+'.tmp', Name]);
+  RunCommand('apultra.exe', [Name+'.tmp', Name], O, [poNoConsole, poWaitOnExit]);
 end;
 
 function RenderWaveforms(Waves: TWaveBank): string;
