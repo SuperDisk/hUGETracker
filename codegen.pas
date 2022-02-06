@@ -6,7 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Math, Instruments, Song, Utils,
-  HugeDatatypes, Constants, Dialogs, strutils, FileUtil, LazFileUtils, process;
+  HugeDatatypes, Constants, Dialogs, strutils, FileUtil, LazFileUtils, process,
+  lz77;
 
 type
 
@@ -316,33 +317,30 @@ function RenderPattern(Name: string; Pattern: TPattern): string;
 var
   SL: TStringList;
   I: integer;
+  Si, So: TMemoryStream;
 begin
-  SL := TStringList.Create;
-  SL.Add(Name + ':');
-  SL.Add('incbin "'+Name+'.pat"');
+  Si := TMemoryStream.Create;
+  So := TMemoryStream.Create;
 
-  Result := SL.Text;
-  SL.Free;
-end;
-
-procedure GeneratePatternData(Name: String; Pattern: TPattern);
-var
-  I: Integer;
-  F: file of Byte;
-  O: string;
-begin
-//    db \1
-//    db ((\2 << 4) | (\3 >> 8))
-//    db LOW(\3)
-  Assign(F, Name+'.tmp');
-  Rewrite(F);
   for I := Low(TPattern) to High(TPattern) do begin
-    Write(F, Byte(Pattern[I].Note));
-    Write(F, Byte((Pattern[I].Instrument shl 4) or (Pattern[I].EffectCode)));
-    Write(F, Byte(Pattern[I].EffectParams.Value));
+    Si.WriteByte(Byte(Pattern[I].Note));
+    Si.WriteByte(Byte((Pattern[I].Instrument shl 4) or (Pattern[I].EffectCode)));
+    Si.WriteByte(Byte(Pattern[I].EffectParams.Value));
   end;
-  Close(F);
-  RunCommand('apultra.exe', [Name+'.tmp', Name], O, [poNoConsole, poWaitOnExit]);
+
+  Si.Seek(0, soBeginning);
+  Compress(Si, So);
+  So.Seek(0, soBeginning);
+
+  SL := TStringList.Create;
+  SL.Delimiter := ',';
+  for I := 0 to So.Size-1 do
+    SL.Add(IntToStr(So.ReadByte));
+
+  Result := Name + ': db ' + SL.DelimitedText + LineEnding;
+  SL.Free;
+  Si.Free;
+  So.Free;
 end;
 
 function RenderWaveforms(Waves: TWaveBank): string;
@@ -563,7 +561,6 @@ begin
   // should probably find out if that's just an implementation detail...
   for I := 0 to Song.Patterns.Count - 1 do
     if PatternIsUsed(Song.Patterns.Keys[I], Song) then begin
-      GeneratePatternData('render/P' + IntToStr(Song.Patterns.Keys[I])+'.pat', Song.Patterns.Data[I]^);
       Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]), Song.Patterns.Data[I]^));
     end;
 
@@ -574,7 +571,7 @@ begin
   Proc.Options := Proc.Options + [poWaitOnExit, poUsePipes, poStdErrToOutput, poNoConsole];
 
   try
-    if Assemble('render/unapack.obj', 'hUGEDriver/unapack.asm', []) <> 0 then
+    if Assemble('render/uncap.obj', 'hUGEDriver/uncap.asm', []) <> 0 then
       Die;
 
     // Assemble
@@ -624,7 +621,7 @@ begin
               [Filename + '_driver.obj',
                Filename + '_song.obj',
                Filename + '_player.obj',
-               'render/unapack.obj'],
+               'render/uncap.obj'],
               Filename + '.map',
               Filename + '.sym') <> 0 then Die;
     end;
