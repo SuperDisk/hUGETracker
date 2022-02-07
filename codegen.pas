@@ -56,12 +56,35 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
   function RenderGBDKPattern(Name: string; Pat: TPattern): string;
   var
     Cell: TCell;
+    Si, So: TMemoryStream;
+    SL: TStringList;
+    I: Integer;
   begin
+    Si := TMemoryStream.Create;
+    So := TMemoryStream.Create;
+
+    for I := Low(TPattern) to High(TPattern) do begin
+      Si.WriteByte(Byte(Pat[I].Note));
+      Si.WriteByte(Byte((Pat[I].Instrument shl 4) or (Pat[I].EffectCode)));
+      Si.WriteByte(Byte(Pat[I].EffectParams.Value));
+    end;
+
+    Si.Seek(0, soBeginning);
+    Compress(Si, So);
+    So.Seek(0, soBeginning);
+
+    SL := TStringList.Create;
+    SL.Delimiter := ',';
+    for I := 0 to So.Size-1 do
+      SL.Add(IntToStr(So.ReadByte));
 
     Result := 'static const unsigned char ' + Name + '[] = {' + LineEnding;
-    for Cell in Pat do
-      Result += '    DN(' + RenderGBDKCell(Cell) + '),' + LineEnding;
+    Result += SL.DelimitedText+LineEnding;
     Result += '};';
+
+    SL.Free;
+    Si.Free;
+    So.Free;
   end;
 
   function RenderGBDKOrder(Number: integer; Order: array of integer): string;
@@ -571,9 +594,6 @@ begin
   Proc.Options := Proc.Options + [poWaitOnExit, poUsePipes, poStdErrToOutput, poNoConsole];
 
   try
-    if Assemble('render/uncap.obj', 'hUGEDriver/uncap.asm', []) <> 0 then
-      Die;
-
     // Assemble
     if Mode = emPreview then
     begin
@@ -620,8 +640,7 @@ begin
       if Link(Filename + '.gb',
               [Filename + '_driver.obj',
                Filename + '_song.obj',
-               Filename + '_player.obj',
-               'render/uncap.obj'],
+               Filename + '_player.obj'],
               Filename + '.map',
               Filename + '.sym') <> 0 then Die;
     end;
