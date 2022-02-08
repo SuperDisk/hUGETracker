@@ -535,7 +535,7 @@ procedure TStringGrid.DrawCellAutonumbering(aCol, aRow: Integer; aRect: TRect;
   const aValue: string);
 begin
   if FDrawHexAutonumbering then
-    inherited DrawCellAutonumbering(aCol, aRow, aRect, IntToHex(Int8(StrToInt(aValue))))
+    inherited DrawCellAutonumbering(aCol, aRow, aRect, IntToHex(StrToInt(aValue), 2))
   else
     inherited DrawCellAutonumbering(aCol, aRow, aRect, aValue);
 end;
