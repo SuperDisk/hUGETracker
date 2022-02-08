@@ -403,6 +403,7 @@ type
     procedure TrackerPopupTransposeSemiUpClick(Sender: TObject);
     procedure TrackerPopupUndoClick(Sender: TObject);
     procedure TreeView1DblClick(Sender: TObject);
+    procedure TreeView1SelectionChanged(Sender: TObject);
     procedure WaveEditNumberSpinnerChange(Sender: TObject);
     procedure WaveEditPaintBoxMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -2588,6 +2589,24 @@ begin
     RoutineNumberSpinner.Value := {%H-}PtrUInt(TreeView1.Selected.Data);
     PageControl1.ActivePage := RoutinesTabSheet;
   end;
+end;
+
+procedure TfrmTracker.TreeView1SelectionChanged(Sender: TObject);
+var
+  InstrumentType: TInstrumentType;
+begin
+  if not Assigned(TreeView1.Selected) then Exit;
+
+  if TreeView1.Selected.Parent = DutyInstrumentsNode then
+    InstrumentType := itSquare
+  else if TreeView1.Selected.Parent = WaveInstrumentsNode then
+    InstrumentType := itWave
+  else if TreeView1.Selected.Parent = NoiseInstrumentsNode then
+    InstrumentType := itNoise
+  else Exit;
+
+  InstrumentComboBox.ItemIndex := UnmodInst(InstrumentType, {%H-}PtrUInt(TreeView1.Selected.Data));
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 end;
 
 procedure TfrmTracker.WaveEditNumberSpinnerChange(Sender: TObject);
