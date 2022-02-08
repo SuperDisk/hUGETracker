@@ -76,7 +76,6 @@ begin
   {$endif}
 
   Application.Scaled:=True;
-  Application.Title:='hUGETracker';
   Application.Initialize;
   Application.CreateForm(TfrmTracker, frmTracker);
   Application.CreateForm(TfrmAboutHugeTracker, frmAboutHugetracker);

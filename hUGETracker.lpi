@@ -61,18 +61,6 @@
             </Options>
           </Linking>
           <Other>
-            <Verbosity>
-              <ShoLineNum Value="True"/>
-              <ShowAll Value="True"/>
-              <ShowDebugInfo Value="True"/>
-              <ShowUsedFiles Value="True"/>
-              <ShowTriedFiles Value="True"/>
-              <ShowCompProc Value="True"/>
-              <ShowCond Value="True"/>
-              <ShowExecInfo Value="True"/>
-              <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
-              <ShowHintsForSenderNotUsed Value="True"/>
-            </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
@@ -117,18 +105,6 @@
             </Options>
           </Linking>
           <Other>
-            <Verbosity>
-              <ShoLineNum Value="True"/>
-              <ShowAll Value="True"/>
-              <ShowDebugInfo Value="True"/>
-              <ShowUsedFiles Value="True"/>
-              <ShowTriedFiles Value="True"/>
-              <ShowCompProc Value="True"/>
-              <ShowCond Value="True"/>
-              <ShowExecInfo Value="True"/>
-              <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
-              <ShowHintsForSenderNotUsed Value="True"/>
-            </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
@@ -177,18 +153,6 @@
             </Options>
           </Linking>
           <Other>
-            <Verbosity>
-              <ShoLineNum Value="True"/>
-              <ShowAll Value="True"/>
-              <ShowDebugInfo Value="True"/>
-              <ShowUsedFiles Value="True"/>
-              <ShowTriedFiles Value="True"/>
-              <ShowCompProc Value="True"/>
-              <ShowCond Value="True"/>
-              <ShowExecInfo Value="True"/>
-              <ShowHintsForUnusedUnitsInMainSrc Value="True"/>
-              <ShowHintsForSenderNotUsed Value="True"/>
-            </Verbosity>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
@@ -397,10 +361,6 @@
       </Debugging>
     </Linking>
     <Other>
-      <Verbosity>
-        <ShoLineNum Value="True"/>
-        <ShowAll Value="True"/>
-      </Verbosity>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dDEVELOPMENT"/>
     </Other>
   </CompilerOptions>
