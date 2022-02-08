@@ -22,6 +22,7 @@ type
     Button6: TButton;
     Button7: TButton;
     Button8: TButton;
+    DisplayOrderHexRowNumbersCheck: TCheckBox;
     NoteTextColorButton: TColorButton;
     OpenDialog2: TOpenDialog;
     Panel1: TPanel;
@@ -182,6 +183,7 @@ begin
   TrackerSettings.PreviewWhenPlacing := PreviewWhenPlacingCheck.Checked;
   TrackerSettings.PreviewWhenBumping := PreviewWhenBumpingCheck.Checked;
   TrackerSettings.DisplayRowNumbersAsHex := DisplayHexRowNumbersCheck.Checked;
+  TrackerSettings.DisplayOrderRowNumbersAsHex := DisplayOrderHexRowNumbersCheck.Checked;
 end;
 
 procedure TfrmOptions.FormCreate(Sender: TObject);
@@ -203,6 +205,7 @@ begin
   PreviewWhenPlacingCheck.Checked := TrackerSettings.PreviewWhenPlacing;
   PreviewWhenBumpingCheck.Checked := TrackerSettings.PreviewWhenBumping;
   DisplayHexRowNumbersCheck.Checked := TrackerSettings.DisplayRowNumbersAsHex;
+  DisplayOrderHexRowNumbersCheck.Checked := TrackerSettings.DisplayOrderRowNumbersAsHex;
 
   SamplePatternMap := TPatternMap.Create;
   SamplePattern := SamplePatternMap.GetOrCreateNew(0);

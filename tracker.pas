@@ -23,6 +23,23 @@ const
   LM_FD = LM_USER + 0;
 
 type
+
+  { TStringGrid
+
+    An interposer class which adds the ability to draw the row
+    auto-numbering in hex notation.
+  }
+
+  TStringGrid = class(Grids.TStringGrid)
+    procedure DrawCellAutonumbering(aCol, aRow: Integer; aRect: TRect;
+        const aValue: string); override;
+    private
+      FDrawHexAutonumbering: Boolean;
+      procedure SetDrawHexAutonumbering(AValue: Boolean);
+    public
+      property DrawHexAutonumbering: Boolean read FDrawHexAutonumbering write SetDrawHexAutonumbering;
+  end;
+
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
@@ -504,6 +521,24 @@ var
 implementation
 
 {$R *.lfm}
+
+{ TStringGrid }
+
+procedure TStringGrid.SetDrawHexAutonumbering(AValue: Boolean);
+begin
+  if FDrawHexAutonumbering=AValue then Exit;
+  FDrawHexAutonumbering:=AValue;
+  Invalidate;
+end;
+
+procedure TStringGrid.DrawCellAutonumbering(aCol, aRow: Integer; aRect: TRect;
+  const aValue: string);
+begin
+  if FDrawHexAutonumbering then
+    inherited DrawCellAutonumbering(aCol, aRow, aRect, IntToHex(Int8(StrToInt(aValue))))
+  else
+    inherited DrawCellAutonumbering(aCol, aRow, aRect, aValue);
+end;
 
 { TfrmTracker }
 procedure TfrmTracker.UpdateUIAfterLoad(FileName: String = '');
@@ -1426,8 +1461,9 @@ begin
   // Initialize order table (InitializeSong creates the default order table)
   CopyOrderMatrixToOrderGrid;
 
-  // Manually resize the fixed column in the order editor
+  // Manually resize the fixed column in the order editor, set hex option
   OrderEditStringGrid.ColWidths[0]:=50;
+  OrderEditStringGrid.DrawHexAutonumbering := TrackerSettings.DisplayOrderRowNumbersAsHex;
 
   // Get the emulator ready to make sound...
   EnableSound;
@@ -2259,6 +2295,7 @@ begin
 
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
+  OrderEditStringGrid.DrawHexAutonumbering := TrackerSettings.DisplayOrderRowNumbersAsHex;
 
   ScopesOn := TrackerSettings.UseScopes;
 

@@ -1,22 +1,22 @@
 object frmOptions: TfrmOptions
-  Left = 1947
-  Height = 683
-  Top = 135
+  Left = 1741
+  Height = 732
+  Top = 120
   Width = 927
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 683
+  ClientHeight = 732
   ClientWidth = 927
   OnClose = FormClose
   OnCreate = FormCreate
   Position = poMainFormCenter
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '2.2.0.3'
   object Button1: TButton
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
     Left = 791
     Height = 25
-    Top = 644
+    Top = 693
     Width = 123
     Anchors = [akRight, akBottom]
     Caption = 'OK'
@@ -27,7 +27,7 @@ object frmOptions: TfrmOptions
   object KeymapGroupBox: TGroupBox
     Left = 14
     Height = 433
-    Top = 200
+    Top = 240
     Width = 282
     Caption = 'Custom key map'
     ClientHeight = 413
@@ -114,11 +114,11 @@ object frmOptions: TfrmOptions
   end
   object OptionsGroupBox: TGroupBox
     Left = 14
-    Height = 184
+    Height = 224
     Top = 8
     Width = 298
     Caption = 'Options'
-    ClientHeight = 164
+    ClientHeight = 204
     ClientWidth = 294
     TabOrder = 2
     object ScopesCheck: TCheckBox
@@ -175,6 +175,16 @@ object frmOptions: TfrmOptions
       ParentFont = False
       TabOrder = 4
     end
+    object DisplayOrderHexRowNumbersCheck: TCheckBox
+      Left = 14
+      Height = 19
+      Top = 168
+      Width = 270
+      Alignment = taLeftJustify
+      Caption = 'Display order numbers in hexadecimal notation'
+      ParentFont = False
+      TabOrder = 5
+    end
   end
   object CustomizationGroupBox: TGroupBox
     Left = 320
@@ -191,7 +201,6 @@ object frmOptions: TfrmOptions
       Top = 14
       Width = 119
       Caption = 'Pattern editor font size'
-      ParentColor = False
       ParentFont = False
     end
     object FontSizeSpinner: TSpinEdit
@@ -220,7 +229,6 @@ object frmOptions: TfrmOptions
       Top = 40
       Width = 79
       Caption = 'Note text color'
-      ParentColor = False
     end
     object InstrumentTextColorButton: TColorButton
       Left = 155
@@ -288,7 +296,6 @@ object frmOptions: TfrmOptions
       Top = 72
       Width = 111
       Caption = 'Instrument text color'
-      ParentColor = False
     end
     object Label4: TLabel
       Left = 14
@@ -296,7 +303,6 @@ object frmOptions: TfrmOptions
       Top = 104
       Width = 114
       Caption = 'Misc. effect text color'
-      ParentColor = False
     end
     object Label5: TLabel
       Left = 14
@@ -304,7 +310,6 @@ object frmOptions: TfrmOptions
       Top = 136
       Width = 113
       Caption = 'Pitch effect text color'
-      ParentColor = False
     end
     object Label6: TLabel
       Left = 14
@@ -312,7 +317,6 @@ object frmOptions: TfrmOptions
       Top = 168
       Width = 126
       Caption = 'Volume effect text color'
-      ParentColor = False
     end
     object Label7: TLabel
       Left = 14
@@ -320,7 +324,6 @@ object frmOptions: TfrmOptions
       Top = 200
       Width = 130
       Caption = 'Panning effect text color'
-      ParentColor = False
     end
     object Label8: TLabel
       Left = 14
@@ -328,7 +331,6 @@ object frmOptions: TfrmOptions
       Top = 232
       Width = 113
       Caption = 'Song effect text color'
-      ParentColor = False
     end
     object BackgroundColorButton: TColorButton
       Left = 155
@@ -386,7 +388,6 @@ object frmOptions: TfrmOptions
       Top = 264
       Width = 64
       Caption = 'Background'
-      ParentColor = False
     end
     object Label10: TLabel
       Left = 14
@@ -394,7 +395,6 @@ object frmOptions: TfrmOptions
       Top = 296
       Width = 63
       Caption = 'Highlighted'
-      ParentColor = False
     end
     object Label11: TLabel
       Left = 14
@@ -402,7 +402,6 @@ object frmOptions: TfrmOptions
       Top = 328
       Width = 44
       Caption = 'Selected'
-      ParentColor = False
     end
     object Label12: TLabel
       Left = 14
@@ -410,7 +409,6 @@ object frmOptions: TfrmOptions
       Top = 360
       Width = 87
       Caption = 'Every fourth row'
-      ParentColor = False
     end
     object Label13: TLabel
       Left = 14
@@ -418,7 +416,6 @@ object frmOptions: TfrmOptions
       Top = 392
       Width = 102
       Caption = 'Every sixteenth row'
-      ParentColor = False
     end
     object DotsColorButton: TColorButton
       Left = 155
@@ -446,7 +443,6 @@ object frmOptions: TfrmOptions
       Top = 424
       Width = 24
       Caption = 'Dots'
-      ParentColor = False
     end
     object Label15: TLabel
       Left = 14
@@ -454,7 +450,6 @@ object frmOptions: TfrmOptions
       Top = 456
       Width = 42
       Caption = 'Dividers'
-      ParentColor = False
     end
     object Button6: TButton
       Left = 56
@@ -486,16 +481,16 @@ object frmOptions: TfrmOptions
   end
   object Panel1: TPanel
     Left = 632
-    Height = 618
+    Height = 657
     Top = 8
     Width = 280
     BevelWidth = 3
-    ClientHeight = 618
+    ClientHeight = 657
     ClientWidth = 280
     TabOrder = 4
     object SampleTrackerGridPanel: TPanel
       Left = 3
-      Height = 612
+      Height = 651
       Top = 3
       Width = 274
       Align = alClient

@@ -14,6 +14,7 @@ type
   TTrackerSettings = class
   private
     FDisplayRowNumbersAsHex: Boolean;
+    FDisplayOrderRowNumbersAsHex: Boolean;
     FPreviewWhenBumping: Boolean;
     FPreviewWhenPlacing: Boolean;
     SettingsFile: TINIFile;
@@ -21,6 +22,7 @@ type
     FPatternEditorFontSize: Integer;
     FUseScopes, FUseCustomKeymap: Boolean;
 
+    procedure SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
     procedure SetDisplayRowNumbersAsHex(AValue: Boolean);
     procedure SetPatternEditorFontSize(AValue: Integer);
     procedure SetPreviewWhenBumping(AValue: Boolean);
@@ -34,6 +36,7 @@ type
     property PreviewWhenPlacing: Boolean read FPreviewWhenPlacing write SetPreviewWhenPlacing;
     property PreviewWhenBumping: Boolean read FPreviewWhenBumping write SetPreviewWhenBumping;
     property DisplayRowNumbersAsHex: Boolean read FDisplayRowNumbersAsHex write SetDisplayRowNumbersAsHex;
+    property DisplayOrderRowNumbersAsHex: Boolean read FDisplayOrderRowNumbersAsHex write SetDisplayOrderRowNumbersAsHex;
 
     constructor Create;
   end;
@@ -55,6 +58,12 @@ procedure TTrackerSettings.SetDisplayRowNumbersAsHex(AValue: Boolean);
 begin
   FDisplayRowNumbersAsHex:=AValue;
   SettingsFile.WriteBool('hUGETracker', 'DisplayRowNumbersAsHex', AValue);
+end;
+
+procedure TTrackerSettings.SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
+begin
+  FDisplayOrderRowNumbersAsHex:=AValue;
+  SettingsFile.WriteBool('hUGETracker', 'DisplayOrderRowNumbersAsHex', AValue);
 end;
 
 procedure TTrackerSettings.SetPreviewWhenBumping(AValue: Boolean);
@@ -91,6 +100,7 @@ begin
   FPreviewWhenPlacing := SettingsFile.ReadBool('hUGETracker', 'PreviewWhenPlacing', True);
   FPreviewWhenBumping := SettingsFile.ReadBool('hUGETracker', 'PreviewWhenBumping', False);
   FDisplayRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayRowNumbersAsHex', False);
+  FDisplayOrderRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayOrderRowNumbersAsHex', False);
 end;
 
 initialization
