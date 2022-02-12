@@ -41,10 +41,17 @@ type
     constructor Create;
   end;
 
+procedure InitializeTrackerSettings;
+
 var
   TrackerSettings: TTrackerSettings = nil;
 
 implementation
+
+procedure InitializeTrackerSettings;
+begin
+  TrackerSettings := TTrackerSettings.Create;
+end;
 
 { TTrackerSettings }
 
@@ -103,8 +110,6 @@ begin
   FDisplayOrderRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayOrderRowNumbersAsHex', False);
 end;
 
-initialization
-  TrackerSettings := TTrackerSettings.Create;
 finalization
   if Assigned(TrackerSettings) then TrackerSettings.Free;
 

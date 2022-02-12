@@ -17,11 +17,11 @@ uses
   SysUtils,
   Forms,
   Interfaces,
+
+  hUGESettings,
+
   Tracker in 'Tracker.pas',
   EffectEditor in 'effecteditor.pas',
-  Z80CPU in 'CPU\z80cpu.pas',
-  sound in 'Sound\sound.pas',
-  vars in 'Global\vars.pas',
   options in 'options.pas',
   about_hugetracker in 'about_hugetracker.pas',
   rendertowave in 'rendertowave.pas';
@@ -44,6 +44,8 @@ begin
 
   // Change working directory to the tracker directory
   ChDir(ExtractFileDir(ParamStr(0)));
+
+  InitializeTrackerSettings;
 
   {$if declared(useHeapTrace)}
     // Set up -gh output for the Leakview package:
