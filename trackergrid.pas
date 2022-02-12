@@ -60,8 +60,8 @@ type
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
   private
     function GetSelection: TSelection;
-    procedure PerformPaste(Paste: TSelection); overload;
-    procedure PerformPaste(Paste: TSelection; Where: TSelectionPos); overload;
+    procedure PerformPaste(Paste: TSelection; Mix: Boolean = False); overload;
+    procedure PerformPaste(Paste: TSelection; Where: TSelectionPos; Mix: Boolean = False); overload;
     procedure PerformCopy;
     procedure DoPaste(var Msg: TLMessage); message LM_PASTE;
     procedure DoCopy(var Msg: TLMessage); message LM_COPY;
@@ -147,6 +147,7 @@ type
     procedure DoUndo;
     procedure DoRedo;
     procedure DoRepeatPaste;
+    procedure DoMixPaste;
     procedure TransposeSelection(Semitones: Integer);
     procedure IncrementSelection(Note, Instrument, Volume, EffectCode, EffectParam: Integer);
     procedure InterpolateSelection;
@@ -513,15 +514,25 @@ begin
   end;
 end;
 
-procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos);
-procedure OverlayCell(var Cell1: TCell; const Cell2: TSelectedCell);
-begin
-  if cpNote in Cell2.Parts then Cell1.Note := Cell2.Cell.Note;
-  if cpInstrument in Cell2.Parts then Cell1.Instrument := Cell2.Cell.Instrument;
-  if cpEffectCode in Cell2.Parts then Cell1.EffectCode:=Cell2.Cell.EffectCode;
-  if cpEffectParams in Cell2.Parts then
-    Cell1.EffectParams.Value := Cell2.Cell.EffectParams.Value;
-end;
+procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos; Mix: Boolean = False);
+  procedure OverlayCell(var Cell1: TCell; const Cell2: TSelectedCell);
+  begin
+    if cpNote in Cell2.Parts then
+      if (not Mix) or (Mix and (Cell2.Cell.Note <> NO_NOTE)) then
+        Cell1.Note := Cell2.Cell.Note;
+
+    if cpInstrument in Cell2.Parts then
+      if (not Mix) or (Mix and (Cell2.Cell.Instrument <> 0)) then
+        Cell1.Instrument := Cell2.Cell.Instrument;
+
+    if cpEffectCode in Cell2.Parts then
+      if (not Mix) or (Mix and (Cell2.Cell.EffectCode <> 0)) then
+        Cell1.EffectCode := Cell2.Cell.EffectCode;
+
+    if cpEffectParams in Cell2.Parts then
+      if (not Mix) or (Mix and (Cell2.Cell.EffectParams.Value <> 0)) then
+        Cell1.EffectParams.Value := Cell2.Cell.EffectParams.Value;
+  end;
 var
   X, Y: Integer;
 begin
@@ -544,9 +555,9 @@ begin
   end;
 end;
 
-procedure TTrackerGrid.PerformPaste(Paste: TSelection);
+procedure TTrackerGrid.PerformPaste(Paste: TSelection; Mix: Boolean = False);
 begin
-  PerformPaste(Paste, Cursor);
+  PerformPaste(Paste, Cursor, Mix);
 end;
 
 procedure TTrackerGrid.PerformCopy;
@@ -569,6 +580,24 @@ begin
       PerformPaste(Selection);
       Inc(I, High(Selection)+1);
     end;
+  except
+    on E: EClipboardFormatException do begin
+      WriteLn(StdErr, '[WARNING] ', E.Message);
+      RevertUndoAction;
+      Exit
+    end;
+  end;
+
+  Invalidate;
+  EndUndoAction;
+end;
+
+procedure TTrackerGrid.DoMixPaste;
+begin
+  BeginUndoAction;
+
+  try
+    PerformPaste(GetPastedCells, True);
   except
     on E: EClipboardFormatException do begin
       WriteLn(StdErr, '[WARNING] ', E.Message);

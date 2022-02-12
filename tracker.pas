@@ -58,6 +58,7 @@ type
     InsertRowForAllAction: TAction;
     InsertRowAction: TAction;
     Label14: TLabel;
+    TrackerPopupMixPaste: TMenuItem;
     MenuItem39: TMenuItem;
     ExportCMenuItem: TMenuItem;
     MenuItem40: TMenuItem;
@@ -282,6 +283,7 @@ type
     StatusBar1: TStatusBar;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
+    procedure TrackerPopupMixPasteClick(Sender: TObject);
     procedure TestOctaveButtonClick(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
     procedure DecreaseOctaveActionExecute(Sender: TObject);
@@ -2024,6 +2026,11 @@ begin
     7: PreviewNote(C_7);
     8: PreviewNote(C_8);
   end;
+end;
+
+procedure TfrmTracker.TrackerPopupMixPasteClick(Sender: TObject);
+begin
+  TrackerGrid.DoMixPaste
 end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);

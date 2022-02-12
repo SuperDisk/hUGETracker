@@ -1,11 +1,11 @@
 object frmOptions: TfrmOptions
-  Left = 1741
-  Height = 732
-  Top = 120
+  Left = 1675
+  Height = 706
+  Top = 128
   Width = 927
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 732
+  ClientHeight = 706
   ClientWidth = 927
   OnClose = FormClose
   OnCreate = FormCreate
@@ -14,9 +14,9 @@ object frmOptions: TfrmOptions
   object Button1: TButton
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
-    Left = 791
+    Left = 789
     Height = 25
-    Top = 693
+    Top = 673
     Width = 123
     Anchors = [akRight, akBottom]
     Caption = 'OK'
