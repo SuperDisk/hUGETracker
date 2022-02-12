@@ -518,19 +518,19 @@ procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos; Mix
   procedure OverlayCell(var Cell1: TCell; const Cell2: TSelectedCell);
   begin
     if cpNote in Cell2.Parts then
-      if (not Mix) or (Mix and (Cell2.Cell.Note <> NO_NOTE)) then
+      if (not Mix) or (Cell2.Cell.Note <> NO_NOTE) then
         Cell1.Note := Cell2.Cell.Note;
 
     if cpInstrument in Cell2.Parts then
-      if (not Mix) or (Mix and (Cell2.Cell.Instrument <> 0)) then
+      if (not Mix) or (Cell2.Cell.Instrument <> 0) then
         Cell1.Instrument := Cell2.Cell.Instrument;
 
     if cpEffectCode in Cell2.Parts then
-      if (not Mix) or (Mix and (Cell2.Cell.EffectCode <> 0)) then
+      if (not Mix) or (Cell2.Cell.EffectCode <> 0) then
         Cell1.EffectCode := Cell2.Cell.EffectCode;
 
     if cpEffectParams in Cell2.Parts then
-      if (not Mix) or (Mix and (Cell2.Cell.EffectParams.Value <> 0)) then
+      if (not Mix) or (Cell2.Cell.EffectParams.Value <> 0) then
         Cell1.EffectParams.Value := Cell2.Cell.EffectParams.Value;
   end;
 var
