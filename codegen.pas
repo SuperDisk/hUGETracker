@@ -244,7 +244,7 @@ end;
 
 function RenderInstruments(Instruments: TInstrumentBank): string;
 var
-  SL, ResultSL: TStringList;
+  ResultSL: TStringList;
   AsmInstrument: TAsmInstrument;
   I, J: integer;
   TypePrefix: string;
@@ -254,37 +254,33 @@ begin
 
   for I := Low(Instruments) to High(Instruments) do
   begin
+    WriteStr(TypePrefix, Instruments[I].Type_);
+    ResultSL.Add(Format('%s%s:', [TypePrefix, 'inst' + IntToStr(I)]));
+
     AsmInstrument := InstrumentToBytes(Instruments[I]);
-    SL := TStringList.Create;
-    SL.StrictDelimiter := True;
-    SL.Delimiter := ',';
 
     if Instruments[I].Type_ = itNoise then
     begin
-      SL.Add(IntToStr(AsmInstrument[1])); // envelope
+      ResultSL.Add('db '+IntToStr(AsmInstrument[1])); // envelope
 
       HighMask := AsmInstrument[0];
       if Instruments[I].LengthEnabled then
         HighMask := HighMask or %01000000;
       if Instruments[I].CounterStep = swSeven then
         HighMask := HighMask or %10000000;
-      SL.Add(IntToStr(HighMask));
+      ResultSL.Add('db '+IntToStr(HighMask));
     end
     else begin
       for J := Low(AsmInstrument) to High(AsmInstrument) do
-        SL.Add(IntToStr(AsmInstrument[J]));
+        ResultSL.Add('db '+IntToStr(AsmInstrument[J]));
     end;
 
-    WriteStr(TypePrefix, Instruments[I].Type_);
-    ResultSL.Add(Format('%s%s:'+LineEnding+'db %s', [TypePrefix, 'inst' + IntToStr(I),
-      SL.DelimitedText]));
-    SL.Free;
-
     if Instruments[I].SubpatternEnabled then
-      ResultSL.Add(Format('dw %sSP%d', [TypePrefix, I]))
+      ResultSL.Insert(ResultSL.Count-1, Format('dw %sSP%d', [TypePrefix, I]))
     else
-      ResultSL.Add('dw 0');
-    ResultSL.Add('ds '+IfThen(Instruments[I].Type_ = itNoise, '4', '2'));
+      ResultSL.Insert(ResultSL.Count-1, 'db 0');
+    ResultSL.Add('ds '+IfThen(Instruments[I].Type_ = itNoise, '5', '3'));
+    ResultSL.Add('');
   end;
 
   Result := ResultSL.Text;
@@ -326,6 +322,43 @@ begin
 
   for I := Low(TPattern) to High(TPattern) do
     SL.Add(RenderCell(Pattern[I]));
+
+  Result := SL.Text;
+  SL.Free;
+end;
+
+function RenderTableCell(Cell: TCell): string;
+var
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  SL.Delimiter := ',';
+  SL.StrictDelimiter := True;
+
+  if (Cell.Note = NO_NOTE) or (Cell.Note = MIDDLE_NOTE) then
+    SL.Add('___')
+  else
+    SL.Add(IntToStr(Abs(Cell.Note - MIDDLE_NOTE)));
+
+  SL.Add(IntToStr(Cell.Volume));
+
+  SL.Add('$' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
+
+  // RGBDS thinks you're defining a new macro if you don't have a space first.
+  Result := ' dn ' + SL.DelimitedText;
+  SL.Free;
+end;
+
+function RenderTablePattern(Name: string; Pattern: TPattern): string;
+var
+  SL: TStringList;
+  I: integer;
+begin
+  SL := TStringList.Create;
+  SL.Add(Name + ':');
+
+  for I := Low(TPattern) to High(TPattern) do
+    SL.Add(RenderTableCell(Pattern[I]));
 
   Result := SL.Text;
   SL.Free;
@@ -564,7 +597,7 @@ begin
     with Song.Instruments.All[I] do begin
       if SubpatternEnabled then begin
         WriteStr(TypePrefix, Type_);
-        Write(OutFile, RenderPattern(TypePrefix+'SP' + IntToStr(I), Subpattern));
+        Write(OutFile, RenderTablePattern(TypePrefix+'SP' + IntToStr(I), Subpattern));
       end;
     end;
 
