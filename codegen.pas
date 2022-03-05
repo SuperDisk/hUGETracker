@@ -276,7 +276,7 @@ begin
     end;
 
     if Instruments[I].SubpatternEnabled then
-      ResultSL.Insert(ResultSL.Count-1, Format('dw %sSP%d', [TypePrefix, I]))
+      ResultSL.Insert(ResultSL.Count-1, 'db 1')
     else
       ResultSL.Insert(ResultSL.Count-1, 'db 0');
     ResultSL.Add('ds '+IfThen(Instruments[I].Type_ = itNoise, '5', '3'));

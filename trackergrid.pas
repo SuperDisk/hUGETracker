@@ -342,8 +342,8 @@ destructor TTrackerGrid.Destroy;
 begin
   inherited Destroy;
 
-  Performed.Free;
-  Recall.Free;
+  //Performed.Free;
+  //Recall.Free;
 end;
 
 procedure TTrackerGrid.Paint;

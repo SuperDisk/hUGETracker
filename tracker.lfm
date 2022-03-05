@@ -256,28 +256,28 @@ object frmTracker: TfrmTracker
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Dty1'
-              Width = 35
+              Width = 38
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Dty2'
-              Width = 35
+              Width = 38
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Wav'
-              Width = 35
+              Width = 38
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Nse'
-              Width = 35
+              Width = 39
             end>
           DefaultColWidth = 17
           DefaultRowHeight = 21
@@ -300,10 +300,10 @@ object frmTracker: TfrmTracker
           OnValidateEntry = OrderEditStringGridValidateEntry
           ColWidths = (
             64
-            35
-            35
-            35
-            35
+            38
+            38
+            38
+            39
           )
         end
       end
@@ -361,7 +361,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Instrument'
-            ClientHeight = 261
+            ClientHeight = 271
             ClientWidth = 278
             ParentFont = False
             TabOrder = 0
@@ -577,7 +577,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Envelope'
-            ClientHeight = 124
+            ClientHeight = 134
             ClientWidth = 580
             ParentFont = False
             TabOrder = 1
@@ -629,16 +629,16 @@ object frmTracker: TfrmTracker
               Top = 0
               Width = 270
               BevelOuter = bvLowered
-              ClientHeight = 104
-              ClientWidth = 270
+              ClientHeight = 100
+              ClientWidth = 266
               ParentFont = False
               TabOrder = 1
               object EnvelopePaintbox: TPaintBox
                 Left = 1
-                Height = 102
+                Height = 98
                 Hint = 'Preview of the volume envelope'
                 Top = 1
-                Width = 268
+                Width = 264
                 Align = alClient
                 ParentFont = False
                 OnPaint = EnvelopePaintboxPaint
@@ -678,7 +678,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Square'
-            ClientHeight = 157
+            ClientHeight = 167
             ClientWidth = 317
             ParentFont = False
             TabOrder = 2
@@ -805,7 +805,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Wave'
-            ClientHeight = 157
+            ClientHeight = 167
             ClientWidth = 295
             ParentFont = False
             TabOrder = 3
@@ -863,16 +863,16 @@ object frmTracker: TfrmTracker
               Top = 80
               Width = 272
               BevelOuter = bvLowered
-              ClientHeight = 59
-              ClientWidth = 272
+              ClientHeight = 55
+              ClientWidth = 268
               ParentFont = False
               TabOrder = 1
               object WavePaintbox: TPaintBox
                 Left = 1
-                Height = 57
+                Height = 53
                 Hint = 'Preview of the waveform associated with this instrument'
                 Top = 1
-                Width = 270
+                Width = 266
                 Align = alClient
                 Color = clBlack
                 ParentColor = False
