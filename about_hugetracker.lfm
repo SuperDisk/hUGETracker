@@ -1,7 +1,7 @@
 object frmAboutHugetracker: TfrmAboutHugetracker
-  Left = 1187
+  Left = 1447
   Height = 322
-  Top = 331
+  Top = 559
   Width = 545
   BorderStyle = bsDialog
   Caption = 'About hUGETracker'
@@ -9,21 +9,14 @@ object frmAboutHugetracker: TfrmAboutHugetracker
   ClientWidth = 545
   OnDeactivate = FormDeactivate
   Position = poDesktopCenter
-  LCLVersion = '2.0.12.0'
+  LCLVersion = '2.2.0.4'
   object Label1: TLabel
-    Left = 185
-    Height = 15
-    Top = 120
-    Width = 175
+    Left = 191
+    Height = 11
+    Top = 128
+    Width = 162
     Alignment = taCenter
     Caption = 'Created by Nick "SuperDisk" Faro'
-    Font.CharSet = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
-    ParentColor = False
     ParentFont = False
     WordWrap = True
   end
@@ -39,34 +32,25 @@ object frmAboutHugetracker: TfrmAboutHugetracker
   end
   object Label2: TLabel
     Left = 145
-    Height = 90
+    Height = 66
     Top = 176
-    Width = 98
+    Width = 88
     Caption = 'Christian Hackbart'#13#10'Toxa'#13#10'RichardULZ'#13#10'Daid'#13#10'LIJI32'#13#10'ISSOtm'
-    ParentColor = False
   end
   object Label3: TLabel
     Left = 321
-    Height = 90
+    Height = 66
     Top = 176
-    Width = 78
+    Width = 70
     Caption = 'Eevee'#13#10'B00daW'#13#10'MelonadeM'#13#10'Goodnight Girl'#13#10'Kabcorp'#13#10'TakuikaNinja'
-    ParentColor = False
   end
   object Label4: TLabel
-    Left = 235
-    Height = 15
+    Left = 238
+    Height = 11
     Top = 152
-    Width = 75
+    Width = 68
     Caption = 'Special thanks'
-    Font.CharSet = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -12
-    Font.Name = 'Segoe UI'
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
     Font.Style = [fsUnderline]
-    ParentColor = False
     ParentFont = False
   end
   object Panel1: TPanel
