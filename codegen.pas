@@ -22,6 +22,8 @@ type
 
   TExportMode = (emNormal, emPreview, emGBS);
 
+  TTableNumbers = array[Low(TInstrumentCollection.All)..High(TInstrumentCollection.All)] of String;
+
 procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode = emNormal);
 procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
 procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: string);
@@ -242,7 +244,22 @@ begin
   Res.Free;
 end;
 
-function RenderInstruments(Instruments: TInstrumentBank): string;
+function RenderSubpatternOrder(const Instruments: TInstrumentCollection): String;
+var
+  SL: TStringList;
+  Inst: TInstrument;
+  I: Integer;
+begin
+  SL := TStringList.Create;
+  SL.Delimiter := ',';
+  for I := Low(Instruments.All) to High(Instruments.All) do
+    if Instruments.All[I].SubpatternEnabled then
+      SL.Add('SP'+IntToStr(I));
+  Result := 'tables: dw '+SL.DelimitedText;
+  SL.Free;
+end;
+
+function RenderInstruments(Instruments: TInstrumentBank; var CreatedSubpatterns: Integer): string;
 var
   ResultSL: TStringList;
   AsmInstrument: TAsmInstrument;
@@ -275,8 +292,10 @@ begin
         ResultSL.Add('db '+IntToStr(AsmInstrument[J]));
     end;
 
-    if Instruments[I].SubpatternEnabled then
-      ResultSL.Insert(ResultSL.Count-1, 'db 1')
+    if Instruments[I].SubpatternEnabled then begin
+      ResultSL.Insert(ResultSL.Count-1, 'db '+IntToStr(CreatedSubpatterns));
+      Inc(CreatedSubpatterns);
+    end
     else
       ResultSL.Insert(ResultSL.Count-1, 'db 0');
     ResultSL.Add('ds '+IfThen(Instruments[I].Type_ = itNoise, '5', '3'));
@@ -396,6 +415,7 @@ var
   OutSL: TStringList;
   F: Text;
   I: Integer;
+  CreatedSubpatterns: Integer = 0;
 begin
   OutSL := TStringList.Create;
 
@@ -427,15 +447,15 @@ begin
 
   // Render instruments
   OutSL.Add('duty_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Duty));
+  OutSL.Add(RenderInstruments(Song.Instruments.Duty, CreatedSubpatterns));
   OutSL.Add('');
 
   OutSL.Add('wave_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Wave));
+  OutSL.Add(RenderInstruments(Song.Instruments.Wave, CreatedSubpatterns));
   OutSL.Add('');
 
   OutSL.Add('noise_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Noise));
+  OutSL.Add(RenderInstruments(Song.Instruments.Noise, CreatedSubpatterns));
   OutSL.Add('');
 
   // Render routines
@@ -488,6 +508,7 @@ var
   Proc: TProcess;
   FilePath: string;
   RenameSucceeded: Boolean;
+  CreatedSubpatterns: Integer = 0;
 
   procedure Die;
   var
@@ -570,9 +591,9 @@ begin
 
   WriteHTT('render/wave.htt', RenderWaveforms(Song.Waves));
   WriteHTT('render/order.htt', RenderOrderTable(Song.OrderMatrix));
-  WriteHTT('render/duty_instrument.htt',  RenderInstruments(Song.Instruments.Duty));
-  WriteHTT('render/wave_instrument.htt',  RenderInstruments(Song.Instruments.Wave));
-  WriteHTT('render/noise_instrument.htt', RenderInstruments(Song.Instruments.Noise));
+  WriteHTT('render/duty_instrument.htt',  RenderInstruments(Song.Instruments.Duty, CreatedSubpatterns));
+  WriteHTT('render/wave_instrument.htt',  RenderInstruments(Song.Instruments.Wave, CreatedSubpatterns));
+  WriteHTT('render/noise_instrument.htt', RenderInstruments(Song.Instruments.Noise, CreatedSubpatterns));
   for I := Low(TRoutineBank) to High(TRoutineBank) do
     WriteHTT('render/routine'+IntToStr(I)+'.htt', Song.Routines[I]);
 
@@ -594,13 +615,15 @@ begin
   // TODO: Are keys and data defined to be aligned? Seems like they are but
   // should probably find out if that's just an implementation detail...
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
-    with Song.Instruments.All[I] do begin
-      if SubpatternEnabled then begin
-        WriteStr(TypePrefix, Type_);
-        Write(OutFile, RenderTablePattern(TypePrefix+'SP' + IntToStr(I), Subpattern));
-      end;
-    end;
+    with Song.Instruments.All[I] do
+      if SubpatternEnabled then
+        Write(OutFile, RenderTablePattern('SP' + IntToStr(I), Subpattern));
 
+  CloseFile(OutFile);
+
+  AssignFile(OutFile, 'render/subpattern_order.htt');
+  Rewrite(OutFile);
+  Write(OutFile, RenderSubpatternOrder(Song.Instruments));
   CloseFile(OutFile);
 
   // Build the file

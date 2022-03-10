@@ -61,10 +61,10 @@ object frmTracker: TfrmTracker
       Height = 734
       Top = 0
       Width = 1120
-      ActivePage = GeneralTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -77,7 +77,7 @@ object frmTracker: TfrmTracker
           Top = 8
           Width = 305
           Caption = 'Song information'
-          ClientHeight = 124
+          ClientHeight = 134
           ClientWidth = 303
           ParentFont = False
           TabOrder = 0
@@ -256,28 +256,28 @@ object frmTracker: TfrmTracker
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Dty1'
-              Width = 38
+              Width = 35
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Dty2'
-              Width = 38
+              Width = 35
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Wav'
-              Width = 38
+              Width = 35
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Nse'
-              Width = 39
+              Width = 35
             end>
           DefaultColWidth = 17
           DefaultRowHeight = 21
@@ -300,10 +300,10 @@ object frmTracker: TfrmTracker
           OnValidateEntry = OrderEditStringGridValidateEntry
           ColWidths = (
             64
-            38
-            38
-            38
-            39
+            35
+            35
+            35
+            35
           )
         end
       end
@@ -361,7 +361,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Instrument'
-            ClientHeight = 271
+            ClientHeight = 261
             ClientWidth = 278
             ParentFont = False
             TabOrder = 0
@@ -577,7 +577,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Envelope'
-            ClientHeight = 134
+            ClientHeight = 124
             ClientWidth = 580
             ParentFont = False
             TabOrder = 1
@@ -629,16 +629,16 @@ object frmTracker: TfrmTracker
               Top = 0
               Width = 270
               BevelOuter = bvLowered
-              ClientHeight = 100
-              ClientWidth = 266
+              ClientHeight = 104
+              ClientWidth = 270
               ParentFont = False
               TabOrder = 1
               object EnvelopePaintbox: TPaintBox
                 Left = 1
-                Height = 98
+                Height = 102
                 Hint = 'Preview of the volume envelope'
                 Top = 1
-                Width = 264
+                Width = 268
                 Align = alClient
                 ParentFont = False
                 OnPaint = EnvelopePaintboxPaint
@@ -678,7 +678,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Square'
-            ClientHeight = 167
+            ClientHeight = 157
             ClientWidth = 317
             ParentFont = False
             TabOrder = 2
@@ -805,7 +805,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Wave'
-            ClientHeight = 167
+            ClientHeight = 157
             ClientWidth = 295
             ParentFont = False
             TabOrder = 3
@@ -863,16 +863,16 @@ object frmTracker: TfrmTracker
               Top = 80
               Width = 272
               BevelOuter = bvLowered
-              ClientHeight = 55
-              ClientWidth = 268
+              ClientHeight = 59
+              ClientWidth = 272
               ParentFont = False
               TabOrder = 1
               object WavePaintbox: TPaintBox
                 Left = 1
-                Height = 53
+                Height = 57
                 Hint = 'Preview of the waveform associated with this instrument'
                 Top = 1
-                Width = 266
+                Width = 270
                 Align = alClient
                 Color = clBlack
                 ParentColor = False
