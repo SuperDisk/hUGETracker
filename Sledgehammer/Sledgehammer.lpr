@@ -11,7 +11,7 @@ uses
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms, SFXEditor,
-  options in '../options.pas'
+  options in '../options.pas', About
   { you can add units after this };
 
 {$R *.res}
@@ -22,6 +22,7 @@ begin
   Application.Initialize;
   Application.CreateForm(TSFXEditor1, SFXEditor1);
   Application.CreateForm(TfrmOptions, frmOptions);
+  Application.CreateForm(TfrmAbout, frmAbout);
   Application.Run;
 end.
 

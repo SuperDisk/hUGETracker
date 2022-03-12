@@ -1,31 +1,31 @@
 object SFXEditor1: TSFXEditor1
   Left = 1670
-  Height = 1173
+  Height = 653
   Top = 131
-  Width = 518
+  Width = 413
   Caption = 'Sledgehammer'
-  ClientHeight = 1154
-  ClientWidth = 518
+  ClientHeight = 634
+  ClientWidth = 413
   Menu = MainMenu1
   OnCreate = FormCreate
   LCLVersion = '2.2.0.4'
   object Panel1: TPanel
     Left = 0
-    Height = 1128
+    Height = 595
     Top = 26
-    Width = 518
+    Width = 413
     Align = alClient
     BevelOuter = bvNone
     Caption = 'Panel1'
-    ClientHeight = 1128
-    ClientWidth = 518
+    ClientHeight = 595
+    ClientWidth = 413
     TabOrder = 0
     object HeaderControl1: THeaderControl
       Left = 0
       Height = 30
       Hint = 'Left click to mute, right click to solo'
       Top = 0
-      Width = 518
+      Width = 413
       DragReorder = False
       Sections = <      
         item
@@ -58,9 +58,9 @@ object SFXEditor1: TSFXEditor1
     end
     object ScrollBox1: TScrollBox
       Left = 0
-      Height = 1098
+      Height = 565
       Top = 30
-      Width = 518
+      Width = 413
       HorzScrollBar.Increment = 3
       HorzScrollBar.Page = 32
       HorzScrollBar.Smooth = True
@@ -71,13 +71,13 @@ object SFXEditor1: TSFXEditor1
       VertScrollBar.Tracking = True
       Align = alClient
       BorderStyle = bsNone
-      ClientHeight = 1098
-      ClientWidth = 518
+      ClientHeight = 565
+      ClientWidth = 413
       ParentFont = False
       TabOrder = 1
       object RowNumberStringGrid: TStringGrid
         Left = 0
-        Height = 1098
+        Height = 565
         Top = 0
         Width = 32
         Align = alLeft
@@ -96,7 +96,7 @@ object SFXEditor1: TSFXEditor1
     Left = 0
     Height = 26
     Top = 0
-    Width = 518
+    Width = 413
     Caption = 'ToolBar1'
     TabOrder = 1
     object ToolButton1: TToolButton
@@ -109,6 +109,13 @@ object SFXEditor1: TSFXEditor1
       Top = 2
       Caption = 'Play'
     end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Height = 13
+    Top = 621
+    Width = 413
+    Panels = <>
   end
   object MainMenu1: TMainMenu
     Left = 440
@@ -134,6 +141,10 @@ object SFXEditor1: TSFXEditor1
     end
     object MenuItem3: TMenuItem
       Caption = 'Help'
+      object MenuItem8: TMenuItem
+        Caption = 'About ...'
+        OnClick = MenuItem8Click
+      end
     end
   end
 end

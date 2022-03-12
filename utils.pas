@@ -58,7 +58,7 @@ procedure BlankPattern(Pat: PPattern);
 var
   I: Integer;
 begin
-  for I := 0 to High(Pat^) do begin
+  for I := Low(Pat^) to High(Pat^) do begin
     Pat^[I] := Default(TCell);
     Pat^[I].Note := NO_NOTE;
   end;

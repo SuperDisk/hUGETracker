@@ -70,14 +70,14 @@ type
     procedure RevertUndoAction;
 
     procedure RenderSelectedArea;
-    procedure ClampCursors;
+    procedure ClampCursors; virtual;
     procedure NormalizeCursors;
 
-    procedure InputNote(Key: Word);
-    procedure InputInstrument(Key: Word);
+    procedure InputNote(Key: Word); virtual;
+    procedure InputInstrument(Key: Word); virtual;
     procedure InputVolume(Key: Word); virtual;
-    procedure InputEffectCode(Key: Word);
-    procedure InputEffectParams(Key: Word);
+    procedure InputEffectCode(Key: Word); virtual;
+    procedure InputEffectParams(Key: Word); virtual;
 
     procedure RenderRow(Row: Integer); virtual;
     procedure RenderCell(const Cell: TCell); virtual;
@@ -87,7 +87,7 @@ type
     function GetSelectionGridRect: TRect;
     function GetEffectColor(EffectCode: Integer): TColor;
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
-    function SelectionToRect(Selection: TSelectionPos): TRect;
+    function SelectionToRect(Selection: TSelectionPos): TRect; virtual;
     function MousePosToSelection(X, Y: Integer): TSelectionPos; virtual;
     function KeycodeToHexNumber(Key: Word; var Num: Nibble): Boolean; overload;
     function KeycodeToHexNumber(Key: Word; var Num: Integer): Boolean; overload;
@@ -1208,8 +1208,8 @@ var
   OrigX: Integer;
 begin
   OrigX := X;
-  X := EnsureRange(Width-1, 0, X);
-  Y := EnsureRange(Height-1, 0, Y);
+  X := EnsureRange(X, 0, Width-1);
+  Y := EnsureRange(Y, 0, Height-1);
 
   Result.X := Trunc((X/Width)*NumColumns);
   Result.Y := Trunc((Y/Height)*NumRows);

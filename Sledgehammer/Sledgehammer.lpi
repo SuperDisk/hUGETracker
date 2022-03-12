@@ -46,6 +46,18 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="SFXGrid"/>
       </Unit>
+      <Unit>
+        <Filename Value="../options.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="about.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmAbout"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="About"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
