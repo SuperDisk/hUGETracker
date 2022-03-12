@@ -1,0 +1,139 @@
+object SFXEditor1: TSFXEditor1
+  Left = 1670
+  Height = 1173
+  Top = 131
+  Width = 518
+  Caption = 'Sledgehammer'
+  ClientHeight = 1154
+  ClientWidth = 518
+  Menu = MainMenu1
+  OnCreate = FormCreate
+  LCLVersion = '2.2.0.4'
+  object Panel1: TPanel
+    Left = 0
+    Height = 1128
+    Top = 26
+    Width = 518
+    Align = alClient
+    BevelOuter = bvNone
+    Caption = 'Panel1'
+    ClientHeight = 1128
+    ClientWidth = 518
+    TabOrder = 0
+    object HeaderControl1: THeaderControl
+      Left = 0
+      Height = 30
+      Hint = 'Left click to mute, right click to solo'
+      Top = 0
+      Width = 518
+      DragReorder = False
+      Sections = <      
+        item
+          Alignment = taLeftJustify
+          Width = 32
+          Visible = True
+        end      
+        item
+          Alignment = taCenter
+          Text = 'Len'
+          Width = 30
+          Visible = True
+        end      
+        item
+          Alignment = taCenter
+          ImageIndex = 1
+          Text = 'Duty'
+          Width = 133
+          Visible = True
+        end      
+        item
+          Alignment = taCenter
+          ImageIndex = 1
+          Text = 'Noise'
+          Width = 133
+          Visible = True
+        end>
+      Align = alTop
+      ParentFont = False
+    end
+    object ScrollBox1: TScrollBox
+      Left = 0
+      Height = 1098
+      Top = 30
+      Width = 518
+      HorzScrollBar.Increment = 3
+      HorzScrollBar.Page = 32
+      HorzScrollBar.Smooth = True
+      HorzScrollBar.Tracking = True
+      VertScrollBar.Increment = 5
+      VertScrollBar.Page = 50
+      VertScrollBar.Smooth = True
+      VertScrollBar.Tracking = True
+      Align = alClient
+      BorderStyle = bsNone
+      ClientHeight = 1098
+      ClientWidth = 518
+      ParentFont = False
+      TabOrder = 1
+      object RowNumberStringGrid: TStringGrid
+        Left = 0
+        Height = 1098
+        Top = 0
+        Width = 32
+        Align = alLeft
+        BorderStyle = bsNone
+        ColCount = 1
+        DefaultColWidth = 32
+        Enabled = False
+        ParentFont = False
+        RowCount = 32
+        ScrollBars = ssNone
+        TabOrder = 0
+      end
+    end
+  end
+  object ToolBar1: TToolBar
+    Left = 0
+    Height = 26
+    Top = 0
+    Width = 518
+    Caption = 'ToolBar1'
+    TabOrder = 1
+    object ToolButton1: TToolButton
+      Left = 1
+      Top = 2
+      Caption = 'Save'
+    end
+    object ToolButton2: TToolButton
+      Left = 24
+      Top = 2
+      Caption = 'Play'
+    end
+  end
+  object MainMenu1: TMainMenu
+    Left = 440
+    Top = 16
+    object MenuItem1: TMenuItem
+      Caption = 'File'
+      object MenuItem4: TMenuItem
+        Caption = 'New'
+      end
+      object MenuItem5: TMenuItem
+        Caption = 'Open ...'
+      end
+      object MenuItem6: TMenuItem
+        Caption = 'Save as ...'
+      end
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Edit'
+      object MenuItem7: TMenuItem
+        Caption = 'Options ...'
+        OnClick = MenuItem7Click
+      end
+    end
+    object MenuItem3: TMenuItem
+      Caption = 'Help'
+    end
+  end
+end

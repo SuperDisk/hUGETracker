@@ -1116,7 +1116,7 @@ var
 begin
   // Recreate TrackerGrid
   if Assigned(TrackerGrid) then TrackerGrid.Free;
-  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4, 64);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
@@ -1126,7 +1126,7 @@ begin
 
   // Recreate TableGrid
   if Assigned(TableGrid) then TableGrid.Free;
-  TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1);
+  TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1, 64);
 
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;

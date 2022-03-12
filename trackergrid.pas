@@ -11,7 +11,6 @@ uses
 
 // TODO: Maybe read these from a config file
 const
-  NUM_ROWS = 64;
   UNDO_STACK_SIZE = 100;
 
 type
@@ -57,7 +56,8 @@ type
     procedure DblClick; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
-  private
+    procedure ChangeFontSize; virtual;
+  protected
     function GetSelection: TSelection;
     procedure PerformPaste(Paste: TSelection); overload;
     procedure PerformPaste(Paste: TSelection; Where: TSelectionPos); overload;
@@ -79,7 +79,7 @@ type
     procedure InputEffectCode(Key: Word);
     procedure InputEffectParams(Key: Word);
 
-    procedure RenderRow(Row: Integer);
+    procedure RenderRow(Row: Integer); virtual;
     procedure RenderCell(const Cell: TCell); virtual;
 
     procedure SetHighlightedRow(Row: Integer);
@@ -88,12 +88,10 @@ type
     function GetEffectColor(EffectCode: Integer): TColor;
     function SelectionsToRect(S1, S2: TSelectionPos): TRect;
     function SelectionToRect(Selection: TSelectionPos): TRect;
-    function MousePosToSelection(X, Y: Integer): TSelectionPos;
+    function MousePosToSelection(X, Y: Integer): TSelectionPos; virtual;
     function KeycodeToHexNumber(Key: Word; var Num: Nibble): Boolean; overload;
     function KeycodeToHexNumber(Key: Word; var Num: Integer): Boolean; overload;
-
-    procedure ChangeFontSize;
-  private
+  protected
     PatternMap: TPatternMap;
     Patterns: TPatternGrid;
     PatternNumbers: array of Integer;
@@ -120,7 +118,7 @@ type
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
-    NumColumns: Integer;
+    NumColumns, NumRows: Integer;
 
     SelectedInstrument, SelectedOctave, Step: Integer;
 
@@ -150,13 +148,14 @@ type
     procedure TransposeSelection(Semitones: Integer);
     procedure IncrementSelection(Note, Instrument, Volume, EffectCode, EffectParam: Integer);
     procedure InterpolateSelection;
-    procedure OpenEffectEditor;
+    procedure OpenEffectEditor; virtual;
 
     constructor Create(
       AOwner: TComponent;
       Parent: TWinControl;
       PatternMap: TPatternMap;
-      NumColumns: Integer); reintroduce;
+      NumColumns: Integer;
+      NumRows: Integer); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -311,7 +310,8 @@ constructor TTrackerGrid.Create(
   AOwner: TComponent;
   Parent: TWinControl;
   PatternMap: TPatternMap;
-  NumColumns: Integer);
+  NumColumns: Integer;
+  NumRows: Integer);
 begin
   inherited Create(AOwner);
 
@@ -319,6 +319,7 @@ begin
 
   Self.PatternMap := PatternMap;
   Self.NumColumns := NumColumns;
+  Self.NumRows := NumRows;
 
   SetLength(Patterns, NumColumns);
   SetLength(PatternNumbers, NumColumns);
@@ -351,8 +352,6 @@ var
   I: Integer;
   R: TRect;
 begin
-  inherited Paint;
-
   with Canvas do begin
     Brush.Color := clBackground;
     Clear;
@@ -375,11 +374,10 @@ begin
 
   // Draw borders between columns
   Canvas.Pen.Color := clDividers;
-  Canvas.Pen.Width := 2;
+  Canvas.Pen.Width := 1;
 
   for I := 0 to NumColumns do begin
-    //TODO: WTF? Why do we need this IfThen?
-    R := TRect.Create(ColumnWidth*I, 0, ColumnWidth + IfThen(I=0, 1, 0), Height);
+    R := TRect.Create(ColumnWidth*I, 0, (ColumnWidth*I) + ColumnWidth, Height);
     Canvas.Rectangle(R);
   end;
 
@@ -1214,7 +1212,7 @@ begin
   Y := EnsureRange(Height-1, 0, Y);
 
   Result.X := Trunc((X/Width)*NumColumns);
-  Result.Y := Trunc((Y/Height)*NUM_ROWS);
+  Result.Y := Trunc((Y/Height)*NumRows);
 
   if OrigX <= 0 then
     Result.SelectedPart := cpNote

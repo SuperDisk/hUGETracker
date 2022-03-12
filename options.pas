@@ -249,7 +249,7 @@ begin
   if Assigned(SampleTrackerGrid) then
     SampleTrackerGrid.Free;
 
-  SampleTrackerGrid := TTrackerGrid.Create(Self, SampleTrackerGridPanel, SamplePatternMap, 4);
+  SampleTrackerGrid := TTrackerGrid.Create(Self, SampleTrackerGridPanel, SamplePatternMap, 4, 64);
   SampleTrackerGrid.FontSize := FontSizeSpinner.Value;
   for I := 0 to 3 do
     SampleTrackerGrid.LoadPattern(I, 0);
