@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Grids, ExtCtrls,
-  ComCtrls, Menus, SFXGrid, hUGESettings, options, HugeDatatypes, Keymap, About,
-  Constants, Math;
+  ComCtrls, Menus, Spin, SFXGrid, hUGESettings, options,
+  HugeDatatypes, Keymap, About, Constants, Math;
 
 type
   { TFXFrame }
@@ -40,7 +40,8 @@ type
     HeaderControl1: THeaderControl;
     MainMenu1: TMainMenu;
     MenuItem1: TMenuItem;
-    MenuItem10: TMenuItem;
+    MenuItem11: TMenuItem;
+    MenuItem12: TMenuItem;
     MenuItem2: TMenuItem;
     MenuItem3: TMenuItem;
     MenuItem4: TMenuItem;
@@ -52,12 +53,22 @@ type
     Panel1: TPanel;
     RowNumberStringGrid: TStringGrid;
     ScrollBox1: TScrollBox;
+    SpinEdit1: TSpinEdit;
     StatusBar1: TStatusBar;
     ToolBar1: TToolBar;
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton7: TToolButton;
+    ToolButton8: TToolButton;
     procedure FormCreate(Sender: TObject);
+    procedure HeaderControl1Resize(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
+    procedure MenuItem12Click(Sender: TObject);
+    procedure MenuItem5Click(Sender: TObject);
     procedure MenuItem7Click(Sender: TObject);
     procedure MenuItem8Click(Sender: TObject);
     procedure MenuItem9Click(Sender: TObject);
@@ -67,10 +78,16 @@ type
     procedure CreateKeymap;
 
     procedure BlankSFXPattern(P: PPattern);
+
+    procedure LoadSFXBank(Filename: String);
+    procedure LoadSFX(S: TStream; Num: Integer);
+    procedure DisplaySFX(Num: Integer);
+    procedure ExportSFXToC(FX: THammerFX; Filename: String);
   private
     SFXGrid: TSFXGrid;
     SFXPatterns: TPatternMap;
-    FX: THammerFX;
+    FX: array[0..$3B] of THammerFX;
+    CurrentFX: Integer;
   public
 
   end;
@@ -101,7 +118,151 @@ begin
   SFXGrid.LoadPattern(2, 2);
 end;
 
+procedure TSFXEditor1.HeaderControl1Resize(Sender: TObject);
+var
+  I: Integer;
+begin
+  // Fix the size of the channel headers
+  HeaderControl1.Sections.Items[1].Width := SFXGrid.LenColumnWidth;
+  for I := 2 to HeaderControl1.Sections.Count-1 do
+    HeaderControl1.Sections.Items[I].Width := SFXGrid.ColumnWidth;
+end;
+
 procedure TSFXEditor1.MenuItem10Click(Sender: TObject);
+begin
+end;
+
+procedure TSFXEditor1.MenuItem12Click(Sender: TObject);
+begin
+
+end;
+
+procedure TSFXEditor1.MenuItem5Click(Sender: TObject);
+begin
+
+end;
+
+procedure TSFXEditor1.CreateKeymap;
+var
+  StringGrid: TStringGrid;
+begin
+  if not TrackerSettings.UseCustomKeymap then
+    LoadDefaultKeybindings
+  else begin
+    StringGrid := TStringGrid.Create(nil); // UGH!
+    try
+      StringGrid.SaveOptions := soAll;
+      StringGrid.LoadFromFile('custom_keymap.km');
+      LoadCustomKeybindings(StringGrid);
+    finally
+      StringGrid.Free;
+    end;
+  end;
+end;
+
+procedure TSFXEditor1.BlankSFXPattern(P: PPattern);
+var
+  I: Integer;
+begin
+  for I := Low(P^) to High(P^) do begin
+    P^[I] := Default(TCell);
+    P^[I].EffectCode := $FF;
+    P^[I].Note := NO_NOTE;
+  end;
+end;
+
+procedure TSFXEditor1.LoadSFXBank(Filename: String);
+var
+  S: TFileStream;
+  I: Integer;
+begin
+  S := TFileStream.Create(Filename, fmOpenRead);
+
+  try
+    for I := Low(FX) to High(FX) do
+      LoadSFX(S, I);
+  finally
+    S.Free;
+  end;
+end;
+
+procedure TSFXEditor1.LoadSFX(S: TStream; Num: Integer);
+var
+  Frame: TFXFrame;
+begin
+  // https://github.com/datguywitha3ds/CBT-FX/blob/main/hammer2cbt.py
+
+  with FX[Num] do begin
+    S.Seek($200 + Num, soBeginning);
+    Priority := S.ReadByte;
+
+    S.Seek($300 + Num, soBeginning);
+    CHUsed := S.ReadByte;
+
+    S.Seek($400 + (Num * 256), soBeginning);
+
+    Frames := nil;
+    repeat
+      S.ReadBuffer(Frame, SizeOf(TFXFrame));
+      SetLength(Frames, Length(Frames)+1);
+      Frames[High(Frames)] := Frame;
+    until Frame.Duration = 0;
+    SetLength(Frames, Length(Frames)-1);
+  end;
+end;
+
+procedure TSFXEditor1.DisplaySFX(Num: Integer);
+var
+  I: Integer;
+  Pat: PPattern;
+  PolyCounter: TPolynomialCounterRegister;
+  CH4Freq: Integer;
+  RealR: Double;
+begin
+  with FX[Num] do
+    for I := Low(Frames) to High(Frames) do begin
+      Pat := SFXPatterns.GetOrCreateNew(0);
+      Pat^[I].EffectParams.Value := Frames[I].Duration;
+
+      Pat := SFXPatterns.GetOrCreateNew(1);
+
+      Pat^[I].Note := (Frames[I].CH2Note - $40) div 2;
+      Pat^[I].Volume := (Frames[I].CH2Vol and $F0) shr 4;
+      Pat^[I].Instrument := (Frames[I].CH2Duty and %11000000) shr 6;
+
+      Pat^[I].EffectCode := $00;
+      if (Frames[I].CH2Pan and $F0) <> 0 then
+        Pat^[I].EffectCode := (Pat^[I].EffectCode or $F0);
+      if (Frames[I].CH2Pan and $0F) <> 0 then
+        Pat^[I].EffectCode := (Pat^[I].EffectCode or $0F);
+
+      Pat := SFXPatterns.GetOrCreateNew(2);
+
+      if Frames[I].CH4Freq <> 0 then begin
+        PolyCounter.ByteValue := Frames[I].CH4Freq;
+
+        if PolyCounter.DividingRatio = 0 then
+          RealR := 0.5
+        else
+          RealR := PolyCounter.DividingRatio;
+
+        Ch4Freq := Trunc((524288 / RealR) / 2**(PolyCounter.ShiftClockFrequency+1));
+        Ch4FreqToNoteCodeMap.TryGetData(Ch4Freq, Pat^[I].Note);
+      end;
+
+      Pat^[I].Volume := (Frames[I].CH4Vol and $F0) shr 4;
+
+      Pat^[I].EffectCode := $00;
+      if (Frames[I].CH4Pan and $F0) <> 0 then
+        Pat^[I].EffectCode := (Pat^[I].EffectCode or $F0);
+      if (Frames[I].CH4Pan and $0F) <> 0 then
+        Pat^[I].EffectCode := (Pat^[I].EffectCode or $0F);
+    end;
+
+  SFXGrid.Invalidate;
+end;
+
+procedure TSFXEditor1.ExportSFXToC(FX: THammerFX; Filename: String);
 var
   F: Text;
   SL: TStringList;
@@ -113,19 +274,22 @@ var
     SL.Add(IntToStr(B));
   end;
 begin
+  // https://github.com/datguywitha3ds/CBT-FX/blob/main/hammer2cbt.py
+
   SL := TStringList.Create;
   SL.Delimiter:=',';
 
-  AssignFile(F, '/home/superdisk/Desktop/asdf.c');
+  AssignFile(F, Filename);
   Rewrite(F);
 
+  Chu := 0;
   if (FX.CHUsed and $30) <> 0 then
     Chu := Chu or 12;
   if (FX.CHUsed and $03) <> 0 then
     Chu := Chu or 3;
   Chu := Chu shl 4;
 
-  Writeln(F, 'const unsigned char asdf[] = {');
+  Writeln(F, 'const unsigned char', '[] = {');
   Put(Chu or FX.Priority);
   Put(Length(FX.Frames));
 
@@ -162,35 +326,6 @@ begin
   SL.Free;
 end;
 
-procedure TSFXEditor1.CreateKeymap;
-var
-  StringGrid: TStringGrid;
-begin
-  if not TrackerSettings.UseCustomKeymap then
-    LoadDefaultKeybindings
-  else begin
-    StringGrid := TStringGrid.Create(nil); // UGH!
-    try
-      StringGrid.SaveOptions := soAll;
-      StringGrid.LoadFromFile('custom_keymap.km');
-      LoadCustomKeybindings(StringGrid);
-    finally
-      StringGrid.Free;
-    end;
-  end;
-end;
-
-procedure TSFXEditor1.BlankSFXPattern(P: PPattern);
-var
-  I: Integer;
-begin
-  for I := Low(P^) to High(P^) do begin
-    P^[I] := Default(TCell);
-    P^[I].EffectCode := $FF;
-    P^[I].Note := NO_NOTE;
-  end;
-end;
-
 procedure TSFXEditor1.MenuItem7Click(Sender: TObject);
 begin
   frmOptions.ShowModal;
@@ -202,77 +337,7 @@ begin
 end;
 
 procedure TSFXEditor1.MenuItem9Click(Sender: TObject);
-var
-  S: TFileStream;
-  Frame: TFXFrame;
-  I: Integer;
-  Pat: PPattern;
-  PolyCounter: TPolynomialCounterRegister;
-  CH4Freq: Integer;
-  RealR: Double;
 begin
-  //ShowMessage(GetCurrentDir);
-  S := TFileStream.Create('/home/superdisk/hUGETracker/lib/Development/x86_64-openbsd/fxbank.sav', fmOpenRead);
-
-  S.Seek($200, soBeginning);
-  FX.Priority := S.ReadByte;
-
-  S.Seek($300, soBeginning);
-  FX.CHUsed := S.ReadByte;
-
-  S.Seek($400, soBeginning);
-
-  FX.Frames := nil;
-  repeat
-    S.ReadBuffer(Frame, SizeOf(TFXFrame));
-    SetLength(FX.Frames, Length(FX.Frames)+1);
-    FX.Frames[High(FX.Frames)] := Frame;
-  until Frame.Duration = 0;
-  SetLength(FX.Frames, Length(FX.Frames)-1);
-
-  for I := Low(FX.Frames) to High(FX.Frames) do begin
-    Pat := SFXPatterns.GetOrCreateNew(0);
-    Pat^[I].EffectParams.Value := FX.Frames[I].Duration;
-    if FX.Frames[I].Duration = 0 then
-      Continue;
-
-    Pat := SFXPatterns.GetOrCreateNew(1);
-
-    Pat^[I].Note := (FX.Frames[I].CH2Note - $40) div 2;
-    Pat^[I].Volume := (FX.Frames[I].CH2Vol and $F0) shr 4;
-    Pat^[I].Instrument := (FX.Frames[I].CH2Duty and %11000000) shr 6;
-
-    Pat^[I].EffectCode := $00;
-    if (FX.Frames[I].CH2Pan and $F0) <> 0 then
-      Pat^[I].EffectCode := (Pat^[I].EffectCode or $F0);
-    if (FX.Frames[I].CH2Pan and $0F) <> 0 then
-      Pat^[I].EffectCode := (Pat^[I].EffectCode or $0F);
-
-    Pat := SFXPatterns.GetOrCreateNew(2);
-
-    if FX.Frames[I].CH4Freq <> 0 then begin
-      PolyCounter.ByteValue := FX.Frames[I].CH4Freq;
-
-      if PolyCounter.DividingRatio = 0 then
-        RealR := 0.5
-      else
-        RealR := PolyCounter.DividingRatio;
-
-      Ch4Freq := Trunc((524288 / RealR) / 2**(PolyCounter.ShiftClockFrequency+1));
-      Ch4FreqToNoteCodeMap.TryGetData(Ch4Freq, Pat^[I].Note);
-    end;
-
-    Pat^[I].Volume := (FX.Frames[I].CH4Vol and $F0) shr 4;
-
-    Pat^[I].EffectCode := $00;
-    if (FX.Frames[I].CH4Pan and $F0) <> 0 then
-      Pat^[I].EffectCode := (Pat^[I].EffectCode or $F0);
-    if (FX.Frames[I].CH4Pan and $0F) <> 0 then
-      Pat^[I].EffectCode := (Pat^[I].EffectCode or $0F);
-  end;
-  SFXGrid.Invalidate;
-
-  S.Free;
 end;
 
 procedure TSFXEditor1.RecreateRowNumbers;

@@ -1,7 +1,7 @@
 object SFXEditor1: TSFXEditor1
-  Left = 1670
+  Left = 1414
   Height = 653
-  Top = 131
+  Top = 404
   Width = 413
   Caption = 'Sledgehammer'
   ClientHeight = 634
@@ -11,13 +11,13 @@ object SFXEditor1: TSFXEditor1
   LCLVersion = '2.2.0.4'
   object Panel1: TPanel
     Left = 0
-    Height = 595
-    Top = 26
+    Height = 597
+    Top = 24
     Width = 413
     Align = alClient
     BevelOuter = bvNone
     Caption = 'Panel1'
-    ClientHeight = 595
+    ClientHeight = 597
     ClientWidth = 413
     TabOrder = 0
     object HeaderControl1: THeaderControl
@@ -55,10 +55,11 @@ object SFXEditor1: TSFXEditor1
         end>
       Align = alTop
       ParentFont = False
+      OnResize = HeaderControl1Resize
     end
     object ScrollBox1: TScrollBox
       Left = 0
-      Height = 565
+      Height = 567
       Top = 30
       Width = 413
       HorzScrollBar.Increment = 3
@@ -71,13 +72,13 @@ object SFXEditor1: TSFXEditor1
       VertScrollBar.Tracking = True
       Align = alClient
       BorderStyle = bsNone
-      ClientHeight = 565
+      ClientHeight = 567
       ClientWidth = 413
       ParentFont = False
       TabOrder = 1
       object RowNumberStringGrid: TStringGrid
         Left = 0
-        Height = 565
+        Height = 567
         Top = 0
         Width = 32
         Align = alLeft
@@ -95,20 +96,56 @@ object SFXEditor1: TSFXEditor1
   end
   object ToolBar1: TToolBar
     Left = 0
-    Height = 26
+    Height = 24
     Top = 0
     Width = 413
+    AutoSize = True
     Caption = 'ToolBar1'
+    ParentShowHint = False
+    ShowCaptions = True
     TabOrder = 1
     object ToolButton1: TToolButton
       Left = 1
       Top = 2
-      Caption = 'Save'
+      AutoSize = True
+      Caption = '<-'
     end
     object ToolButton2: TToolButton
       Left = 24
       Top = 2
+      Caption = '->'
+    end
+    object ToolButton3: TToolButton
+      Left = 47
+      Height = 22
+      Top = 2
+      Caption = 'ToolButton3'
+      Style = tbsDivider
+    end
+    object ToolButton4: TToolButton
+      Left = 52
+      Top = 2
       Caption = 'Play'
+    end
+    object ToolButton5: TToolButton
+      Left = 80
+      Height = 22
+      Top = 2
+      Caption = 'ToolButton5'
+      Style = tbsDivider
+    end
+    object ToolButton6: TToolButton
+      Left = 85
+      Top = 2
+      Caption = 'ToolButton6'
+      Enabled = False
+    end
+    object SpinEdit1: TSpinEdit
+      Left = 151
+      Height = 19
+      Top = 2
+      Width = 50
+      TabOrder = 0
     end
   end
   object StatusBar1: TStatusBar
@@ -128,9 +165,17 @@ object SFXEditor1: TSFXEditor1
       end
       object MenuItem5: TMenuItem
         Caption = 'Open ...'
+        OnClick = MenuItem5Click
       end
       object MenuItem6: TMenuItem
         Caption = 'Save as ...'
+      end
+      object MenuItem11: TMenuItem
+        Caption = 'Export'
+        object MenuItem12: TMenuItem
+          Caption = 'GBDK C ...'
+          OnClick = MenuItem12Click
+        end
       end
     end
     object MenuItem2: TMenuItem
@@ -150,10 +195,6 @@ object SFXEditor1: TSFXEditor1
     object MenuItem9: TMenuItem
       Caption = 'Debug'
       OnClick = MenuItem9Click
-    end
-    object MenuItem10: TMenuItem
-      Caption = 'Save to C'
-      OnClick = MenuItem10Click
     end
   end
 end
