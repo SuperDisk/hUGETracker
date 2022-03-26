@@ -132,7 +132,7 @@ type
     function GetAt(SelectionPos: TSelectionPos): Integer;
     procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
     procedure IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
-    procedure ClearAt(SelectionPos: TSelectionPos);
+    procedure ClearAt(SelectionPos: TSelectionPos); virtual;
 
     procedure InsertRowInPatternAtCursor(Pattern: Integer);
     procedure InsertRowInAllAtCursor;

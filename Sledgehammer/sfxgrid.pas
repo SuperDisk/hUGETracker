@@ -28,6 +28,7 @@ type
     procedure InputVolume(Key: Word); override;
     procedure InputEffectCode(Key: Word); override;
     procedure InputEffectParams(Key: Word); override;
+    procedure ClearAt(SelectionPos: TSelectionPos); override;
 
     public
       LenColumnWidth: Integer;
@@ -224,13 +225,26 @@ begin
 
     TextOut(PenPos.X, PenPos.Y, ' ');
 
-    Font.Color := clFxMisc;
-    TextOut(PenPos.X, PenPos.Y, HexStr(Cell.Instrument, 1));
+    if (Cell.Instrument = 0) and (Cell.Note = NO_NOTE) then begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '.');
+    end
+    else begin
+      Font.Color := clFxMisc;
+      TextOut(PenPos.X, PenPos.Y, HexStr(Cell.Instrument, 1));
+    end;
 
     TextOut(PenPos.X, PenPos.Y, ' ');
 
-    Font.Color := clFxVolume;
-    TextOut(PenPos.X, PenPos.Y, HexStr(Cell.Volume, 1));
+    if (Cell.Volume = 0) and (Cell.Note = NO_NOTE) then begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '.');
+    end
+    else begin
+      Font.Color := clFxVolume;
+      TextOut(PenPos.X, PenPos.Y, HexStr(Cell.Volume, 1));
+    end;
+
 
     TextOut(PenPos.X, PenPos.Y, ' ');
 
@@ -239,7 +253,10 @@ begin
       $FF: TextOut(PenPos.X, PenPos.Y, 'M');
       $F0: TextOut(PenPos.X, PenPos.Y, 'L');
       $0F: TextOut(PenPos.X, PenPos.Y, 'R');
-      else TextOut(PenPos.X, PenPos.Y, '?');
+      else begin
+        Font.Color := clDots;
+        TextOut(PenPos.X, PenPos.Y, '.');
+      end;
     end;
 
     TextOut(PenPos.X, PenPos.Y, ' ');
@@ -263,15 +280,17 @@ begin
         TextOut(PenPos.X, PenPos.Y, '???');
     end;
 
-    TextOut(PenPos.X, PenPos.Y, ' ');
+    Font.Color := clDots;
+    TextOut(PenPos.X, PenPos.Y, ' . ');
 
-    Font.Color := clFxMisc;
-    TextOut(PenPos.X, PenPos.Y, HexStr(Cell.Instrument, 1));
-
-    TextOut(PenPos.X, PenPos.Y, ' ');
-
-    Font.Color := clFxVolume;
-    TextOut(PenPos.X, PenPos.Y, HexStr(Cell.Volume, 1));
+    if (Cell.Volume = 0) and (Cell.Note = NO_NOTE) then begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '.');
+    end
+    else begin
+      Font.Color := clFxVolume;
+      TextOut(PenPos.X, PenPos.Y, HexStr(Cell.Volume, 1));
+    end;
 
     TextOut(PenPos.X, PenPos.Y, ' ');
 
@@ -280,7 +299,10 @@ begin
       $FF: TextOut(PenPos.X, PenPos.Y, 'M');
       $F0: TextOut(PenPos.X, PenPos.Y, 'L');
       $0F: TextOut(PenPos.X, PenPos.Y, 'R');
-      else TextOut(PenPos.X, PenPos.Y, '?');
+      else begin
+        Font.Color := clDots;
+        TextOut(PenPos.X, PenPos.Y, '.');
+      end;
     end;
 
     TextOut(PenPos.X, PenPos.Y, ' ');
@@ -347,6 +369,14 @@ begin
   Invalidate;
   EndUndoAction;
 end;
+
+procedure TSFXGrid.ClearAt(SelectionPos: TSelectionPos);
+begin
+  inherited ClearAt(SelectionPos);
+  if (SelectionPos.X > 0) and (SelectionPos.SelectedPart = cpEffectCode) then
+    Patterns[SelectionPos.X]^[SelectionPos.Y].EffectCode := $FF;
+end;
+
 
 end.
 

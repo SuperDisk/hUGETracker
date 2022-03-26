@@ -82,6 +82,7 @@ object SFXEditor1: TSFXEditor1
         Width = 32
         Align = alLeft
         BorderStyle = bsNone
+        Color = clBackground
         ColCount = 1
         DefaultColWidth = 32
         Enabled = False
@@ -145,6 +146,14 @@ object SFXEditor1: TSFXEditor1
         Caption = 'About ...'
         OnClick = MenuItem8Click
       end
+    end
+    object MenuItem9: TMenuItem
+      Caption = 'Debug'
+      OnClick = MenuItem9Click
+    end
+    object MenuItem10: TMenuItem
+      Caption = 'Save to C'
+      OnClick = MenuItem10Click
     end
   end
 end
