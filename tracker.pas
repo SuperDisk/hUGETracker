@@ -2034,18 +2034,10 @@ begin
 end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
-var
-  S: TStream;
 begin
-  S := TFileStream.Create('C:/test/bbs.json', fmOpenRead);
-  try
-    DestroySong(Song);
-    Song := LoadSongFromBeepBoxJsonStream(S);
-  finally
-    S.Free;
-  end;
-
-  UpdateUIAfterLoad('Yeah!');
+  LockPlayback;
+  GetROMReady('C:/Projects/GB-Stuff/Nuked-OPL3/playa.gb');
+  UnlockPlayback;
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);

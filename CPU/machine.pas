@@ -85,7 +85,10 @@ function getcompany: string;
 
 implementation
 
-uses vars, sound;
+uses vars, sound, opl3;
+
+var
+  SavedReg: Integer;
 
 function getCompany: string;
 var
@@ -261,6 +264,16 @@ var
 begin
   if cart = nil then
     exit;
+
+  case address of
+    $2001: SavedReg := Data;
+    $2002: OPL3_WriteRegBuffered(sound.opl3chip, SavedReg, Data);
+    $2003: SavedReg := Data;
+    $2004: OPL3_WriteRegBuffered(sound.opl3chip, SavedReg or $F00, Data);
+  end;
+
+  if (address >= $2001) and (address <= $2004) then Exit;
+
   if (address < $8000) then
   begin
     case memc of

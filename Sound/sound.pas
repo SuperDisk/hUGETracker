@@ -128,7 +128,7 @@ Bit0  Sound 1 on[1]/off[0]
 
 *)
 
-uses Classes, sysutils, sdl2;
+uses Classes, sysutils, sdl2, opl3;
 
 const
   SAMPLE_BUFFER_SIZE = 1024;
@@ -173,6 +173,7 @@ var
     cnt: integer;
   end;
   SampleBuffers: array[0..4] of TSampleBuffer;
+  opl3chip: p_opl3_chip;
 
 implementation
 
@@ -211,6 +212,11 @@ begin
       cnt := 0;
     end;
   end;
+
+  if opl3chip = nil then
+    New(opl3chip);
+
+  OPL3_Reset(opl3chip, PlaybackFrequency);
 end;
 
 procedure BeginWritingSoundToStream(Stream: TStream);
@@ -296,7 +302,8 @@ end;
 procedure SoundDoOut(l, r: Integer; cycles: integer);
 var
   buf: array[0..1] of Single;
-  buf2: array[0..1] of Smallint;
+  buf3: array[0..1] of Int16;
+  buf4: array[0..1] of Single;
 begin
   Inc(bufLVal, l * cycles);
   Inc(bufRVal, r * cycles);
@@ -305,6 +312,14 @@ begin
   begin
     buf[0] := ((bufRVal div sampleCycles) / 512.0);
     buf[1] := ((bufLVal div sampleCycles) / 512.0);
+
+    OPL3_GenerateResampled(opl3chip, buf3);
+    buf4[0] := (buf3[0] + (High(Int16) div 2)) / High(UInt16);
+    buf4[1] := (buf3[1] + (High(Int16) div 2)) / High(Uint16);
+
+    Buf[0] := Buf[0] + buf4[0];
+    Buf[1] := Buf[1] + Buf4[1];
+
     bufCycles := 0;
     bufLVal := 0;
     bufRVal := 0;
