@@ -80,6 +80,15 @@ const
     ($FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$00,$00,$00,$00,$00,$00,$00,$00),
     ($79,$BC,$DE,$EF,$FF,$EE,$DC,$B9,$75,$43,$21,$10,$00,$11,$23,$45));
 
+  // https://github.com/RichardULZ/gb-studio/blob/master/buildTools/win32-ia32/mod2gbt/mod2gbt.c#L169
+  GBT_NOISE: array of Integer = (
+  	// 7 bit
+	  $5F,$4E,$3E,$2F,$2E,$2C,$1F,$0F,
+	  // 15 bit
+	  $64,$54,$44,$24,$00,
+	  $67,$56,$46
+  );
+
 var
   PeriodToCodeMap: TPeriodToCodeMap;
 
@@ -175,6 +184,41 @@ begin
   end;
 end;
 
+// https://github.com/RichardULZ/gb-studio/blob/master/buildTools/win32-ia32/mod2gbt/mod2gbt.c#L827
+
+procedure TranscribeColumnCh4(MP: TMODPattern; Pat: PPattern);
+var
+  MR: TMODRow;
+  Instrument: Byte;
+  NoiseBreak: Byte;
+  Noise: Byte;
+begin
+  MR := MP[I, 4];
+  Instrument = GBT_NOISE[((MR.Instrument - 16) and $1F)]; // Only 0 - 0xF implemented
+
+  // Rulz writes:
+  // This makes a smooth Ramp of every noise type, inspired by Pigu-A's Cherry Blossom Dive
+  // SSSS WDDD, preserve Width bit, combine Shift + Divisor (ignore bit 0100), add pitch.
+  // Divisor 4,5,6,7 can make any noise found in 0,1,2,3 unless with 0 Clock Shift.
+  // Solution, add 4, add note, if less than 4, set bit 0x04 to 0, and remove 4 again.
+  // Notes will pitch correctly using C D# F# A# C, scale has been divided by 3.
+  if (MR.Instrument < 32) and (MR.Instrument > 16) then begin
+    NoiseBreak := ((Instrument and $03) or (((Instrument and $F0) shr 2) + 4));
+    NoiseBreak := NoiseBreak - (((MR.Note + 1) / 3) - 8);
+    Noise := ((NoiseBreak and $03) or
+              ((((NoiseBreak - 4) < 0 ? $0 : (NoiseBreak - 4)) and $3C) shl 2) or
+               (NoiseBreak > 3 ? $04 : $0) ) or (Instrument and $08);
+  end;
+          if (samplenum < 32 && samplenum > 16) // Noise
+          {
+              noise_break = ( (instrument & 0x03) | (((instrument & 0xF0) >> 2) + 4) );
+              noise_break = noise_break - (((note_index + 1) / 3) - 8);
+              noise = ( (noise_break & 0x03) |
+              ((((noise_break - 4) < 0 ? 0x0 : (noise_break - 4)) & 0x3C) << 2) |
+               (noise_break > 3 ? 0x04 : 0x0) ) | (instrument & 0x08);
+          }
+end;
+
 function LoadSongFromModStream(Stream: TStream): TSong;
 var
   ModFile: TMODFile;
@@ -231,7 +275,7 @@ begin
     TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 0), 1);
     TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 1), 2);
     TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 2), 3);
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 3), 4);
+    TranscribeColumnCh4(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 3));
   end;
 
   // Import the order table. Uses a weird numbering scheme because hUGE has
