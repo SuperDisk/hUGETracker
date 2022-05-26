@@ -266,13 +266,11 @@ begin
     exit;
 
   case address of
-    $2001: SavedReg := Data;
-    $2002: OPL3_WriteRegBuffered(sound.opl3chip, SavedReg, Data);
-    $2003: SavedReg := Data;
-    $2004: OPL3_WriteRegBuffered(sound.opl3chip, SavedReg or $F00, Data);
+    $0001: SavedReg := Data;
+    $0002: OPL3_WriteRegBuffered(sound.opl3chip, SavedReg, Data);
+    $0003: SavedReg := Data;
+    $0004: OPL3_WriteRegBuffered(sound.opl3chip, SavedReg or $F00, Data);
   end;
-
-  if (address >= $2001) and (address <= $2004) then Exit;
 
   if (address < $8000) then
   begin
