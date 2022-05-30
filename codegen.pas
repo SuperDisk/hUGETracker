@@ -600,7 +600,7 @@ begin
     with Song.Instruments.All[I] do begin
       if SubpatternEnabled then begin
         WriteStr(TypePrefix, Type_);
-        Write(OutFile, RenderTablePattern(TypePrefix+'SP' + IntToStr(I), Subpattern));
+        Write(OutFile, RenderTablePattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
       end;
     end;
 
