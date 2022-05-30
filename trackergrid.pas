@@ -562,9 +562,6 @@ begin
 
   ClampCursors;
   Invalidate;
-
-  // Keep focus on control
-  Key := 0;
 end;
 
 procedure TTrackerGrid.KeyUp(var Key: Word; Shift: TShiftState);
