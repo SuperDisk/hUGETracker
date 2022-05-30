@@ -1130,9 +1130,10 @@ begin
   TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1);
 
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
+  TableGrid.PopupMenu := TrackerGridPopup;
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
   RowNumberStringGrid1.DisabledFontColor := RowNumberStringGrid1.Font.Color;
-  TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
 
   // Fix the size of the channel headers
   for I := 1 to HeaderControl1.Sections.Count-1 do
@@ -1888,9 +1889,9 @@ begin
   if ssCtrl in Shift then begin
     Handled := True;
     if ssShift in Shift then
-      TrackerGrid.IncrementSelection(-12, -10, -0, -0, -$10)
+      (ActiveControl as TTrackerGrid).IncrementSelection(-12, -10, -0, -0, -$10)
     else
-      TrackerGrid.IncrementSelection(-1, -1, -0, -0, -1);
+      (ActiveControl as TTrackerGrid).IncrementSelection(-1, -1, -0, -0, -1);
   end
   else
     Handled := False;
@@ -1902,9 +1903,9 @@ begin
   if ssCtrl in Shift then begin
     Handled := True;
     if ssShift in Shift then
-      TrackerGrid.IncrementSelection(12, 10, 0, 0, $10)
+      (ActiveControl as TTrackerGrid).IncrementSelection(12, 10, 0, 0, $10)
     else
-      TrackerGrid.IncrementSelection(1, 1, 0, 0, 1);
+      (ActiveControl as TTrackerGrid).IncrementSelection(1, 1, 0, 0, 1);
   end
   else
     Handled := False;
@@ -2208,7 +2209,7 @@ end;
 
 procedure TfrmTracker.MenuItem31Click(Sender: TObject);
 begin
-  TrackerGrid.InterpolateSelection;
+  (ActiveControl as TTrackerGrid).InterpolateSelection;
 end;
 
 procedure TfrmTracker.MenuItem33Click(Sender: TObject);
@@ -2246,22 +2247,22 @@ end;
 
 procedure TfrmTracker.OnIncrementValueBy1Click(Sender: TObject);
 begin
-  TrackerGrid.IncrementSelection(1, 1, 0, 0, 1);
+  (ActiveControl as TTrackerGrid).IncrementSelection(1, 1, 0, 0, 1);
 end;
 
 procedure TfrmTracker.OnDecrementValueBy1Click(Sender: TObject);
 begin
-  TrackerGrid.IncrementSelection(-1, -1, 0, 0, -1);
+  (ActiveControl as TTrackerGrid).IncrementSelection(-1, -1, 0, 0, -1);
 end;
 
 procedure TfrmTracker.OnIncrementValueBy10Click(Sender: TObject);
 begin
-  TrackerGrid.IncrementSelection(12, 10, 0, 0, $10);
+  (ActiveControl as TTrackerGrid).IncrementSelection(12, 10, 0, 0, $10);
 end;
 
 procedure TfrmTracker.OnDecrementValueBy10Click(Sender: TObject);
 begin
-  TrackerGrid.IncrementSelection(-12, -10, 0, 0, -$10);
+  (ActiveControl as TTrackerGrid).IncrementSelection(-12, -10, 0, 0, -$10);
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
@@ -2420,80 +2421,80 @@ end;
 
 procedure TfrmTracker.TrackerPopupCopyClick(Sender: TObject);
 begin
-  SendMessage(TrackerGrid.Handle, LM_COPY, 0, 0)
+  SendMessage((ActiveControl as TTrackerGrid).Handle, LM_COPY, 0, 0)
 end;
 
 procedure TfrmTracker.TrackerPopupCutClick(Sender: TObject);
 begin
-  SendMessage(TrackerGrid.Handle, LM_CUT, 0, 0)
+  SendMessage((ActiveControl as TTrackerGrid).Handle, LM_CUT, 0, 0)
 end;
 
 procedure TfrmTracker.TrackerPopupEditEffectClick(Sender: TObject);
 begin
-  TrackerGrid.OpenEffectEditor;
+  (ActiveControl as TTrackerGrid).OpenEffectEditor;
 end;
 
 procedure TfrmTracker.TrackerPopupEraseClick(Sender: TObject);
 begin
-  TrackerGrid.EraseSelection
+  (ActiveControl as TTrackerGrid).EraseSelection
 end;
 
 procedure TfrmTracker.TrackerPopupFloodPasteClick(Sender: TObject);
 begin
-  TrackerGrid.DoRepeatPaste
+  (ActiveControl as TTrackerGrid).DoRepeatPaste;
 end;
 
 procedure TfrmTracker.TrackerPopupPasteClick(Sender: TObject);
 begin
-  SendMessage(TrackerGrid.Handle, LM_PASTE, 0, 0)
+  SendMessage((ActiveControl as TTrackerGrid).Handle, LM_PASTE, 0, 0)
 end;
 
 procedure TfrmTracker.TrackerPopupRedoClick(Sender: TObject);
 begin
-  TrackerGrid.DoRedo
+  (ActiveControl as TTrackerGrid).DoRedo
 end;
 
 procedure TfrmTracker.TrackerPopupSelectAllClick(Sender: TObject);
 begin
-  TrackerGrid.SelectAll
+  (ActiveControl as TTrackerGrid).SelectAll
 end;
 
 procedure TfrmTracker.TrackerPopupSelectChannelClick(Sender: TObject);
 begin
-  TrackerGrid.SelectColumn
+  (ActiveControl as TTrackerGrid).SelectColumn
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeOctaveDownClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(-12);
+  (ActiveControl as TTrackerGrid).TransposeSelection(-12);
   if TrackerSettings.PreviewWhenBumping then
     PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeOctaveUpClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(12);
+  (ActiveControl as TTrackerGrid).TransposeSelection(12);
   if TrackerSettings.PreviewWhenBumping then
     PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeSemiDownClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(-1);
+  (ActiveControl as TTrackerGrid).TransposeSelection(-1);
   if TrackerSettings.PreviewWhenBumping then
     PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeSemiUpClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(1);
+  (ActiveControl as TTrackerGrid).TransposeSelection(1);
   if TrackerSettings.PreviewWhenBumping then
     PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupUndoClick(Sender: TObject);
 begin
-  TrackerGrid.DoUndo
+  (ActiveControl as TTrackerGrid).DoUndo
 end;
 
 procedure TfrmTracker.TreeView1DblClick(Sender: TObject);

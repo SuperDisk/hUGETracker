@@ -198,11 +198,11 @@ begin
   with Canvas do begin
     Font.Color := clNote;
 
-    if (Cell.Note = NO_NOTE) or (Cell.Note = MIDDLE_NOTE) then begin
+    if (Cell.Note = NO_NOTE) then begin
       Font.Color := clDots;
       TextOut(PenPos.X, PenPos.Y, '...')
     end
-    else if Cell.Note > MIDDLE_NOTE then
+    else if Cell.Note >= MIDDLE_NOTE then
       TextOut(PenPos.X, PenPos.Y, '+'+FormatFloat('00', Cell.Note - MIDDLE_NOTE))
     else if Cell.Note < MIDDLE_NOTE then
       TextOut(PenPos.X, PenPos.Y, '-'+FormatFloat('00', MIDDLE_NOTE - Cell.Note));

@@ -335,10 +335,10 @@ begin
   SL.Delimiter := ',';
   SL.StrictDelimiter := True;
 
-  if (Cell.Note = NO_NOTE) or (Cell.Note = MIDDLE_NOTE) then
+  if (Cell.Note = NO_NOTE) then
     SL.Add('___')
   else
-    SL.Add(IntToStr(Abs(Cell.Note - MIDDLE_NOTE)));
+    SL.Add(IntToStr(Cell.Note - MIDDLE_NOTE));
 
   SL.Add(IntToStr(Cell.Volume));
 
