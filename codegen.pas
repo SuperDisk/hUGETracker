@@ -327,7 +327,7 @@ begin
   SL.Free;
 end;
 
-function RenderTableCell(Cell: TCell): string;
+function RenderTableCell(Cell: TCell; Last: Boolean): string;
 var
   SL: TStringList;
 begin
@@ -340,7 +340,10 @@ begin
   else
     SL.Add(IntToStr(Cell.Note - MIDDLE_NOTE));
 
-  SL.Add(IntToStr(Cell.Volume));
+  if Last and (Cell.Volume = 0) then
+    SL.Add(IntToStr(1)) // Automatically insert jump back to row 1 if last cell
+  else
+    SL.Add(IntToStr(Cell.Volume));
 
   SL.Add('$' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
 
@@ -358,7 +361,7 @@ begin
   SL.Add(Name + ':');
 
   for I := Low(TPattern) to High(TPattern) do
-    SL.Add(RenderTableCell(Pattern[I]));
+    SL.Add(RenderTableCell(Pattern[I], I = High(TPattern)));
 
   Result := SL.Text;
   SL.Free;
