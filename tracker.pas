@@ -1123,6 +1123,7 @@ begin
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.PopupMenu := TrackerGridPopup;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
+  RowNumberStringGrid.DisabledFontColor := RowNumberStringGrid.Font.Color;
 
   // Recreate TableGrid
   if Assigned(TableGrid) then TableGrid.Free;
@@ -1130,6 +1131,7 @@ begin
 
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
+  RowNumberStringGrid1.DisabledFontColor := RowNumberStringGrid1.Font.Color;
   TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
 
   // Fix the size of the channel headers
