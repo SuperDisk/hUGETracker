@@ -1127,7 +1127,7 @@ begin
 
   // Recreate TableGrid
   if Assigned(TableGrid) then TableGrid.Free;
-  TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1);
+  TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1, 32);
 
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
@@ -1147,16 +1147,17 @@ begin
   RowNumberStringGrid.Clean;
   RowNumberStringGrid1.Clean;
   // Add the row numbers to the string grid
-  for I := 0 to RowNumberStringGrid.RowCount-1 do begin
-    if TrackerSettings.DisplayRowNumbersAsHex then begin
-      RowNumberStringGrid.Cells[0, I] := IntToHex(I, 2);
-      RowNumberStringGrid1.Cells[0, I] := IntToHex(I, 2)
-    end
-    else begin
+  for I := 0 to RowNumberStringGrid.RowCount-1 do
+    if TrackerSettings.DisplayRowNumbersAsHex then
+      RowNumberStringGrid.Cells[0, I] := IntToHex(I, 2)
+    else
       RowNumberStringGrid.Cells[0, I] := IntToStr(I);
-      RowNumberStringGrid1.Cells[0, I] := IntToStr(I)
-    end;
-  end;
+
+  for I := 0 to RowNumberStringGrid1.RowCount-1 do
+    if TrackerSettings.DisplayRowNumbersAsHex then
+      RowNumberStringGrid1.Cells[0, I] := IntToHex(I, 2)
+    else
+      RowNumberStringGrid1.Cells[0, I] := IntToStr(I);
 end;
 
 procedure TfrmTracker.LoadInstrument(Bank: TInstrumentType; Instr: Integer);

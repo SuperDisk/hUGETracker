@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1448
+  Left = 926
   Height = 857
-  Top = 284
+  Top = 196
   Width = 1318
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -974,7 +974,7 @@ object frmTracker: TfrmTracker
               DefaultColWidth = 32
               Enabled = False
               ParentFont = False
-              RowCount = 64
+              RowCount = 32
               ScrollBars = ssNone
               TabOrder = 0
             end

@@ -9,9 +9,7 @@ uses
   LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor,
   Keymap;
 
-// TODO: Maybe read these from a config file
 const
-  NUM_ROWS = 64;
   UNDO_STACK_SIZE = 100;
 
 type
@@ -120,7 +118,7 @@ type
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
-    NumColumns: Integer;
+    NumColumns, NumRows: Integer;
 
     SelectedInstrument, SelectedOctave, Step: Integer;
 
@@ -156,7 +154,8 @@ type
       AOwner: TComponent;
       Parent: TWinControl;
       PatternMap: TPatternMap;
-      NumColumns: Integer); reintroduce;
+      NumColumns: Integer;
+      NumRows: Integer = 64); reintroduce;
     destructor Destroy; override;
   end;
 
@@ -311,7 +310,8 @@ constructor TTrackerGrid.Create(
   AOwner: TComponent;
   Parent: TWinControl;
   PatternMap: TPatternMap;
-  NumColumns: Integer);
+  NumColumns: Integer;
+  NumRows: Integer);
 begin
   inherited Create(AOwner);
 
@@ -319,6 +319,7 @@ begin
 
   Self.PatternMap := PatternMap;
   Self.NumColumns := NumColumns;
+  Self.NumRows := NumRows;
 
   SetLength(Patterns, NumColumns);
   SetLength(PatternNumbers, NumColumns);
@@ -357,7 +358,7 @@ begin
     Brush.Color := clBackground;
     Clear;
 
-    for I := 0 to High(TPattern) do begin
+    for I := 0 to NumRows-1 do begin
       if (I mod 4) = 0 then
         Brush.Color := clLineFour;
       if (I mod 16) = 0 then
@@ -526,8 +527,8 @@ begin
     VK_NEXT: Inc(Cursor.Y, 16);
     VK_LEFT: DecSelectionPos(Cursor);
     VK_RIGHT: IncSelectionPos(Cursor);
-    VK_HOME: Cursor.Y := Low(TPattern);
-    VK_END: Cursor.Y := High(TPattern);
+    VK_HOME: Cursor.Y := 0;
+    VK_END: Cursor.Y := NumRows-1;
     VK_TAB: begin
       if ssShift in Shift then begin
         Dec(Cursor.X);
@@ -554,7 +555,7 @@ begin
         end;
   end;
 
-  if (Cursor.Y > High(TPattern)) or (Cursor.Y < Low(TPattern)) then
+  if (Cursor.Y > NumRows-1) or (Cursor.Y < 0) then
     if Assigned(OnCursorOutOfBounds) then OnCursorOutOfBounds;
 
   if Shift = [] then
@@ -604,7 +605,7 @@ var
 begin
   try
     for Y := 0 to High(Paste) do begin
-      if not InRange(Where.Y+Y, Low(TPattern), High(TPattern)) then Continue;
+      if not InRange(Where.Y+Y, 0, NumRows-1) then Continue;
       for X := 0 to High(Paste[Y]) do begin
         if not InRange(Where.X+X, Low(Patterns), High(Patterns)) then Continue;
         OverlayCell(Patterns[Where.X + X]^[Where.Y + Y], Paste[Y, X]);
@@ -641,7 +642,7 @@ begin
   try
     Selection := GetPastedCells;
     I := Cursor.Y;
-    while I <= High(TPattern) do begin
+    while I < NumRows do begin
       Cursor.Y := I;
       PerformPaste(Selection);
       Inc(I, High(Selection)+1);
@@ -812,9 +813,9 @@ begin
   if Other.X > (NumColumns-1) then
     Other.SelectedPart := High(TCellPart);
 
-  Cursor.Y := EnsureRange(Cursor.Y, Low(TPattern), High(TPattern));
+  Cursor.Y := EnsureRange(Cursor.Y, 0, NumRows-1);
   Cursor.X := EnsureRange(Cursor.X, Low(TPatternGrid), (NumColumns-1));
-  Other.Y := EnsureRange(Other.Y, Low(TPattern), High(TPattern));
+  Other.Y := EnsureRange(Other.Y, 0, NumRows-1);
   Other.X := EnsureRange(Other.X, Low(TPatternGrid), (NumColumns-1));
 end;
 
@@ -1211,7 +1212,7 @@ begin
   Y := EnsureRange(Height-1, 0, Y);
 
   Result.X := Trunc((X/Width)*NumColumns);
-  Result.Y := Trunc((Y/Height)*NUM_ROWS);
+  Result.Y := Trunc((Y/Height)*NumRows);
 
   if OrigX <= 0 then
     Result.SelectedPart := cpNote
@@ -1285,7 +1286,7 @@ begin
   end;
 
   Width := ColumnWidth*NumColumns;
-  Height := RowHeight*64;
+  Height := RowHeight*NumRows;
 end;
 
 procedure TTrackerGrid.SetFontSize(AValue: Integer);
@@ -1369,7 +1370,7 @@ begin
   BeginUndoAction;
   NormalizeCursors;
 
-  for I := High(TPattern) downto Cursor.Y do
+  for I := NumRows-1 downto Cursor.Y do
     Patterns[Pattern]^[I] := Patterns[Pattern]^[I-1];
 
   BlankCell(Patterns[Pattern]^[Cursor.Y]);
@@ -1398,10 +1399,10 @@ begin
   BeginUndoAction;
   NormalizeCursors;
 
-  for I := Cursor.Y to High(TPattern)-1 do
+  for I := Cursor.Y to NumRows-2 do
     Patterns[Pattern]^[I] := Patterns[Pattern]^[I+1];
 
-  BlankCell(Patterns[Pattern]^[High(TPattern)]);
+  BlankCell(Patterns[Pattern]^[NumRows-1]);
 
   Invalidate;
   EndUndoAction;
@@ -1426,7 +1427,7 @@ begin
   Cursor.Y := 0;
   Cursor.SelectedPart := cpNote;
   Other.X := High(Patterns);
-  Other.Y := High(TPattern);
+  Other.Y := NumRows-1;
   Other.SelectedPart := cpEffectParams;
 
   Invalidate;
@@ -1435,7 +1436,7 @@ end;
 procedure TTrackerGrid.SelectColumn;
 begin
   Cursor.Y := 0;
-  Other.Y := High(TPattern);
+  Other.Y := NumRows-1;
   Cursor.SelectedPart := Low(TCellPart);
   Other.SelectedPart := High(TCellPart);
 

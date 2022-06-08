@@ -360,8 +360,8 @@ begin
   SL := TStringList.Create;
   SL.Add(Name + ':');
 
-  for I := Low(TPattern) to High(TPattern) do
-    SL.Add(RenderTableCell(Pattern[I], I = High(TPattern)));
+  for I := 0 to 31 do
+    SL.Add(RenderTableCell(Pattern[I], I = 31)); // TODO: hardcoded value
 
   Result := SL.Text;
   SL.Free;
