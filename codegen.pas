@@ -338,7 +338,7 @@ begin
   if (Cell.Note = NO_NOTE) then
     SL.Add('___')
   else
-    SL.Add(IntToStr(Cell.Note - MIDDLE_NOTE));
+    SL.Add(IntToStr(Cell.Note));
 
   if Last and (Cell.Volume = 0) then
     SL.Add(IntToStr(1)) // Automatically insert jump back to row 1 if last cell
