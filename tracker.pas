@@ -27,7 +27,7 @@ type
   TfrmTracker = class(TForm)
     EnableSubpatternCheckbox: TCheckBox;
     DecreaseOctaveAction: TAction;
-    GroupBox1: TGroupBox;
+    SubpatternGroupBox: TGroupBox;
     RowNumberStringGrid1: TStringGrid;
     ScrollBox2: TScrollBox;
     IncreaseOctaveAction: TAction;
@@ -1135,6 +1135,8 @@ begin
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
   RowNumberStringGrid1.DisabledFontColor := RowNumberStringGrid1.Font.Color;
 
+  SubpatternGroupBox.Width := RowNumberStringGrid1.Width + TableGrid.Width + 10;
+
   // Fix the size of the channel headers
   for I := 1 to HeaderControl1.Sections.Count-1 do
     HeaderControl1.Sections.Items[I].Width := TrackerGrid.ColumnWidth;
@@ -2198,6 +2200,8 @@ begin
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
+
+  SubpatternGroupBox.Width := RowNumberStringGrid1.Width + TableGrid.Width + 10;
 
   ScopesOn := TrackerSettings.UseScopes;
 
