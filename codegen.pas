@@ -343,7 +343,7 @@ begin
   if Last and (Cell.Volume = 0) then
     SL.Add(IntToStr(1)) // Automatically insert jump back to row 1 if last cell
   else
-    SL.Add(IntToStr(Cell.Volume));
+    SL.Add(IntToStr(EnsureRange(Cell.Volume, 0, 32)));
 
   SL.Add('$' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
 
