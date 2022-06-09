@@ -2195,7 +2195,9 @@ begin
   frmOptions.ShowModal;
 
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
+  RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
 
   ScopesOn := TrackerSettings.UseScopes;
 
