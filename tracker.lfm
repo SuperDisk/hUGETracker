@@ -448,6 +448,7 @@ object frmTracker: TfrmTracker
             object InstrumentImportButton: TButton
               Left = 12
               Height = 25
+              Hint = 'Import an instrument'
               Top = 216
               Width = 116
               Caption = 'Import'
@@ -458,6 +459,7 @@ object frmTracker: TfrmTracker
             object InstrumentExportButton: TButton
               Left = 149
               Height = 25
+              Hint = 'Export an instrument'
               Top = 216
               Width = 116
               Caption = 'Export'
@@ -501,7 +503,7 @@ object frmTracker: TfrmTracker
               Tag = 4
               Left = 110
               Height = 25
-              Hint = 'Test out the instrument with a C-5 note'
+              Hint = 'Test out the instrument with a C-4 note'
               Top = 146
               Width = 27
               Caption = '4'
@@ -513,7 +515,7 @@ object frmTracker: TfrmTracker
               Tag = 3
               Left = 78
               Height = 25
-              Hint = 'Test out the instrument with a C-5 note'
+              Hint = 'Test out the instrument with a C-3 note'
               Top = 146
               Width = 27
               Caption = '3'
@@ -525,7 +527,7 @@ object frmTracker: TfrmTracker
               Tag = 6
               Left = 174
               Height = 25
-              Hint = 'Test out the instrument with a C-5 note'
+              Hint = 'Test out the instrument with a C-6 note'
               Top = 146
               Width = 27
               Caption = '6'
@@ -537,7 +539,7 @@ object frmTracker: TfrmTracker
               Tag = 7
               Left = 206
               Height = 25
-              Hint = 'Test out the instrument with a C-5 note'
+              Hint = 'Test out the instrument with a C-7 note'
               Top = 146
               Width = 27
               Caption = '7'
@@ -549,7 +551,7 @@ object frmTracker: TfrmTracker
               Tag = 8
               Left = 238
               Height = 25
-              Hint = 'Test out the instrument with a C-5 note'
+              Hint = 'Test out the instrument with a C-8 note'
               Top = 146
               Width = 27
               Caption = '8'
@@ -2996,7 +2998,7 @@ object frmTracker: TfrmTracker
   end
   object RGBDSAsmSaveDialog: TSaveDialog
     Filter = 'RGBDS Assembly|*.asm'
-    Left = 248
-    Top = 64
+    Left = 272
+    Top = 48
   end
 end
