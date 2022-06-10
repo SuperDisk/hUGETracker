@@ -745,6 +745,19 @@ var
       Result^[J].Volume := 0;
     end;
   end;
+
+  function ConvertNoiseMacro(NoiseMacro: TNoiseMacro): TPattern;
+  var
+    J: Integer;
+    WrapPoint: Integer;
+  begin
+    BlankPattern(@Result);
+    for J := Low(NoiseMacro) to High(NoiseMacro) do
+      Result[J+1].Note := NoiseMacro[J] + 36;
+
+    WrapPoint := Min(S.TicksPerRow, 7);
+    Result[WrapPoint-1].Volume := WrapPoint; // hold on last row
+  end;
 begin
   SV6.Version:=6;
 
@@ -771,6 +784,10 @@ begin
     BlankPattern(@SV6.Instruments.All[I].Subpattern);
   end;
   // TODO: Port over noise macro
+  for I := Low(S.Instruments.Noise) to High(S.Instruments.Noise) do begin
+    SV6.Instruments.Noise[I].Subpattern := ConvertNoiseMacro(S.Instruments.Noise[I].NoiseMacro);
+    SV6.Instruments.Noise[I].SubpatternEnabled := True;
+  end;
 
   SV6.Waves := S.Waves;
 
