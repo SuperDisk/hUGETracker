@@ -6,12 +6,11 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, SynHighlighterAny,
-  FileUtil, math, Instruments, Waves, Song, Utils, Constants,
+  FileUtil, math, Instruments, Song, Utils, Constants,
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
-  modimport, beepboximport, mainloop, strutils, Types, Keymap, hUGESettings,
-  dmfimport;
+  modimport, mainloop, strutils, Types, Keymap, hUGESettings;
 
 // TODO: Move to config file?
 const
@@ -43,7 +42,11 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    EnableSubpatternCheckbox: TCheckBox;
     DecreaseOctaveAction: TAction;
+    SubpatternGroupBox: TGroupBox;
+    RowNumberStringGrid1: TStringGrid;
+    ScrollBox2: TScrollBox;
     IncreaseOctaveAction: TAction;
     IncrementCurrentInstrumentAction: TAction;
     DecrementCurrentInstrumentAction: TAction;
@@ -67,8 +70,6 @@ type
     MenuItem43: TMenuItem;
     MenuItem44: TMenuItem;
     MenuItem54: TMenuItem;
-    NoiseMacroPaintbox: TPaintBox;
-    Panel6: TPanel;
     GBDKCSaveDialog: TSaveDialog;
     RGBDSAsmSaveDialog: TSaveDialog;
     StopAction: TAction;
@@ -219,7 +220,6 @@ type
     WaveEditNumberSpinner: TSpinEdit;
     WaveEditGroupBox: TGroupBox;
     Label19: TLabel;
-    DebugPlayNoteButton: TMenuItem;
     WaveEditPaintBox: TPaintBox;
     RoutineNumberSpinner: TSpinEdit;
     Label17: TLabel;
@@ -268,7 +268,6 @@ type
     SampleSongsMenuItem: TMenuItem;
     MenuItem5: TMenuItem;
     PageControl1: TPageControl;
-    PaintBox1: TPaintBox;
     WavePaintbox: TPaintBox;
     Panel1: TPanel;
     Panel2: TPanel;
@@ -283,7 +282,10 @@ type
     StatusBar1: TStatusBar;
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
+    TableGrid: TTableGrid;
     procedure TrackerPopupMixPasteClick(Sender: TObject);
+    procedure EnableSubpatternCheckboxChange(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure TestOctaveButtonClick(Sender: TObject);
     procedure DebugButtonClick(Sender: TObject);
     procedure DecreaseOctaveActionExecute(Sender: TObject);
@@ -316,11 +318,8 @@ type
     procedure MenuItem41Click(Sender: TObject);
     procedure NoiseMacroPaintboxMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-    procedure NoiseMacroPaintboxMouseMove(Sender: TObject; Shift: TShiftState;
-      X, Y: Integer);
     procedure NoiseMacroPaintboxMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure NoiseMacroPaintboxPaint(Sender: TObject);
     procedure OrderEditStringGridCellProcess(Sender: TObject; aCol,
       aRow: Integer; processType: TCellProcessType; var aValue: string);
     procedure OrderEditStringGridValidateEntry(sender: TObject; aCol,
@@ -331,7 +330,6 @@ type
       MousePos: TPoint; var Handled: Boolean);
     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
-    procedure FormShow(Sender: TObject);
     procedure InstrumentComboBoxChange(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
     procedure CutActionExecute(Sender: TObject);
@@ -362,7 +360,6 @@ type
     procedure InstrumentNameEditChange(Sender: TObject);
     procedure InstrumentNumberSpinnerChange(Sender: TObject);
     procedure LengthSpinnerChange(Sender: TObject);
-    procedure DebugPlayNoteButtonClick(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
     procedure MenuItem12Click(Sender: TObject);
     procedure MenuItem14Click(Sender: TObject);
@@ -433,7 +430,6 @@ type
     procedure WaveEditPaintBoxPaint(Sender: TObject);
     procedure InstrumentTypeComboboxChange(Sender: TObject);
     procedure LengthEnabledCheckboxChange(Sender: TObject);
-    procedure PaintBox1Paint(Sender: TObject);
     procedure SevenBitCounterCheckboxChange(Sender: TObject);
     procedure SongEditChange(Sender: TObject);
     procedure StartVolSpinnerChange(Sender: TObject);
@@ -450,6 +446,7 @@ type
     CurrentWave: ^TWave;
     CurrentInstrumentBank: TInstrumentType;
     LoadedFileName: String;
+    SubpatternMap: TPatternMap;
 
     PreviewingInstrument: Integer;
     PreviewingWithKey: Word;
@@ -459,7 +456,6 @@ type
     SaveSucceeded: Boolean;
     ScopesOn: Boolean;
 
-    {PatternsNode, }
     WaveInstrumentsNode,
     NoiseInstrumentsNode,
     DutyInstrumentsNode,
@@ -549,9 +545,11 @@ var
 begin
   HaltPlayback;
 
+  SubpatternMap.Clear;
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
+    SubpatternMap.Add(I, @Song.Instruments.All[I].Subpattern);
+
   LoadingFile := True; // HACK!!!!!
-  LoadInstrument(itSquare, 1);
-  LoadWave(0);
 
   RoutineSynedit.Text := Song.Routines[0];
   RoutineNumberSpinner.Value := 0;
@@ -579,13 +577,15 @@ begin
     InstrumentComboBox.Items.Add('Noise '+IntToStr(I)+': '+Song.Instruments.Noise[ModInst(I)].Name);
 
   InstrumentComboBox.ItemIndex := 0;
-  //TrackerGrid.SelectedInstrument := 1; //ModInst(InstrumentComboBox.ItemIndex);
 
   for I := Low(TInstrumentBank) to High(TInstrumentBank) do begin
     DutyInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Duty[I].Name;
     WaveInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Wave[I].Name;
     NoiseInstrumentsNode.Items[I-1].Text := IntToStr(I)+': '+Song.Instruments.Noise[I].Name;
   end;
+
+  LoadInstrument(itSquare, 1);
+  LoadWave(0);
 
   LoadingFile := False; // HACK!!!!
 
@@ -850,7 +850,7 @@ begin
         Spokeb(Addr+1, Regs.NR41);
 
         for I := 0 to 5 do begin
-          Spokeb(Addr+2+I, Byte(Instr.NoiseMacro[I]));
+          Spokeb(Addr+2+I, Byte(0));
         end;
 
         PokeSymbol(SYM_HALT_MACRO_INDEX, 1);
@@ -924,18 +924,20 @@ end;
 procedure TfrmTracker.LoadSong(Filename: String);
 var
   Stream: TStream;
+  TempSong: TSong;
 begin
-  DestroySong(Song);
-
-  stream := TFileStream.Create(FileName, fmOpenRead);
+  Stream := TFileStream.Create(FileName, fmOpenRead);
   try
-    ReadSongFromStream(stream, Song);
-  finally
-    stream.Free;
+    ReadSongFromStream(stream, TempSong);
+    DestroySong(Song);
+    Song := TempSong;
+    FileSaveAs1.Dialog.FileName := FileName;
+    UpdateUIAfterLoad(Filename);
+  except
+    on E: ESongVersionException do
+      ShowMessage('This song was created with a newer version of hUGETracker, and cannot be loaded.');
   end;
-  FileSaveAs1.Dialog.FileName := FileName;
-
-  UpdateUIAfterLoad(Filename);
+  Stream.Free;
 end;
 
 procedure TfrmTracker.ReloadPatterns;
@@ -1150,20 +1152,32 @@ procedure TfrmTracker.RecreateTrackerGrid;
 var
   I: Integer;
 begin
+  // Recreate TrackerGrid
   if Assigned(TrackerGrid) then TrackerGrid.Free;
-  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns);
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
-  TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
+  TrackerGrid.PopupMenu := TrackerGridPopup;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
-  ScopesOn := TrackerSettings.UseScopes;
+  RowNumberStringGrid.DisabledFontColor := RowNumberStringGrid.Font.Color;
+
+  // Recreate TableGrid
+  if Assigned(TableGrid) then TableGrid.Free;
+  TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1, 32);
+
+  TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
+  TableGrid.PopupMenu := TrackerGridPopup;
+  RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
+  RowNumberStringGrid1.DisabledFontColor := RowNumberStringGrid1.Font.Color;
+
+  SubpatternGroupBox.Width := RowNumberStringGrid1.Width + TableGrid.Width + 10;
 
   // Fix the size of the channel headers
   for I := 1 to HeaderControl1.Sections.Count-1 do
     HeaderControl1.Sections.Items[I].Width := TrackerGrid.ColumnWidth;
-
-  TrackerGrid.PopupMenu := TrackerGridPopup;
 end;
 
 procedure TfrmTracker.RecreateRowNumbers;
@@ -1171,13 +1185,19 @@ var
   I: Integer;
 begin
   RowNumberStringGrid.Clean;
+  RowNumberStringGrid1.Clean;
   // Add the row numbers to the string grid
-  for I := 0 to RowNumberStringGrid.RowCount-1 do begin
+  for I := 0 to RowNumberStringGrid.RowCount-1 do
     if TrackerSettings.DisplayRowNumbersAsHex then
       RowNumberStringGrid.Cells[0, I] := IntToHex(I, 2)
     else
-      RowNumberStringGrid.Cells[0, I] := IntToStr(I)
-  end;
+      RowNumberStringGrid.Cells[0, I] := IntToStr(I);
+
+  for I := 0 to RowNumberStringGrid1.RowCount-1 do
+    if TrackerSettings.DisplayRowNumbersAsHex then
+      RowNumberStringGrid1.Cells[0, I] := IntToHex(I, 2)
+    else
+      RowNumberStringGrid1.Cells[0, I] := IntToStr(I);
 end;
 
 procedure TfrmTracker.LoadInstrument(Bank: TInstrumentType; Instr: Integer);
@@ -1192,11 +1212,14 @@ begin
   end;
   CI := CurrentInstrument;
 
+  TableGrid.LoadPattern(0, UnmodInst(Bank, Instr));
+
   InstrumentTypeComboBox.ItemIndex := Integer(CurrentInstrumentBank);
   InstrumentNumberSpinner.Value := Instr;
   InstrumentNameEdit.Text := CI^.Name;
   LengthEnabledCheckbox.Checked := CI^.LengthEnabled;
   LengthTrackbar.Position := CI^.Length;
+  EnableSubpatternCheckbox.Checked := CI^.SubpatternEnabled;
 
   case CI^.Type_ of
     itSquare: begin
@@ -1237,15 +1260,12 @@ begin
     end;
 
     itNoise: begin
-      //ShiftClockTrackbar.Position := CI^.ShiftClockFreq;
-      //DivRatioTrackbar.Position := CI^.DividingRatio;
       SevenBitCounterCheckbox.Checked := CI^.CounterStep = swSeven;
     end;
   end;
 
   WavePaintbox.Invalidate;
   EnvelopePaintBox.Invalidate;
-  NoiseMacroPaintbox.Invalidate;
 end;
 
 procedure TfrmTracker.ChangeToSquare;
@@ -1329,15 +1349,6 @@ begin
   Application.Terminate;
 end;
 
-procedure TfrmTracker.PaintBox1Paint(Sender: TObject);
-begin
-  PaintBox1.Canvas.Brush.Color := clBlack;
-  PaintBox1.Canvas.Pen.Color := clBlack;
-  PaintBox1.Canvas.Clear;
-  if WaveformCombobox.ItemIndex > -1 then
-    DrawWaveform(PaintBox1, Song.Waves[WaveformCombobox.ItemIndex]);
-end;
-
 procedure TfrmTracker.SevenBitCounterCheckboxChange(Sender: TObject);
 begin
   if SevenBitCounterCheckbox.Checked then
@@ -1418,6 +1429,7 @@ begin
   {$endif}
 
   VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
+  SubpatternMap := TPatternMap.Create;
 
   PreviewingInstrument := -1;
 
@@ -1457,9 +1469,6 @@ begin
   // Initialize ticks per row
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
 
-  LoadInstrument(itSquare, 1);
-  LoadWave(0);
-
   // Initialize order table (InitializeSong creates the default order table)
   CopyOrderMatrixToOrderGrid;
 
@@ -1481,7 +1490,6 @@ begin
 
   {$ifdef PRODUCTION}
   DebugButton.Visible := False;
-  DebugPlayNoteButton.Visible := False;
   MenuItem41.Visible := False;
   {$endif}
 
@@ -1498,10 +1506,8 @@ begin
     SampleSongsMenuItem.Enabled := False;
 
   // If a command line param was passed, try to open it
-  if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then begin
-    LoadSong(ParamStr(1));
-    UpdateUIAfterLoad(ParamStr(1));
-  end
+  if FileExists(ParamStr(1)) and (ExtractFileExt(ParamStr(1)) = '.uge') then
+    LoadSong(ParamStr(1))
   else
     UpdateUIAfterLoad;
 end;
@@ -1660,7 +1666,6 @@ end;
 procedure TfrmTracker.FileOpen1Accept(Sender: TObject);
 begin
   LoadSong(FileOpen1.Dialog.FileName);
-  UpdateUIAfterLoad(FileOpen1.Dialog.FileName);
 end;
 
 procedure TfrmTracker.HeaderControl1MouseDown(Sender: TObject;
@@ -1806,6 +1811,7 @@ procedure TfrmTracker.IncreaseOctaveActionExecute(Sender: TObject);
 begin
   OctaveSpinEdit.Value := OctaveSpinEdit.Value + 1;
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+  TableGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
 
 procedure TfrmTracker.IncrementCurrentInstrumentActionExecute(Sender: TObject);
@@ -1859,21 +1865,8 @@ begin
 end;
 
 procedure TfrmTracker.MenuItem41Click(Sender: TObject);
-var
-  Stream: TStream;
 begin
-  if not CheckUnsavedChanges then Exit;
 
-  if True then begin
-    DestroySong(Song);
-
-    Stream := TFileStream.Create('C:/test/pokemon3.dmf', fmOpenRead);
-    Song := LoadSongFromDmfStream(Stream);
-
-    Stream.Free;
-
-    UpdateUIAfterLoad('Bargus');
-  end;
 end;
 
 procedure TfrmTracker.NoiseMacroPaintboxMouseDown(Sender: TObject;
@@ -1882,59 +1875,10 @@ begin
   DrawingMacro := True;
 end;
 
-procedure TfrmTracker.NoiseMacroPaintboxMouseMove(Sender: TObject;
-  Shift: TShiftState; X, Y: Integer);
-var
-  MacroIdx, Val: Integer;
-begin
-  if DrawingMacro then begin
-    MacroIdx := EnsureRange(Trunc((X/NoiseMacroPaintbox.Width) * 6), 0, 5);
-    Val := 32-EnsureRange(Trunc((Y/NoiseMacroPaintbox.Height) * 63), 0, 63);
-
-    CurrentInstrument^.NoiseMacro[MacroIdx] := Val;
-    NoiseMacroPaintbox.Invalidate;
-  end;
-end;
-
 procedure TfrmTracker.NoiseMacroPaintboxMouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   DrawingMacro := False;
-end;
-
-procedure TfrmTracker.NoiseMacroPaintboxPaint(Sender: TObject);
-var
-  BarWidth, BarStep: Double;
-  I: Integer;
-  Rect: TRect;
-
-  function FormatMacroNumber(Val: Integer): string;
-  begin
-    if Val = 0 then Exit('')
-    else if Val > 0 then Exit('+'+IntToStr(Val))
-    else Exit(IntToStr(Val));
-  end;
-
-begin
-  BarWidth := (NoiseMacroPaintbox.Width / 6); // TODO: change this constant?
-  BarStep := (NoiseMacroPaintbox.Height / 63);
-  with NoiseMacroPaintbox.Canvas do begin
-    Brush.Color := clGameboyBlack;
-    Clear;
-
-    Brush.Color := clGameboyMidGreen;
-    Pen.Color := clGameboyBlack;
-    for I := Low(TNoiseMacro) to High(TNoiseMacro) do begin
-      Rect := TRect.Create(
-        Trunc(I*BarWidth),
-        NoiseMacroPaintbox.Height div 2,
-        Trunc((I+1)*BarWidth),
-        Ceil((NoiseMacroPaintbox.Height / 2) - (CurrentInstrument^.NoiseMacro[I] * BarStep))
-      );
-      FillRect(Rect);
-      TextOut(Rect.Left + Trunc(Rect.Width/2.5), Rect.Top + (Rect.Height div 2), FormatMacroNumber(CurrentInstrument^.NoiseMacro[I]));
-    end;
-  end;
 end;
 
 procedure TfrmTracker.OrderEditStringGridCellProcess(Sender: TObject; aCol,
@@ -1987,9 +1931,9 @@ begin
   if ssCtrl in Shift then begin
     Handled := True;
     if ssShift in Shift then
-      TrackerGrid.IncrementSelection(-12, -10, -0, -0, -$10)
+      (ActiveControl as TTrackerGrid).IncrementSelection(-12, -10, -0, -0, -$10)
     else
-      TrackerGrid.IncrementSelection(-1, -1, -0, -0, -1);
+      (ActiveControl as TTrackerGrid).IncrementSelection(-1, -1, -0, -0, -1);
   end
   else
     Handled := False;
@@ -2001,19 +1945,12 @@ begin
   if ssCtrl in Shift then begin
     Handled := True;
     if ssShift in Shift then
-      TrackerGrid.IncrementSelection(12, 10, 0, 0, $10)
+      (ActiveControl as TTrackerGrid).IncrementSelection(12, 10, 0, 0, $10)
     else
-      TrackerGrid.IncrementSelection(1, 1, 0, 0, 1);
+      (ActiveControl as TTrackerGrid).IncrementSelection(1, 1, 0, 0, 1);
   end
   else
     Handled := False;
-end;
-
-procedure TfrmTracker.FormShow(Sender: TObject);
-begin
-  // HACK: This needs to be done due to a scaling bug in the LCL.
-  RecreateTrackerGrid;
-  ReloadPatterns
 end;
 
 procedure TfrmTracker.TestOctaveButtonClick(Sender: TObject);
@@ -2033,25 +1970,32 @@ begin
   TrackerGrid.DoMixPaste
 end;
 
-procedure TfrmTracker.DebugButtonClick(Sender: TObject);
-var
-  S: TStream;
+procedure TfrmTracker.FormShow(Sender: TObject);
 begin
-  S := TFileStream.Create('C:/test/bbs.json', fmOpenRead);
-  try
-    DestroySong(Song);
-    Song := LoadSongFromBeepBoxJsonStream(S);
-  finally
-    S.Free;
-  end;
+  { HACK: This needs to be done due to a scaling bug in the LCL.
+  For some reason, omitting these two lines causes the window to
+  appear at a weird size, not the one defined by the form editor. }
 
-  UpdateUIAfterLoad('Yeah!');
+  // TODO: Look into this! This makes literally zero sense.
+  RecreateTrackerGrid;
+  ReloadPatterns;
+  LoadInstrument(itSquare, 1) // Load default pattern for tablegrid
+end;
+
+procedure TfrmTracker.EnableSubpatternCheckboxChange(Sender: TObject);
+begin
+  CurrentInstrument^.SubpatternEnabled := EnableSubpatternCheckbox.Checked;
+end;
+
+procedure TfrmTracker.DebugButtonClick(Sender: TObject);
+begin
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);
 begin
   OctaveSpinEdit.Value := OctaveSpinEdit.Value - 1;
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+  TableGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
 
 procedure TfrmTracker.DecrementCurrentInstrumentActionExecute(Sender: TObject);
@@ -2114,6 +2058,7 @@ end;
 procedure TfrmTracker.OctaveSpinEditChange(Sender: TObject);
 begin
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+  TableGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
 
 procedure TfrmTracker.RoutineNumberSpinnerChange(Sender: TObject);
@@ -2137,6 +2082,7 @@ end;
 procedure TfrmTracker.StepSpinEditChange(Sender: TObject);
 begin
   TrackerGrid.Step := StepSpinEdit.Value;
+  TableGrid.Step := StepSpinEdit.Value;
 end;
 
 procedure TfrmTracker.StopActionExecute(Sender: TObject);
@@ -2199,12 +2145,6 @@ procedure TfrmTracker.LengthSpinnerChange(Sender: TObject);
 begin
   CurrentInstrument^.Length := Round(LengthTrackbar.Position);
   EnvelopePaintBox.Invalidate;
-end;
-
-procedure TfrmTracker.DebugPlayNoteButtonClick(Sender: TObject);
-begin
-  PreviewInstrument(C_5, InstrumentNumberSpinner.Value);
-  //PreviewInstrument(NotesToFreqs.KeyData[C_5], InstrumentComboBox.ItemIndex);
 end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
@@ -2301,8 +2241,12 @@ begin
   frmOptions.ShowModal;
 
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
+  TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
   OrderEditStringGrid.DrawHexAutonumbering := TrackerSettings.DisplayOrderRowNumbersAsHex;
+  RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
+
+  SubpatternGroupBox.Width := RowNumberStringGrid1.Width + TableGrid.Width + 10;
 
   ScopesOn := TrackerSettings.UseScopes;
 
@@ -2317,7 +2261,7 @@ end;
 
 procedure TfrmTracker.MenuItem31Click(Sender: TObject);
 begin
-  TrackerGrid.InterpolateSelection;
+  (ActiveControl as TTrackerGrid).InterpolateSelection;
 end;
 
 procedure TfrmTracker.MenuItem33Click(Sender: TObject);
@@ -2355,22 +2299,22 @@ end;
 
 procedure TfrmTracker.OnIncrementValueBy1Click(Sender: TObject);
 begin
-  TrackerGrid.IncrementSelection(1, 1, 0, 0, 1);
+  (ActiveControl as TTrackerGrid).IncrementSelection(1, 1, 0, 0, 1);
 end;
 
 procedure TfrmTracker.OnDecrementValueBy1Click(Sender: TObject);
 begin
-  TrackerGrid.IncrementSelection(-1, -1, 0, 0, -1);
+  (ActiveControl as TTrackerGrid).IncrementSelection(-1, -1, 0, 0, -1);
 end;
 
 procedure TfrmTracker.OnIncrementValueBy10Click(Sender: TObject);
 begin
-  TrackerGrid.IncrementSelection(12, 10, 0, 0, $10);
+  (ActiveControl as TTrackerGrid).IncrementSelection(12, 10, 0, 0, $10);
 end;
 
 procedure TfrmTracker.OnDecrementValueBy10Click(Sender: TObject);
 begin
-  TrackerGrid.IncrementSelection(-12, -10, 0, 0, -$10);
+  (ActiveControl as TTrackerGrid).IncrementSelection(-12, -10, 0, 0, -$10);
 end;
 
 procedure TfrmTracker.MenuItem5Click(Sender: TObject);
@@ -2529,80 +2473,80 @@ end;
 
 procedure TfrmTracker.TrackerPopupCopyClick(Sender: TObject);
 begin
-  SendMessage(TrackerGrid.Handle, LM_COPY, 0, 0)
+  SendMessage((ActiveControl as TTrackerGrid).Handle, LM_COPY, 0, 0)
 end;
 
 procedure TfrmTracker.TrackerPopupCutClick(Sender: TObject);
 begin
-  SendMessage(TrackerGrid.Handle, LM_CUT, 0, 0)
+  SendMessage((ActiveControl as TTrackerGrid).Handle, LM_CUT, 0, 0)
 end;
 
 procedure TfrmTracker.TrackerPopupEditEffectClick(Sender: TObject);
 begin
-  TrackerGrid.OpenEffectEditor;
+  (ActiveControl as TTrackerGrid).OpenEffectEditor;
 end;
 
 procedure TfrmTracker.TrackerPopupEraseClick(Sender: TObject);
 begin
-  TrackerGrid.EraseSelection
+  (ActiveControl as TTrackerGrid).EraseSelection
 end;
 
 procedure TfrmTracker.TrackerPopupFloodPasteClick(Sender: TObject);
 begin
-  TrackerGrid.DoRepeatPaste
+  (ActiveControl as TTrackerGrid).DoRepeatPaste;
 end;
 
 procedure TfrmTracker.TrackerPopupPasteClick(Sender: TObject);
 begin
-  SendMessage(TrackerGrid.Handle, LM_PASTE, 0, 0)
+  SendMessage((ActiveControl as TTrackerGrid).Handle, LM_PASTE, 0, 0)
 end;
 
 procedure TfrmTracker.TrackerPopupRedoClick(Sender: TObject);
 begin
-  TrackerGrid.DoRedo
+  (ActiveControl as TTrackerGrid).DoRedo
 end;
 
 procedure TfrmTracker.TrackerPopupSelectAllClick(Sender: TObject);
 begin
-  TrackerGrid.SelectAll
+  (ActiveControl as TTrackerGrid).SelectAll
 end;
 
 procedure TfrmTracker.TrackerPopupSelectChannelClick(Sender: TObject);
 begin
-  TrackerGrid.SelectColumn
+  (ActiveControl as TTrackerGrid).SelectColumn
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeOctaveDownClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(-12);
+  (ActiveControl as TTrackerGrid).TransposeSelection(-12);
   if TrackerSettings.PreviewWhenBumping then
     PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeOctaveUpClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(12);
+  (ActiveControl as TTrackerGrid).TransposeSelection(12);
   if TrackerSettings.PreviewWhenBumping then
     PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeSemiDownClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(-1);
+  (ActiveControl as TTrackerGrid).TransposeSelection(-1);
   if TrackerSettings.PreviewWhenBumping then
     PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupTransposeSemiUpClick(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(1);
+  (ActiveControl as TTrackerGrid).TransposeSelection(1);
   if TrackerSettings.PreviewWhenBumping then
     PreviewNoteUnderCursor;
 end;
 
 procedure TfrmTracker.TrackerPopupUndoClick(Sender: TObject);
 begin
-  TrackerGrid.DoUndo
+  (ActiveControl as TTrackerGrid).DoUndo
 end;
 
 procedure TfrmTracker.TreeView1DblClick(Sender: TObject);
@@ -2716,4 +2660,3 @@ begin
 end;
 
 end.
-

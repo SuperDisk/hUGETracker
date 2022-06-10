@@ -166,9 +166,16 @@
       <OpenInFileMan Value="True"/>
     </PublishOptions>
     <RunParams>
+      <local>
+        <CommandLineParams Value="&quot;C:\Projects\GB-Stuff\uge\Resources\Sample Songs\raphaelgoulart - The Murderous Funk Machine (intro).uge&quot;"/>
+      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default"/>
+        <Mode0 Name="default">
+          <local>
+            <CommandLineParams Value="&quot;C:\Projects\GB-Stuff\uge\Resources\Sample Songs\raphaelgoulart - The Murderous Funk Machine (intro).uge&quot;"/>
+          </local>
+        </Mode0>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">
@@ -188,7 +195,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="26">
+    <Units Count="24">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -242,89 +249,79 @@
         <UnitName Value="Constants"/>
       </Unit10>
       <Unit11>
-        <Filename Value="waves.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Waves"/>
-      </Unit11>
-      <Unit12>
         <Filename Value="about_hugetracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAboutHugetracker"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit12>
-      <Unit13>
+      </Unit11>
+      <Unit12>
         <Filename Value="trackergrid.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TrackerGrid"/>
-      </Unit13>
-      <Unit14>
+      </Unit12>
+      <Unit13>
         <Filename Value="clipboardutils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ClipboardUtils"/>
-      </Unit14>
-      <Unit15>
+      </Unit13>
+      <Unit14>
         <Filename Value="hugedatatypes.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="HugeDatatypes"/>
-      </Unit15>
-      <Unit16>
+      </Unit14>
+      <Unit15>
         <Filename Value="codegen.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Codegen"/>
-      </Unit16>
-      <Unit17>
+      </Unit15>
+      <Unit16>
         <Filename Value="symparser.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SymParser"/>
-      </Unit17>
-      <Unit18>
+      </Unit16>
+      <Unit17>
         <Filename Value="effecteditor.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmEffectEditor"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit18>
-      <Unit19>
+      </Unit17>
+      <Unit18>
         <Filename Value="options.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmOptions"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit19>
-      <Unit20>
+      </Unit18>
+      <Unit19>
         <Filename Value="rendertowave.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmRenderToWave"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="RenderToWave"/>
-      </Unit20>
-      <Unit21>
+      </Unit19>
+      <Unit20>
         <Filename Value="modimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MODImport"/>
-      </Unit21>
-      <Unit22>
+      </Unit20>
+      <Unit21>
         <Filename Value="keymap.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Keymap"/>
-      </Unit22>
-      <Unit23>
+      </Unit21>
+      <Unit22>
         <Filename Value="hugesettings.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="hUGESettings"/>
-      </Unit23>
-      <Unit24>
-        <Filename Value="beepboximport.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="BeepBoxImport"/>
-      </Unit24>
-      <Unit25>
+      </Unit22>
+      <Unit23>
         <Filename Value="dmfimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="DMFImport"/>
-      </Unit25>
+      </Unit23>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -361,6 +358,10 @@
       </Debugging>
     </Linking>
     <Other>
+      <Verbosity>
+        <ShoLineNum Value="True"/>
+      </Verbosity>
+      <WriteFPCLogo Value="False"/>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dDEVELOPMENT"/>
     </Other>
   </CompilerOptions>

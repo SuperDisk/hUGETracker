@@ -9,14 +9,11 @@ uses
   LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor,
   Keymap;
 
-// TODO: Maybe read these from a config file
 const
-  NUM_COLUMNS = 4;
-  NUM_ROWS = 64;
   UNDO_STACK_SIZE = 100;
 
 type
-  TPatternGrid = array[0..3] of PPattern;
+  TPatternGrid = array of PPattern;
 
   { TSavedPattern }
 
@@ -25,7 +22,7 @@ type
     Pattern: TPattern;
   end;
 
-  TSavedPatternSet = array[0..3] of TSavedPattern;
+  TSavedPatternSet = array of TSavedPattern;
   TUndoRedoAction = record
     Before, After: TSavedPatternSet;
   end;
@@ -76,12 +73,12 @@ type
 
     procedure InputNote(Key: Word);
     procedure InputInstrument(Key: Word);
-    procedure InputVolume(Key: Word);
+    procedure InputVolume(Key: Word); virtual;
     procedure InputEffectCode(Key: Word);
     procedure InputEffectParams(Key: Word);
 
     procedure RenderRow(Row: Integer);
-    procedure RenderCell(const Cell: TCell);
+    procedure RenderCell(const Cell: TCell); virtual;
 
     procedure SetHighlightedRow(Row: Integer);
     procedure SetSelectionGridRect(R: TRect);
@@ -97,7 +94,7 @@ type
   private
     PatternMap: TPatternMap;
     Patterns: TPatternGrid;
-    PatternNumbers: array[0..3] of Integer;
+    PatternNumbers: array of Integer;
 
     CharHeight: Integer;
     CharWidth: Integer;
@@ -121,6 +118,7 @@ type
   public
     Cursor, Other: TSelectionPos;
     ColumnWidth, RowHeight: Integer;
+    NumColumns, NumRows: Integer;
 
     SelectedInstrument, SelectedOctave, Step: Integer;
 
@@ -156,8 +154,17 @@ type
     constructor Create(
       AOwner: TComponent;
       Parent: TWinControl;
-      PatternMap: TPatternMap); reintroduce;
+      PatternMap: TPatternMap;
+      NumColumns: Integer;
+      NumRows: Integer = 64); reintroduce;
     destructor Destroy; override;
+  end;
+
+  { TTableGrid }
+
+  TTableGrid = class(TTrackerGrid)
+    procedure RenderCell(const Cell: TCell); override;
+    procedure InputVolume(Key: Word); override;
   end;
 
 var
@@ -170,6 +177,8 @@ var
   clFxPan: TColor = TColor($7F7F00);
   clFxSong: TColor = TColor($00007F);
 
+  clTblJump: TColor = TColor($72004E);
+
   clBackground: TColor = TColor($D0DBE1);
   clHighlighted: TColor = TColor($7A99A9);
   clSelected: TColor = TColor($9EB4C0);
@@ -181,6 +190,71 @@ var
   clDividers: TColor = TColor($ABB7BC);
 
 implementation
+
+{ TTableGrid }
+
+procedure TTableGrid.RenderCell(const Cell: TCell);
+begin
+  with Canvas do begin
+    Font.Color := clNote;
+
+    if (Cell.Note = NO_NOTE) then begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '...')
+    end
+    else if Cell.Note >= MIDDLE_NOTE then
+      TextOut(PenPos.X, PenPos.Y, '+'+FormatFloat('00', Cell.Note - MIDDLE_NOTE))
+    else if Cell.Note < MIDDLE_NOTE then
+      TextOut(PenPos.X, PenPos.Y, '-'+FormatFloat('00', MIDDLE_NOTE - Cell.Note));
+
+    TextOut(PenPos.X, PenPos.Y, ' ');
+
+    // Instrument column empty
+    Font.Color := clDots;
+    TextOut(PenPos.X, PenPos.Y, '..');
+
+    if Cell.Volume <> 0 then begin
+      Font.Color := clTblJump;
+      TextOut(PenPos.X, PenPos.Y, 'J'+FormatFloat('00', Cell.Volume));
+    end
+    else begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '...');
+    end;
+
+    if (Cell.EffectCode <> 0) or (Cell.EffectParams.Value <> 0) then begin
+      Font.Color := GetEffectColor(Cell.EffectCode);
+      TextOut(
+        PenPos.X,
+        PenPos.Y,
+        IntToHex(Cell.EffectCode, 1)
+          + IntToHex(Cell.EffectParams.Param1, 1)
+          + IntToHex(Cell.EffectParams.Param2, 1)
+      );
+    end
+    else begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '...');
+    end;
+
+    TextOut(PenPos.X, PenPos.Y, ' ');
+  end;
+end;
+
+procedure TTableGrid.InputVolume(Key: Word);
+var
+  Temp: Nibble;
+begin
+  BeginUndoAction;
+  with Patterns[Cursor.X]^[Cursor.Y] do begin
+    if Key = VK_DELETE then Volume := 0
+    else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
+      Volume := ((Volume mod 10) * 10) + Temp;
+  end;
+
+  Invalidate;
+  EndUndoAction;
+end;
 
 { TSelectionEnumerator }
 
@@ -236,13 +310,20 @@ end;
 constructor TTrackerGrid.Create(
   AOwner: TComponent;
   Parent: TWinControl;
-  PatternMap: TPatternMap);
+  PatternMap: TPatternMap;
+  NumColumns: Integer;
+  NumRows: Integer);
 begin
   inherited Create(AOwner);
 
   FFontSize := 12;
 
   Self.PatternMap := PatternMap;
+  Self.NumColumns := NumColumns;
+  Self.NumRows := NumRows;
+
+  SetLength(Patterns, NumColumns);
+  SetLength(PatternNumbers, NumColumns);
 
   NestedUndoCount := 0;
   Performed := TUndoDeque.Create;
@@ -278,7 +359,7 @@ begin
     Brush.Color := clBackground;
     Clear;
 
-    for I := 0 to High(TPattern) do begin
+    for I := 0 to NumRows-1 do begin
       if (I mod 4) = 0 then
         Brush.Color := clLineFour;
       if (I mod 16) = 0 then
@@ -297,16 +378,12 @@ begin
   // Draw borders between columns
   Canvas.Pen.Color := clDividers;
   Canvas.Pen.Width := 2;
-  R := TRect.Create(0, 0, ColumnWidth+1, Height);
-  Canvas.Rectangle(R);
-  R := TRect.Create(ColumnWidth, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);
-  R := TRect.Create(ColumnWidth*2, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);
-  R := TRect.Create(ColumnWidth*3, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);
-  R := TRect.Create(ColumnWidth*4, 0, ColumnWidth, Height);
-  Canvas.Rectangle(R);
+
+  for I := 0 to NumColumns do begin
+    //TODO: WTF? Why do we need this IfThen?
+    R := TRect.Create(ColumnWidth*I, 0, ColumnWidth + IfThen(I=0, 1, 0), Height);
+    Canvas.Rectangle(R);
+  end;
 
   RenderSelectedArea;
   if DraggingSelection then
@@ -451,8 +528,8 @@ begin
     VK_NEXT: Inc(Cursor.Y, 16);
     VK_LEFT: DecSelectionPos(Cursor);
     VK_RIGHT: IncSelectionPos(Cursor);
-    VK_HOME: Cursor.Y := Low(TPattern);
-    VK_END: Cursor.Y := High(TPattern);
+    VK_HOME: Cursor.Y := 0;
+    VK_END: Cursor.Y := NumRows-1;
     VK_TAB: begin
       if ssShift in Shift then begin
         Dec(Cursor.X);
@@ -461,10 +538,10 @@ begin
       else
         Inc(Cursor.X);
 
-      if Cursor.X > High(TPatternGrid) then
-        Cursor.X := Low(TPatternGrid);
-      if Cursor.X < Low(TPatternGrid) then
-        Cursor.X := High(TPatternGrid);
+      if Cursor.X > (NumColumns-1) then
+        Cursor.X := 0;
+      if Cursor.X < 0 then
+        Cursor.X := (NumColumns-1);
 
       Key := 0;
     end
@@ -479,14 +556,14 @@ begin
         end;
   end;
 
-  if (Cursor.Y > High(TPattern)) or (Cursor.Y < Low(TPattern)) then
+  if (Cursor.Y > NumRows-1) or (Cursor.Y < 0) then
     if Assigned(OnCursorOutOfBounds) then OnCursorOutOfBounds;
 
   if Shift = [] then
     Other := Cursor;
 
   ClampCursors;
-  Invalidate
+  Invalidate;
 end;
 
 procedure TTrackerGrid.KeyUp(var Key: Word; Shift: TShiftState);
@@ -525,6 +602,10 @@ procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos; Mix
       if (not Mix) or (Cell2.Cell.Instrument <> 0) then
         Cell1.Instrument := Cell2.Cell.Instrument;
 
+     if cpVolume in Cell2.Parts then
+        if (not Mix) or (Cell2.Cell.Volume.Value <> 0) then
+           Cell1.Volume.Value := Cell2.Cell.Volume.Value;
+
     if cpEffectCode in Cell2.Parts then
       if (not Mix) or (Cell2.Cell.EffectCode <> 0) then
         Cell1.EffectCode := Cell2.Cell.EffectCode;
@@ -538,7 +619,7 @@ var
 begin
   try
     for Y := 0 to High(Paste) do begin
-      if not InRange(Where.Y+Y, Low(TPattern), High(TPattern)) then Continue;
+      if not InRange(Where.Y+Y, 0, NumRows-1) then Continue;
       for X := 0 to High(Paste[Y]) do begin
         if not InRange(Where.X+X, Low(Patterns), High(Patterns)) then Continue;
         OverlayCell(Patterns[Where.X + X]^[Where.Y + Y], Paste[Y, X]);
@@ -575,7 +656,7 @@ begin
   try
     Selection := GetPastedCells;
     I := Cursor.Y;
-    while I <= High(TPattern) do begin
+    while I < NumRows do begin
       Cursor.Y := I;
       PerformPaste(Selection);
       Inc(I, High(Selection)+1);
@@ -647,11 +728,14 @@ begin
     // Save the "before" to our current undo action, so that EndUndoAction
     // can save the "after" and commit it to the Performed stack.
     CurrentUndoAction := Default(TUndoRedoAction);
-    for I := Low(Patterns) to High(Patterns) do
+    for I := Low(Patterns) to High(Patterns) do begin
+      SetLength(CurrentUndoAction.Before, NumColumns);
+      SetLength(CurrentUndoAction.After, NumColumns);
       with CurrentUndoAction.Before[I] do begin
         Pattern := Patterns[I]^;
         PatternNumber := PatternNumbers[I];
       end;
+    end;
   end;
 
   Inc(NestedUndoCount);
@@ -751,20 +835,20 @@ end;
 
 procedure TTrackerGrid.ClampCursors;
 begin
-  if Cursor.X < Low(TPatternGrid) then
+  if Cursor.X < 0 then
     Cursor.SelectedPart := Low(TCellPart);
-  if Cursor.X > High(TPatternGrid) then
+  if Cursor.X > (NumColumns-1) then
     Cursor.SelectedPart := High(TCellPart);
 
-  if Other.X < Low(TPatternGrid) then
+  if Other.X < 0 then
     Other.SelectedPart := Low(TCellPart);
-  if Other.X > High(TPatternGrid) then
+  if Other.X > (NumColumns-1) then
     Other.SelectedPart := High(TCellPart);
 
-  Cursor.Y := EnsureRange(Cursor.Y, Low(TPattern), High(TPattern));
-  Cursor.X := EnsureRange(Cursor.X, Low(TPatternGrid), High(TPatternGrid));
-  Other.Y := EnsureRange(Other.Y, Low(TPattern), High(TPattern));
-  Other.X := EnsureRange(Other.X, Low(TPatternGrid), High(TPatternGrid));
+  Cursor.Y := EnsureRange(Cursor.Y, 0, NumRows-1);
+  Cursor.X := EnsureRange(Cursor.X, Low(TPatternGrid), (NumColumns-1));
+  Other.Y := EnsureRange(Other.Y, 0, NumRows-1);
+  Other.X := EnsureRange(Other.X, Low(TPatternGrid), (NumColumns-1));
 end;
 
 procedure TTrackerGrid.NormalizeCursors;
@@ -1159,8 +1243,8 @@ begin
   X := EnsureRange(Width-1, 0, X);
   Y := EnsureRange(Height-1, 0, Y);
 
-  Result.X := Trunc((X/Width)*NUM_COLUMNS);
-  Result.Y := Trunc((Y/Height)*NUM_ROWS);
+  Result.X := Trunc((X/Width)*NumColumns);
+  Result.Y := Trunc((Y/Height)*NumRows);
 
   if OrigX <= 0 then
     Result.SelectedPart := cpNote
@@ -1233,8 +1317,8 @@ begin
     CharWidth := GetTextWidth('C');
   end;
 
-  Width := ColumnWidth*4;
-  Height := RowHeight*64;
+  Width := ColumnWidth*NumColumns;
+  Height := RowHeight*NumRows;
 end;
 
 procedure TTrackerGrid.SetFontSize(AValue: Integer);
@@ -1305,7 +1389,7 @@ begin
     case SelectionPos.SelectedPart of
       cpNote: Note := NO_NOTE;
       cpInstrument: Instrument := 0;
-      cpVolume:;
+      cpVolume: Volume := 0;
       cpEffectCode: EffectCode := 0;
       cpEffectParams: EffectParams.Value := 0;
     end;
@@ -1318,7 +1402,7 @@ begin
   BeginUndoAction;
   NormalizeCursors;
 
-  for I := High(TPattern) downto Cursor.Y do
+  for I := NumRows-1 downto Cursor.Y do
     Patterns[Pattern]^[I] := Patterns[Pattern]^[I-1];
 
   BlankCell(Patterns[Pattern]^[Cursor.Y]);
@@ -1347,10 +1431,10 @@ begin
   BeginUndoAction;
   NormalizeCursors;
 
-  for I := Cursor.Y to High(TPattern)-1 do
+  for I := Cursor.Y to NumRows-2 do
     Patterns[Pattern]^[I] := Patterns[Pattern]^[I+1];
 
-  BlankCell(Patterns[Pattern]^[High(TPattern)]);
+  BlankCell(Patterns[Pattern]^[NumRows-1]);
 
   Invalidate;
   EndUndoAction;
@@ -1375,7 +1459,7 @@ begin
   Cursor.Y := 0;
   Cursor.SelectedPart := cpNote;
   Other.X := High(Patterns);
-  Other.Y := High(TPattern);
+  Other.Y := NumRows-1;
   Other.SelectedPart := cpEffectParams;
 
   Invalidate;
@@ -1384,7 +1468,7 @@ end;
 procedure TTrackerGrid.SelectColumn;
 begin
   Cursor.Y := 0;
-  Other.Y := High(TPattern);
+  Other.Y := NumRows-1;
   Cursor.SelectedPart := Low(TCellPart);
   Other.SelectedPart := High(TCellPart);
 
@@ -1399,4 +1483,3 @@ begin
 end;
 
 end.
-

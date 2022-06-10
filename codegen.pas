@@ -105,7 +105,7 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
       SL.Add(IntToStr(HighMask));
 
       for J := Low(TNoiseMacro) to High(TNoiseMacro) do
-        SL.Add(IntToStr(Byte(Instrument.NoiseMacro[J])));
+        SL.Add(IntToStr(Byte(0)));
     end
     else
       for J := Low(AsmInstrument) to High(AsmInstrument) do
@@ -244,7 +244,7 @@ end;
 
 function RenderInstruments(Instruments: TInstrumentBank): string;
 var
-  SL, ResultSL: TStringList;
+  ResultSL: TStringList;
   AsmInstrument: TAsmInstrument;
   I, J: integer;
   TypePrefix: string;
@@ -254,33 +254,33 @@ begin
 
   for I := Low(Instruments) to High(Instruments) do
   begin
+    WriteStr(TypePrefix, Instruments[I].Type_);
+    ResultSL.Add(Format('%s%s:', [TypePrefix, 'inst' + IntToStr(I)]));
+
     AsmInstrument := InstrumentToBytes(Instruments[I]);
-    SL := TStringList.Create;
-    SL.StrictDelimiter := True;
-    SL.Delimiter := ',';
 
     if Instruments[I].Type_ = itNoise then
     begin
-      SL.Add(IntToStr(AsmInstrument[1])); // envelope
+      ResultSL.Add('db '+IntToStr(AsmInstrument[1])); // envelope
 
       HighMask := AsmInstrument[0];
       if Instruments[I].LengthEnabled then
         HighMask := HighMask or %01000000;
       if Instruments[I].CounterStep = swSeven then
         HighMask := HighMask or %10000000;
-      SL.Add(IntToStr(HighMask));
-
-      for J := Low(TNoiseMacro) to High(TNoiseMacro) do
-        SL.Add(IntToStr(Instruments[I].NoiseMacro[J]));
+      ResultSL.Add('db '+IntToStr(HighMask));
     end
-    else
+    else begin
       for J := Low(AsmInstrument) to High(AsmInstrument) do
-        SL.Add(IntToStr(AsmInstrument[J]));
+        ResultSL.Add('db '+IntToStr(AsmInstrument[J]));
+    end;
 
-    WriteStr(TypePrefix, Instruments[I].Type_);
-    ResultSL.Add(Format('%s%s: db %s', [TypePrefix, 'inst' + IntToStr(I),
-      SL.DelimitedText]));
-    SL.Free;
+    if Instruments[I].SubpatternEnabled then
+      ResultSL.Insert(ResultSL.Count-1, Format('dw %sSP%d', [TypePrefix, I]))
+    else
+      ResultSL.Insert(ResultSL.Count-1, 'dw 0');
+    ResultSL.Add('ds '+IfThen(Instruments[I].Type_ = itNoise, '4', '2'));
+    ResultSL.Add('');
   end;
 
   Result := ResultSL.Text;
@@ -322,6 +322,46 @@ begin
 
   for I := Low(TPattern) to High(TPattern) do
     SL.Add(RenderCell(Pattern[I]));
+
+  Result := SL.Text;
+  SL.Free;
+end;
+
+function RenderTableCell(Cell: TCell; Last: Boolean): string;
+var
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  SL.Delimiter := ',';
+  SL.StrictDelimiter := True;
+
+  if (Cell.Note = NO_NOTE) then
+    SL.Add('___')
+  else
+    SL.Add(IntToStr(Cell.Note));
+
+  if Last and (Cell.Volume = 0) then
+    SL.Add(IntToStr(1)) // Automatically insert jump back to row 1 if last cell
+  else
+    SL.Add(IntToStr(EnsureRange(Cell.Volume, 0, 32)));
+
+  SL.Add('$' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
+
+  // RGBDS thinks you're defining a new macro if you don't have a space first.
+  Result := ' dn ' + SL.DelimitedText;
+  SL.Free;
+end;
+
+function RenderTablePattern(Name: string; Pattern: TPattern): string;
+var
+  SL: TStringList;
+  I: integer;
+begin
+  SL := TStringList.Create;
+  SL.Add(Name + ':');
+
+  for I := 0 to 31 do
+    SL.Add(RenderTableCell(Pattern[I], I = 31)); // TODO: hardcoded value
 
   Result := SL.Text;
   SL.Free;
@@ -447,6 +487,7 @@ procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode);
 var
   OutFile: Text;
   I: integer;
+  TypePrefix: String;
   Proc: TProcess;
   FilePath: string;
   RenameSucceeded: Boolean;
@@ -547,6 +588,21 @@ begin
     if PatternIsUsed(Song.Patterns.Keys[I], Song) then
       Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]),
         Song.Patterns.Data[I]^));
+
+  CloseFile(OutFile);
+
+  AssignFile(OutFile, 'render/subpattern.htt');
+  Rewrite(OutFile);
+
+  // TODO: Are keys and data defined to be aligned? Seems like they are but
+  // should probably find out if that's just an implementation detail...
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
+    with Song.Instruments.All[I] do begin
+      if SubpatternEnabled then begin
+        WriteStr(TypePrefix, Type_);
+        Write(OutFile, RenderTablePattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+      end;
+    end;
 
   CloseFile(OutFile);
 

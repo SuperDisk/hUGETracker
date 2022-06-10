@@ -7,9 +7,11 @@ unit Song;
 
 interface
 
-uses Classes, HugeDatatypes, instruments, Constants, waves, math;
+uses Classes, HugeDatatypes, instruments, Constants, math, sysutils;
 
 type
+  ESongVersionException = class(Exception);
+
   TSongV1 = packed record
     Version: Integer;
 
@@ -22,7 +24,7 @@ type
 
     TicksPerRow: Integer;
 
-    Patterns: TPatternMap;
+    Patterns: TPatternMapV1;
     OrderMatrix: TOrderMatrix;
   end;
 
@@ -38,7 +40,7 @@ type
 
     TicksPerRow: Integer;
 
-    Patterns: TPatternMap;
+    Patterns: TPatternMapV1;
     OrderMatrix: TOrderMatrix;
 
     Routines: TRoutineBank;
@@ -52,11 +54,11 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentCollectionV1;
-    Waves: TWaveBankV2;
+    Waves: TWaveBank;
 
     TicksPerRow: Integer;
 
-    Patterns: TPatternMap;
+    Patterns: TPatternMapV1;
     OrderMatrix: TOrderMatrix;
 
     Routines: TRoutineBank;
@@ -70,7 +72,27 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentCollectionV2;
-    Waves: TWaveBankV2;
+    Waves: TWaveBank;
+
+    TicksPerRow: Integer;
+
+    Patterns: TPatternMapV1;
+    OrderMatrix: TOrderMatrix;
+
+    Routines: TRoutineBank;
+  end;
+
+  TSongV5 = TSongV4; // no structural differences
+
+  TSongV6 = packed record
+    Version: Integer;
+
+    Name: ShortString;
+    Artist: ShortString;
+    Comment: ShortString;
+
+    Instruments: TInstrumentCollection;
+    Waves: TWaveBank;
 
     TicksPerRow: Integer;
 
@@ -80,11 +102,9 @@ type
     Routines: TRoutineBank;
   end;
 
-  TSongV5 = TSongV4; // no structural differences
-
   { TSong }
 
-  TSong = TSongV5;
+  TSong = TSongV6;
 
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
@@ -96,11 +116,14 @@ function UpgradeSong(S: TSongV1): TSong; overload;
 function UpgradeSong(S: TSongV2): TSong; overload;
 function UpgradeSong(S: TSongV3): TSong; overload;
 function UpgradeSong(S: TSongV4): TSong; overload;
+//function UpgradeSong(S: TSongV5): TSong; overload;
 
 function OptimizeSong(const S: TSong): TSong;
 function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
 
 implementation
+
+uses Utils;
 
 // Thanks to WP on the FreePascal forums for this code!
 // https://forum.lazarus.freepascal.org/index.php/topic,47892.msg344152.html#msg344152
@@ -108,21 +131,21 @@ implementation
 procedure ReadSongFromStreamV1(S: TStream; out ASong: TSongV1);
 var
   i, n: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
-  n := SizeOf(TSongV1) - SizeOf(TPatternMap) - SizeOf(TOrderMatrix);
+  n := SizeOf(TSongV1) - SizeOf(TPatternMapV1) - SizeOf(TOrderMatrix);
   S.Read(ASong, n);
 
   // Create the patterns
-  ASong.Patterns := TPatternMap.Create;
+  ASong.Patterns := TPatternMapV1.Create;
   // Read the pattern count
   S.Read(n, SizeOf(Integer));
   for i:=0 to n - 1 do begin
     // Allocate memory for each pattern ...
     New(pat);
     // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
+    S.Read(pat^, SizeOf(TPatternV1));
     // Add the pattern to the list
     ASong.Patterns.Add(i, pat);
   end;
@@ -142,25 +165,25 @@ end;
 procedure ReadSongFromStreamV2(S: TStream; out ASong: TSongV2);
 var
   i, n: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
   n := SizeOf(TSongV2)
-     - SizeOf(TPatternMap)
+     - SizeOf(TPatternMapV1)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
 
   S.Read(ASong, n);
 
   // Create the patterns
-  ASong.Patterns := TPatternMap.Create;
+  ASong.Patterns := TPatternMapV1.Create;
   // Read the pattern count
   S.Read(n, SizeOf(Integer));
   for i:=0 to n - 1 do begin
     // Allocate memory for each pattern ...
     New(pat);
     // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
+    S.Read(pat^, SizeOf(TPatternV1));
     // Add the pattern to the list
     ASong.Patterns.Add(i, pat);
   end;
@@ -183,25 +206,25 @@ end;
 procedure ReadSongFromStreamV3(S: TStream; out ASong: TSongV3);
 var
   i, n: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
   n := SizeOf(TSongV3)
-     - SizeOf(TPatternMap)
+     - SizeOf(TPatternMapV1)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
 
   S.Read(ASong, n);
 
   // Create the patterns
-  ASong.Patterns := TPatternMap.Create;
+  ASong.Patterns := TPatternMapV1.Create;
   // Read the pattern count
   S.Read(n, SizeOf(Integer));
   for i:=0 to n - 1 do begin
     // Allocate memory for each pattern ...
     New(pat);
     // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
+    S.Read(pat^, SizeOf(TPatternV1));
     // Add the pattern to the list
     ASong.Patterns.Add(i, pat);
   end;
@@ -224,25 +247,25 @@ end;
 procedure ReadSongFromStreamV4(S: TStream; out ASong: TSongV4);
 var
   i, n: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
   n := SizeOf(TSongV4)
-     - SizeOf(TPatternMap)
+     - SizeOf(TPatternMapV1)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
 
   S.Read(ASong, n);
 
   // Create the patterns
-  ASong.Patterns := TPatternMap.Create;
+  ASong.Patterns := TPatternMapV1.Create;
   // Read the pattern count
   S.Read(n, SizeOf(Integer));
   for i:=0 to n - 1 do begin
     // Allocate memory for each pattern ...
     New(pat);
     // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
+    S.Read(pat^, SizeOf(TPatternV1));
     // Add the pattern to the list
     ASong.Patterns.Add(i, pat);
   end;
@@ -265,10 +288,53 @@ end;
 procedure ReadSongFromStreamV5(S: TStream; out ASong: TSongV5);
 var
   i, n, PatKey: Integer;
-  pat: PPattern;
+  pat: PPatternV1;
 begin
   // Read the fixed elements first
   n := SizeOf(TSongV5)
+     - SizeOf(TPatternMapV1)
+     - SizeOf(TOrderMatrix)
+     - SizeOf(TRoutineBank);
+
+  S.Read(ASong, n);
+
+  // Create the patterns
+  ASong.Patterns := TPatternMapV1.Create;
+  // Read the pattern count
+  S.Read(n, SizeOf(Integer));
+  for i:=0 to n - 1 do begin
+    // Read pattern key
+    S.Read(PatKey, SizeOf(Integer));
+    // Allocate memory for each pattern ...
+    New(pat);
+    // and read the pattern content
+    S.Read(pat^, SizeOf(TPatternV1));
+    // Add the pattern to the list
+    ASong.Patterns.Add(PatKey, pat);
+  end;
+
+  // Read the OrderMatrix
+  for i := 0 to 3 do
+  begin
+    // Read length of each OrderMatrix array
+    S.Read(n, SizeOf(Integer));
+    // Allocate memory for it
+    SetLength(ASong.OrderMatrix[i], n);
+    // Read content of OrderMatrix array
+    S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
+  end;
+
+  for I := Low(TRoutineBank) to High(TRoutineBank) do
+    ASong.Routines[I] := S.ReadAnsiString;
+end;
+
+procedure ReadSongFromStreamV6(S: TStream; out ASong: TSongV6);
+var
+  i, n, PatKey: Integer;
+  pat: PPattern;
+begin
+  // Read the fixed elements first
+  n := SizeOf(TSongV6)
      - SizeOf(TPatternMap)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
@@ -310,7 +376,7 @@ var
   i, n: Integer;
 begin
   // Write the fixed record elements first
-  n := SizeOf(TSongV5)
+  n := SizeOf(TSong)
      - SizeOf(TPatternMap)
      - SizeOf(TOrderMatrix)
      - SizeOf(TRoutineBank);
@@ -345,6 +411,7 @@ var
   SV2: TSongV2;
   SV3: TSongV3;
   SV4: TSongV4;
+  SV5: TSongV5;
 begin
   S.Read(Version, SizeOf(Integer));
   S.Seek(0, soBeginning);
@@ -366,7 +433,14 @@ begin
       ASong := UpgradeSong(SV4);
     end;
     5: begin
-      ReadSongFromStreamV5(S, ASong);
+      ReadSongFromStreamV5(S, SV5);
+      ASong := UpgradeSong(SV5);
+    end;
+    6: begin
+      ReadSongFromStreamV6(S, ASong);
+    end;
+    else begin
+      raise ESongVersionException.Create(IntToStr(Version));
     end;
   end;
 end;
@@ -382,8 +456,10 @@ begin
     Comment := '';
   end;
 
-  for I := Low(S.Instruments.All) to High(S.Instruments.All) do
+  for I := Low(S.Instruments.All) to High(S.Instruments.All) do begin
     S.Instruments.All[I] := Default(TInstrument);
+    BlankPattern(@S.Instruments.All[I].Subpattern);
+  end;
 
   for I := Low(S.Instruments.Duty) to High(S.Instruments.Duty) do begin
     with S.Instruments.Duty[I] do begin
@@ -421,9 +497,6 @@ begin
       InitialVolume := High(TEnvelopeVolume);
       VolSweepDirection := stDown;
       VolSweepAmount := 0;
-      NoiseMacro := Default(TNoiseMacro);
-      ShiftClockFreq := 0;
-      DividingRatio := 0;
       CounterStep := swFifteen;
     end;
 
@@ -606,7 +679,7 @@ var
     Result := False;
   end;
 
-  procedure ConvertPattern(var Pat: TPattern);
+  procedure ConvertPattern(var Pat: TPatternV2);
   var
     I: Integer;
     Regs: TRegisters;
@@ -617,7 +690,7 @@ var
     for I := Low(Pat) to High(Pat) do begin
       if (Pat[I].Instrument = 0) or (Pat[I].Note = NO_NOTE) then Continue;
 
-      Regs := NoiseInstrumentToRegisters(NotesToFreqs.KeyData[Pat[I].Note], False, SV4.Instruments.Noise[Pat[I].Instrument]);
+      Regs := NoiseInstrumentToRegisters(NotesToFreqs.KeyData[Pat[I].Note], False, Result.Instruments.Noise[Pat[I].Instrument]);
       if PolyCounter.DividingRatio = 0 then
         RealR := 0.5
       else
@@ -645,19 +718,90 @@ begin
     SV4.Instruments.All[I].NoiseMacro := Default(TNoiseMacro);
   end;
 
-  // Rewrite noise patterns to accomodate the new noise instruments...
-  for I := 0 to SV4.Patterns.Count-1 do
-    if UsedInCH4(SV4.Patterns.Keys[I]) then begin
-      ConvertPattern(SV4.Patterns.Data[I]^);
-    end;
-
   Result := UpgradeSong(SV4);
+
+  // Rewrite noise patterns to accomodate the new noise instruments...
+  for I := 0 to Result.Patterns.Count-1 do
+    if UsedInCH4(Result.Patterns.Keys[I]) then begin
+      ConvertPattern(Result.Patterns.Data[I]^);
+    end;
 end;
 
 function UpgradeSong(S: TSongV4): TSong;
+var
+  SV6: TSongV6;
+  I: Integer;
+
+  function ConvertPattern(Pat: PPatternV1): PPattern;
+  var
+    J: Integer;
+  begin
+    New(Result);
+    for J := Low(TPatternV1) to High(TPatternV1) do begin
+      Result^[J].Instrument := Pat^[J].Instrument;
+      Result^[J].EffectCode := Pat^[J].EffectCode;
+      Result^[J].EffectParams.Value := Pat^[J].EffectParams.Value;
+      Result^[J].Note := Pat^[J].Note;
+      Result^[J].Volume := 0;
+    end;
+  end;
+
+  function ConvertNoiseMacro(NoiseMacro: TNoiseMacro): TPattern;
+  var
+    J: Integer;
+    WrapPoint: Integer;
+  begin
+    BlankPattern(@Result);
+    for J := Low(NoiseMacro) to High(NoiseMacro) do
+      Result[J+1].Note := NoiseMacro[J] + 36;
+
+    WrapPoint := Min(S.TicksPerRow, 7);
+    Result[WrapPoint-1].Volume := WrapPoint; // hold on last row
+  end;
 begin
-  S.Version := 5;
-  Result := S;
+  SV6.Version:=6;
+
+  SV6.Name:=S.Name;
+  SV6.Artist:=S.Artist;
+  SV6.Comment:=S.Comment;
+
+  for I := Low(S.Instruments.All) to High(S.Instruments.All) do begin
+    SV6.Instruments.All[I].Type_ := S.Instruments.All[I].Type_;
+    SV6.Instruments.All[I].Name := S.Instruments.All[I].Name;
+    SV6.Instruments.All[I].Length := S.Instruments.All[I].Length;
+    SV6.Instruments.All[I].LengthEnabled := S.Instruments.All[I].LengthEnabled;
+    SV6.Instruments.All[I].InitialVolume := S.Instruments.All[I].InitialVolume;
+    SV6.Instruments.All[I].VolSweepDirection := S.Instruments.All[I].VolSweepDirection;
+    SV6.Instruments.All[I].VolSweepAmount := S.Instruments.All[I].VolSweepAmount;
+    SV6.Instruments.All[I].SweepTime := S.Instruments.All[I].SweepTime;
+    SV6.Instruments.All[I].SweepIncDec := S.Instruments.All[I].SweepIncDec;
+    SV6.Instruments.All[I].SweepShift := S.Instruments.All[I].SweepShift;
+    SV6.Instruments.All[I].Duty := S.Instruments.All[I].Duty;
+    SV6.Instruments.All[I].OutputLevel := S.Instruments.All[I].OutputLevel;
+    SV6.Instruments.All[I].Waveform := S.Instruments.All[I].Waveform;
+    SV6.Instruments.All[I].CounterStep := S.Instruments.All[I].CounterStep;
+    SV6.Instruments.All[I].SubpatternEnabled := False;
+    BlankPattern(@SV6.Instruments.All[I].Subpattern);
+  end;
+  // TODO: Port over noise macro
+  for I := Low(S.Instruments.Noise) to High(S.Instruments.Noise) do begin
+    SV6.Instruments.Noise[I].Subpattern := ConvertNoiseMacro(S.Instruments.Noise[I].NoiseMacro);
+    SV6.Instruments.Noise[I].SubpatternEnabled := True;
+  end;
+
+  SV6.Waves := S.Waves;
+
+  SV6.TicksPerRow:=S.TicksPerRow;
+  SV6.OrderMatrix:=S.OrderMatrix;
+
+  SV6.Routines:=S.Routines;
+
+  SV6.Patterns := TPatternMap.Create;
+  // Update patterns to new format
+  for I := 0 to S.Patterns.Count-1 do
+    SV6.Patterns.Add(S.Patterns.Keys[I], ConvertPattern(S.Patterns.Data[I]));
+
+  Result := SV6;
 end;
 
 function OptimizeSong(const S: TSong): TSong;
