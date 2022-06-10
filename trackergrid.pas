@@ -603,8 +603,8 @@ procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos; Mix
         Cell1.Instrument := Cell2.Cell.Instrument;
 
      if cpVolume in Cell2.Parts then
-        if (not Mix) or (Cell2.Cell.Volume.Value <> 0) then
-           Cell1.Volume.Value := Cell2.Cell.Volume.Value;
+        if (not Mix) or (Cell2.Cell.Volume <> 0) then
+           Cell1.Volume := Cell2.Cell.Volume;
 
     if cpEffectCode in Cell2.Parts then
       if (not Mix) or (Cell2.Cell.EffectCode <> 0) then
