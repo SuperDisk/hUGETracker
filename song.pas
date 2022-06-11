@@ -100,6 +100,9 @@ type
     OrderMatrix: TOrderMatrix;
 
     Routines: TRoutineBank;
+
+    TimerEnabled: Boolean;
+    TimerDivider: Integer;
   end;
 
   { TSong }
@@ -514,6 +517,8 @@ begin
     S.Routines[I] := '';
 
   S.TicksPerRow := 7;
+  S.TimerDivider := 0;
+  S.TimerEnabled := False;
   S.Patterns := TPatternMap.Create;
 end;
 
@@ -792,6 +797,9 @@ begin
   SV6.Waves := S.Waves;
 
   SV6.TicksPerRow:=S.TicksPerRow;
+  SV6.TimerEnabled := False;
+  SV6.TimerDivider := 0;
+
   SV6.OrderMatrix:=S.OrderMatrix;
 
   SV6.Routines:=S.Routines;

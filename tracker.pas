@@ -42,8 +42,12 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    TempoBPMLabel: TLabel;
+    TimerEnabledCheckBox: TCheckBox;
     EnableSubpatternCheckbox: TCheckBox;
     DecreaseOctaveAction: TAction;
+    TimerTempoLabel: TLabel;
+    TimerDividerSpinEdit: TSpinEdit;
     SubpatternGroupBox: TGroupBox;
     RowNumberStringGrid1: TStringGrid;
     ScrollBox2: TScrollBox;
@@ -283,6 +287,8 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     TableGrid: TTableGrid;
+    procedure TimerDividerSpinEditChange(Sender: TObject);
+    procedure TimerEnabledCheckBoxChange(Sender: TObject);
     procedure TrackerPopupMixPasteClick(Sender: TObject);
     procedure EnableSubpatternCheckboxChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -497,6 +503,8 @@ type
     procedure UpdateUIAfterLoad(FileName: String = '');
     procedure UpdateWindowTitle;
     procedure UpdateHexWaveTextbox;
+    procedure UpdateBPMLabel;
+
     function CheckUnsavedChanges: Boolean;
 
     procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
@@ -559,6 +567,13 @@ begin
   CommentMemo.Text := Song.Comment;
 
   TicksPerRowSpinEdit.Value := Song.TicksPerRow;
+  TimerDividerSpinEdit.Value := Song.TimerDivider;
+  TimerEnabledCheckBox.Checked := Song.TimerEnabled;
+
+  TimerTempoLabel.Enabled := TimerEnabledCheckBox.Checked;
+  TimerDividerSpinEdit.Enabled := TimerEnabledCheckBox.Checked;
+
+  UpdateBPMLabel;
 
   LoadedFilename := FileName;
   UpdateWindowTitle;
@@ -618,6 +633,20 @@ end;
 procedure TfrmTracker.UpdateHexWaveTextbox;
 begin
   HexWaveEdit.Text := ConvertWaveToHexString(WaveEditNumberSpinner.Value);
+end;
+
+procedure TfrmTracker.UpdateBPMLabel;
+var
+  TimerHZ: Real;
+  BeatHZ: Real;
+begin
+  if Song.TimerEnabled then
+    TimerHZ := 4096.0 / (($FF - Song.TimerDivider)+1)
+  else
+    TimerHZ := 59.727500569606; // VBlank hz
+
+  BeatHZ := (TimerHZ / Song.TicksPerRow) / 4; // 4 rows comprise one beat
+  TempoBPMLabel.Caption := '~'+FormatFloat('###.##', BeatHZ * 60)+' BPM';
 end;
 
 function TfrmTracker.CheckUnsavedChanges: Boolean;
@@ -1970,6 +1999,21 @@ begin
   TrackerGrid.DoMixPaste
 end;
 
+procedure TfrmTracker.TimerDividerSpinEditChange(Sender: TObject);
+begin
+  Song.TimerDivider := TimerDividerSpinEdit.Value;
+  UpdateBPMLabel
+end;
+
+procedure TfrmTracker.TimerEnabledCheckBoxChange(Sender: TObject);
+begin
+  Song.TimerEnabled := TimerEnabledCheckBox.Checked;
+  TimerTempoLabel.Enabled := TimerEnabledCheckBox.Checked;
+  TimerDividerSpinEdit.Enabled := TimerEnabledCheckBox.Checked;
+
+  UpdateBPMLabel
+end;
+
 procedure TfrmTracker.FormShow(Sender: TObject);
 begin
   { HACK: This needs to be done due to a scaling bug in the LCL.
@@ -2405,6 +2449,7 @@ end;
 procedure TfrmTracker.TicksPerRowSpinEditChange(Sender: TObject);
 begin
   Song.TicksPerRow := TicksPerRowSpinEdit.Value;
+  UpdateBPMLabel
 end;
 
 procedure TfrmTracker.OscilloscopeUpdateTimerTimer(Sender: TObject);

@@ -61,6 +61,10 @@
             </Options>
           </Linking>
           <Other>
+            <Verbosity>
+              <ShoLineNum Value="True"/>
+            </Verbosity>
+            <WriteFPCLogo Value="False"/>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
@@ -105,6 +109,10 @@
             </Options>
           </Linking>
           <Other>
+            <Verbosity>
+              <ShoLineNum Value="True"/>
+            </Verbosity>
+            <WriteFPCLogo Value="False"/>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>
@@ -153,6 +161,10 @@
             </Options>
           </Linking>
           <Other>
+            <Verbosity>
+              <ShoLineNum Value="True"/>
+            </Verbosity>
+            <WriteFPCLogo Value="False"/>
             <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
           </Other>
         </CompilerOptions>

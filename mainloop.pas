@@ -74,7 +74,7 @@ begin
     end;
   end;
 
-  m_iram[$ff05] := t_count;
+  m_iram[$ff05] := Byte(t_count);
   if (t_count > 255) then
   begin
     m_iram[$ff05] := m_iram[$ff06]; // TIMEMOD [RW] Timer Modulo

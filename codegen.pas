@@ -640,7 +640,11 @@ begin
     end
     else
     begin
-      if Assemble(Filename + '_player.obj', 'hUGEDriver/player.asm', ['SONG_DESCRIPTOR=song']) <> 0 then
+      if Assemble(Filename + '_player.obj',
+                 'hUGEDriver/player.asm',
+                 ['SONG_DESCRIPTOR=song',
+                  IfThen(Song.TimerEnabled, 'USE_TIMER=1', ''),
+                  'TIMER_MODULO='+IntToStr(Song.TimerDivider)]) <> 0 then
         Die;
     end;
 
