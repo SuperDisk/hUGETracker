@@ -96,13 +96,13 @@ type
 
     TicksPerRow: Integer;
 
+    TimerEnabled: Boolean;
+    TimerDivider: Integer;
+
     Patterns: TPatternMap;
     OrderMatrix: TOrderMatrix;
 
     Routines: TRoutineBank;
-
-    TimerEnabled: Boolean;
-    TimerDivider: Integer;
   end;
 
   { TSong }
