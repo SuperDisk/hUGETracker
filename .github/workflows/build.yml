@@ -9,11 +9,11 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-20.04
+          - ubuntu-22.04
           - macos-10.15
           - windows-2019
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             name: Linux
           - os: macos-10.15
             name: Mac
@@ -26,8 +26,8 @@ jobs:
         if: matrix.name == 'Linux'
         run: |
           sudo apt -qq update
-          sudo apt install -yq lcl-2.0 libsdl2-dev   bison
-          curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.5.1/rgbds-0.5.1.tar.gz'
+          sudo apt install -yq lazarus libsdl2-dev bison
+          curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.5.2/rgbds-0.5.2.tar.gz'
           tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
           cd rgbds
           make -j4 rgbasm rgblink rgbfix Q=
@@ -45,8 +45,8 @@ jobs:
         shell: bash
         run: |
           choco install lazarus
-          curl -Lo 'sdl2.zip' 'https://www.libsdl.org/release/SDL2-2.0.14-win32-x64.zip'
-          curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.5.1/rgbds-0.5.1-win64.zip'
+          curl -Lo 'sdl2.zip' 'https://www.libsdl.org/release/SDL2-2.0.22-win32-x64.zip'
+          curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.5.2/rgbds-0.5.2-win64.zip'
           unzip -d rgbds rgbds.zip rgb{asm,link,fix}.exe
 
       - name: Set up MSYS2
