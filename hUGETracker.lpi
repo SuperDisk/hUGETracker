@@ -65,7 +65,7 @@
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
-            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
+            <CustomOptions Value="-dPRODUCTION"/>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -113,7 +113,7 @@
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
-            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
+            <CustomOptions Value="-dPRODUCTION"/>
           </Other>
         </CompilerOptions>
       </Item3>
@@ -165,7 +165,7 @@
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
-            <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dPRODUCTION"/>
+            <CustomOptions Value="-dPRODUCTION"/>
           </Other>
         </CompilerOptions>
       </Item4>
@@ -207,7 +207,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="24">
+    <Units Count="25">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -334,6 +334,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="DMFImport"/>
       </Unit23>
+      <Unit24>
+        <Filename Value="vgm.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="VGM"/>
+      </Unit24>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -374,7 +379,7 @@
         <ShoLineNum Value="True"/>
       </Verbosity>
       <WriteFPCLogo Value="False"/>
-      <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL -dDEVELOPMENT"/>
+      <CustomOptions Value="-dDEVELOPMENT"/>
     </Other>
   </CompilerOptions>
 </CONFIG>

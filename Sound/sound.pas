@@ -296,7 +296,6 @@ end;
 procedure SoundDoOut(l, r: Integer; cycles: integer);
 var
   buf: array[0..1] of Single;
-  buf2: array[0..1] of Smallint;
 begin
   Inc(bufLVal, l * cycles);
   Inc(bufRVal, r * cycles);

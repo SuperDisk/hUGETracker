@@ -42,6 +42,7 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    MenuItem10: TMenuItem;
     TempoBPMLabel: TLabel;
     TimerEnabledCheckBox: TCheckBox;
     EnableSubpatternCheckbox: TCheckBox;

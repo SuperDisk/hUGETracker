@@ -262,24 +262,6 @@ begin
   end;
 end;
 
-const
-  cycles_per_hblank = 451;
-
-  	function remap(f: byte): Byte;
-    var
-      z,n,h,c:byte;
-begin
-  Result := 0;
-  z := f and %01000000;
-	n := f and %00000010;
-	h := f and %00010000;
-	c := f and %00000001;
-	if z<>0 then result := result or %10000000;
-	if n<>0 then result := result or %01000000;
-	if h<>0 then result := result or %00100000;
-	if c<>0 then result := result or %00010000;
-end;
-
 function z80_decode: byte;
 var
   Count: byte;

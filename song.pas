@@ -111,7 +111,7 @@ type
 
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
-procedure InitializeSong(var S: TSong);
+procedure InitializeSong(out S: TSong);
 procedure LoadDefaultInstruments(var S: TSong);
 procedure DestroySong(var S: TSong);
 
@@ -448,7 +448,7 @@ begin
   end;
 end;
 
-procedure InitializeSong(var S: TSong);
+procedure InitializeSong(out S: TSong);
 var
   I, J: Integer;
 begin
