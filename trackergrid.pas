@@ -341,11 +341,21 @@ begin
 end;
 
 destructor TTrackerGrid.Destroy;
+var
+  Q: TUndoRedoAction;
 begin
-  inherited Destroy;
+  // There's an FPC version which includes a bugged destructor for TDeque, in
+  // which it will segfault when freeing an empty TDeque. To avoid this, we put
+  // an element in it first. TODO: Remove this ridiculous hack once the fix gets
+  // released to the stable channel.
+  Q.After := nil;
+  Q.Before := nil;
+  Performed.PushFront(Q);
 
   Performed.Free;
   Recall.Free;
+
+  inherited;
 end;
 
 procedure TTrackerGrid.Paint;

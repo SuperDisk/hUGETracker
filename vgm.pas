@@ -18,5 +18,28 @@ procedure VGMWait(Amount: Integer);
 
 implementation
 
+var
+  VGMFile: TFileStream;
+
+procedure BeginRecordingVGM(F: String);
+begin
+  VGMFile := TFileStream.Create(F, fmOpenWrite);
+end;
+
+procedure EndRecordingVGM;
+begin
+
+end;
+
+procedure VGMWriteReg(Command: Integer; Param: Integer);
+begin
+
+end;
+
+procedure VGMWait(Amount: Integer);
+begin
+
+end;
+
 end.
 
