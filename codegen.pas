@@ -479,7 +479,7 @@ begin
   Stream.Free;
 
   Stream := TFileStream.Create(GBSFile, fmOpenWrite);
-  Stream.Write(Buffer[0], Length(Buffer));
+  Stream.WriteBuffer(Buffer[0], Length(Buffer));
   Stream.Free;
 end;
 
