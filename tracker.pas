@@ -2014,7 +2014,7 @@ begin
     StopPlayback;
     ParseSymFile('render/preview.sym');
 
-    ExportVGMFile(VGMSaveDialog.FileName);
+    ExportVGMFile(VGMSaveDialog.FileName, Song.Name, Song.Artist, Song.Comment);
   end;
 end;
 
@@ -2046,6 +2046,12 @@ end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
 begin
+    if RenderPreviewROM then begin
+    StopPlayback;
+    ParseSymFile('render/preview.sym');
+
+    ExportVGMFile('C:/tmp/yeah.vgm', 'Joogus', 'Nick Faro', 'This song sucks.');
+  end;
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);

@@ -286,7 +286,8 @@ begin
   end;
 
   Count := z80[code]();
-  SoundUpdate(Count * (3 - gb_speed));
+  if not WritingVGM then
+    SoundUpdate(Count * (3 - gb_speed));
   cnumber := Count div gb_speed;
 
   if (stop_mode = 1) then

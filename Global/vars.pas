@@ -16,9 +16,9 @@ const
   isddraw: boolean = True; // DirectDraw;
 
 var
-  FDCallback, FCCallback: TCPUCallback;
+  FDCallback, FCCallback, F4Callback: TCPUCallback;
 
-  IsWritingVGM: Boolean = False;
+  WritingVGM: Boolean = False;
 
   bdrop, dirname, dirload: string;
   romname, speicher: string[128];

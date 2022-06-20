@@ -68,23 +68,13 @@ type
     K053260clock: UInt32;
     Pokeyclock: UInt32;
     QSoundclock: UInt32;
+    Reserved3: UInt64; // 8 bytes
   end;
-
-  TVGMCommandType = (ctWait, ctRegWrite);
-
-  TVGMCommand = record
-    type_: TVGMCommandType;
-    Reg: Integer;
-    Param: Integer;
-  end;
-
-  TCommandVector = specialize TVector<TVGMCommand>;
 
 var
   RecordingVGM: Boolean = False;
 
-procedure ExportVGMFile(F: String);
-procedure EndRecordingVGM;
+procedure ExportVGMFile(F: String; TrackName: String; ArtistName: String; Comments: String);
 
 procedure VGMWriteReg(Reg: Integer; Value: Integer);
 procedure VGMWait(Amount: Integer);
@@ -101,6 +91,7 @@ type
 
   TOrderChecker = class
     procedure OrderCheckCallback;
+    procedure TickCallback;
   end;
 
 var
@@ -108,16 +99,22 @@ var
   OrderChecker: TOrderChecker;
   StartOfSong, CurrentOrder: Integer;
   VGMFile: TFileStream;
-  CommandBuffer: TCommandVector;
-  TotalWaitTicks: Integer;
+  TotalWaitSamps: Integer;
 
-procedure ExportVGMFile(F: String);
+procedure ExportVGMFile(F: String; TrackName: String; ArtistName: String; Comments: String);
 var
-  OldFD, OldFC: TCPUCallback;
+  OldFD, OldFC, OldF4: TCPUCallback;
+  Header: TVGMHeader;
+  Utf16Bytes: TBytes;
+  YY,MM,DD: Word;
+  GD3Temp: Integer;
 begin
+  // TODO: Manage these callbacks in a better way, maybe some sort of stack.
   OldFD := FDCallback;
   OldFC := FCCallback;
+  OldF4 := F4Callback;
   FDCallback := nil;
+  F4Callback := @OrderChecker.TickCallback;
   FCCallback := @OrderChecker.OrderCheckCallback;
 
   z80_reset;
@@ -129,78 +126,89 @@ begin
   StartOfSong := -1;
   CurrentOrder := -1;
 
-  // Due to the annoying format of VGM where the header needs values that can
-  // only be computed after rendering the entire file, we store the data in
-  // memory until recording is finished, and dump it all out then.
-  // Thankfully VGM files are small enough to fit in RAM.
-  IsWritingVGM := True;
-  VGMFile := TFileStream.Create(F, fmOpenWrite);
-  CommandBuffer.Clear;
+  WritingVGM := True;
+  VGMFile := TFileStream.Create(F, fmCreate);
+
+  Header := Default(TVGMHeader); // Zero the header
+  VGMFile.WriteBuffer(Header, SizeOf(Header)); // Write dummy header (will overwrite later)
 
   repeat
     z80_decode
   until StartOfSong <> -1;
 
-  EndRecordingVGM;
+  WritingVGM := False;
 
+  // Update the header to point to the GD3 tag, then write it
+  Header.GD3offset := VGMFile.Position - $14;
+
+  VGMFile.WriteDWord($20336447);
+  VGMFile.WriteDWord($00000100);
+
+  GD3Temp := VGMFile.Position;
+  VGMFile.WriteDWord(0); // dummy value...
+  Utf16Bytes := WideBytesOf(UTF8Decode(TrackName));
+  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes)); // English name
+  VGMFile.WriteWord(0);
+
+  VGMFile.WriteWord(0); // No japanese track name
+  VGMFile.WriteWord(0); // No game name
+  VGMFile.WriteWord(0); // No japanese game name
+  Utf16Bytes := WideBytesOf('Nintendo Game Boy');
+  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
+  VGMFile.WriteWord(0);
+  VGMFile.WriteWord(0); // No japanese system name
+  Utf16Bytes := WideBytesOf(UTF8Decode(ArtistName));
+  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
+  VGMFile.WriteWord(0);
+  VGMFile.WriteWord(0); // No japanese author name
+  DecodeDate(Date, YY, MM, DD);
+  Utf16Bytes := WideBytesOf(UTF8Decode(Format('%d/%.2d/%.2d', [YY, MM, DD])));
+  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
+  VGMFile.WriteWord(0);
+  Utf16Bytes := WideBytesOf('hUGETracker');
+  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
+  VGMFile.WriteWord(0);
+  Utf16Bytes := WideBytesOf(UTF8Decode(Comments));
+  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
+  VGMFile.WriteWord(0);
+
+  // Go back and overwrite that dummy (unnecessary) length value.
+  // The VGM and GD3 formats sure are ugly. Not that UGE is any better.
+  GD3Temp := VGMFile.Position - GD3Temp;
+  VGMFile.Seek(-GD3Temp, soCurrent);
+  VGMFile.WriteDWord(GD3Temp);
+
+  // Rewrite the header now that we know the correct values
+  Header.Vgmident := SwapEndian($56676d20); // "Vgm "
+  Header.Version := $00000161; // 1.61
+  Header.Rate := 60; // 60hz
+  Header.GBDMGclock := 4194304; // 4194304 hz (from docs)
+  Header.EoFoffset := VGMFile.Size - $4;
+  Header.VGMdataoffset := $8C;
+  Header.TotalNumsamples := TotalWaitSamps;
+
+  VGMFile.Seek(0, soBeginning);
+  VGMFile.WriteBuffer(Header, SizeOf(Header));
+
+  VGMFile.Free;
+
+  F4Callback := OldF4;
   FDCallback := OldFD;
   FCCallback := OldFC;
 end;
 
-procedure EndRecordingVGM;
-var
-  Header: TVGMHeader;
-  Cmd: TVGMCommand;
-begin
-  IsWritingVGM := False;
-
-  Header := Default(TVGMHeader); // Zero the header
-  Header.Vgmident := $56676d20; // "Vgm "
-  Header.Version := $00000161; // 1.61
-  Header.Rate := 60; // 60hz
-  Header.GBDMGclock := 4194304; // 4194304 hz (from docs)
-
-  // TODO: Fill total wait ticks, loop point offset, loop length
-
-  VGMFile.WriteBuffer(Header, SizeOf(Header));
-
-  for Cmd in CommandBuffer do begin
-    case Cmd.type_ of
-      ctRegWrite: begin
-        VGMFile.WriteByte($B3); // Write DMG Reg
-        VGMFile.WriteByte(Byte(Cmd.Reg - $FF10));
-        VGMFile.WriteByte(Byte(Cmd.Param));
-      end;
-      ctWait: begin
-        VGMFile.WriteByte($61); // TODO: Use the smaller commands if it matches
-        VGMFile.WriteWord(Word(Cmd.Param));
-      end;
-    end;
-  end;
-
-  VGMFile.Free;
-  CommandBuffer.Clear;
-end;
-
 procedure VGMWriteReg(Reg: Integer; Value: Integer);
-var
-  Cmd: TVGMCommand;
 begin
-  Cmd.type_ := ctRegWrite;
-  Cmd.Reg := Reg;
-  Cmd.Param := Value;
-
-  CommandBuffer.PushBack(Cmd);
+  VGMFile.WriteByte($B3); // Write DMG Reg
+  VGMFile.WriteByte(Byte(Reg - $FF10));
+  VGMFile.WriteByte(Byte(Value));
 end;
 
 procedure VGMWait(Amount: Integer);
-var
-  Cmd: TVGMCommand;
 begin
-  Cmd.type_ := ctWait;
-  Cmd.Param := Amount;
-
-  CommandBuffer.PushBack(Cmd);
+  VGMFile.WriteByte($62); // TODO: Use the smaller commands if it matches
+  //VGMFile.WriteWord(Word(Amount));
+  Inc(TotalWaitSamps, 735);
 end;
 
 { TOrderChecker }
@@ -218,8 +226,12 @@ begin
   CurrentOrder := Ord;
 end;
 
+procedure TOrderChecker.TickCallback;
+begin
+  VGMWait(0);
+end;
+
 begin
   OrderChecker := TOrderChecker.Create;
-  CommandBuffer := TCommandVector.Create;
 end.
 

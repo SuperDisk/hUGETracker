@@ -2132,6 +2132,12 @@ begin
   Result := 0;
 end;
 
+function uge_f4: byte;
+begin
+  if Assigned(F4Callback) then F4Callback;
+  Result := 0;
+end;
+
 function rlc_b: byte;
 begin
   af.l := rlcr_f[bc.h];
@@ -4381,7 +4387,7 @@ begin
   Z80[241] := @pop_af;
   Z80[242] := @ld_a_ff00plusc;
   Z80[243] := @di;
-  Z80[244] := @unimplemented;
+  Z80[244] := @uge_f4;
   Z80[245] := @push_af;
   Z80[246] := @or_XX;
   Z80[247] := @rst_48;

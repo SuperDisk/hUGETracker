@@ -85,7 +85,7 @@ function getcompany: string;
 
 implementation
 
-uses vars, sound;
+uses vars, sound, vgm;
 
 function getCompany: string;
 var
@@ -462,6 +462,9 @@ begin
       end;
       $ff10..$ff3F:
       begin
+        if WritingVGM then
+          VGMWriteReg(Address, Data);
+
         sndRegChange := True;
         if address = $ff26 then
         begin
