@@ -5,7 +5,7 @@ unit VGM;
 interface
 
 uses
-  Classes, SysUtils, gvector;
+  Classes, SysUtils, gvector, vars, mainloop, sound, constants;
 
 type
   // Header for a v1.61 VGM file.
@@ -83,7 +83,7 @@ type
 var
   RecordingVGM: Boolean = False;
 
-procedure BeginRecordingVGM(F: String);
+procedure ExportVGMFile(F: String);
 procedure EndRecordingVGM;
 
 procedure VGMWriteReg(Reg: Integer; Value: Integer);
@@ -91,20 +91,60 @@ procedure VGMWait(Amount: Integer);
 
 implementation
 
+uses symparser;
+
+type
+  // Need to wrap the FC callback in a class because it's declared to be
+  // "procedure of object" :(
+
+  { TOrderChecker }
+
+  TOrderChecker = class
+    procedure OrderCheckCallback;
+  end;
+
 var
+  SeenOrders: array of Integer;
+  OrderChecker: TOrderChecker;
+  StartOfSong, CurrentOrder: Integer;
   VGMFile: TFileStream;
   CommandBuffer: TCommandVector;
   TotalWaitTicks: Integer;
 
-procedure BeginRecordingVGM(F: String);
+procedure ExportVGMFile(F: String);
+var
+  OldFD, OldFC: TCPUCallback;
 begin
+  OldFD := FDCallback;
+  OldFC := FCCallback;
+  FDCallback := nil;
+  FCCallback := @OrderChecker.OrderCheckCallback;
+
+  z80_reset;
+  ResetSound;
+  enablesound;
+  load('render/preview.gb');
+
+  SetLength(SeenOrders, PeekSymbol(SYM_ORDER_COUNT) div 2);
+  StartOfSong := -1;
+  CurrentOrder := -1;
+
   // Due to the annoying format of VGM where the header needs values that can
   // only be computed after rendering the entire file, we store the data in
   // memory until recording is finished, and dump it all out then.
   // Thankfully VGM files are small enough to fit in RAM.
-
+  IsWritingVGM := True;
   VGMFile := TFileStream.Create(F, fmOpenWrite);
   CommandBuffer.Clear;
+
+  repeat
+    z80_decode
+  until StartOfSong <> -1;
+
+  EndRecordingVGM;
+
+  FDCallback := OldFD;
+  FCCallback := OldFC;
 end;
 
 procedure EndRecordingVGM;
@@ -112,6 +152,8 @@ var
   Header: TVGMHeader;
   Cmd: TVGMCommand;
 begin
+  IsWritingVGM := False;
+
   Header := Default(TVGMHeader); // Zero the header
   Header.Vgmident := $56676d20; // "Vgm "
   Header.Version := $00000161; // 1.61
@@ -121,6 +163,7 @@ begin
   // TODO: Fill total wait ticks, loop point offset, loop length
 
   VGMFile.WriteBuffer(Header, SizeOf(Header));
+
   for Cmd in CommandBuffer do begin
     case Cmd.type_ of
       ctRegWrite: begin
@@ -160,7 +203,23 @@ begin
   CommandBuffer.PushBack(Cmd);
 end;
 
+{ TOrderChecker }
+
+procedure TOrderChecker.OrderCheckCallback;
+var
+  Ord: Integer;
 begin
+  Ord := (PeekSymbol(SYM_CURRENT_ORDER) div 2);
+
+  if (SeenOrders[Ord] <> 0) and (StartOfSong = -1) then
+      StartOfSong := Ord;
+
+  Inc(SeenOrders[Ord]);
+  CurrentOrder := Ord;
+end;
+
+begin
+  OrderChecker := TOrderChecker.Create;
   CommandBuffer := TCommandVector.Create;
 end.
 

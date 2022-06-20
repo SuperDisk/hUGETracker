@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 880
+  Left = 937
   Height = 857
-  Top = 201
+  Top = 137
   Width = 1318
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -1855,7 +1855,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 557
+      Left = 551
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1880,7 +1880,7 @@ object frmTracker: TfrmTracker
       Hint = 'Export the song as a standalone ROM'
       Top = 0
       AutoSize = True
-      Caption = 'Export .GB'
+      Caption = 'Export GB'
       ImageIndex = 81
       OnClick = ExportGBButtonClick
     end
@@ -1899,14 +1899,14 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 1097
+      Left = 1091
       Height = 22
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object OctaveSpinEdit: TSpinEdit
-      Left = 663
+      Left = 657
       Height = 23
       Hint = 'The octave offset for entering new notes'
       Top = 0
@@ -1917,14 +1917,14 @@ object frmTracker: TfrmTracker
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 612
+      Left = 606
       Height = 22
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 620
+      Left = 614
       Height = 22
       Top = 0
       Width = 43
@@ -1935,7 +1935,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object Label23: TLabel
-      Left = 728
+      Left = 722
       Height = 22
       Top = 0
       Width = 70
@@ -1946,7 +1946,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object InstrumentComboBox: TComboBox
-      Left = 798
+      Left = 792
       Height = 23
       Hint = 'The selected instrument for new notes'
       Top = 0
@@ -1964,7 +1964,7 @@ object frmTracker: TfrmTracker
       Text = '(no instrument)'
     end
     object Label24: TLabel
-      Left = 1012
+      Left = 1006
       Height = 22
       Top = 0
       Width = 35
@@ -1975,7 +1975,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object StepSpinEdit: TSpinEdit
-      Left = 1047
+      Left = 1041
       Height = 23
       Hint = 'How many rows to step down after entering a new note'
       Top = 0
@@ -1991,22 +1991,22 @@ object frmTracker: TfrmTracker
       Action = PlayStartAction
     end
     object ExportGBSButton: TToolButton
-      Left = 372
+      Left = 369
       Hint = 'Export the song as a GBS soundtrack'
       Top = 0
-      Caption = 'Export .GBS'
+      Caption = 'Export GBS'
       ImageIndex = 80
       OnClick = ExportGBSButtonClick
     end
     object ToolButton5: TToolButton
-      Left = 552
+      Left = 546
       Height = 22
       Top = 0
       Caption = 'ToolButton5'
       Style = tbsDivider
     end
     object ToolButton10: TToolButton
-      Left = 459
+      Left = 453
       Hint = 'Export the song as WAV or MP3'
       Top = 0
       Caption = 'Render Song'
@@ -2067,6 +2067,7 @@ object frmTracker: TfrmTracker
         Caption = 'Export VGM ...'
         Hint = 'Export the song as a VGM, useful for creating sound effects'
         ImageIndex = 84
+        OnClick = MenuItem10Click
       end
       object MenuItem40: TMenuItem
         Caption = '-'
@@ -2633,7 +2634,7 @@ object frmTracker: TfrmTracker
     Top = 24
   end
   object GBSaveDialog: TSaveDialog
-    Filter = 'Gameboy ROM|*.GB'
+    Filter = 'Gameboy ROM|*.gb'
     Left = 328
     Top = 24
   end
@@ -3078,5 +3079,10 @@ object frmTracker: TfrmTracker
     Filter = 'RGBDS Assembly|*.asm'
     Left = 272
     Top = 48
+  end
+  object VGMSaveDialog: TSaveDialog
+    Filter = 'VGM Rip|*.vgm'
+    Left = 356
+    Top = 52
   end
 end

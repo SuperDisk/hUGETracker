@@ -18,6 +18,8 @@ const
 var
   FDCallback, FCCallback: TCPUCallback;
 
+  IsWritingVGM: Boolean = False;
+
   bdrop, dirname, dirload: string;
   romname, speicher: string[128];
   buffer: array[0..1023] of char;

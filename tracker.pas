@@ -10,7 +10,7 @@ uses
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
-  modimport, mainloop, strutils, Types, Keymap, hUGESettings;
+  modimport, mainloop, strutils, Types, Keymap, hUGESettings, vgm;
 
 // TODO: Move to config file?
 const
@@ -42,6 +42,7 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    VGMSaveDialog: TSaveDialog;
     MenuItem10: TMenuItem;
     TempoBPMLabel: TLabel;
     TimerEnabledCheckBox: TCheckBox;
@@ -288,6 +289,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     TableGrid: TTableGrid;
+    procedure MenuItem10Click(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
     procedure TrackerPopupMixPasteClick(Sender: TObject);
@@ -2004,6 +2006,16 @@ procedure TfrmTracker.TimerDividerSpinEditChange(Sender: TObject);
 begin
   Song.TimerDivider := TimerDividerSpinEdit.Value;
   UpdateBPMLabel
+end;
+
+procedure TfrmTracker.MenuItem10Click(Sender: TObject);
+begin
+  if RenderPreviewROM and VGMSaveDialog.Execute then begin
+    StopPlayback;
+    ParseSymFile('render/preview.sym');
+
+    ExportVGMFile(VGMSaveDialog.FileName);
+  end;
 end;
 
 procedure TfrmTracker.TimerEnabledCheckBoxChange(Sender: TObject);
