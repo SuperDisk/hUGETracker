@@ -68,11 +68,8 @@ type
     K053260clock: UInt32;
     Pokeyclock: UInt32;
     QSoundclock: UInt32;
-    Reserved3: UInt64; // 8 bytes
+    Reserved3: UInt64;
   end;
-
-var
-  RecordingVGM: Boolean = False;
 
 procedure ExportVGMFile(F: String; TrackName: String; ArtistName: String; Comments: String);
 
@@ -99,7 +96,8 @@ var
   OrderChecker: TOrderChecker;
   StartOfSong, CurrentOrder: Integer;
   VGMFile: TFileStream;
-  TotalWaitSamps: Integer;
+  TotalWaitSamps, LoopWaitSamps: LongInt;
+  CyclesSinceLastTick: Integer;
 
 procedure WriteUtf16String(S: String);
 var
@@ -119,6 +117,7 @@ var
 
   YY,MM,DD: Word;
   GD3Temp: Integer;
+  StepCycles: Integer;
 begin
   // TODO: Manage these callbacks in a better way, maybe some sort of stack.
   OldFD := FDCallback;
@@ -143,8 +142,10 @@ begin
   Header := Default(TVGMHeader); // Zero the header
   VGMFile.WriteBuffer(Header, SizeOf(Header)); // Write dummy header (will overwrite later)
 
+  CyclesSinceLastTick := 0;
   repeat
-    z80_decode
+    StepCycles := z80_decode;
+    Inc(CyclesSinceLastTick, StepCycles);
   until StartOfSong <> -1;
 
   VGMFile.WriteByte($66); // End of data
@@ -154,8 +155,8 @@ begin
   // Update the header to point to the GD3 tag, then write it
   Header.GD3offset := VGMFile.Position - $14;
 
-  VGMFile.WriteDWord($20336447);
-  VGMFile.WriteDWord($00000100);
+  VGMFile.WriteDWord($20336447); // 'Gd3 '
+  VGMFile.WriteDWord($00000100); // Version
 
   GD3Temp := VGMFile.Position;
   VGMFile.WriteDWord(0); // dummy value...
@@ -209,9 +210,9 @@ end;
 
 procedure VGMWait(Amount: Integer);
 begin
-  VGMFile.WriteByte($62); // TODO: Use the smaller commands if it matches
-  //VGMFile.WriteWord(Word(Amount));
-  Inc(TotalWaitSamps, 735);
+  VGMFile.WriteByte($61); // TODO: Use the smaller commands if it matches
+  VGMFile.WriteWord(Word(Amount));
+  Inc(TotalWaitSamps, Amount);
 end;
 
 { TOrderChecker }
@@ -231,7 +232,8 @@ end;
 
 procedure TOrderChecker.TickCallback;
 begin
-  VGMWait(0);
+  VGMWait(Trunc((CyclesSinceLastTick / (4194304))*44100.0));
+  CyclesSinceLastTick := 0;
 end;
 
 begin
