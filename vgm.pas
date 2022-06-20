@@ -101,11 +101,22 @@ var
   VGMFile: TFileStream;
   TotalWaitSamps: Integer;
 
+procedure WriteUtf16String(S: String);
+var
+  Utf16Bytes: TBytes;
+begin
+  if Length(S) > 0 then begin
+    Utf16Bytes := WideBytesOf(UTF8Decode(S));
+    VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
+  end;
+  VGMFile.WriteWord(0);
+end;
+
 procedure ExportVGMFile(F: String; TrackName: String; ArtistName: String; Comments: String);
 var
   OldFD, OldFC, OldF4: TCPUCallback;
   Header: TVGMHeader;
-  Utf16Bytes: TBytes;
+
   YY,MM,DD: Word;
   GD3Temp: Integer;
 begin
@@ -136,6 +147,8 @@ begin
     z80_decode
   until StartOfSong <> -1;
 
+  VGMFile.WriteByte($66); // End of data
+
   WritingVGM := False;
 
   // Update the header to point to the GD3 tag, then write it
@@ -146,31 +159,21 @@ begin
 
   GD3Temp := VGMFile.Position;
   VGMFile.WriteDWord(0); // dummy value...
-  Utf16Bytes := WideBytesOf(UTF8Decode(TrackName));
-  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes)); // English name
-  VGMFile.WriteWord(0);
 
-  VGMFile.WriteWord(0); // No japanese track name
-  VGMFile.WriteWord(0); // No game name
-  VGMFile.WriteWord(0); // No japanese game name
-  Utf16Bytes := WideBytesOf('Nintendo Game Boy');
-  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
-  VGMFile.WriteWord(0);
-  VGMFile.WriteWord(0); // No japanese system name
-  Utf16Bytes := WideBytesOf(UTF8Decode(ArtistName));
-  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
-  VGMFile.WriteWord(0);
-  VGMFile.WriteWord(0); // No japanese author name
   DecodeDate(Date, YY, MM, DD);
-  Utf16Bytes := WideBytesOf(UTF8Decode(Format('%d/%.2d/%.2d', [YY, MM, DD])));
-  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
-  VGMFile.WriteWord(0);
-  Utf16Bytes := WideBytesOf('hUGETracker');
-  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
-  VGMFile.WriteWord(0);
-  Utf16Bytes := WideBytesOf(UTF8Decode(Comments));
-  VGMFile.WriteBuffer(Utf16Bytes[0], Length(Utf16Bytes));
-  VGMFile.WriteWord(0);
+
+  WriteUtf16String(TrackName); // English track name
+  WriteUtf16String(''); // Japanese track name
+  WriteUtf16String(''); // English game name
+  WriteUtf16String(''); // Japanese game name
+  WriteUtf16String('Nintendo Game Boy'); // English system name
+  WriteUtf16String(''); // Japanese system name
+  WriteUtf16String(ArtistName); // English artist name
+  WriteUtf16String(''); // Japanese artist name
+  WriteUtf16String(Format('%d/%.2d/%.2d', [YY, MM, DD])); // Creation date
+  WriteUtf16String('hUGETracker'); // Program name
+  WriteUtf16String(''); // Japanese program name
+  WriteUtf16String(Comments); // Comments
 
   // Go back and overwrite that dummy (unnecessary) length value.
   // The VGM and GD3 formats sure are ugly. Not that UGE is any better.
