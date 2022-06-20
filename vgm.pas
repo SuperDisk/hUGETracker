@@ -94,6 +94,7 @@ implementation
 var
   VGMFile: TFileStream;
   CommandBuffer: TCommandVector;
+  TotalWaitTicks: Integer;
 
 procedure BeginRecordingVGM(F: String);
 begin
@@ -109,6 +110,7 @@ end;
 procedure EndRecordingVGM;
 var
   Header: TVGMHeader;
+  Cmd: TVGMCommand;
 begin
   Header := Default(TVGMHeader); // Zero the header
   Header.Vgmident := $56676d20; // "Vgm "
@@ -116,7 +118,25 @@ begin
   Header.Rate := 60; // 60hz
   Header.GBDMGclock := 4194304; // 4194304 hz (from docs)
 
+  // TODO: Fill total wait ticks, loop point offset, loop length
+
   VGMFile.WriteBuffer(Header, SizeOf(Header));
+  for Cmd in CommandBuffer do begin
+    case Cmd.type_ of
+      ctRegWrite: begin
+        VGMFile.WriteByte($B3); // Write DMG Reg
+        VGMFile.WriteByte(Byte(Cmd.Reg - $FF10));
+        VGMFile.WriteByte(Byte(Cmd.Param));
+      end;
+      ctWait: begin
+        VGMFile.WriteByte($61); // TODO: Use the smaller commands if it matches
+        VGMFile.WriteWord(Word(Cmd.Param));
+      end;
+    end;
+  end;
+
+  VGMFile.Free;
+  CommandBuffer.Clear;
 end;
 
 procedure VGMWriteReg(Reg: Integer; Value: Integer);
@@ -124,7 +144,7 @@ var
   Cmd: TVGMCommand;
 begin
   Cmd.type_ := ctRegWrite;
-  Cmd.Reg := Reg - $FF10;
+  Cmd.Reg := Reg;
   Cmd.Param := Value;
 
   CommandBuffer.PushBack(Cmd);

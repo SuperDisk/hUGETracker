@@ -19,13 +19,13 @@ type
     ComboBox1: TComboBox;
     Label2: TLabel;
     Label3: TLabel;
+    Panel1: TPanel;
     PlayEntireSongRadioButton: TRadioButton;
     FromPositionRadioButton: TRadioButton;
     RenderButton: TButton;
     CancelButton: TButton;
     FileNameEdit1: TFileNameEdit;
     Label1: TLabel;
-    ProgressBar1: TProgressBar;
     PlayEntireSongSpinEdit: TSpinEdit;
     FromPositionLowerSpinEdit: TSpinEdit;
     FromPositionUpperSpinEdit: TSpinEdit;
@@ -42,7 +42,7 @@ type
 
     function FilenameToFormatIndex: Integer;
     function GetFFMPEGFormat: String;
-    procedure UpdateButtonEnabledStates;
+    procedure UpdateUI;
 
     procedure ExportWaveToFile(Filename: String);
 
@@ -65,10 +65,9 @@ uses sound, machine, mainloop, vars, symparser;
 
 procedure TfrmRenderToWave.RenderButtonClick(Sender: TObject);
 begin
-  ProgressBar1.Position := 0;
   Rendering := True;
   CancelRequested := False;
-  UpdateButtonEnabledStates;
+  UpdateUI;
 
   try
     ExportWaveToFile(FileNameEdit1.FileName);
@@ -79,30 +78,28 @@ begin
     end;
   end;
 
-  ProgressBar1.Position := 0;
   Rendering := False;
   CancelRequested := False;
-  UpdateButtonEnabledStates;
+  UpdateUI;
 end;
 
 procedure TfrmRenderToWave.CancelButtonClick(Sender: TObject);
 begin
   CancelRequested := True;
-  UpdateButtonEnabledStates;
+  UpdateUI;
 end;
 
 procedure TfrmRenderToWave.FileNameEdit1Change(Sender: TObject);
 begin
   ComboBox1.ItemIndex := FilenameToFormatIndex;
-  UpdateButtonEnabledStates;
+  UpdateUI;
 end;
 
 procedure TfrmRenderToWave.FormShow(Sender: TObject);
 begin
-  ProgressBar1.Position:=0;
   FileNameEdit1.FileName:='';
   PlayEntireSongRadioButton.Checked:=True;
-  PlayEntireSongSpinEdit.Value:=0;
+  PlayEntireSongSpinEdit.Value:=1;
   FromPositionLowerSpinEdit.Value:=0;
   FromPositionUpperSpinEdit.Value:=0;
 end;
@@ -127,7 +124,7 @@ begin
   end;
 end;
 
-procedure TfrmRenderToWave.UpdateButtonEnabledStates;
+procedure TfrmRenderToWave.UpdateUI;
 begin
   RenderButton.Enabled := (FileNameEdit1.FileName <> '') and not Rendering;
   CancelButton.Enabled := Rendering and not CancelRequested;
@@ -137,8 +134,6 @@ procedure TfrmRenderToWave.ExportWaveToFile(Filename: String);
 var
   Proc: TProcess;
 begin
-  ProgressBar1.Position := 0;
-
   z80_reset;
   ResetSound;
   enablesound;
@@ -186,6 +181,8 @@ begin
     Proc.CloseInput;
     Proc.WaitOnExit;
     Proc.Free;
+
+    Panel1.Caption := 'Ready';
   end;
 end;
 
@@ -263,6 +260,7 @@ begin
 
   Inc(SeenPatterns[Pat]);
   CurrentPattern := Pat;
+  Panel1.Caption := 'Rendering order '+IntToStr(CurrentPattern+1);
 end;
 
 end.
