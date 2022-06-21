@@ -5,7 +5,7 @@ unit VGM;
 interface
 
 uses
-  Classes, SysUtils, gvector, vars, mainloop, sound, constants;
+  Classes, SysUtils, vars, mainloop, sound, constants;
 
 type
   // Header for a v1.61 VGM file.
@@ -92,11 +92,15 @@ type
   end;
 
 var
-  SeenOrders: array of Integer;
+  SeenOrders: array of record
+    TimesSeen: Integer;
+    SampsToReach: Integer;
+    DataOffset: Integer;
+  end;
   OrderChecker: TOrderChecker;
-  StartOfSong, CurrentOrder: Integer;
+  StartOfSong: Integer;
   VGMFile: TFileStream;
-  TotalWaitSamps, LoopWaitSamps: LongInt;
+  TotalWaitSamps: Integer;
   CyclesSinceLastTick: Integer;
 
 procedure WriteUtf16String(S: String);
@@ -134,7 +138,6 @@ begin
 
   SetLength(SeenOrders, PeekSymbol(SYM_ORDER_COUNT) div 2);
   StartOfSong := -1;
-  CurrentOrder := -1;
 
   WritingVGM := True;
   VGMFile := TFileStream.Create(F, fmCreate);
@@ -191,10 +194,15 @@ begin
   Header.VGMdataoffset := $8C;
   Header.TotalNumsamples := TotalWaitSamps;
 
+  Header.LoopNumsamples := TotalWaitSamps - SeenOrders[StartOfSong].SampsToReach;
+  Header.Loopoffset := SeenOrders[StartOfSong].DataOffset - $1C;
+
   VGMFile.Seek(0, soBeginning);
   VGMFile.WriteBuffer(Header, SizeOf(Header));
 
   VGMFile.Free;
+
+  SetLength(SeenOrders, 0);
 
   F4Callback := OldF4;
   FDCallback := OldFD;
@@ -223,11 +231,15 @@ var
 begin
   Ord := (PeekSymbol(SYM_CURRENT_ORDER) div 2);
 
-  if (SeenOrders[Ord] <> 0) and (StartOfSong = -1) then
+  if (SeenOrders[Ord].TimesSeen = 0) then begin
+    SeenOrders[Ord].SampsToReach := TotalWaitSamps;
+    SeenOrders[Ord].DataOffset := VGMFile.Position;
+  end;
+
+  if (SeenOrders[Ord].TimesSeen <> 0) and (StartOfSong = -1) then
       StartOfSong := Ord;
 
-  Inc(SeenOrders[Ord]);
-  CurrentOrder := Ord;
+  Inc(SeenOrders[Ord].TimesSeen);
 end;
 
 procedure TOrderChecker.TickCallback;
