@@ -52,14 +52,46 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     SL.Free;
   end;
 
+  function RenderGBDKSubpatternCell(Cell: TCell; Last: Boolean): string;
+  var
+    SL: TStringList;
+  begin
+    SL := TStringList.Create;
+    SL.Delimiter := ',';
+
+    if Cell.Note = NO_NOTE then
+      SL.Add('___')
+    else
+      SL.Add(IntToStr(Cell.Note));
+
+    if Last and (Cell.Volume = 0) then
+      SL.Add(IntToStr(1)) // Automatically insert jump back to row 1 if last cell
+    else
+      SL.Add(IntToStr(EnsureRange(Cell.Volume, 0, 32)));
+
+    SL.Add('0x' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
+
+    Result := SL.DelimitedText;
+    SL.Free;
+  end;
+
   function RenderGBDKPattern(Name: string; Pat: TPattern): string;
   var
     Cell: TCell;
   begin
-
     Result := 'static const unsigned char ' + Name + '[] = {' + LineEnding;
     for Cell in Pat do
       Result += '    DN(' + RenderGBDKCell(Cell) + '),' + LineEnding;
+    Result += '};';
+  end;
+
+  function RenderGBDKSubpattern(Name: string; Pat: TPattern): string;
+  var
+    I: Integer;
+  begin
+    Result := 'static const unsigned char ' + Name + '[] = {' + LineEnding;
+    for I := 0 to 31 do
+      Result += '    DN(' + RenderGBDKSubpatternCell(Pat[I], I = 31) + '),' + LineEnding;
     Result += '};';
   end;
 
@@ -81,12 +113,13 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     SL.Free;
   end;
 
-  function RenderGBDKInstrument(Instrument: TInstrument): string;
+  function RenderGBDKInstrument(Instrument: TInstrument; Num: Integer): string;
   var
     SL: TStringList;
     AsmInstrument: TAsmInstrument;
     J: integer;
     HighMask: byte;
+    TypePrefix: String;
   begin
     AsmInstrument := InstrumentToBytes(Instrument);
     SL := TStringList.Create;
@@ -103,24 +136,39 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
       if Instrument.CounterStep = swSeven then
         HighMask := HighMask or %10000000;
       SL.Add(IntToStr(HighMask));
-
-      for J := Low(TNoiseMacro) to High(TNoiseMacro) do
-        SL.Add(IntToStr(Byte(0)));
     end
     else
       for J := Low(AsmInstrument) to High(AsmInstrument) do
         SL.Add(IntToStr(AsmInstrument[J]));
 
-    Result := SL.DelimitedText;
+    WriteStr(TypePrefix, Instrument.Type_);
+
+    if Instrument.SubpatternEnabled then
+      SL.Insert(SL.Count-1, Format('%sSP%d', [TypePrefix, Num]))
+    else
+      SL.Insert(SL.Count-1, '0');
+
+    if Instrument.Type_ = itNoise then begin
+      SL.Add('0');
+      SL.Add('0');
+    end;
+
+    Result := '{'+SL.DelimitedText+'}';
   end;
 
   function RenderGBDKInstrumentBank(Name: string; Bank: TInstrumentBank): string;
   var
     I: integer;
+    InstrType: String;
   begin
-    Result := 'static const unsigned char ' + Name + '[] = {'+LineEnding;
+    case Bank[1].Type_ of
+      itSquare: InstrType := 'hUGEDutyInstr_t';
+      itWave: InstrType := 'hUGEWaveInstr_t';
+      itNoise: InstrType := 'hUGENoiseInstr_t';
+    end;
+    Result := 'static const ' + InstrType + ' ' + Name + '[] = {'+LineEnding;
     for I := Low(Bank) to High(Bank) do begin
-      Result += RenderGBDKInstrument(Bank[I]) + ','+LineEnding;
+      Result += '    '+RenderGBDKInstrument(Bank[I], I) + ','+LineEnding;
     end;
     Result += '};';
   end;
@@ -150,6 +198,7 @@ var
   OrderCnt: integer;
   I: integer;
   F: Text;
+  TypePrefix: String;
 begin
   Song := OptimizeSong(Song);
 
@@ -171,13 +220,19 @@ begin
   OutSL.Add(Format('static const unsigned char order_cnt = %d;', [OrderCnt * 2]));
   OutSL.Add('');
 
-  // TODO: Are keys and data defined to be aligned? Seems like they are but
-  // should probably find out if that's just an implementation detail...
   for I := 0 to Song.Patterns.Count - 1 do
     if PatternIsUsed(Song.Patterns.Keys[I], Song) then
       OutSL.Add(RenderGBDKPattern('P' + IntToStr(Song.Patterns.Keys[I]),
         Song.Patterns.Data[I]^));
   OutSL.Add('');
+
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
+    with Song.Instruments.All[I] do begin
+      if SubpatternEnabled then begin
+        WriteStr(TypePrefix, Type_);
+        OutSL.Add(RenderGBDKSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+      end;
+    end;
 
   OutSL.Add(RenderGBDKOrder(1, Song.OrderMatrix[0]));
   OutSL.Add(RenderGBDKOrder(2, Song.OrderMatrix[1]));
@@ -279,7 +334,10 @@ begin
       ResultSL.Insert(ResultSL.Count-1, Format('dw %sSP%d', [TypePrefix, I]))
     else
       ResultSL.Insert(ResultSL.Count-1, 'dw 0');
-    ResultSL.Add('ds '+IfThen(Instruments[I].Type_ = itNoise, '4', '2'));
+
+    if Instruments[I].Type_ = itNoise then
+      ResultSL.Add('ds 2');
+
     ResultSL.Add('');
   end;
 
@@ -312,22 +370,7 @@ begin
   SL.Free;
 end;
 
-function RenderPattern(Name: string; Pattern: TPattern): string;
-var
-  SL: TStringList;
-  I: integer;
-begin
-  SL := TStringList.Create;
-  SL.Add(Name + ':');
-
-  for I := Low(TPattern) to High(TPattern) do
-    SL.Add(RenderCell(Pattern[I]));
-
-  Result := SL.Text;
-  SL.Free;
-end;
-
-function RenderTableCell(Cell: TCell; Last: Boolean): string;
+function RenderSubpatternCell(Cell: TCell; Last: Boolean): string;
 var
   SL: TStringList;
 begin
@@ -352,7 +395,22 @@ begin
   SL.Free;
 end;
 
-function RenderTablePattern(Name: string; Pattern: TPattern): string;
+function RenderPattern(Name: string; Pattern: TPattern): string;
+var
+  SL: TStringList;
+  I: integer;
+begin
+  SL := TStringList.Create;
+  SL.Add(Name + ':');
+
+  for I := Low(TPattern) to High(TPattern) do
+    SL.Add(RenderCell(Pattern[I]));
+
+  Result := SL.Text;
+  SL.Free;
+end;
+
+function RenderSubpattern(Name: string; Pattern: TPattern): string;
 var
   SL: TStringList;
   I: integer;
@@ -361,7 +419,7 @@ begin
   SL.Add(Name + ':');
 
   for I := 0 to 31 do
-    SL.Add(RenderTableCell(Pattern[I], I = 31)); // TODO: hardcoded value
+    SL.Add(RenderSubpatternCell(Pattern[I], I = 31)); // TODO: hardcoded value
 
   Result := SL.Text;
   SL.Free;
@@ -399,6 +457,7 @@ var
   OutSL: TStringList;
   F: Text;
   I: Integer;
+  TypePrefix: String;
 begin
   OutSL := TStringList.Create;
 
@@ -421,12 +480,18 @@ begin
   OutSL.Add(RenderOrderTable(Song.OrderMatrix));
 
   // Render patterns
-
-  // TODO: Are keys and data defined to be aligned? Seems like they are but
-  // should probably find out if that's just an implementation detail...
   for I := 0 to Song.Patterns.Count - 1 do
     if PatternIsUsed(Song.Patterns.Keys[I], Song) then
       OutSL.Add(RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]), Song.Patterns.Data[I]^));
+
+  // Render subpatterns
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
+    with Song.Instruments.All[I] do begin
+      if SubpatternEnabled then begin
+        WriteStr(TypePrefix, Type_);
+        OutSL.Add(RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+      end;
+    end;
 
   // Render instruments
   OutSL.Add('duty_instruments:');
@@ -582,8 +647,6 @@ begin
   AssignFile(OutFile, 'render/pattern.htt');
   Rewrite(OutFile);
 
-  // TODO: Are keys and data defined to be aligned? Seems like they are but
-  // should probably find out if that's just an implementation detail...
   for I := 0 to Song.Patterns.Count - 1 do
     if PatternIsUsed(Song.Patterns.Keys[I], Song) then
       Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]),
@@ -594,13 +657,11 @@ begin
   AssignFile(OutFile, 'render/subpattern.htt');
   Rewrite(OutFile);
 
-  // TODO: Are keys and data defined to be aligned? Seems like they are but
-  // should probably find out if that's just an implementation detail...
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
     with Song.Instruments.All[I] do begin
       if SubpatternEnabled then begin
         WriteStr(TypePrefix, Type_);
-        Write(OutFile, RenderTablePattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+        Write(OutFile, RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
       end;
     end;
 
