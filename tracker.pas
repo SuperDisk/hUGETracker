@@ -42,6 +42,8 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    FileSave1: TAction;
+    MenuItem42: TMenuItem;
     VGMSaveDialog: TSaveDialog;
     MenuItem10: TMenuItem;
     TempoBPMLabel: TLabel;
@@ -289,6 +291,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     TableGrid: TTableGrid;
+    procedure FileSave1Execute(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
@@ -2019,6 +2022,14 @@ begin
     StartPlayback;
     HaltPlayback;
   end;
+end;
+
+procedure TfrmTracker.FileSave1Execute(Sender: TObject);
+begin
+  if FileSaveAs1.Dialog.FileName = '' then
+    FileSaveAs1.Execute
+  else
+    FileSaveAs1Accept(Sender);
 end;
 
 procedure TfrmTracker.TimerEnabledCheckBoxChange(Sender: TObject);
