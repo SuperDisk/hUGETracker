@@ -635,11 +635,11 @@ begin
         OverlayCell(Patterns[Where.X + X]^[Where.Y + Y], Paste[Y, X]);
       end;
     end;
-    Cursor := Where;
-    Other.X := Cursor.X + X;
-    Other.Y := Cursor.Y + Y;
-    Cursor.SelectedPart := Low(TCellPart);
-    Other.SelectedPart := High(TCellPart);
+    Other := Where;
+    Cursor.X := Other.X + X;
+    Cursor.Y := Other.Y + Y;
+    Other.SelectedPart := Low(TCellPart);
+    Cursor.SelectedPart := High(TCellPart);
   except
     on E: Exception do
       WriteLn(StdErr, '[DEBUG] Clipboard did not contain valid note data!');
