@@ -1,0 +1,122 @@
+name: Build hUGETracker
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-22.04
+          - macos-10.15
+          - windows-2019
+        include:
+          - os: ubuntu-22.04
+            name: Linux
+          - os: macos-10.15
+            name: Mac
+          - os: windows-2019
+            name: Windows
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Install Ubuntu dependencies
+        if: matrix.name == 'Linux'
+        run: |
+          sudo apt -qq update
+          sudo apt install -yq lazarus libsdl2-dev bison
+          curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.5.2/rgbds-0.5.2.tar.gz'
+          tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
+          cd rgbds
+          make -j4 rgbasm rgblink rgbfix Q=
+
+      - name: Install macOS dependencies
+        if: matrix.name == 'Mac'
+        run: |
+          brew install --cask lazarus
+          brew install sdl2 rgbds
+          mkdir rgbds
+          for f in asm link fix; do ln -s `which rgb$f` rgbds/rgb$f; done
+
+      - name: Install Windows dependencies
+        if: matrix.name == 'Windows'
+        shell: bash
+        run: |
+          choco install lazarus
+          curl -Lo 'sdl2.zip' 'https://www.libsdl.org/release/SDL2-2.0.22-win32-x64.zip'
+          curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.5.2/rgbds-0.5.2-win64.zip'
+          unzip -d rgbds rgbds.zip rgb{asm,link,fix}.exe
+
+      - name: Set up MSYS2
+        if: matrix.name == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          path-type: strict
+          release: false
+          update: false
+          install: >-
+            base-devel
+            mingw-w64-x86_64-toolchain
+            yasm
+
+      - name: Compile FFmpeg
+        if: matrix.name == 'Windows'
+        shell: msys2 {0}
+        run: |
+          curl -Lo lame.tar.gz 'https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz'
+          tar xf lame.tar.gz
+          pushd lame-3.100
+          ./configure --prefix="`realpath ..`/lame-install" --disable-dependency-tracking --disable-shared --enable-nasm --disable-gtktest --disable-decoder --disable-frontend
+          make
+          make install
+          popd
+          curl -Lo ffmpeg.tar.xz 'http://ffmpeg.org/releases/ffmpeg-4.4.tar.xz'
+          tar xf ffmpeg.tar.xz
+          cd ffmpeg-4.4
+          ./configure --extra-ldflags="-static" --disable-debug --enable-lto --disable-programs --enable-ffmpeg --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le --enable-encoder=flac --enable-muxer=ogg --enable-muxer=flac --enable-encoder=pcm_s16le --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 --extra-cflags="-I`realpath ../lame-install/include`" --extra-ldflags="-L`realpath ../lame-install/lib`"
+          make
+
+      - name: Check out hUGETracker
+        uses: actions/checkout@v2
+        with:
+          path: hUGETracker
+          submodules: true # This is intentionally not "recursive", change if needed
+
+      - name: Build release
+        shell: bash
+        working-directory: hUGETracker
+        run: | # The PATH manipulation is because the macOS and Windows installs do NOT put it in the PATH >_<
+          export PATH="$PATH":/Applications/Lazarus:/c/lazarus
+
+          lazbuild --add-package-link rackctls/RackCtlsPkg.lpk
+          lazbuild --add-package-link bgrabitmap/bgrabitmap/bgrabitmappack.lpk
+
+          lazbuild hUGETracker.lpi --build-mode="Production ${{ matrix.name }}"
+
+      - name: Package build
+        shell: bash
+        run: | # macOS does NOT have `realpath` :)
+          mkdir packaging
+          for f in hUGETracker/{Resources/"Sample Songs",hUGEDriver,Resources/Fonts/PixeliteTTF.ttf}; do ln -sv "$PWD/$f" packaging; done
+          OBJ=`mktemp`
+          rgbds/rgbasm -i hUGETracker/hUGEDriver/include -o "$OBJ" hUGETracker/halt.asm
+          rgbds/rgblink -o packaging/halt.gb -n packaging/halt.sym "$OBJ"
+          rgbds/rgbfix -vp0xFF packaging/halt.gb
+          rm "$OBJ"
+          cp -v hUGETracker/Release/hUGETracker packaging
+
+      - name: Extra Windows packaging
+        if: matrix.name == 'Windows'
+        shell: bash
+        run: |
+          unzip -d packaging sdl2.zip SDL2.dll
+          cp -v ffmpeg-4.4/ffmpeg.exe rgbds/* packaging
+
+      - name: Store build
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.name }} build
+          path: packaging/
