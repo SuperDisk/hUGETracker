@@ -208,7 +208,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="25">
+    <Units Count="26">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -340,6 +340,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="VGM"/>
       </Unit24>
+      <Unit25>
+        <Filename Value="tbmimport.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TBMImport"/>
+      </Unit25>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

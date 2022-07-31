@@ -10,7 +10,7 @@ uses
   sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
   Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
   SymParser, options, bgrabitmap, effecteditor, RenderToWave,
-  modimport, mainloop, strutils, Types, Keymap, hUGESettings, vgm;
+  modimport, mainloop, strutils, Types, Keymap, hUGESettings, vgm, TBMImport;
 
 // TODO: Move to config file?
 const
@@ -2059,16 +2059,18 @@ begin
 end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
+var
+  Stream: TFileStream;
 begin
-  if RenderPreviewROM then begin
-    StopPlayback;
-    ParseSymFile('render/preview.sym');
+  DestroySong(Song);
 
-    ExportVGMFile('C:/tmp/yeah.vgm', 'Joogus', 'Nick Faro', 'This song sucks.');
+  // TODO: Add error checking
+  Stream := TFileStream.Create('C:/tmp/n1_navi_V2.tbm', fmOpenRead);
+  Song := LoadSongFromTbmStream(Stream);
 
-    StartPlayback;
-    HaltPlayback;
-  end;
+  Stream.Free;
+
+  UpdateUIAfterLoad('Jorgus');
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);
