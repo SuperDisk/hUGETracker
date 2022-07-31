@@ -5,7 +5,7 @@ unit ClipboardUtils;
 interface
 
 uses
-  Classes, SysUtils, Constants, Clipbrd, HugeDatatypes, Utils;
+  Classes, SysUtils, Constants, Clipbrd, HugeDatatypes, Utils, Math;
 
 type
   EClipboardFormatException = class(Exception);
@@ -122,6 +122,13 @@ function GetFamitrackerPastedCells: TSelection;
     end else begin
       Result.EffectCode := FTM_EFFECTS[Note.EffNumber[0]];
       Result.EffectParams.Value := Note.EffParam[0];
+    end;
+
+    if  (Result.EffectCode = 0)
+    and (Result.EffectParams.Value = 0)
+    and InRange(Note.Vol, 0, $F) then begin
+      Result.EffectCode := $C;
+      Result.EffectParams.Param2 := Note.Vol;
     end;
   end;
   function FTMColumnToPart(Col: TFTMColumn): TCellPart;
