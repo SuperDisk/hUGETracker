@@ -205,6 +205,8 @@ begin
   Writeln('Song has ', songformat.PatternCount, ' patterns ', songformat.NumberOfTracks, ' tracks');
   Stream.ReadByte; // ?????????????????
 
+  Result.TicksPerRow := SongFormat.RowsPerBeat - 1;
+
   for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
     SetLength(Result.OrderMatrix[I], SongFormat.PatternCount+2); // off-by-one error on my part
 
