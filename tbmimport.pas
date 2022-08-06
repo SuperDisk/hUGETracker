@@ -118,6 +118,15 @@ type
     etSetGlobalVolume = 22       // `Jxy` set global volume scale
   );
 
+const
+  ContinuousEffects = [
+    etArpeggio,
+    etPitchUp,
+    etPitchDown,
+    etAutoPortamento,
+    etVibrato
+  ];
+
 function TStreamHelper.ReadLString: String;
 var
   Len: Word;
@@ -169,13 +178,16 @@ begin
       if Channel = itSquare then
         OutParams.Value := Params shl 6;
 
-      if Channel = itWave then
+      if Channel = itWave then begin
+        OutCode := $C;
+
         case Params of
           0: OutParams.Value := $00;
           1: OutParams.Value := $01;
           2: OutParams.Value := $08;
           3: OutParams.Value := $0F;
         end;
+      end;
 
       if Channel = itNoise then begin
         if Params > 0 then
@@ -263,6 +275,10 @@ begin
         Continue;
 
       ConvertEffect(Row.Effects[I].EffectType, Row.Effects[I].Param, RowType, Result.EffectCode, Result.EffectParams);
+      if TTBMEffectType(Row.Effects[I].EffectType) in ContinuousEffects then
+        Result.Volume := 1 // Mark this effect as "continuous"
+      else
+        Result.Volume := 0;
     end;
 
     if Row.Note = 0 then
@@ -280,6 +296,8 @@ procedure CleanupPattern(Pat: PPattern; InstMap: TTBMInstrumentMap);
 var
   I: Integer;
   CurNote: Integer = NO_NOTE;
+  ContinuousCode: Byte = 0;
+  ContinuousParam: Byte = 0;
 begin
   for I := Low(TPattern) to High(TPattern) do begin
     if not InstMap.TryGetData(Pat^[I].Instrument-1, Pat^[I].Instrument) then
@@ -290,6 +308,18 @@ begin
 
     if (Pat^[I].Instrument <> 0) and (Pat^[I].Note = NO_NOTE) then
       Pat^[I].Note := CurNote;
+
+    if Pat^[I].Volume = 1 then begin
+      ContinuousCode := Pat^[I].EffectCode;
+      ContinuousParam := Pat^[I].EffectParams.Value;
+    end;
+
+    if (ContinuousParam <> 0) and (Pat^[I].EffectCode = 0) and (Pat^[I].EffectParams.Value = 0) then begin
+      Pat^[I].EffectCode := ContinuousCode;
+      Pat^[I].EffectParams.Value := ContinuousParam;
+    end;
+
+    Pat^[I].Volume := 0;
   end;
 end;
 
@@ -341,7 +371,7 @@ begin
   Stream.ReadBuffer(SongFormat, SizeOf(TTBMSongFormat));
   Stream.ReadByte; // ?????????????????
 
-  Result.TicksPerRow := SongFormat.RowsPerBeat - 1;
+  Result.TicksPerRow := SongFormat.RowsPerBeat;
 
   for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
     SetLength(Result.OrderMatrix[I], SongFormat.PatternCount+2); // off-by-one error on my part
@@ -422,15 +452,20 @@ begin
 
     Ins^.SubpatternEnabled := True;
 
+    // Arpeggio sequence
     Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
     for J := 0 to SeqFormat.Length-1 do begin
       Offs := ShortInt(Stream.ReadByte);
       Ins^.Subpattern[J].Note := MIDDLE_NOTE + Offs;
     end;
 
+    Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
+
+    // Panning sequence
     Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
     Stream.Seek(SeqFormat.Length, soCurrent);
 
+    // Pitch sequence
     Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
     PitchOffset := 0;
     Offs := 0;
@@ -450,13 +485,43 @@ begin
 
     Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
 
+    // Duty/noise-type sequence
     Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
-    if (InsType = itSquare) and (SeqFormat.Length > 0) then begin
-      Ins^.Duty := Stream.ReadByte;
-      Stream.Seek(SeqFormat.Length-1, soCurrent);
-    end
-    else
-      Stream.Seek(SeqFormat.Length, soCurrent);
+    case InsType of
+      itSquare: begin
+        for J := 0 to SeqFormat.Length-1 do begin
+          Ins^.Subpattern[J].EffectCode := $9;
+          case Stream.ReadByte of
+            0: Ins^.Subpattern[J].EffectParams.Value := $00;
+            1: Ins^.Subpattern[J].EffectParams.Value := $40;
+            2: Ins^.Subpattern[J].EffectParams.Value := $80;
+            3: Ins^.Subpattern[J].EffectParams.Value := $C0;
+          end;
+        end;
+      end;
+      itWave: begin
+        for J := 0 to SeqFormat.Length-1 do begin
+          Ins^.Subpattern[J].EffectCode := $C;
+          case Stream.ReadByte of
+            0: Ins^.Subpattern[J].EffectParams.Value := $00;
+            1: Ins^.Subpattern[J].EffectParams.Value := $01;
+            2: Ins^.Subpattern[J].EffectParams.Value := $08;
+            3: Ins^.Subpattern[J].EffectParams.Value := $0F;
+          end;
+        end;
+      end;
+      itNoise: begin
+        for J := 0 to SeqFormat.Length-1 do begin
+          Ins^.Subpattern[J].EffectCode := $9;
+          if Stream.ReadByte = 0 then
+            Ins^.Subpattern[J].EffectParams.Value := $00
+          else
+            Ins^.Subpattern[J].EffectParams.Value := $80;
+        end;
+      end
+    end;
+
+    Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
   end;
 
   // WAVE Block
