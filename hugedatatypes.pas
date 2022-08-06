@@ -60,7 +60,7 @@ type
 
   TInstrumentType = (itSquare = 0, itWave = 1, itNoise = 2);
   TDutyType = 0..3;
-  TSweepType = (stDown = 0, stUp = 1);
+  TSweepType = (stUp, stDown);
   TStepWidth = (swFifteen, swSeven);
   TEnvelopeVolume = 0..15;
   TEnvelopeSweepAmount = 0..7;

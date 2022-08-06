@@ -411,7 +411,10 @@ begin
 
     EnvReg.ByteValue := InstFormat.Envelope;
     Ins^.InitialVolume := EnvReg.InitialVolume;
-    Ins^.VolSweepDirection := TSweepType(EnvReg.Direction);
+    if EnvReg.Direction then
+      Ins^.VolSweepDirection := stUp
+    else
+      Ins^.VolSweepDirection := stDown;
     Ins^.VolSweepAmount := EnvReg.SweepNumber;
     Ins^.Waveform := InstFormat.Envelope;
 
