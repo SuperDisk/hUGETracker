@@ -12,6 +12,7 @@ function Snap(Value, Every: Integer): Integer;
 function ReMap(Value, Istart, Istop, Ostart, Ostop: Double): Double;
 function IntReMap(Value, Istart, Istop, Ostart, Ostop: Integer): Integer;
 function ConvertWaveform(Waveform: TWave): T4bitWave;
+function UnconvertWaveform(Waveform: T4bitWave): TWave;
 procedure BlankPattern(Pat: PPattern);
 procedure BlankCell(var Cell: TCell);
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
@@ -51,6 +52,16 @@ begin
   for I := 0 to 15 do begin
     J := I*2;
     Result[I] := (Waveform[J] shl 4) or (Waveform[J+1]);
+  end;
+end;
+
+function UnconvertWaveform(Waveform: T4bitWave): TWave;
+var
+  I: Integer;
+begin
+  for I := Low(T4BitWave) to High(T4BitWave) do begin
+    Result[I*2] := hi(Waveform[I]);
+    Result[(I*2)+1] := lo(Waveform[I]);
   end;
 end;
 

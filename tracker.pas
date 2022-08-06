@@ -44,6 +44,7 @@ type
   TfrmTracker = class(TForm)
     FileSave1: TAction;
     MenuItem42: TMenuItem;
+    MenuItem55: TMenuItem;
     VGMSaveDialog: TSaveDialog;
     MenuItem10: TMenuItem;
     TempoBPMLabel: TLabel;
@@ -293,6 +294,7 @@ type
     TableGrid: TTableGrid;
     procedure FileSave1Execute(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
+    procedure MenuItem55Click(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
     procedure TrackerPopupMixPasteClick(Sender: TObject);
@@ -2024,6 +2026,11 @@ begin
   end;
 end;
 
+procedure TfrmTracker.MenuItem55Click(Sender: TObject);
+begin
+
+end;
+
 procedure TfrmTracker.FileSave1Execute(Sender: TObject);
 begin
   if FileSaveAs1.Dialog.FileName = '' then
@@ -2065,7 +2072,7 @@ begin
   DestroySong(Song);
 
   // TODO: Add error checking
-  Stream := TFileStream.Create('C:/tmp/n1_navi_V2.tbm', fmOpenRead);
+  Stream := TFileStream.Create('C:/tmp/n1_navi_v2.tbm', fmOpenRead);
   Song := LoadSongFromTbmStream(Stream);
 
   Stream.Free;

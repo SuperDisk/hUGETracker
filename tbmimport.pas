@@ -11,33 +11,6 @@ function LoadSongFromTbmStream(Stream: TStream): TSong;
 
 implementation
 
-const
-  TBM_EFFECTS: array[0..22] of Byte = (
-    $0,  // No effect, this effect column is unset.
-    $B,  // `Bxx` begin playing given pattern immediately
-    $0,  // `C00` stop playing
-    $D,  // `D00` begin playing next pattern immediately
-    $F,  // `Fxx` set the tempo
-    $0,  // `Txx` play sound effect
-    $C,  // `Exx` set the persistent envelope/wave id setting
-    $9,  // `Vxx` set persistent duty/wave volume setting
-    $8,  // `Ixy` set channel panning setting
-    $0,  // `Hxx` set the persistent sweep setting (CH1 only)
-    $E,  // `Sxx` note cut delayed by xx frames
-    $7,  // `Gxx` note trigger delayed by xx frames
-    $0,  // `L00` (lock) stop the sound effect on the current channel
-    $0,  // `0xy` arpeggio with semi tones x and y
-    $1,  // `1xx` pitch slide up
-    $2,  // `2xx` pitch slide down
-    $3,  // `3xx` automatic portamento
-    $4,  // `4xy` vibrato
-    $0,  // `5xx` delay vibrato xx frames on note trigger
-    $0,  // `Pxx` fine tuning
-    $1,  // `Qxy` note slide up
-    $2,  // `Rxy` note slide down
-    $5   // `Jxy` set global volume scale
-  );
-
 type
   TTBMHeader = packed record
     Signature: array[0..11] of Char; // ' TRACKERBOY '
@@ -113,6 +86,33 @@ type
     function ReadLString: String;
   end;
 
+  //https://github.com/stoneface86/libtrackerboy/blob/bf4993d53bc34691ca75819a96d3d00b3b699dea/src/trackerboy/data.nim#L111
+  TTBMEffectType = (
+    etNoEffect = 0,         // No effect, this effect column is unset.
+    etPatternGoto,          // `Bxx` begin playing given pattern immediately
+    etPatternHalt,          // `C00` stop playing
+    etPatternSkip,          // `D00` begin playing next pattern immediately
+    etSetTempo,             // `Fxx` set the tempo
+    etSfx,                  // `Txx` play sound effect
+    etSetEnvelope,          // `Exx` set the persistent envelope/wave id setting
+    etSetTimbre,            // `Vxx` set persistent duty/wave volume setting
+    etSetPanning,           // `Ixy` set channel panning setting
+    etSetSweep,             // `Hxx` set the persistent sweep setting (CH1 only)
+    etDelayedCut,           // `Sxx` note cut delayed by xx frames
+    etDelayedNote,          // `Gxx` note trigger delayed by xx frames
+    etLock,                 // `L00` (lock) stop the sound effect on the current channel
+    etArpeggio,             // `0xy` arpeggio with semi tones x and y
+    etPitchUp,              // `1xx` pitch slide up
+    etPitchDown,            // `2xx` pitch slide down
+    etAutoPortamento,       // `3xx` automatic portamento
+    etVibrato,              // `4xy` vibrato
+    etVibratoDelay,         // `5xx` delay vibrato xx frames on note trigger
+    etTuning,               // `Pxx` fine tuning
+    etNoteSlideUp,          // `Qxy` note slide up
+    etNoteSlideDown,        // `Rxy` note slide down
+    etSetGlobalVolume       // `Jxy` set global volume scale
+  );
+
 function TStreamHelper.ReadLString: String;
 var
   Len: Word;
@@ -124,15 +124,142 @@ begin
   Result := UTF8CStringToUTF8String(@Buf[0], Len);
 end;
 
-function ConverTBMRow(Row: TTBMTrackRow; RowType: TInstrumentType): TCell;
+procedure ConvertEffect(Code, Params: Byte; Channel: TInstrumentType;
+  out OutCode: Integer; out OutParams: TEffectParams);
+var
+  FXType: TTBMEffectType absolute Code;
+  EP: TEffectParams absolute Params;
 begin
+  OutCode := 0;
+  OutParams.Value := 0;
+
+  case FXType of
+    etNoEffect: begin
+      // no op
+    end;
+    etPatternGoto: begin
+      OutCode := $B;
+      OutParams.Value := Params + 1;
+    end;
+    etPatternHalt: begin
+      // no op
+    end;
+    etPatternSkip: begin
+      OutCode := $D;
+      OutParams.Value := Params + 1;
+    end;
+    etSetTempo: begin
+      OutCode := $F;
+      OutParams.Value := Params;
+    end;
+    etSfx: begin
+      // no op
+    end;
+    etSetEnvelope: begin
+      OutCode := $C;
+      OutParams.Param2 := Params;
+    end;
+    etSetTimbre: begin
+      OutCode := $9;
+
+      if Channel = itSquare then
+        OutParams.Value := Params shl 6;
+
+      if Channel = itWave then
+        case Params of
+          0: OutParams.Value := $00;
+          1: OutParams.Value := $01;
+          2: OutParams.Value := $08;
+          3: OutParams.Value := $0F;
+        end;
+
+      if Channel = itNoise then begin
+        if Params > 0 then
+          OutParams.Value := $08
+        else
+          OutParams.Value := $00;
+      end;
+    end;
+    etSetPanning: begin
+      // TODO
+    end;
+    etSetSweep: begin
+      // no op
+    end;
+    etDelayedCut: begin
+      OutCode := $E;
+      OutParams.Value := Params;
+    end;
+    etDelayedNote: begin
+      OutCode := $7;
+      OutParams.Value := Params;
+    end;
+    etLock: begin
+      // no op
+    end;
+    etArpeggio: begin
+      OutCode := $0;
+      OutParams.Value := Params;
+    end;
+    etPitchUp: begin
+      OutCode := $1;
+      OutParams.Value := Params;
+    end;
+    etPitchDown: begin
+      OutCode := $2;
+      OutParams.Value := Params;
+    end;
+    etAutoPortamento: begin
+      OutCode := $3;
+      OutParams.Value := Params;
+    end;
+    etVibrato: begin
+      OutCode := $4;
+      OutParams.Param2 := $4;
+      OutParams.Param1 := Params;
+    end;
+    etVibratoDelay: begin
+      // no op
+    end;
+    etTuning: begin
+      OutCode := $4;
+      OutParams.Param2 := $0;
+      OutParams.Param1 := Abs(Params - $80);
+    end;
+    etNoteSlideUp: begin
+      OutCode := $1;
+      OutParams.Value := Params;
+    end;
+    etNoteSlideDown: begin
+      OutCode := $2;
+      OutParams.Value := Params;
+    end;
+    etSetGlobalVolume: begin
+      OutCode := $5;
+      OutParams.Value := Params;
+    end;
+  end;
+end;
+
+function ConverTBMRow(Row: TTBMTrackRow; RowType: TInstrumentType): TCell;
+var
+  I: Integer;
+begin
+  BlankCell(Result);
+
   with Result do begin
     Note := (Row.Note-1);
     if RowType = itNoise then
       Inc(Note, 4);
+
     Instrument := Row.Instrument;
-    EffectCode := TBM_EFFECTS[Row.Effects[0].EffectType];
-    EffectParams.Value := Row.Effects[0].Param;
+
+    for I := Low(Row.Effects) to High(Row.Effects) do begin
+      if (Row.Effects[I].EffectType = 0) and (Row.Effects[I].Param = 0) then
+        Continue;
+
+      ConvertEffect(Row.Effects[I].EffectType, Row.Effects[I].Param, RowType, Result.EffectCode, Result.EffectParams);
+    end;
 
     if Row.Note = 0 then
       Note := NO_NOTE;
@@ -180,19 +307,14 @@ var
   EnvReg: TEnvelopeRegister;
   PitchOffset: Integer;
   Offs: ShortInt;
+
+  WaveId: Byte;
+  WaveName: String;
+  FourBitWave: T4bitWave;
 begin
   InitializeSong(Result);
 
   Stream.ReadBuffer(Header, SizeOf(TTBMHeader));
-  with Header do begin
-    writeln('Signature = ', signature);
-    writeln('Title = ', title);
-    writeln('Artist = ', artist);
-    writeln('Copyright = ', copyright);
-    writeln('icount = ', icount);
-    writeln('scount = ', scount);
-    writeln('wcount = ', wcount);
-  end;
 
   // COMM block
   Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
@@ -200,9 +322,8 @@ begin
 
   // SONG block
   Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
-  Writeln(Stream.ReadLString); // Song name
+  Result.Name := Stream.ReadLString;
   Stream.ReadBuffer(SongFormat, SizeOf(TTBMSongFormat));
-  Writeln('Song has ', songformat.PatternCount, ' patterns ', songformat.NumberOfTracks, ' tracks');
   Stream.ReadByte; // ?????????????????
 
   Result.TicksPerRow := SongFormat.RowsPerBeat - 1;
@@ -237,7 +358,6 @@ begin
   // INST block
   for I := 0 to Header.ICount-1 do begin
     Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
-    writeln(blockheader.id);
 
     InstId := Stream.ReadByte;
     InstName := Stream.ReadLString;
@@ -256,6 +376,7 @@ begin
     Ins^.InitialVolume := EnvReg.InitialVolume;
     Ins^.VolSweepDirection := TSweepType(EnvReg.Direction);
     Ins^.VolSweepAmount := EnvReg.SweepNumber;
+    Ins^.Waveform := InstFormat.Envelope;
 
     Ins^.SubpatternEnabled := True;
 
@@ -295,6 +416,16 @@ begin
     else
       Stream.Seek(SeqFormat.Length, soCurrent);
   end;
+
+  // WAVE Block
+  for I := 0 to Header.WCount-1 do begin
+    Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
+    WaveId := Stream.ReadByte;
+    WaveName := Stream.ReadLString;
+    Stream.ReadBuffer(FourBitWave, SizeOf(T4bitWave));
+    Result.Waves[WaveId] := UnconvertWaveform(FourBitWave);
+  end;
+
 end;
 
 end.

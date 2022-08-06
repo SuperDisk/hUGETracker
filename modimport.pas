@@ -109,12 +109,11 @@ var
   EP: TEffectParams absolute Params;
 label IdentityEffect;
 begin
-  if Code in [$F, $B, $D] then begin
-    OutCode := Code;
-    OutParams.Value := Params + 1;
-  end
-  else
     case Code of
+      $F, $B, $D: begin
+        OutCode := Code;
+        OutParams.Value := Params + 1;
+      end;
       $9: begin
         OutCode := $C;
         OutParams.Param1 := Lo(Params);
