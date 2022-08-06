@@ -5,13 +5,15 @@ unit TBMImport;
 interface
 
 uses
-  Classes, SysUtils, song, LazUTF8, HugeDatatypes, Constants, Utils;
+  Classes, SysUtils, song, LazUTF8, HugeDatatypes, Constants, Utils, fgl;
 
 function LoadSongFromTbmStream(Stream: TStream): TSong;
 
 implementation
 
 type
+  ETBMException = class(Exception);
+
   TTBMHeader = packed record
     Signature: array[0..11] of Char; // ' TRACKERBOY '
     VersionMajor: DWord;
@@ -85,6 +87,8 @@ type
   TStreamHelper = class helper for TStream
     function ReadLString: String;
   end;
+
+  TTBMInstrumentMap = specialize TFPGMap<Integer, Integer>;
 
   //https://github.com/stoneface86/libtrackerboy/blob/bf4993d53bc34691ca75819a96d3d00b3b699dea/src/trackerboy/data.nim#L111
   TTBMEffectType = (
@@ -272,12 +276,15 @@ begin
   end;
 end;
 
-procedure CleanupPattern(Pat: PPattern);
+procedure CleanupPattern(Pat: PPattern; InstMap: TTBMInstrumentMap);
 var
   I: Integer;
   CurNote: Integer = NO_NOTE;
 begin
   for I := Low(TPattern) to High(TPattern) do begin
+    if not InstMap.TryGetData(Pat^[I].Instrument, Pat^[I].Instrument) then
+      Pat^[I].Instrument := 0;
+
     if Pat^[I].Note <> NO_NOTE then
       CurNote := Pat^[I].Note;
 
@@ -311,10 +318,17 @@ var
   WaveId: Byte;
   WaveName: String;
   FourBitWave: T4bitWave;
+
+  SquareMap, WaveMap, NoiseMap: TTBMInstrumentMap;
+  SeenSquare, SeenWave, SeenNoise: Integer;
+  NewInstId: Integer;
 begin
   InitializeSong(Result);
 
   Stream.ReadBuffer(Header, SizeOf(TTBMHeader));
+
+  if Header.SCount > 1 then
+    raise ETBMException.Create('hUGETracker only supports loading TBM modules with one song.');
 
   // COMM block
   Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
@@ -352,10 +366,17 @@ begin
       Stream.ReadBuffer(RowFormat, SizeOf(TTBMRowFormat));
       Pat^[RowFormat.RowNo] := ConverTBMRow(RowFormat.RowData, InsType);
     end;
-    CleanupPattern(Pat);
   end;
 
   // INST block
+
+  SquareMap := TTBMInstrumentMap.Create;
+  WaveMap := TTBMInstrumentMap.Create;
+  NoiseMap := TTBMInstrumentMap.Create;
+  SeenSquare := 1;
+  SeenWave := 1;
+  SeenNoise := 1;
+
   for I := 0 to Header.ICount-1 do begin
     Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
 
@@ -363,13 +384,29 @@ begin
     InstName := Stream.ReadLString;
 
     Stream.ReadBuffer(InstFormat, SizeOf(TTBMInstrumentFormat));
+
     case InstFormat.Channel of
-      0, 1: InsType := itSquare;
-      2: InsType := itWave;
-      3: InsType := itNoise;
+      0, 1: begin
+        InsType := itSquare;
+        SquareMap.Add(InstId, SeenSquare);
+        NewInstId := SeenSquare;
+        Inc(SeenSquare);
+      end;
+      2: begin
+        InsType := itWave;
+        WaveMap.Add(InstId, SeenWave);
+        NewInstId := SeenWave;
+        Inc(SeenWave);
+      end;
+      3: begin
+        InsType := itNoise;
+        NoiseMap.Add(InstId, SeenNoise);
+        NewInstId := SeenNoise;
+        Inc(SeenNoise);
+      end;
     end;
 
-    Ins := @Result.Instruments.All[UnmodInst(InsType, InstId+1)];
+    Ins := @Result.Instruments.All[UnmodInst(InsType, NewInstId)];
     Ins^.Name := InstName;
 
     EnvReg.ByteValue := InstFormat.Envelope;
@@ -426,6 +463,15 @@ begin
     Result.Waves[WaveId] := UnconvertWaveform(FourBitWave);
   end;
 
+  // Cleanup patterns
+  for I := Low(Result.OrderMatrix[0]) to High(Result.OrderMatrix[0])-1 do
+    CleanupPattern(Result.Patterns.KeyData[Result.OrderMatrix[0, I]], SquareMap);
+  for I := Low(Result.OrderMatrix[1]) to High(Result.OrderMatrix[1])-1 do
+    CleanupPattern(Result.Patterns.KeyData[Result.OrderMatrix[1, I]], SquareMap);
+  for I := Low(Result.OrderMatrix[2]) to High(Result.OrderMatrix[2])-1 do
+    CleanupPattern(Result.Patterns.KeyData[Result.OrderMatrix[2, I]], WaveMap);
+  for I := Low(Result.OrderMatrix[3]) to High(Result.OrderMatrix[3])-1 do
+    CleanupPattern(Result.Patterns.KeyData[Result.OrderMatrix[3, I]], NoiseMap);
 end;
 
 end.

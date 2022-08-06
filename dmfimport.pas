@@ -43,13 +43,13 @@ begin
   Temp := DS.ReadByte;
   Writeln(temp);
   if Temp <> 24 then
-    raise EDMFException.Create('DMF file was invalid version!');
+    raise EDMFException.Create('This DMF file has an unsupported version.');
 
   //SYSTEM SET
   //1  Byte:  System:
   //SYSTEM_GAMEBOY 0x04			(SYSTEM_TOTAL_CHANNELS 4)
   if DS.ReadByte <> $04 then
-    raise EDMFException.Create('DMF file is not a Game Boy module!');
+    raise EDMFException.Create('This DMF file is not a Game Boy module.');
 
   //VISUAL INFORMATION
   // 1 Byte:   Song Name Chars Count (0-255)
@@ -83,7 +83,7 @@ begin
   Temp := DS.ReadDWord;
   Writeln(temp);
   if Temp <> 64 then
-    raise EDMFException.Create('DMF file needs 64 rows per pattern!');
+    raise EDMFException.Create('This DMF file has '+IntToStr(Temp)+' rows per pattern, but hUGETracker needs exactly 64.');
   //1 Byte:   TOTAL_ROWS_IN_PATTERN_MATRIX
   Temp := DS.ReadByte;
   writeln('rows in pattern matrix ', temp);
@@ -98,7 +98,7 @@ begin
   //1 Byte: TOTAL_INSTRUMENTS
   TotalInstruments := DS.ReadByte;
   if TotalInstruments > 15 then
-    raise EDMFException.Create('DMF file must have 15 instruments or less!');
+    raise EDMFException.Create('DMF files must have 15 instruments or less.');
 
   // Read all instruments
   writeln('total instruments ', totalinstruments);
@@ -115,7 +115,7 @@ begin
 
     // 1 Byte:   Instrument Mode (0 = STANDARD INS, 1 = FM INS)
     if DS.ReadByte <> 0 then
-      raise EDMFException.Create('DMF file contains a non-standard instrument!');
+      raise EDMFException.Create('This DMF file contains an FM-type instrument, which is unsupported.');
 
     //ARPEGGIO MACRO
 		//1 Byte: ENVELOPE_SIZE (0 - 127)
@@ -191,7 +191,7 @@ begin
     Temp := DS.readbyte;
     writeln('fx columns ', temp);
     if Temp <> 1 then
-      raise EDMFException.Create('DMF file contains patterns with more than one effect column!');
+      raise EDMFException.Create('This DMF file contains patterns with more than one effect column, which is unsupported.');
 
     writeln('iterating '+inttostr(High(Result.OrderMatrix[I]) - Low(Result.OrderMatrix[I]) + 1), ' times');
     for J := Low(Result.OrderMatrix[I]) to High(Result.OrderMatrix[I]) do begin
