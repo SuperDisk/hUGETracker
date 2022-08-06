@@ -93,28 +93,28 @@ type
   //https://github.com/stoneface86/libtrackerboy/blob/bf4993d53bc34691ca75819a96d3d00b3b699dea/src/trackerboy/data.nim#L111
   TTBMEffectType = (
     etNoEffect = 0,         // No effect, this effect column is unset.
-    etPatternGoto,          // `Bxx` begin playing given pattern immediately
-    etPatternHalt,          // `C00` stop playing
-    etPatternSkip,          // `D00` begin playing next pattern immediately
-    etSetTempo,             // `Fxx` set the tempo
-    etSfx,                  // `Txx` play sound effect
-    etSetEnvelope,          // `Exx` set the persistent envelope/wave id setting
-    etSetTimbre,            // `Vxx` set persistent duty/wave volume setting
-    etSetPanning,           // `Ixy` set channel panning setting
-    etSetSweep,             // `Hxx` set the persistent sweep setting (CH1 only)
-    etDelayedCut,           // `Sxx` note cut delayed by xx frames
-    etDelayedNote,          // `Gxx` note trigger delayed by xx frames
-    etLock,                 // `L00` (lock) stop the sound effect on the current channel
-    etArpeggio,             // `0xy` arpeggio with semi tones x and y
-    etPitchUp,              // `1xx` pitch slide up
-    etPitchDown,            // `2xx` pitch slide down
-    etAutoPortamento,       // `3xx` automatic portamento
-    etVibrato,              // `4xy` vibrato
-    etVibratoDelay,         // `5xx` delay vibrato xx frames on note trigger
-    etTuning,               // `Pxx` fine tuning
-    etNoteSlideUp,          // `Qxy` note slide up
-    etNoteSlideDown,        // `Rxy` note slide down
-    etSetGlobalVolume       // `Jxy` set global volume scale
+    etPatternGoto = 1,          // `Bxx` begin playing given pattern immediately
+    etPatternHalt = 2,          // `C00` stop playing
+    etPatternSkip = 3,          // `D00` begin playing next pattern immediately
+    etSetTempo = 4,             // `Fxx` set the tempo
+    etSfx = 5,                  // `Txx` play sound effect
+    etSetEnvelope = 6,          // `Exx` set the persistent envelope/wave id setting
+    etSetTimbre = 7,            // `Vxx` set persistent duty/wave volume setting
+    etSetPanning = 8,           // `Ixy` set channel panning setting
+    etSetSweep = 9,             // `Hxx` set the persistent sweep setting (CH1 only)
+    etDelayedCut = 10,           // `Sxx` note cut delayed by xx frames
+    etDelayedNote = 11,          // `Gxx` note trigger delayed by xx frames
+    etLock = 12,                 // `L00` (lock) stop the sound effect on the current channel
+    etArpeggio = 13,             // `0xy` arpeggio with semi tones x and y
+    etPitchUp = 14,              // `1xx` pitch slide up
+    etPitchDown = 15,            // `2xx` pitch slide down
+    etAutoPortamento = 16,       // `3xx` automatic portamento
+    etVibrato = 17,              // `4xy` vibrato
+    etVibratoDelay = 18,         // `5xx` delay vibrato xx frames on note trigger
+    etTuning = 19,               // `Pxx` fine tuning
+    etNoteSlideUp = 20,          // `Qxy` note slide up
+    etNoteSlideDown = 21,        // `Rxy` note slide down
+    etSetGlobalVolume = 22       // `Jxy` set global volume scale
   );
 
 function TStreamHelper.ReadLString: String;
@@ -131,13 +131,12 @@ end;
 procedure ConvertEffect(Code, Params: Byte; Channel: TInstrumentType;
   out OutCode: Integer; out OutParams: TEffectParams);
 var
-  FXType: TTBMEffectType absolute Code;
   EP: TEffectParams absolute Params;
 begin
   OutCode := 0;
   OutParams.Value := 0;
 
-  case FXType of
+  case TTBMEffectType(Code) of
     etNoEffect: begin
       // no op
     end;
@@ -282,7 +281,7 @@ var
   CurNote: Integer = NO_NOTE;
 begin
   for I := Low(TPattern) to High(TPattern) do begin
-    if not InstMap.TryGetData(Pat^[I].Instrument, Pat^[I].Instrument) then
+    if not InstMap.TryGetData(Pat^[I].Instrument-1, Pat^[I].Instrument) then
       Pat^[I].Instrument := 0;
 
     if Pat^[I].Note <> NO_NOTE then
@@ -322,6 +321,7 @@ var
   SquareMap, WaveMap, NoiseMap: TTBMInstrumentMap;
   SeenSquare, SeenWave, SeenNoise: Integer;
   NewInstId: Integer;
+  TracksForCleanup: array of TTBMTrackFormat;
 begin
   InitializeSong(Result);
 
@@ -352,8 +352,10 @@ begin
     Result.OrderMatrix[3, I] := 400 + Stream.ReadByte;
   end;
 
+  SetLength(TracksForCleanup, SongFormat.NumberOfTracks);
   for I := 0 to SongFormat.NumberOfTracks-1 do begin
     Stream.ReadBuffer(TrackFormat, SizeOf(TTBMTrackFormat));
+    TracksForCleanup[I] := TrackFormat;
 
     case TrackFormat.Channel of
       0, 1: InsType := itSquare;
@@ -369,7 +371,6 @@ begin
   end;
 
   // INST block
-
   SquareMap := TTBMInstrumentMap.Create;
   WaveMap := TTBMInstrumentMap.Create;
   NoiseMap := TTBMInstrumentMap.Create;
@@ -467,14 +468,15 @@ begin
   end;
 
   // Cleanup patterns
-  for I := Low(Result.OrderMatrix[0]) to High(Result.OrderMatrix[0])-1 do
-    CleanupPattern(Result.Patterns.KeyData[Result.OrderMatrix[0, I]], SquareMap);
-  for I := Low(Result.OrderMatrix[1]) to High(Result.OrderMatrix[1])-1 do
-    CleanupPattern(Result.Patterns.KeyData[Result.OrderMatrix[1, I]], SquareMap);
-  for I := Low(Result.OrderMatrix[2]) to High(Result.OrderMatrix[2])-1 do
-    CleanupPattern(Result.Patterns.KeyData[Result.OrderMatrix[2, I]], WaveMap);
-  for I := Low(Result.OrderMatrix[3]) to High(Result.OrderMatrix[3])-1 do
-    CleanupPattern(Result.Patterns.KeyData[Result.OrderMatrix[3, I]], NoiseMap);
+  for TrackFormat in TracksForCleanup do begin
+    Pat := Result.Patterns.GetOrCreateNew(((TrackFormat.Channel+1)*100) + TrackFormat.TrackId);
+
+    case TrackFormat.Channel of
+      0, 1: CleanupPattern(Pat, SquareMap);
+      2: CleanupPattern(Pat, WaveMap);
+      3: CleanupPattern(Pat, NoiseMap);
+    end;
+  end;
 end;
 
 end.
