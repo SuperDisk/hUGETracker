@@ -7,13 +7,14 @@ interface
 uses
   Classes, SysUtils, song, LazUTF8, HugeDatatypes, Constants, Utils, fgl;
 
+type
+  ETBMException = class(Exception);
+
 function LoadSongFromTbmStream(Stream: TStream): TSong;
 
 implementation
 
 type
-  ETBMException = class(Exception);
-
   TTBMHeader = packed record
     Signature: array[0..11] of Char; // ' TRACKERBOY '
     VersionMajor: DWord;

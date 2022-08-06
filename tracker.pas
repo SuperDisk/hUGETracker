@@ -45,6 +45,7 @@ type
     FileSave1: TAction;
     MenuItem42: TMenuItem;
     MenuItem55: TMenuItem;
+    TBMOpenDialog: TOpenDialog;
     VGMSaveDialog: TSaveDialog;
     MenuItem10: TMenuItem;
     TempoBPMLabel: TLabel;
@@ -2027,8 +2028,30 @@ begin
 end;
 
 procedure TfrmTracker.MenuItem55Click(Sender: TObject);
+var
+  Stream: TStream;
+  NewSong: TSong;
 begin
+  if not CheckUnsavedChanges then Exit;
 
+  if TBMOpenDialog.Execute then begin
+    try
+      try
+        Stream := TFileStream.Create(TBMOpenDialog.FileName, fmOpenRead);
+        NewSong := LoadSongFromTbmStream(Stream);
+        DestroySong(Song);
+        Song := NewSong;
+        UpdateUIAfterLoad(TBMOpenDialog.FileName);
+      finally
+        Stream.Free;
+      end;
+    except
+      on E: ETBMException do begin
+        MessageDlg('There was an error loading the file. ' + E.Message, mtError, [mbOK], 0);
+        Exit;
+      end;
+    end;
+  end;
 end;
 
 procedure TfrmTracker.FileSave1Execute(Sender: TObject);

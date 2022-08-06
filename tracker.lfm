@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 937
+  Left = 1658
   Height = 857
-  Top = 137
+  Top = 153
   Width = 1318
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -62,10 +62,10 @@ object frmTracker: TfrmTracker
       Height = 725
       Top = 0
       Width = 1120
-      ActivePage = WavesTabSheet
+      ActivePage = GeneralTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 3
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -2034,6 +2034,7 @@ object frmTracker: TfrmTracker
       end
       object MenuItem42: TMenuItem
         Action = FileSave1
+        Hint = 'Save'
       end
       object MenuItem13: TMenuItem
         Action = FileSaveAs1
@@ -2082,6 +2083,7 @@ object frmTracker: TfrmTracker
       end
       object ExportAsmMenuItem: TMenuItem
         Caption = 'Export RGBDS .asm ...'
+        Hint = 'Export an ASM source file suitable for a RGBDS-based project'
         ImageIndex = 83
         OnClick = ExportAsmMenuItemClick
       end
@@ -2948,8 +2950,8 @@ object frmTracker: TfrmTracker
   object MODOpenDialog: TOpenDialog
     DefaultExt = '.mod'
     Filter = 'GBT Player MOD files|*.mod'
-    Left = 448
-    Top = 32
+    Left = 472
+    Top = 24
   end
   object WaveEditPopup: TPopupMenu
     Left = 8
@@ -3103,5 +3105,11 @@ object frmTracker: TfrmTracker
     Filter = 'VGM Rip|*.vgm'
     Left = 356
     Top = 52
+  end
+  object TBMOpenDialog: TOpenDialog
+    DefaultExt = '.tbm'
+    Filter = 'TrackerBoy TBM files|*.tbm'
+    Left = 472
+    Top = 64
   end
 end
