@@ -1,8 +1,5 @@
 include "hardware.inc"
-
-;; This is a short program which just contains the noise macro logic found
-;; in hUGEDriver. Values are poked by the tracker into RAM, and they are played back
-;; by this routine, which is constantly running when the tracker is not playing a song.
+include "hUGE.inc"
 
 add_a_to_r16: MACRO
     add \2
@@ -20,23 +17,6 @@ add_a_to_de: MACRO
     add_a_to_r16 d, e
 ENDM
 
-SECTION "Vars", WRAM0
-
-instr: ds 8
-note: db
-
-macro_index: db
-
-SECTION "LCD controller status interrupt", ROM0[$0048]
-    ;; HACK!!!!!!!!!!!!!
-    ;; there's some sort of bug in the emulator which needs to be fixed,
-    ;; which screws up the program counter immediately after it exits a halt.
-    ;; this nop protects against that for now.
-    nop
-    nop
-    nop
-    jp _domacro
-
 SECTION "init", ROM0[$0100]
     jp init
 
@@ -50,115 +30,71 @@ DS 1
 ; $0144 - $0145: "New" Licensee Code, a two character name.
 DB "NF"
 
+SECTION "Vars", WRAM0
+
+note1: ds 3
+note2: ds 3
+note3: ds 3
+note4: ds 4
+
+instrument1: ds 6
+instrument2: ds 6
+instrument3: ds 6
+instrument4: ds 6
+
+subpattern1: ds (3*64)
+subpattern2: ds (3*64)
+subpattern3: ds (3*64)
+subpattern4: ds (3*64)
+
+start_zero:
+
+start_ch1: db
+start_ch2: db
+start_ch3: db
+start_ch4: db
+
+running_ch1: db
+running_ch2: db
+running_ch3: db
+running_ch4: db
+
+end_zero:
+
 SECTION "code", ROM0[$400]
 
-_domacro:
-    ld a, [macro_index]
-    cp 1
-    jp z, _macro_begin
-    jp nc, _macro_update
-    reti
+init_note1:
+  ld bc, note1
+  call get_current_row
+  call get_note_period
+  ld a, l
+  ld [channel_period1], a
+  ld a, h
+  ld [channel_period1+1], a
 
-_macro_begin:
-    ld a, [instr]
-    ld [rAUD4ENV], a
+  ld a, [hl+]
+  ldh [rAUD1SWEEP], a
+  ld a, [hl+]
+  ldh [rAUD1LEN], a
+  ld a, [hl+]
+  ldh [rAUD1ENV], a
 
-    ld a, [note]
-    call _convert_ch4_note
-    ld d, a
-    ld a, [instr+1]
-    and %10000000
-    swap a
-    or d
-    ld [rAUD4POLY], a
+  xor a
+  ld [table_row1], a
+  ld [start_ch1], a
+  inc a
+  ld [highmask1], a
+  ld [running_ch1], a
 
-    ld a, [instr+1]
-    and %00111111
-    ld [rAUD4LEN], a
+  jp play_ch1_note
 
-    ld a, [instr+1]
-    and %01000000 ; get only length enabled
-    or  %10000000 ; restart sound
-    ld [rAUD4GO], a
-
-    ld hl, macro_index
-    inc [hl]
-    reti
-
-_macro_update:
-    ld a, [macro_index]
-
-    ld de, instr
-    add_a_to_de
-    ld a, [de]
-    ld b, a
-
-    ld a, [note]
-    add b
-
-    call _convert_ch4_note
-    ld d, a
-    ld a, [instr+1]
-    and %10000000
-    swap a
-    or d
-    ld [rAUD4POLY], a
-
-    ld a, [instr+1]
-    and %01000000 ; get only length enabled
-    ld [rAUD4GO], a
-
-    ld a, [macro_index]
-    inc a
-    cp 8
-    jp nz, .done
-    xor a
-.done:
-    ld [macro_index], a
-    reti
-
-_convert_ch4_note:
-    ;; Call with:
-    ;; Note number in A
-    ;; Stores polynomial counter in A
-    ;; Free: HL
-
-    ;; Invert the order of the numbers
-    add 192 ; (255 - 63)
-    cpl
-
-    ;; Thanks to RichardULZ for this formula
-    ;; https://docs.google.com/spreadsheets/d/1O9OTAHgLk1SUt972w88uVHp44w7HKEbS/edit#gid=75028951
-    ; if A > 7 then begin
-    ;   B := (A-4) div 4;
-    ;   C := (A mod 4)+4;
-    ;   A := (C or (B shl 4))
-    ; end;
-
-    ; if A < 7 then return
-    cp 7
-    ret c
-
-    ld h, a
-
-    ; B := (A-4) div 4;
-    sub 4
-    srl a
-    srl a
-    ld l, a
-
-    ; C := (A mod 4)+4;
-    ld a, h
-    and 3
-    add 4
-
-    ; A := (C or (B shl 4))
-    swap l
-    or l
-    ret
+run_table1:
+  ld bc, subpattern1
+  ld hl, table_row1
+  ld e, 0
+  jp do_table
 
 init:
-    ; jp _halt
 _addr = _AUD3WAVERAM
     REPT 16
     ld a, $FF
@@ -182,14 +118,36 @@ _addr = _addr + 1
     ld a, [rSTAT]
     or a, STATF_LYC
     ld [rSTAT], a
-    xor a ; ld a, 0
+    xor a
     ld [rLYC], a
 
     ld a, IEF_LCDC
     ld [rIE], a
     ei
 
+    ;; Initialize hUGEDriver-related vars
+    xor a
+    ld [row], a
+
+    ;; Zero some ram
+    ld c, end_zero - start_zero
+    ld hl, start_zero
+    xor a
+.fill_loop:
+    ld [hl+], a
+    dec c
+    jr nz, .fill_loop
+
 _halt:
     halt
     nop
+
+    ld a, [running_ch1]
+    and $FF
+    call nz, run_table1
+
+    ld a, [start_ch1]
+    and $FF
+    call nz, init_note1
+
     jr _halt
