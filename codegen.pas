@@ -36,7 +36,7 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     SL := TStringList.Create;
     SL.Delimiter := ',';
 
-    if Cell.Note = NO_NOTE then
+    if (Cell.Note = NO_NOTE) or (NoteToCMap.IndexOf(Cell.Note) = -1) then
       SL.Add('___')
     else
       SL.Add(NoteToCMap.KeyData[Cell.Note]);
@@ -353,7 +353,7 @@ begin
   SL.Delimiter := ',';
   SL.StrictDelimiter := True;
 
-  if Cell.Note = NO_NOTE then
+  if (Cell.Note = NO_NOTE) or (NoteToDriverMap.IndexOf(Cell.Note) = -1) then
     SL.Add('___')
   else
     SL.Add(NoteToDriverMap.KeyData[Cell.Note]);
