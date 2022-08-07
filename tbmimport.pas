@@ -354,197 +354,203 @@ var
   NewInstId: Integer;
   TracksForCleanup: array of TTBMTrackFormat;
 begin
-  InitializeSong(Result);
+  try
+    InitializeSong(Result);
 
-  Stream.ReadBuffer(Header, SizeOf(TTBMHeader));
+    Stream.ReadBuffer(Header, SizeOf(TTBMHeader));
 
-  if Header.SCount > 1 then
-    raise ETBMException.Create('hUGETracker only supports loading TBM modules with one song.');
+    if Header.SCount > 1 then
+      raise ETBMException.Create('hUGETracker only supports loading TBM modules with one song.');
 
-  // COMM block
-  Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
-  Stream.Seek(BlockHeader.Length, soCurrent); // Skip the comment for now
-
-  // SONG block
-  Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
-  Result.Name := Stream.ReadLString;
-  Stream.ReadBuffer(SongFormat, SizeOf(TTBMSongFormat));
-
-  // Number of visible effect columns-- undocumented currently but I asked
-  // stoneface about it.
-  Stream.ReadByte;
-
-  Result.TicksPerRow := SongFormat.RowsPerBeat;
-
-  for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
-    SetLength(Result.OrderMatrix[I], SongFormat.PatternCount+2); // off-by-one error on my part
-
-  for I := 0 to SongFormat.PatternCount do begin
-    Result.OrderMatrix[0, I] := 100 + Stream.ReadByte;
-    Result.OrderMatrix[1, I] := 200 + Stream.ReadByte;
-    Result.OrderMatrix[2, I] := 300 + Stream.ReadByte;
-    Result.OrderMatrix[3, I] := 400 + Stream.ReadByte;
-  end;
-
-  SetLength(TracksForCleanup, SongFormat.NumberOfTracks);
-  for I := 0 to SongFormat.NumberOfTracks-1 do begin
-    Stream.ReadBuffer(TrackFormat, SizeOf(TTBMTrackFormat));
-    TracksForCleanup[I] := TrackFormat;
-
-    case TrackFormat.Channel of
-      0, 1: InsType := itSquare;
-      2: InsType := itWave;
-      3: InsType := itNoise;
-    end;
-
-    Pat := Result.Patterns.GetOrCreateNew(((TrackFormat.Channel+1)*100) + TrackFormat.TrackId);
-    for J := 0 to TrackFormat.Rows do begin
-      Stream.ReadBuffer(RowFormat, SizeOf(TTBMRowFormat));
-      Pat^[RowFormat.RowNo] := ConverTBMRow(RowFormat.RowData, InsType);
-    end;
-  end;
-
-  // INST block
-  SquareMap := TTBMInstrumentMap.Create;
-  WaveMap := TTBMInstrumentMap.Create;
-  NoiseMap := TTBMInstrumentMap.Create;
-  SeenSquare := 1;
-  SeenWave := 1;
-  SeenNoise := 1;
-
-  for I := 0 to Header.ICount-1 do begin
+    // COMM block
     Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
+    Stream.Seek(BlockHeader.Length, soCurrent); // Skip the comment for now
 
-    InstId := Stream.ReadByte;
-    InstName := Stream.ReadLString;
+    // SONG block
+    Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
+    Result.Name := Stream.ReadLString;
+    Stream.ReadBuffer(SongFormat, SizeOf(TTBMSongFormat));
 
-    Stream.ReadBuffer(InstFormat, SizeOf(TTBMInstrumentFormat));
+    // Number of visible effect columns-- undocumented currently but I asked
+    // stoneface about it.
+    Stream.ReadByte;
 
-    case InstFormat.Channel of
-      0, 1: begin
-        InsType := itSquare;
-        SquareMap.Add(InstId, SeenSquare);
-        NewInstId := SeenSquare;
-        Inc(SeenSquare);
+    Result.TicksPerRow := SongFormat.RowsPerBeat;
+
+    for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
+      SetLength(Result.OrderMatrix[I], SongFormat.PatternCount+2); // off-by-one error on my part
+
+    for I := 0 to SongFormat.PatternCount do begin
+      Result.OrderMatrix[0, I] := 100 + Stream.ReadByte;
+      Result.OrderMatrix[1, I] := 200 + Stream.ReadByte;
+      Result.OrderMatrix[2, I] := 300 + Stream.ReadByte;
+      Result.OrderMatrix[3, I] := 400 + Stream.ReadByte;
+    end;
+
+    SetLength(TracksForCleanup, SongFormat.NumberOfTracks);
+    for I := 0 to SongFormat.NumberOfTracks-1 do begin
+      Stream.ReadBuffer(TrackFormat, SizeOf(TTBMTrackFormat));
+      TracksForCleanup[I] := TrackFormat;
+
+      case TrackFormat.Channel of
+        0, 1: InsType := itSquare;
+        2: InsType := itWave;
+        3: InsType := itNoise;
       end;
-      2: begin
-        InsType := itWave;
-        WaveMap.Add(InstId, SeenWave);
-        NewInstId := SeenWave;
-        Inc(SeenWave);
-      end;
-      3: begin
-        InsType := itNoise;
-        NoiseMap.Add(InstId, SeenNoise);
-        NewInstId := SeenNoise;
-        Inc(SeenNoise);
+
+      Pat := Result.Patterns.GetOrCreateNew(((TrackFormat.Channel+1)*100) + TrackFormat.TrackId);
+      for J := 0 to TrackFormat.Rows do begin
+        Stream.ReadBuffer(RowFormat, SizeOf(TTBMRowFormat));
+        Pat^[RowFormat.RowNo] := ConverTBMRow(RowFormat.RowData, InsType);
       end;
     end;
 
-    Ins := @Result.Instruments.All[UnmodInst(InsType, NewInstId)];
-    Ins^.Name := InstName;
+    // INST block
+    SquareMap := TTBMInstrumentMap.Create;
+    WaveMap := TTBMInstrumentMap.Create;
+    NoiseMap := TTBMInstrumentMap.Create;
+    SeenSquare := 1;
+    SeenWave := 1;
+    SeenNoise := 1;
 
-    EnvReg.ByteValue := InstFormat.Envelope;
-    Ins^.InitialVolume := EnvReg.InitialVolume;
-    if EnvReg.Direction then
-      Ins^.VolSweepDirection := stUp
-    else
-      Ins^.VolSweepDirection := stDown;
-    Ins^.VolSweepAmount := EnvReg.SweepNumber;
-    Ins^.Waveform := InstFormat.Envelope;
+    for I := 0 to Header.ICount-1 do begin
+      Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
 
-    Ins^.SubpatternEnabled := True;
+      InstId := Stream.ReadByte;
+      InstName := Stream.ReadLString;
 
-    // Arpeggio sequence
-    Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
-    for J := 0 to SeqFormat.Length-1 do begin
-      Offs := ShortInt(Stream.ReadByte);
-      Ins^.Subpattern[J].Note := MIDDLE_NOTE + Offs;
-    end;
+      Stream.ReadBuffer(InstFormat, SizeOf(TTBMInstrumentFormat));
 
-    Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
+      case InstFormat.Channel of
+        0, 1: begin
+          InsType := itSquare;
+          SquareMap.Add(InstId, SeenSquare);
+          NewInstId := SeenSquare;
+          Inc(SeenSquare);
+        end;
+        2: begin
+          InsType := itWave;
+          WaveMap.Add(InstId, SeenWave);
+          NewInstId := SeenWave;
+          Inc(SeenWave);
+        end;
+        3: begin
+          InsType := itNoise;
+          NoiseMap.Add(InstId, SeenNoise);
+          NewInstId := SeenNoise;
+          Inc(SeenNoise);
+        end;
+      end;
 
-    // Panning sequence
-    Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
-    Stream.Seek(SeqFormat.Length, soCurrent);
+      Ins := @Result.Instruments.All[UnmodInst(InsType, NewInstId)];
+      Ins^.Name := InstName;
 
-    // Pitch sequence
-    Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
-    PitchOffset := 0;
-    Offs := 0;
-    for J := 0 to SeqFormat.Length-1 do begin
-      Offs := ShortInt(Stream.ReadByte);
-
-      if Offs > PitchOffset then
-        Ins^.Subpattern[J].EffectCode := $1
-      else if Offs < PitchOffset then
-        Ins^.Subpattern[J].EffectCode := $2
+      EnvReg.ByteValue := InstFormat.Envelope;
+      Ins^.InitialVolume := EnvReg.InitialVolume;
+      if EnvReg.Direction then
+        Ins^.VolSweepDirection := stUp
       else
-        Continue;
+        Ins^.VolSweepDirection := stDown;
+      Ins^.VolSweepAmount := EnvReg.SweepNumber;
+      Ins^.Waveform := InstFormat.Envelope;
 
-      Ins^.Subpattern[J].EffectParams.Value := Abs(PitchOffset - Offs);
-      PitchOffset := Offs;
-    end;
+      Ins^.SubpatternEnabled := True;
 
-    Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
+      // Arpeggio sequence
+      Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
+      for J := 0 to SeqFormat.Length-1 do begin
+        Offs := ShortInt(Stream.ReadByte);
+        Ins^.Subpattern[J].Note := MIDDLE_NOTE + Offs;
+      end;
 
-    // Duty/noise-type sequence
-    Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
-    case InsType of
-      itSquare: begin
-        for J := 0 to SeqFormat.Length-1 do begin
-          Ins^.Subpattern[J].EffectCode := $9;
-          case Stream.ReadByte of
-            0: Ins^.Subpattern[J].EffectParams.Value := $00;
-            1: Ins^.Subpattern[J].EffectParams.Value := $40;
-            2: Ins^.Subpattern[J].EffectParams.Value := $80;
-            3: Ins^.Subpattern[J].EffectParams.Value := $C0;
+      Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
+
+      // Panning sequence
+      Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
+      Stream.Seek(SeqFormat.Length, soCurrent);
+
+      // Pitch sequence
+      Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
+      PitchOffset := 0;
+      Offs := 0;
+      for J := 0 to SeqFormat.Length-1 do begin
+        Offs := ShortInt(Stream.ReadByte);
+
+        if Offs > PitchOffset then
+          Ins^.Subpattern[J].EffectCode := $1
+        else if Offs < PitchOffset then
+          Ins^.Subpattern[J].EffectCode := $2
+        else
+          Continue;
+
+        Ins^.Subpattern[J].EffectParams.Value := Abs(PitchOffset - Offs);
+        PitchOffset := Offs;
+      end;
+
+      Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
+
+      // Duty/noise-type sequence
+      Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
+      case InsType of
+        itSquare: begin
+          for J := 0 to SeqFormat.Length-1 do begin
+            Ins^.Subpattern[J].EffectCode := $9;
+            case Stream.ReadByte of
+              0: Ins^.Subpattern[J].EffectParams.Value := $00;
+              1: Ins^.Subpattern[J].EffectParams.Value := $40;
+              2: Ins^.Subpattern[J].EffectParams.Value := $80;
+              3: Ins^.Subpattern[J].EffectParams.Value := $C0;
+            end;
           end;
         end;
-      end;
-      itWave: begin
-        for J := 0 to SeqFormat.Length-1 do begin
-          Ins^.Subpattern[J].EffectCode := $C;
-          case Stream.ReadByte of
-            0: Ins^.Subpattern[J].EffectParams.Value := $00;
-            1: Ins^.Subpattern[J].EffectParams.Value := $01;
-            2: Ins^.Subpattern[J].EffectParams.Value := $08;
-            3: Ins^.Subpattern[J].EffectParams.Value := $0F;
+        itWave: begin
+          for J := 0 to SeqFormat.Length-1 do begin
+            Ins^.Subpattern[J].EffectCode := $C;
+            case Stream.ReadByte of
+              0: Ins^.Subpattern[J].EffectParams.Value := $00;
+              1: Ins^.Subpattern[J].EffectParams.Value := $01;
+              2: Ins^.Subpattern[J].EffectParams.Value := $08;
+              3: Ins^.Subpattern[J].EffectParams.Value := $0F;
+            end;
           end;
         end;
+        itNoise: begin
+          for J := 0 to SeqFormat.Length-1 do begin
+            Ins^.Subpattern[J].EffectCode := $9;
+            if Stream.ReadByte = 0 then
+              Ins^.Subpattern[J].EffectParams.Value := $00
+            else
+              Ins^.Subpattern[J].EffectParams.Value := $80;
+          end;
+        end
       end;
-      itNoise: begin
-        for J := 0 to SeqFormat.Length-1 do begin
-          Ins^.Subpattern[J].EffectCode := $9;
-          if Stream.ReadByte = 0 then
-            Ins^.Subpattern[J].EffectParams.Value := $00
-          else
-            Ins^.Subpattern[J].EffectParams.Value := $80;
-        end;
-      end
+
+      Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
     end;
 
-    Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
-  end;
-
-  // WAVE Block
-  for I := 0 to Header.WCount-1 do begin
-    Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
-    WaveId := Stream.ReadByte;
-    WaveName := Stream.ReadLString;
-    Stream.ReadBuffer(FourBitWave, SizeOf(T4bitWave));
-    Result.Waves[WaveId] := UnconvertWaveform(FourBitWave);
-  end;
-
-  // Cleanup patterns
-  for TrackFormat in TracksForCleanup do begin
-    Pat := Result.Patterns.GetOrCreateNew(((TrackFormat.Channel+1)*100) + TrackFormat.TrackId);
-
-    case TrackFormat.Channel of
-      0, 1: CleanupPattern(Pat, SquareMap);
-      2: CleanupPattern(Pat, WaveMap);
-      3: CleanupPattern(Pat, NoiseMap);
+    // WAVE Block
+    for I := 0 to Header.WCount-1 do begin
+      Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
+      WaveId := Stream.ReadByte;
+      WaveName := Stream.ReadLString;
+      Stream.ReadBuffer(FourBitWave, SizeOf(T4bitWave));
+      Result.Waves[WaveId] := UnconvertWaveform(FourBitWave);
     end;
+
+    // Cleanup patterns
+    for TrackFormat in TracksForCleanup do begin
+      Pat := Result.Patterns.GetOrCreateNew(((TrackFormat.Channel+1)*100) + TrackFormat.TrackId);
+
+      case TrackFormat.Channel of
+        0, 1: CleanupPattern(Pat, SquareMap);
+        2: CleanupPattern(Pat, WaveMap);
+        3: CleanupPattern(Pat, NoiseMap);
+      end;
+    end;
+  finally
+    if Assigned(SquareMap) then SquareMap.Free;
+    if Assigned(WaveMap) then WaveMap.Free;
+    if Assigned(NoiseMap) then NoiseMap.Free;
   end;
 end;
 

@@ -573,8 +573,6 @@ begin
 end;
 
 procedure DestroySong(var S: TSong);
-var
-  I: Integer;
 begin
   S.Patterns.Free;
 end;
