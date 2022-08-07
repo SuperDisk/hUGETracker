@@ -170,7 +170,7 @@ begin
     end;
     etSetEnvelope: begin
       OutCode := $C;
-      OutParams.Param2 := Params;
+      OutParams.Value := Params;
     end;
     etSetTimbre: begin
       OutCode := $9;
@@ -369,7 +369,10 @@ begin
   Stream.ReadBuffer(BlockHeader, SizeOf(TTBMBlockHeader));
   Result.Name := Stream.ReadLString;
   Stream.ReadBuffer(SongFormat, SizeOf(TTBMSongFormat));
-  Stream.ReadByte; // ?????????????????
+
+  // Number of visible effect columns-- undocumented currently but I asked
+  // stoneface about it.
+  Stream.ReadByte;
 
   Result.TicksPerRow := SongFormat.RowsPerBeat;
 
