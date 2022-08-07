@@ -131,7 +131,7 @@ begin
       $C: begin
         if Params <> 0 then begin
           OutCode := $C;
-          OutParams.Value := Trunc((Params / $40)*$F);
+          OutParams.Value := Round((Params / $40)*$F);
         end else begin
           OutCode := $E;
           OutParams.Value := 0;
@@ -159,6 +159,64 @@ begin
   ConvertEffect(MC.Effect.Code, MC.Effect.Params, Result.EffectCode, Result.EffectParams);
 end;
 
+function ConvertCellCh4(MR: TMODRow): TCell;
+var
+  Instrument: Byte;
+  NoiseBreak: Byte;
+  Noise: Byte;
+
+  PolyCounter: TPolynomialCounterRegister;
+  Ch4Freq: Integer;
+  RealR: Double;
+
+  NoteIndex: Integer;
+begin
+  // https://github.com/RichardULZ/gb-studio/blob/bf6d60ee2530791cae009e3a8cb6b28f900f08d7/buildTools/win32-ia32/mod2gbt/mod2gbt.c#L827
+
+  // This makes a smooth Ramp of every noise type, inspired by Pigu-A's Cherry Blossom Dive
+  // SSSS WDDD, preserve Width bit, combine Shift + Divisor (ignore bit 0100), add pitch.
+  // Divisor 4,5,6,7 can make any noise found in 0,1,2,3 unless with 0 Clock Shift.
+  // Solution, add 4, add note, if less than 4, set bit 0x04 to 0, and remove 4 again.
+  // Notes will pitch correctly using C D# F# A# C, scale has been divided by 3.
+
+  if PeriodToCodeMap.TryGetData(MR.Note, NoteIndex) then begin
+    Noise := 0;
+    NoiseBreak := 0;
+
+    if (MR.Instrument < 16) then
+      writeln(StdErr, '[DEBUG] Note value ', MR.Note, ' was accompanied by incorrect instrument ', MR.Instrument);
+
+    if (MR.Instrument < 32) and (MR.Instrument > 16) then begin
+        Instrument := GBT_NOISE[((MR.Instrument - 16) and $1F)]; // Only 0 - 0xF implemented
+
+        NoiseBreak := ((Instrument and $03) or (((Instrument and $F0) shr 2) + 4));
+        NoiseBreak := NoiseBreak - (Trunc((NoteIndex + 1) / 3) - 8);
+        Noise := ((NoiseBreak and $03) or
+                  ((IfThen((NoiseBreak - 4) < 0, $0, (NoiseBreak - 4)) and $3C) shl 2) or
+                   IfThen(NoiseBreak > 3, $04, $0)) or (Instrument and $08);
+
+      PolyCounter.ByteValue := Noise;
+
+      if PolyCounter.DividingRatio = 0 then
+        RealR := 0.5
+      else
+        RealR := PolyCounter.DividingRatio;
+
+      Ch4Freq := Trunc((524288 / RealR) / 2**(PolyCounter.ShiftClockFrequency+1));
+      if not Ch4FreqToNoteCodeMap.TryGetData(Ch4Freq, Result.Note) then
+        writeln(StdErr, '[DEBUG] Note value ', Result.Note, ' not found.');
+    end else
+      Result.Note := NO_NOTE;
+  end else
+    Result.Note := NO_NOTE;
+
+  if MR.Instrument <> 0 then
+    Result.Instrument := 1
+  else
+    Result.Instrument := 0;
+  ConvertEffect(MR.Effect.Code, MR.Effect.Params, Result.EffectCode, Result.EffectParams);
+end;
+
 procedure TranscribeColumn(MP: TMODPattern; Pat: PPattern; Column: Integer);
 var
   I: Integer;
@@ -169,7 +227,10 @@ begin
   LastPlayedInstrument := 0;
 
   for I := Low(MP) to High(MP) do begin
-    Pat^[I] := ConvertCell(MP[I, Column]);
+    if Column = 4 then
+      Pat^[I] := ConvertCellCh4(MP[I, Column])
+    else
+      Pat^[I] := ConvertCell(MP[I, Column]);
 
     if (Pat^[I].EffectCode = $C) then begin
       if (Pat^[I].Instrument = 0) then
@@ -182,41 +243,6 @@ begin
     if (Pat^[I].Note <> NO_NOTE) then LastPlayedNote := Pat^[I].Note;
     if (Pat^[I].Instrument <> 0) then LastPlayedInstrument := Pat^[I].Instrument;
   end;
-end;
-
-// https://github.com/RichardULZ/gb-studio/blob/master/buildTools/win32-ia32/mod2gbt/mod2gbt.c#L827
-
-procedure TranscribeColumnCh4(MP: TMODPattern; Pat: PPattern);
-var
-  MR: TMODRow;
-  Instrument: Byte;
-  NoiseBreak: Byte;
-  Noise: Byte;
-begin
-  MR := MP[I, 4];
-  Instrument = GBT_NOISE[((MR.Instrument - 16) and $1F)]; // Only 0 - 0xF implemented
-
-  // Rulz writes:
-  // This makes a smooth Ramp of every noise type, inspired by Pigu-A's Cherry Blossom Dive
-  // SSSS WDDD, preserve Width bit, combine Shift + Divisor (ignore bit 0100), add pitch.
-  // Divisor 4,5,6,7 can make any noise found in 0,1,2,3 unless with 0 Clock Shift.
-  // Solution, add 4, add note, if less than 4, set bit 0x04 to 0, and remove 4 again.
-  // Notes will pitch correctly using C D# F# A# C, scale has been divided by 3.
-  if (MR.Instrument < 32) and (MR.Instrument > 16) then begin
-    NoiseBreak := ((Instrument and $03) or (((Instrument and $F0) shr 2) + 4));
-    NoiseBreak := NoiseBreak - (((MR.Note + 1) / 3) - 8);
-    Noise := ((NoiseBreak and $03) or
-              ((((NoiseBreak - 4) < 0 ? $0 : (NoiseBreak - 4)) and $3C) shl 2) or
-               (NoiseBreak > 3 ? $04 : $0) ) or (Instrument and $08);
-  end;
-          if (samplenum < 32 && samplenum > 16) // Noise
-          {
-              noise_break = ( (instrument & 0x03) | (((instrument & 0xF0) >> 2) + 4) );
-              noise_break = noise_break - (((note_index + 1) / 3) - 8);
-              noise = ( (noise_break & 0x03) |
-              ((((noise_break - 4) < 0 ? 0x0 : (noise_break - 4)) & 0x3C) << 2) |
-               (noise_break > 3 ? 0x04 : 0x0) ) | (instrument & 0x08);
-          }
 end;
 
 function LoadSongFromModStream(Stream: TStream): TSong;
@@ -275,7 +301,7 @@ begin
     TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 0), 1);
     TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 1), 2);
     TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 2), 3);
-    TranscribeColumnCh4(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 3));
+    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 3), 4);
   end;
 
   // Import the order table. Uses a weird numbering scheme because hUGE has
