@@ -844,6 +844,7 @@ var
   Regs: TRegisters;
   AsmInstrument: TAsmInstrument;
   I, Addr, Freq: Integer;
+  HighMask: Integer;
 begin
   Freq := NotesToFreqs.KeyData[Note];
   AsmInstrument := InstrumentToBytes(Instr);
@@ -860,6 +861,8 @@ begin
         WriteBufferToSymbol('subpattern1', SubpatternToBytes(Instr.Subpattern), SizeOf(TSubpatternBytes));
 
         PokeSymbol('start_ch1', 1);
+        if Instr.SubpatternEnabled then
+          PokeSymbol('running_ch1', 1);
       end;
       itWave: begin
         CopyWaveIntoWaveRam(Waveform);
@@ -870,9 +873,26 @@ begin
         WriteBufferToSymbol('subpattern3', SubpatternToBytes(Instr.Subpattern), SizeOf(TSubpatternBytes));
 
         PokeSymbol('start_ch3', 1);
+        if Instr.SubpatternEnabled then
+          PokeSymbol('running_ch3', 1);
       end;
       itNoise: begin
+        Addr := SymbolAddress('instrument4');
+        spokeb(Addr, AsmInstrument[1]);
 
+        HighMask := AsmInstrument[0];
+        if Instr.LengthEnabled then
+          HighMask := HighMask or %01000000;
+        if Instr.CounterStep = swSeven then
+          HighMask := HighMask or %10000000;
+        spokeb(Addr+3, HighMask);
+
+        PokeSymbol('channel_note4', Note);
+        WriteBufferToSymbol('subpattern4', SubpatternToBytes(Instr.Subpattern), SizeOf(TSubpatternBytes));
+
+        PokeSymbol('start_ch4', 1);
+        if Instr.SubpatternEnabled then
+          PokeSymbol('running_ch4', 1);
       end;
     end;
   end;
@@ -905,6 +925,13 @@ begin
   // Silence CH4
   Spokeb(NR42, 0);
   Spokeb(NR44, %10000000);
+
+  // Stop running subpatterns
+  PokeSymbol('running_ch1', 0);
+  PokeSymbol('running_ch2', 0);
+  PokeSymbol('running_ch3', 0);
+  PokeSymbol('running_ch4', 0);
+
   UnlockPlayback;
 end;
 

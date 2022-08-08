@@ -1,23 +1,6 @@
 include "hardware.inc"
 include "hUGE.inc"
 
-add_a_to_r16: MACRO
-    add \2
-    ld \2, a
-    adc \1
-    sub \2
-    ld \1, a
-ENDM
-
-add_a_to_hl: MACRO
-    add_a_to_r16 h, l
-ENDM
-
-add_a_to_de: MACRO
-    add_a_to_r16 d, e
-ENDM
-
-
 SECTION "LCD controller status interrupt", ROM0[$0048]
     ;; HACK!!!!!!!!!!!!!
     ;; there's some sort of bug in the emulator which needs to be fixed,
@@ -84,8 +67,6 @@ init_note1:
   xor a
   ld [table_row1], a
   ld [start_ch1], a
-  inc a
-  ld [running_ch1], a
 
   jp play_ch1_note
 
@@ -102,8 +83,6 @@ init_note2:
   xor a
   ld [table_row2], a
   ld [start_ch2], a
-  inc a
-  ld [running_ch2], a
 
   jp play_ch2_note
 
@@ -121,10 +100,42 @@ init_note3:
   xor a
   ld [table_row3], a
   ld [start_ch3], a
-  inc a
-  ld [running_ch3], a
 
   jp play_ch3_note
+
+init_note4:
+  ld a, [channel_note4]
+  call get_note_poly
+  ld [channel_period4], a
+
+  ld hl, instrument4
+  ld a, [hl+]
+  ldh [rAUD4ENV], a
+  inc hl
+  inc hl
+  ld a, [hl]
+  and %00111111
+  ldh [rAUD4LEN], a
+
+  ld a, [channel_period4]
+  ld d, a
+  ld a, [hl]
+  and %10000000
+  swap a
+  ld [step_width4], a
+  or d
+  ld [channel_period4], a
+
+  ld a, [hl]
+  and %01000000
+  or  %10000000
+  ld [highmask4], a
+
+  xor a
+  ld [table_row4], a
+  ld [start_ch4], a
+
+  jp play_ch4_note
 
 run_table1:
   ld bc, subpattern1
@@ -149,7 +160,7 @@ run_table2:
 run_table3:
   ld bc, subpattern3
   ld hl, table_row3
-  ld e, 0
+  ld e, 2
 
   ld a, b
   or c
@@ -159,7 +170,7 @@ run_table3:
 run_table4:
   ld bc, subpattern4
   ld hl, table_row4
-  ld e, 0
+  ld e, 3
 
   ld a, b
   or c
@@ -226,9 +237,9 @@ _halt:
     and $FF
     call nz, init_note3
 
-    ; ld a, [start_ch4]
-    ; and $FF
-    ; call nz, init_note4
+    ld a, [start_ch4]
+    and $FF
+    call nz, init_note4
 
     ;;;;;;;;;;;;;;;;;;;;;
 
@@ -236,9 +247,9 @@ _halt:
     and $FF
     call nz, run_table1
 
-    ; ld a, [running_ch2]
-    ; and $FF
-    ; call nz, run_table2
+    ld a, [running_ch2]
+    and $FF
+    call nz, run_table2
 
     ld a, [running_ch3]
     and $FF
