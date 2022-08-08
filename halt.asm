@@ -17,6 +17,17 @@ add_a_to_de: MACRO
     add_a_to_r16 d, e
 ENDM
 
+
+SECTION "LCD controller status interrupt", ROM0[$0048]
+    ;; HACK!!!!!!!!!!!!!
+    ;; there's some sort of bug in the emulator which needs to be fixed,
+    ;; which screws up the program counter immediately after it exits a halt.
+    ;; this nop protects against that for now.
+    nop
+    nop
+    nop
+    reti
+
 SECTION "init", ROM0[$0100]
     jp init
 
@@ -31,11 +42,6 @@ DS 1
 DB "NF"
 
 SECTION "Vars", WRAM0
-
-note1: ds 3
-note2: ds 3
-note3: ds 3
-note4: ds 4
 
 instrument1: ds 6
 instrument2: ds 6
@@ -64,35 +70,101 @@ end_zero:
 SECTION "code", ROM0[$400]
 
 init_note1:
-  ld bc, note1
-  call get_current_row
-  call get_note_period
-  ld a, l
-  ld [channel_period1], a
-  ld a, h
-  ld [channel_period1+1], a
-
+  ld hl, instrument1
   ld a, [hl+]
   ldh [rAUD1SWEEP], a
   ld a, [hl+]
   ldh [rAUD1LEN], a
   ld a, [hl+]
   ldh [rAUD1ENV], a
+  ld a, [hl]
+  ; ld a, 0
+  ld [highmask1], a
 
   xor a
   ld [table_row1], a
   ld [start_ch1], a
   inc a
-  ld [highmask1], a
   ld [running_ch1], a
 
   jp play_ch1_note
+
+init_note2:
+  ld hl, instrument2
+  inc hl
+  ld a, [hl+]
+  ldh [rAUD2LEN], a
+  ld a, [hl+]
+  ldh [rAUD2ENV], a
+  ld a, [hl]
+  ld [highmask2], a
+
+  xor a
+  ld [table_row2], a
+  ld [start_ch2], a
+  inc a
+  ld [running_ch2], a
+
+  jp play_ch2_note
+
+init_note3:
+  ld hl, instrument3
+  ld a, [hl+]
+  ldh [rAUD3LEN], a
+  ld a, [hl+]
+  ldh [rAUD3LEVEL], a
+  ld a, [hl+]
+  ld [current_wave], a
+  ld a, [hl]
+  ld [highmask3], a
+
+  xor a
+  ld [table_row3], a
+  ld [start_ch3], a
+  inc a
+  ld [running_ch3], a
+
+  jp play_ch3_note
 
 run_table1:
   ld bc, subpattern1
   ld hl, table_row1
   ld e, 0
-  jp do_table
+
+  ld a, b
+  or c
+  jp nz, do_table
+  ret
+
+run_table2:
+  ld bc, subpattern2
+  ld hl, table_row2
+  ld e, 1
+
+  ld a, b
+  or c
+  jp nz, do_table
+  ret
+
+run_table3:
+  ld bc, subpattern3
+  ld hl, table_row3
+  ld e, 0
+
+  ld a, b
+  or c
+  jp nz, do_table
+  ret
+
+run_table4:
+  ld bc, subpattern4
+  ld hl, table_row4
+  ld e, 0
+
+  ld a, b
+  or c
+  jp nz, do_table
+  ret
 
 init:
 _addr = _AUD3WAVERAM
@@ -142,12 +214,38 @@ _halt:
     halt
     nop
 
+    ld a, [start_ch1]
+    and $FF
+    call nz, init_note1
+
+    ld a, [start_ch2]
+    and $FF
+    call nz, init_note2
+
+    ld a, [start_ch3]
+    and $FF
+    call nz, init_note3
+
+    ; ld a, [start_ch4]
+    ; and $FF
+    ; call nz, init_note4
+
+    ;;;;;;;;;;;;;;;;;;;;;
+
     ld a, [running_ch1]
     and $FF
     call nz, run_table1
 
-    ld a, [start_ch1]
+    ; ld a, [running_ch2]
+    ; and $FF
+    ; call nz, run_table2
+
+    ld a, [running_ch3]
     and $FF
-    call nz, init_note1
+    call nz, run_table3
+
+    ld a, [running_ch4]
+    and $FF
+    call nz, run_table4
 
     jr _halt

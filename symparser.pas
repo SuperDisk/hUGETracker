@@ -15,6 +15,7 @@ function WordPeekSymbol(Symbol: String): Integer;
 procedure WordPokeSymbol(Symbol: String; Value: Word);
 function PeekSymbol(Symbol: String): Integer;
 procedure PokeSymbol(Symbol: String; Value: Byte);
+procedure WriteBufferToSymbol(Symbol: String; const Buffer; Count: Integer);
 
 procedure ParseSymFile(F: String);
 
@@ -25,16 +26,25 @@ uses machine;
 var
   SymbolTable: TSymbolMap;
 
+procedure WriteBufferToSymbol(Symbol: String; const Buffer; Count: Integer);
+var
+  I: Integer;
+  Addr: Integer;
+begin
+  Addr := SymbolAddress(Symbol);
+
+  for I := 0 to Count-1 do
+    spokeb(Addr+I, PByte(@Buffer)[I]);
+end;
+
 procedure ParseSymFile(F: String);
 var
   SL: TStringList;
   SA: TStringArray;
   S: String;
 begin
-  if Assigned(SymbolTable) then
-    SymbolTable.Free;
+  SymbolTable.Clear;
 
-  SymbolTable := TSymbolMap.Create;
   SL := TStringList.Create;
   try
     SL.LoadFromFile(F);
@@ -62,7 +72,6 @@ end;
 
 function PeekSymbol(Symbol: String): Integer;
 begin
-  if SymbolTable = nil then exit(0);
   if SymbolTable.IndexOf(Symbol) = -1 then begin
     WriteLn(StdErr, '[WARNING] Attempting to peek unloaded symbol: ', symbol);
     Exit(0);
@@ -73,7 +82,6 @@ end;
 
 procedure PokeSymbol(Symbol: String; Value: Byte);
 begin
-  if SymbolTable = nil then exit;
   if SymbolTable.IndexOf(Symbol) = -1 then begin
     WriteLn(StdErr, '[WARNING] Attempting to poke unloaded symbol: ', symbol);
     Exit;
@@ -83,7 +91,6 @@ end;
 
 function WordPeekSymbol(Symbol: String): Integer;
 begin
-  if SymbolTable = nil then exit(0);
   if SymbolTable.IndexOf(Symbol) = -1 then begin
     WriteLn(StdErr, '[WARNING] Attempting to wordpeek unloaded symbol: ', symbol);
     Exit(0);
@@ -94,7 +101,6 @@ end;
 
 procedure WordPokeSymbol(Symbol: String; Value: Word);
 begin
-  if SymbolTable = nil then exit;
   if SymbolTable.IndexOf(Symbol) = -1 then begin
     WriteLn(StdErr, '[WARNING] Attempting to wordpoke unloaded symbol: ', symbol);
     Exit;
@@ -102,5 +108,7 @@ begin
   wordpoke(SymbolTable.KeyData[Symbol], Value);
 end;
 
+begin
+  SymbolTable := TSymbolMap.Create;
 end.
 

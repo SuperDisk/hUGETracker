@@ -7,6 +7,9 @@ interface
 uses
   Classes, SysUtils, Song, HugeDatatypes, Constants, gHashSet, fgl, instruments, math;
 
+type
+  TSubpatternBytes = array[0..((3*32)-1)] of Byte;
+
 function Lerp(v0, v1, t: Double): Double;
 function Snap(Value, Every: Integer): Integer;
 function ReMap(Value, Istart, Istop, Ostart, Ostop: Double): Double;
@@ -17,6 +20,9 @@ procedure BlankPattern(Pat: PPattern);
 procedure BlankCell(var Cell: TCell);
 function EffectCodeToStr(Code: Integer; Params: TEffectParams): String;
 function EffectToExplanation(Code: Integer; Params: TEffectParams): String;
+
+procedure DN(Note: Integer; Instrument: Integer; Effect: Integer; out B1, B2, B3: Byte);
+function SubpatternToBytes(Pat: TPattern): TSubpatternBytes;
 
 function ModInst(Inst: Integer): Integer;
 function UnmodInst(Bank: TInstrumentType; Inst: Integer): Integer;
@@ -111,6 +117,28 @@ begin
     $D: Result := 'Jump to row '+P+' on the next pattern';
     $E: Result := 'Cut note after '+P+' ticks';
     $F: Result := 'Set speed to '+P+' ticks';
+  end;
+end;
+
+procedure DN(Note: Integer; Instrument: Integer; Effect: Integer; out B1, B2, B3: Byte);
+begin
+  B1 := Byte(Note or ((Instrument and $10) shl 3));
+  B2 := Byte((((Instrument shl 4) and $FF) or (Effect shr 8)));
+  B3 := Byte(Effect and $FF);
+end;
+
+function SubpatternToBytes(Pat: TPattern): TSubpatternBytes;
+var
+  I: Integer;
+  B1, B2, B3: Byte;
+begin
+  for I := 0 to 31 do begin
+    with Pat[I] do begin
+      DN(Note, IfThen(I = 31, 1, Volume), (EffectCode shl 8) or EffectParams.Value, B1, B2, B3);
+      Result[(I*3) + 0] := B1;
+      Result[(I*3) + 1] := B2;
+      Result[(I*3) + 2] := B3;
+    end;
   end;
 end;
 

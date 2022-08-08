@@ -28,10 +28,6 @@ const
   SYM_TICKS_PER_ROW = 'ticks_per_row';
   SYM_ORDER_COUNT = 'order_cnt';
 
-  SYM_HALT_NOTE = 'note';
-  SYM_HALT_INSTR = 'instr';
-  SYM_HALT_MACRO_INDEX = 'macro_index';
-
   // Sound controller registers
   NR10 = $FF10;
   NR11 = $FF11;

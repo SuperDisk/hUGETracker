@@ -842,57 +842,37 @@ procedure TfrmTracker.PreviewInstrument(Note: Integer; Instr: TInstrument;
   SquareOnCh2: Boolean = False);
 var
   Regs: TRegisters;
+  AsmInstrument: TAsmInstrument;
   I, Addr, Freq: Integer;
 begin
   Freq := NotesToFreqs.KeyData[Note];
+  AsmInstrument := InstrumentToBytes(Instr);
 
   LockPlayback;
+
   with Instr do
   begin
     case Type_ of
       itSquare: begin
-        Regs := SquareInstrumentToRegisters(Freq, True, Instr);
-        if SquareOnCh2 then begin
-          Spokeb(NR21, Regs.NR11);
-          Spokeb(NR22, Regs.NR12);
-          Spokeb(NR23, Regs.NR13);
-          Spokeb(NR24, Regs.NR14);
-        end
-        else begin
-          Spokeb(NR10, Regs.NR10);
-          Spokeb(NR11, Regs.NR11);
-          Spokeb(NR12, Regs.NR12);
-          Spokeb(NR13, Regs.NR13);
-          Spokeb(NR14, Regs.NR14);
-        end;
+        WriteBufferToSymbol('instrument1', AsmInstrument, SizeOf(TAsmInstrument));
+        WordPokeSymbol('channel_period1', NotesToFreqs.KeyData[Note]);
+        PokeSymbol('channel_note1', Note);
+        WriteBufferToSymbol('subpattern1', SubpatternToBytes(Instr.Subpattern), SizeOf(TSubpatternBytes));
+
+        PokeSymbol('start_ch1', 1);
       end;
       itWave: begin
         CopyWaveIntoWaveRam(Waveform);
-        Regs := WaveInstrumentToRegisters(Freq, True, Instr);
 
-        Spokeb(NR30, Regs.NR30);
-        Spokeb(NR31, Regs.NR31);
-        Spokeb(NR32, Regs.NR32);
-        Spokeb(NR33, Regs.NR33);
-        Spokeb(NR34, Regs.NR34)
+        WriteBufferToSymbol('instrument3', AsmInstrument, SizeOf(TAsmInstrument));
+        WordPokeSymbol('channel_period3', NotesToFreqs.KeyData[Note]);
+        PokeSymbol('channel_note3', Note);
+        WriteBufferToSymbol('subpattern3', SubpatternToBytes(Instr.Subpattern), SizeOf(TSubpatternBytes));
+
+        PokeSymbol('start_ch3', 1);
       end;
       itNoise: begin
-        Regs := NoiseInstrumentToRegisters(Freq, True, Instr);
-        if Instr.LengthEnabled then
-          Regs.NR41 := Regs.NR41 or %01000000;
-        if Instr.CounterStep = swSeven then
-          Regs.NR41 := Regs.NR41 or %10000000;
 
-        Addr := SymbolAddress(SYM_HALT_INSTR);
-        Spokeb(Addr, Regs.NR42);
-        Spokeb(Addr+1, Regs.NR41);
-
-        for I := 0 to 5 do begin
-          Spokeb(Addr+2+I, Byte(0));
-        end;
-
-        PokeSymbol(SYM_HALT_MACRO_INDEX, 1);
-        PokeSymbol(SYM_HALT_NOTE, Note);
       end;
     end;
   end;
@@ -1377,7 +1357,7 @@ begin
   MessageDlg('Error',
     'An exception in hUGETracker has occured.' + LineEnding +
     'Your song has been backed up to the hUGETracker folder, so don''t worry!' + LineEnding+LineEnding+
-    'Please report this issue on GitHub, or contact me directly via Discord or Email.'+LineEnding+LineEnding+
+    'Please report this issue on GitHub, or contact the maintainer directly via Discord or Email.'+LineEnding+LineEnding+
     'Email: '+MaintainerEmail+LineEnding+
     'Discord: '+MaintainerDiscord+LineEnding+LineEnding+
     'The error is: '+E.ClassName+' with message '+E.Message,
