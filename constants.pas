@@ -28,6 +28,14 @@ const
   SYM_TICKS_PER_ROW = 'ticks_per_row';
   SYM_ORDER_COUNT = 'order_cnt';
 
+  SYM_HALT_INSTR = 'instrument';
+  SYM_HALT_PERIOD = 'channel_period';
+  SYM_HALT_SUBPATTERN = 'subpattern';
+  SYM_HALT_START = 'start_ch';
+  SYM_HALT_RUNNING = 'running_ch';
+  SYM_HALT_WAVEFORMS = 'waveforms';
+  SYM_HALT_NOTE = 'channel_note';
+
   // Sound controller registers
   NR10 = $FF10;
   NR11 = $FF11;

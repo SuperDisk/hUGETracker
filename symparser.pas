@@ -16,6 +16,7 @@ procedure WordPokeSymbol(Symbol: String; Value: Word);
 function PeekSymbol(Symbol: String): Integer;
 procedure PokeSymbol(Symbol: String; Value: Byte);
 procedure WriteBufferToSymbol(Symbol: String; const Buffer; Count: Integer);
+procedure WriteBufferToAddress(Address: Integer; const Buffer; Count: Integer);
 
 procedure ParseSymFile(F: String);
 
@@ -26,15 +27,18 @@ uses machine;
 var
   SymbolTable: TSymbolMap;
 
-procedure WriteBufferToSymbol(Symbol: String; const Buffer; Count: Integer);
+
+procedure WriteBufferToAddress(Address: Integer; const Buffer; Count: Integer);
 var
   I: Integer;
-  Addr: Integer;
 begin
-  Addr := SymbolAddress(Symbol);
-
   for I := 0 to Count-1 do
-    spokeb(Addr+I, PByte(@Buffer)[I]);
+    spokeb(Address+I, PByte(@Buffer)[I]);
+end;
+
+procedure WriteBufferToSymbol(Symbol: string; const Buffer; Count: Integer);
+begin
+  WriteBufferToAddress(SymbolAddress(Symbol), Buffer, Count);
 end;
 
 procedure ParseSymFile(F: String);
@@ -86,6 +90,9 @@ begin
     WriteLn(StdErr, '[WARNING] Attempting to poke unloaded symbol: ', symbol);
     Exit;
   end;
+
+  writeln('poking ', symbol, ' with ', value);
+
   spokeb(SymbolTable.KeyData[Symbol], Value);
 end;
 

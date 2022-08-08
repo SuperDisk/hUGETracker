@@ -6,11 +6,11 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
   Menus, Spin, StdCtrls, ActnList, StdActns, SynEdit, SynHighlighterAny,
-  FileUtil, math, Instruments, Song, Utils, Constants,
-  sound, vars, machine, about_hugetracker, TrackerGrid, lclintf, lmessages,
-  Buttons, Grids, DBCtrls, HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen,
-  SymParser, options, bgrabitmap, effecteditor, RenderToWave,
-  modimport, mainloop, strutils, Types, Keymap, hUGESettings, vgm, TBMImport;
+  FileUtil, math, Instruments, Song, Utils, Constants, sound, vars, machine,
+  about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
+  HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
+  bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils, Types,
+  Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview;
 
 // TODO: Move to config file?
 const
@@ -841,61 +841,23 @@ end;
 procedure TfrmTracker.PreviewInstrument(Note: Integer; Instr: TInstrument;
   SquareOnCh2: Boolean = False);
 var
-  Regs: TRegisters;
-  AsmInstrument: TAsmInstrument;
-  I, Addr, Freq: Integer;
-  HighMask: Integer;
+  Addr: Integer;
+  Wave: TWave;
 begin
-  Freq := NotesToFreqs.KeyData[Note];
-  AsmInstrument := InstrumentToBytes(Instr);
-
   LockPlayback;
 
-  with Instr do
-  begin
-    case Type_ of
-      itSquare: begin
-        WriteBufferToSymbol('instrument1', AsmInstrument, SizeOf(TAsmInstrument));
-        WordPokeSymbol('channel_period1', NotesToFreqs.KeyData[Note]);
-        PokeSymbol('channel_note1', Note);
-        WriteBufferToSymbol('subpattern1', SubpatternToBytes(Instr.Subpattern), SizeOf(TSubpatternBytes));
+  if Instr.Type_ = itWave then begin
+    CopyWaveIntoWaveRam(Instr.Waveform);
 
-        PokeSymbol('start_ch1', 1);
-        if Instr.SubpatternEnabled then
-          PokeSymbol('running_ch1', 1);
-      end;
-      itWave: begin
-        CopyWaveIntoWaveRam(Waveform);
-
-        WriteBufferToSymbol('instrument3', AsmInstrument, SizeOf(TAsmInstrument));
-        WordPokeSymbol('channel_period3', NotesToFreqs.KeyData[Note]);
-        PokeSymbol('channel_note3', Note);
-        WriteBufferToSymbol('subpattern3', SubpatternToBytes(Instr.Subpattern), SizeOf(TSubpatternBytes));
-
-        PokeSymbol('start_ch3', 1);
-        if Instr.SubpatternEnabled then
-          PokeSymbol('running_ch3', 1);
-      end;
-      itNoise: begin
-        Addr := SymbolAddress('instrument4');
-        spokeb(Addr, AsmInstrument[1]);
-
-        HighMask := AsmInstrument[0];
-        if Instr.LengthEnabled then
-          HighMask := HighMask or %01000000;
-        if Instr.CounterStep = swSeven then
-          HighMask := HighMask or %10000000;
-        spokeb(Addr+3, HighMask);
-
-        PokeSymbol('channel_note4', Note);
-        WriteBufferToSymbol('subpattern4', SubpatternToBytes(Instr.Subpattern), SizeOf(TSubpatternBytes));
-
-        PokeSymbol('start_ch4', 1);
-        if Instr.SubpatternEnabled then
-          PokeSymbol('running_ch4', 1);
-      end;
+    Addr := SymbolAddress(SYM_HALT_WAVEFORMS);
+    for Wave in Song.Waves do begin
+      WriteBufferToAddress(Addr, ConvertWaveform(Wave), SizeOf(T4bitWave));
+      Inc(Addr, SizeOf(T4bitWave));
     end;
   end;
+
+  StartInstrumentPreview(Instr, Note, SquareOnCh2);
+
   UnlockPlayback;
 end;
 
@@ -926,11 +888,10 @@ begin
   Spokeb(NR42, 0);
   Spokeb(NR44, %10000000);
 
-  // Stop running subpatterns
-  PokeSymbol('running_ch1', 0);
-  PokeSymbol('running_ch2', 0);
-  PokeSymbol('running_ch3', 0);
-  PokeSymbol('running_ch4', 0);
+  StopInstrumentPreview(1);
+  StopInstrumentPreview(2);
+  StopInstrumentPreview(3);
+  StopInstrumentPreview(4);
 
   UnlockPlayback;
 end;

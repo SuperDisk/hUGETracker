@@ -36,6 +36,8 @@ subpattern2: ds (3*64)
 subpattern3: ds (3*64)
 subpattern4: ds (3*64)
 
+waveforms: ds (16*16)
+
 start_zero:
 
 start_ch1: db
@@ -61,7 +63,6 @@ init_note1:
   ld a, [hl+]
   ldh [rAUD1ENV], a
   ld a, [hl]
-  ; ld a, 0
   ld [highmask1], a
 
   xor a
@@ -211,6 +212,13 @@ _addr = _addr + 1
     ;; Initialize hUGEDriver-related vars
     xor a
     ld [row], a
+
+    ;; Setup waves pointer
+    ld hl, waves
+    ld a, LOW(waveforms)
+    ld [hl+], a
+    ld a, HIGH(waveforms)
+    ld [hl], a
 
     ;; Zero some ram
     ld c, end_zero - start_zero
