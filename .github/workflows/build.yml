@@ -103,7 +103,7 @@ jobs:
           for f in hUGETracker/{Resources/"Sample Songs",hUGEDriver,Resources/Fonts/PixeliteTTF.ttf}; do ln -sv "$PWD/$f" packaging; done
           OBJ=`mktemp`
           HDOBJ=`mktemp`
-          rgbds/rgbasm -i hUGETracker/hUGEDriver -o "$HDOBJ" hUGETracker/hUGEDriver/hUGEDriver.asm
+          rgbds/rgbasm -E -i hUGETracker/hUGEDriver -o "$HDOBJ" hUGETracker/hUGEDriver/hUGEDriver.asm
           rgbds/rgbasm -i hUGETracker/hUGEDriver/include -o "$OBJ" hUGETracker/halt.asm
           rgbds/rgblink -o packaging/halt.gb -n packaging/halt.sym "$OBJ" "$HDOBJ"
           rgbds/rgbfix -vp0xFF packaging/halt.gb
