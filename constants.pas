@@ -27,6 +27,7 @@ const
   SYM_ROW_BREAK = 'row_break';
   SYM_TICKS_PER_ROW = 'ticks_per_row';
   SYM_ORDER_COUNT = 'order_cnt';
+  SYM_LOOP_ORDER = 'loop_order';
 
   SYM_HALT_INSTR = 'instrument';
   SYM_HALT_PERIOD = 'channel_period';

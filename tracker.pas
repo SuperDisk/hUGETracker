@@ -46,6 +46,8 @@ type
     MenuItem42: TMenuItem;
     MenuItem55: TMenuItem;
     TBMOpenDialog: TOpenDialog;
+    ToolButton11: TToolButton;
+    LoopSongToolButton: TToolButton;
     VGMSaveDialog: TSaveDialog;
     MenuItem10: TMenuItem;
     TempoBPMLabel: TLabel;
@@ -298,6 +300,7 @@ type
     procedure MenuItem55Click(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
+    procedure LoopSongToolButtonClick(Sender: TObject);
     procedure TrackerPopupMixPasteClick(Sender: TObject);
     procedure EnableSubpatternCheckboxChange(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -1915,6 +1918,7 @@ begin
 
     PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
     PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
+    PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
 
     UnlockPlayback;
   end
@@ -1927,6 +1931,7 @@ begin
 
     PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
     PokeSymbol(SYM_ROW, 0);
+    PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
 
     UnlockPlayback;
   end
@@ -2040,6 +2045,11 @@ begin
   UpdateBPMLabel
 end;
 
+procedure TfrmTracker.LoopSongToolButtonClick(Sender: TObject);
+begin
+  PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
+end;
+
 procedure TfrmTracker.FormShow(Sender: TObject);
 begin
   { HACK: This needs to be done due to a scaling bug in the LCL.
@@ -2061,15 +2071,7 @@ procedure TfrmTracker.DebugButtonClick(Sender: TObject);
 var
   Stream: TFileStream;
 begin
-  DestroySong(Song);
-
-  // TODO: Add error checking
-  Stream := TFileStream.Create('C:/tmp/n1_navi_v2.tbm', fmOpenRead);
-  Song := LoadSongFromTbmStream(Stream);
-
-  Stream.Free;
-
-  UpdateUIAfterLoad('Jorgus');
+  // debug
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);
