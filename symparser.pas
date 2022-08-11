@@ -91,8 +91,6 @@ begin
     Exit;
   end;
 
-  writeln('poking ', symbol, ' with ', value);
-
   spokeb(SymbolTable.KeyData[Symbol], Value);
 end;
 

@@ -1108,6 +1108,7 @@ end;
 procedure TfrmTracker.HaltPlayback;
 begin
   LockPlayback;
+  Application.ProcessMessages; // flush out any FD messages
   GetROMReady('halt.gb');
   ParseSymFile('halt.sym');
   UnlockPlayback;
