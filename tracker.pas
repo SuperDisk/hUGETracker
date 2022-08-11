@@ -1119,7 +1119,6 @@ begin
   Playing := False;
 
   TrackerGrid.HighlightedRow := -1;
-  ToolButton2.ImageIndex := 74;
 end;
 
 procedure TfrmTracker.FDCallback;

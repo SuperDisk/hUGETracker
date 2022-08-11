@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1848
+  Left = 1581
   Height = 857
-  Top = 233
+  Top = 205
   Width = 1318
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -3034,6 +3034,7 @@ object frmTracker: TfrmTracker
     Top = 32
     object PlayStartAction: TAction
       DisableIfNoHandler = False
+      Hint = 'Play song from start'
       ImageIndex = 91
       OnExecute = PlayStartActionExecute
       SecondaryShortCuts.Strings = (
@@ -3042,6 +3043,7 @@ object frmTracker: TfrmTracker
       ShortCut = 24589
     end
     object PlayCursorAction: TAction
+      Hint = 'Play song from cursor'
       ImageIndex = 89
       OnExecute = PlayCursorActionExecute
       SecondaryShortCuts.Strings = (
@@ -3050,6 +3052,7 @@ object frmTracker: TfrmTracker
       ShortCut = 8205
     end
     object PlayOrderAction: TAction
+      Hint = 'Play song from start of order'
       ImageIndex = 89
       OnExecute = PlayOrderActionExecute
       SecondaryShortCuts.Strings = (
@@ -3058,6 +3061,7 @@ object frmTracker: TfrmTracker
       ShortCut = 16397
     end
     object StopAction: TAction
+      Hint = 'Stop song'
       ImageIndex = 88
       OnExecute = StopActionExecute
       SecondaryShortCuts.Strings = (
