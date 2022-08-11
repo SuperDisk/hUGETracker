@@ -1935,7 +1935,7 @@ end;
 procedure TfrmTracker.ScrollBox1MouseWheelDown(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
-  if ssCtrl in Shift then begin
+  if (ActiveControl is TTrackerGrid) and (ssCtrl in Shift) then begin
     Handled := True;
     if ssShift in Shift then
       (ActiveControl as TTrackerGrid).IncrementSelection(-12, -10, -0, -0, -$10)
@@ -1949,7 +1949,7 @@ end;
 procedure TfrmTracker.ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
   MousePos: TPoint; var Handled: Boolean);
 begin
-  if ssCtrl in Shift then begin
+  if (ActiveControl is TTrackerGrid) and (ssCtrl in Shift) then begin
     Handled := True;
     if ssShift in Shift then
       (ActiveControl as TTrackerGrid).IncrementSelection(12, 10, 0, 0, $10)
