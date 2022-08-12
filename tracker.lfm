@@ -62,10 +62,10 @@ object frmTracker: TfrmTracker
       Height = 725
       Top = 0
       Width = 1120
-      ActivePage = CommentsTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 4
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -255,12 +255,13 @@ object frmTracker: TfrmTracker
             HorzScrollBar.Increment = 3
             HorzScrollBar.Page = 32
             HorzScrollBar.Smooth = True
+            HorzScrollBar.Range = 32
             HorzScrollBar.Tracking = True
-            VertScrollBar.Increment = 5
-            VertScrollBar.Page = 50
-            VertScrollBar.Smooth = True
+            VertScrollBar.Increment = 1
+            VertScrollBar.Page = 1
             VertScrollBar.Tracking = True
             Align = alClient
+            AutoScroll = False
             BorderStyle = bsNone
             ClientHeight = 665
             ClientWidth = 886
@@ -268,6 +269,8 @@ object frmTracker: TfrmTracker
             TabOrder = 1
             OnMouseWheelDown = ScrollBox1MouseWheelDown
             OnMouseWheelUp = ScrollBox1MouseWheelUp
+            OnResize = ScrollBox1Resize
+            OnPaint = ScrollBox1Paint
             object RowNumberStringGrid: TStringGrid
               Left = 0
               Height = 665
