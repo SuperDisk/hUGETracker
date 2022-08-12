@@ -21,7 +21,9 @@ type
 
     FPatternEditorFontSize: Integer;
     FUseScopes, FUseCustomKeymap: Boolean;
+    FAlwaysCenterActiveRow: Boolean;
 
+    procedure SetAlwaysCenterActiveRow(AValue: Boolean);
     procedure SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
     procedure SetDisplayRowNumbersAsHex(AValue: Boolean);
     procedure SetPatternEditorFontSize(AValue: Integer);
@@ -37,6 +39,8 @@ type
     property PreviewWhenBumping: Boolean read FPreviewWhenBumping write SetPreviewWhenBumping;
     property DisplayRowNumbersAsHex: Boolean read FDisplayRowNumbersAsHex write SetDisplayRowNumbersAsHex;
     property DisplayOrderRowNumbersAsHex: Boolean read FDisplayOrderRowNumbersAsHex write SetDisplayOrderRowNumbersAsHex;
+    property AlwaysCenterActiveRow: Boolean read FAlwaysCenterActiveRow write SetAlwaysCenterActiveRow;
+
 
     constructor Create;
   end;
@@ -71,6 +75,12 @@ procedure TTrackerSettings.SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
 begin
   FDisplayOrderRowNumbersAsHex:=AValue;
   SettingsFile.WriteBool('hUGETracker', 'DisplayOrderRowNumbersAsHex', AValue);
+end;
+
+procedure TTrackerSettings.SetAlwaysCenterActiveRow(AValue: Boolean);
+begin
+  FAlwaysCenterActiveRow:=AValue;
+  SettingsFile.WriteBool('hUGETracker', 'AlwaysCenterActiveRow', AValue);
 end;
 
 procedure TTrackerSettings.SetPreviewWhenBumping(AValue: Boolean);
@@ -108,6 +118,7 @@ begin
   FPreviewWhenBumping := SettingsFile.ReadBool('hUGETracker', 'PreviewWhenBumping', False);
   FDisplayRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayRowNumbersAsHex', False);
   FDisplayOrderRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayOrderRowNumbersAsHex', False);
+  FAlwaysCenterActiveRow := SettingsFile.ReadBool('hUGETracker', 'AlwaysCenterActiveRow', False);
 end;
 
 finalization
