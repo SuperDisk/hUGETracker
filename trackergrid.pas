@@ -363,6 +363,8 @@ var
   I: Integer;
   R: TRect;
 begin
+  inherited Paint;
+
   with Canvas do begin
     Brush.Color := clBackground;
     Clear;
@@ -396,8 +398,6 @@ begin
   RenderSelectedArea;
   if DraggingSelection then
     Canvas.DrawFocusRect(SelectionsToRect(DragSelCursor, DragSelOther));
-
-  inherited Paint;
 end;
 
 procedure TTrackerGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,

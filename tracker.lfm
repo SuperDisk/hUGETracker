@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1581
+  Left = 1461
   Height = 857
-  Top = 205
+  Top = 206
   Width = 1318
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -270,13 +270,11 @@ object frmTracker: TfrmTracker
             OnMouseWheelDown = ScrollBox1MouseWheelDown
             OnMouseWheelUp = ScrollBox1MouseWheelUp
             OnResize = ScrollBox1Resize
-            OnPaint = ScrollBox1Paint
             object RowNumberStringGrid: TStringGrid
               Left = 0
               Height = 665
               Top = 0
               Width = 32
-              Align = alLeft
               BorderStyle = bsNone
               ColCount = 1
               DefaultColWidth = 32

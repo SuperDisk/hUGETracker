@@ -298,7 +298,6 @@ type
     procedure FileSave1Execute(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
-    procedure ScrollBox1Paint(Sender: TObject);
     procedure ScrollBox1Resize(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
@@ -532,7 +531,6 @@ type
     procedure Panic;
   public
     procedure OnTrackerGridResize(Sender: TObject);
-    procedure OnTrackerGridPaint(Sender: TObject);
     procedure OnTrackerGridCursorOutOfBounds;
   end;
 
@@ -911,11 +909,6 @@ begin
     HeaderControl1.Sections.Items[I].Width := TrackerGrid.ColumnWidth;
 end;
 
-procedure TfrmTracker.OnTrackerGridPaint(Sender: TObject);
-begin
-  ScrollBox1.VertScrollBar.Position := Round(ScrollBox1.VertScrollBar.Range*(TrackerGrid.HighlightedRow/64));
-end;
-
 procedure TfrmTracker.OnTrackerGridCursorOutOfBounds;
 begin
   if  (TrackerGrid.Cursor.Y > High(TPattern))
@@ -1140,6 +1133,9 @@ begin
   TrackerGrid.HighlightedRow := PeekSymbol(SYM_ROW);
   OrderEditStringGrid.Row := (PeekSymbol(SYM_CURRENT_ORDER) div 2) + 1;
   InFDCallback := False; // HACK!!!!!!!!
+
+  TrackerGrid.Repaint;
+  ScrollBox1.VertScrollBar.Position := Round(ScrollBox1.VertScrollBar.Range*(TrackerGrid.HighlightedRow/64));
 end;
 
 procedure TfrmTracker.OnSampleSongMenuItemClicked(Sender: TObject);
@@ -1173,11 +1169,14 @@ begin
   if Assigned(TrackerGrid) then TrackerGrid.Free;
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
-  TrackerGrid.OnPaint:=@OnTrackerGridPaint;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.PopupMenu := TrackerGridPopup;
+
+  RowNumberStringGrid.Left := 0;
+  RowNumberStringGrid.Top := 0;
+  RowNumberStringGrid.Height := TrackerGrid.Height;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
   RowNumberStringGrid.DisabledFontColor := RowNumberStringGrid.Font.Color;
 
@@ -2036,15 +2035,13 @@ begin
   end;
 end;
 
-procedure TfrmTracker.ScrollBox1Paint(Sender: TObject);
-begin
-
-end;
-
 procedure TfrmTracker.ScrollBox1Resize(Sender: TObject);
 begin
   TrackerGrid.Top := ScrollBox1.Height div 2;
   ScrollBox1.VertScrollBar.Range := TrackerGrid.Height;
+
+  RowNumberStringGrid.Top := TrackerGrid.Top;
+  RowNumberStringGrid.Height := TrackerGrid.Height;
 end;
 
 procedure TfrmTracker.FileSave1Execute(Sender: TObject);
