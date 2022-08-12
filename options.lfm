@@ -34,13 +34,13 @@ object frmOptions: TfrmOptions
     Height = 628
     Top = 10
     Width = 530
-    ActivePage = CustomiztaionTabSheet
+    ActivePage = GeneralTabSheet
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Left = 10
     BorderSpacing.Top = 10
     BorderSpacing.Right = 10
     BorderSpacing.Bottom = 7
-    TabIndex = 2
+    TabIndex = 0
     TabOrder = 1
     object GeneralTabSheet: TTabSheet
       Caption = 'General'

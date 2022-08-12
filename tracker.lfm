@@ -2147,9 +2147,9 @@ object frmTracker: TfrmTracker
       object MenuItem25: TMenuItem
         Caption = '-'
       end
-      object MenuItem26: TMenuItem
+      object OptionsMenuItem: TMenuItem
         Caption = 'Options ...'
-        OnClick = MenuItem26Click
+        OnClick = OptionsMenuItemClick
       end
     end
     object MenuItem3: TMenuItem

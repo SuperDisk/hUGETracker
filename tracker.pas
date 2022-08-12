@@ -107,7 +107,7 @@ type
     MenuItem23: TMenuItem;
     MenuItem24: TMenuItem;
     MenuItem25: TMenuItem;
-    MenuItem26: TMenuItem;
+    OptionsMenuItem: TMenuItem;
     MenuItem27: TMenuItem;
     MenuItem28: TMenuItem;
     MenuItem31: TMenuItem;
@@ -387,7 +387,7 @@ type
     procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem22Click(Sender: TObject);
-    procedure MenuItem26Click(Sender: TObject);
+    procedure OptionsMenuItemClick(Sender: TObject);
     procedure MenuItem31Click(Sender: TObject);
     procedure MenuItem33Click(Sender: TObject);
     procedure MenuItem34Click(Sender: TObject);
@@ -2335,7 +2335,7 @@ begin
   ReloadPatterns;
 end;
 
-procedure TfrmTracker.MenuItem26Click(Sender: TObject);
+procedure TfrmTracker.OptionsMenuItemClick(Sender: TObject);
 begin
   frmOptions.ShowModal;
 
