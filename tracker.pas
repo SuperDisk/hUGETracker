@@ -682,15 +682,18 @@ begin
 end;
 
 procedure TfrmTracker.AdjustTrackerGridScrollBox;
+var
+  AutoScrollWasOn: Boolean;
 begin
   if TrackerSettings.AlwaysCenterActiveRow then begin
+    AutoScrollWasOn := ScrollBox1.AutoScroll;
     ScrollBox1.AutoScroll := False;
-    ScrollBox1.ForceUpdateScrollBars;
+    if AutoScrollWasOn then ScrollBox1.ForceUpdateScrollBars;
     ScrollBox1.VertScrollBar.Smooth := False;
     ScrollBox1.VertScrollBar.Increment := 1;
     ScrollBox1.VertScrollBar.Page := 1;
-    ScrollBox1.VertScrollBar.Position := 0;
     ScrollBox1.VertScrollBar.Range := TrackerGrid.Height;
+    ScrollBox1.VertScrollBar.Position := Round(ScrollBox1.VertScrollBar.Range*(TrackerGrid.HighlightedRow/64));
     TrackerGrid.Top := ScrollBox1.Height div 2;
   end else begin
     TrackerGrid.Top := 0;
