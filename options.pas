@@ -64,7 +64,7 @@ type
     OptionsGroupBox: TGroupBox;
     SampleTrackerGridPanel: TPanel;
     KeymapGroupBox: TGroupBox;
-    OpenDialog1: TOpenDialog;
+    KeymapOpenDialog: TOpenDialog;
     SaveDialog1: TSaveDialog;
     Label1: TLabel;
     FontSizeSpinner: TSpinEdit;
@@ -113,8 +113,8 @@ end;
 
 procedure TfrmOptions.Button2Click(Sender: TObject);
 begin
-  if OpenDialog1.Execute then
-    KeyMapStringGrid.LoadFromFile(OpenDialog1.FileName);
+  if KeymapOpenDialog.Execute then
+    KeyMapStringGrid.LoadFromFile(KeymapOpenDialog.FileName);
 end;
 
 procedure TfrmOptions.Button3Click(Sender: TObject);

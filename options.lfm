@@ -34,13 +34,13 @@ object frmOptions: TfrmOptions
     Height = 628
     Top = 10
     Width = 530
-    ActivePage = GeneralTabSheet
+    ActivePage = KeyboardTabSheet
     Anchors = [akTop, akLeft, akRight, akBottom]
     BorderSpacing.Left = 10
     BorderSpacing.Top = 10
     BorderSpacing.Right = 10
     BorderSpacing.Bottom = 7
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 1
     object GeneralTabSheet: TTabSheet
       Caption = 'General'
@@ -100,11 +100,11 @@ object frmOptions: TfrmOptions
           Columns = <          
             item
               Title.Caption = 'Key'
-              Width = 173
+              Width = 182
             end          
             item
               Title.Caption = 'Note'
-              Width = 174
+              Width = 182
             end>
           DefaultColWidth = 120
           FixedCols = 0
@@ -114,8 +114,8 @@ object frmOptions: TfrmOptions
           TabOrder = 0
           OnValidateEntry = KeyMapStringGridValidateEntry
           ColWidths = (
-            173
-            174
+            182
+            182
           )
         end
         object Button2: TButton
@@ -505,7 +505,8 @@ object frmOptions: TfrmOptions
   object SaveDialog1: TSaveDialog
     Left = 376
   end
-  object OpenDialog1: TOpenDialog
+  object KeymapOpenDialog: TOpenDialog
+    InitialDir = './Keymaps'
     Left = 328
   end
   object ColorDialog1: TColorDialog
