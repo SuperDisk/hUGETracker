@@ -55,6 +55,7 @@ type
     procedure DblClick; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
+    procedure WndProc(var Message: TLMessage); override;
   private
     function GetSelection: TSelection;
     procedure PerformPaste(Paste: TSelection; Mix: Boolean = False); overload;
@@ -122,7 +123,7 @@ type
 
     SelectedInstrument, SelectedOctave, Step: Integer;
 
-    OnCursorOutOfBounds: procedure of object;
+    OnCursorOutOfBounds, OnCursorChanged: procedure of object;
 
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
@@ -364,6 +365,7 @@ var
   R: TRect;
 begin
   inherited Paint;
+  writeln('painting ', Random);
 
   with Canvas do begin
     Brush.Color := clBackground;
@@ -582,6 +584,19 @@ begin
 
   if key = VK_SHIFT then
     ShiftClicking := False;
+end;
+
+procedure TTrackerGrid.WndProc(var Message: TLMessage);
+var
+  OldCursor: TSelectionPos;
+begin
+  // HACK: this is pretty horrible, but it's a somewhat better compromise than
+  // defining ugly getters and setters all over the place which makes the code hideous.
+
+  OldCursor := Cursor;
+  inherited WndProc(Message);
+  if Assigned(OnCursorChanged) and (OldCursor <> Cursor) or (OldCursor.Y <> Cursor.Y) then
+    OnCursorChanged;
 end;
 
 function TTrackerGrid.GetSelection: TSelection;

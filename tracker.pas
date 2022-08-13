@@ -544,6 +544,7 @@ type
   public
     procedure OnTrackerGridResize(Sender: TObject);
     procedure OnTrackerGridCursorOutOfBounds;
+    procedure OnTrackerGridCursorChanged;
   end;
 
 var
@@ -967,6 +968,15 @@ begin
   end;
 end;
 
+procedure TfrmTracker.OnTrackerGridCursorChanged;
+begin
+  if TrackerSettings.AlwaysCenterActiveRow and (TrackerGrid.HighlightedRow <> TrackerGrid.Cursor.Y) then begin
+    TrackerGrid.HighlightedRow := TrackerGrid.Cursor.Y;
+    TrackerGrid.Repaint;
+    ScrollBox1.VertScrollBar.Position := Round(ScrollBox1.VertScrollBar.Range*(TrackerGrid.HighlightedRow/64));
+  end;
+end;
+
 procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
@@ -1219,6 +1229,7 @@ begin
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
+  TrackerGrid.OnCursorChanged:=@OnTrackerGridCursorChanged;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.PopupMenu := TrackerGridPopup;
