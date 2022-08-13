@@ -39,6 +39,17 @@ type
       property DrawHexAutonumbering: Boolean read FDrawHexAutonumbering write SetDrawHexAutonumbering;
   end;
 
+  { TScrollBox
+
+    In order to make TScrollBox behave when toggling AutoScroll on and off,
+    this thing is called after turning it off to correctly
+    recalculate... something. This is total abuse of TScrollBox but whatever.
+  }
+
+  TScrollBoxHelper = class helper for TScrollBox
+    procedure ForceUpdateScrollBars;
+  end;
+
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
@@ -542,6 +553,13 @@ implementation
 
 {$R *.lfm}
 
+{ TScrollBox }
+
+procedure TScrollBoxhelper.ForceUpdateScrollBars;
+begin
+  UpdateScrollbars;
+end;
+
 { TStringGrid }
 
 procedure TStringGrid.SetDrawHexAutonumbering(AValue: Boolean);
@@ -667,6 +685,7 @@ procedure TfrmTracker.AdjustTrackerGridScrollBox;
 begin
   if TrackerSettings.AlwaysCenterActiveRow then begin
     ScrollBox1.AutoScroll := False;
+    ScrollBox1.ForceUpdateScrollBars;
     ScrollBox1.VertScrollBar.Smooth := False;
     ScrollBox1.VertScrollBar.Increment := 1;
     ScrollBox1.VertScrollBar.Page := 1;
