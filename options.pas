@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Spin, Grids,
-  LCLProc, Buttons, ExtCtrls, Constants, Keymap, hUGESettings, hUGEDataTypes,
-  TrackerGrid;
+  LCLProc, Buttons, ExtCtrls, ComCtrls, CheckLst, Constants, Keymap,
+  hUGESettings, hUGEDataTypes, TrackerGrid;
 
 type
 
@@ -22,9 +22,11 @@ type
     Button6: TButton;
     Button7: TButton;
     Button8: TButton;
-    DisplayOrderHexRowNumbersCheck: TCheckBox;
+    UseCustomKeymapCheckbox: TCheckBox;
+    CheckListBox1: TCheckListBox;
     NoteTextColorButton: TColorButton;
     OpenDialog2: TOpenDialog;
+    OptionsPageControl: TPageControl;
     Panel1: TPanel;
     SaveDialog2: TSaveDialog;
     SelectedColorButton: TColorButton;
@@ -35,13 +37,15 @@ type
     InstrumentTextColorButton: TColorButton;
     MiscEffectTextColorButton: TColorButton;
     PitchEffectTextColorButton: TColorButton;
+    KeyboardTabSheet: TTabSheet;
+    GeneralTabSheet: TTabSheet;
+    CustomiztaionTabSheet: TTabSheet;
     VolumeEffectTextColorButton: TColorButton;
     PanningEffectTextColorButton: TColorButton;
     SongEffectTextColorButton: TColorButton;
     BackgroundColorButton: TColorButton;
     HighlightedColorButton: TColorButton;
     ColorDialog1: TColorDialog;
-    DisplayHexRowNumbersCheck: TCheckBox;
     CustomizationGroupBox: TGroupBox;
     Label10: TLabel;
     Label11: TLabel;
@@ -59,13 +63,9 @@ type
     Label9: TLabel;
     OptionsGroupBox: TGroupBox;
     SampleTrackerGridPanel: TPanel;
-    PreviewWhenPlacingCheck: TCheckBox;
-    PreviewWhenBumpingCheck: TCheckBox;
-    KeymapCheckbox: TCheckBox;
     KeymapGroupBox: TGroupBox;
     OpenDialog1: TOpenDialog;
     SaveDialog1: TSaveDialog;
-    ScopesCheck: TCheckBox;
     Label1: TLabel;
     FontSizeSpinner: TSpinEdit;
     KeyMapStringGrid: TStringGrid;
@@ -178,12 +178,12 @@ begin
   SaveColorsToFile('color_scheme.col');
 
   TrackerSettings.PatternEditorFontSize := FontSizeSpinner.Value;
-  TrackerSettings.UseScopes := ScopesCheck.Checked;
-  TrackerSettings.UseCustomKeymap := KeymapCheckbox.Checked;
-  TrackerSettings.PreviewWhenPlacing := PreviewWhenPlacingCheck.Checked;
-  TrackerSettings.PreviewWhenBumping := PreviewWhenBumpingCheck.Checked;
-  TrackerSettings.DisplayRowNumbersAsHex := DisplayHexRowNumbersCheck.Checked;
-  TrackerSettings.DisplayOrderRowNumbersAsHex := DisplayOrderHexRowNumbersCheck.Checked;
+  TrackerSettings.UseScopes := CheckListBox1.Checked[0];
+  TrackerSettings.UseCustomKeymap := UseCustomKeymapCheckbox.Checked;
+  TrackerSettings.PreviewWhenPlacing := CheckListBox1.Checked[1];
+  TrackerSettings.PreviewWhenBumping := CheckListBox1.Checked[2];
+  TrackerSettings.DisplayRowNumbersAsHex := CheckListBox1.Checked[3];
+  TrackerSettings.DisplayOrderRowNumbersAsHex := CheckListBox1.Checked[4];
 end;
 
 procedure TfrmOptions.FormCreate(Sender: TObject);
@@ -191,6 +191,7 @@ var
   SamplePattern: PPattern;
   I: Integer;
 begin
+  OptionsPageControl.TabIndex := 0;
   KeyMapStringGrid.SaveOptions := soAll;
 
   if FileExists('custom_keymap.km') then
@@ -200,12 +201,12 @@ begin
     LoadColorsFromFile('color_scheme.col');
 
   FontSizeSpinner.Value := TrackerSettings.PatternEditorFontSize;
-  ScopesCheck.Checked := TrackerSettings.UseScopes;
-  KeymapCheckbox.Checked := TrackerSettings.UseCustomKeymap;
-  PreviewWhenPlacingCheck.Checked := TrackerSettings.PreviewWhenPlacing;
-  PreviewWhenBumpingCheck.Checked := TrackerSettings.PreviewWhenBumping;
-  DisplayHexRowNumbersCheck.Checked := TrackerSettings.DisplayRowNumbersAsHex;
-  DisplayOrderHexRowNumbersCheck.Checked := TrackerSettings.DisplayOrderRowNumbersAsHex;
+  CheckListBox1.Checked[0] := TrackerSettings.UseScopes;
+  UseCustomKeymapCheckbox.Checked := TrackerSettings.UseCustomKeymap;
+  CheckListBox1.Checked[1] := TrackerSettings.PreviewWhenPlacing;
+  CheckListBox1.Checked[2] := TrackerSettings.PreviewWhenBumping;
+  CheckListBox1.Checked[3] := TrackerSettings.DisplayRowNumbersAsHex;
+  CheckListBox1.Checked[4] := TrackerSettings.DisplayOrderRowNumbersAsHex;
 
   SamplePatternMap := TPatternMap.Create;
   SamplePattern := SamplePatternMap.GetOrCreateNew(0);
@@ -222,7 +223,7 @@ end;
 
 procedure TfrmOptions.KeymapCheckboxChange(Sender: TObject);
 begin
-  KeymapGroupBox.Enabled := KeymapCheckbox.Checked;
+  KeymapGroupBox.Enabled := UseCustomKeymapCheckbox.Checked;
 end;
 
 procedure TfrmOptions.KeyMapStringGridValidateEntry(sender: TObject; aCol,
@@ -314,7 +315,7 @@ begin
     CloseFile(F);
   except
     on E: Exception do begin
-      ShowMessage('Couldn''t load colors from ' + Filename);
+      ShowMessage('Couldn''t save colors to ' + Filename);
     end;
   end;
 end;

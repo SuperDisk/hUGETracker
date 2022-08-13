@@ -9,8 +9,8 @@ uses
   FileUtil, math, Instruments, Song, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
-  bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils, Types,
-  Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview;
+  bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils, Rtti,
+  Types, Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview;
 
 // TODO: Move to config file?
 const
@@ -107,7 +107,7 @@ type
     MenuItem23: TMenuItem;
     MenuItem24: TMenuItem;
     MenuItem25: TMenuItem;
-    MenuItem26: TMenuItem;
+    OptionsMenuItem: TMenuItem;
     MenuItem27: TMenuItem;
     MenuItem28: TMenuItem;
     MenuItem31: TMenuItem;
@@ -282,7 +282,7 @@ type
     PageControl1: TPageControl;
     WavePaintbox: TPaintBox;
     Panel1: TPanel;
-    Panel2: TPanel;
+    ScopesPanel: TPanel;
     InstrumentNumberSpinner: TSpinEdit;
     Panel4: TPanel;
     Splitter1: TSplitter;
@@ -386,7 +386,7 @@ type
     procedure MenuItem19Click(Sender: TObject);
     procedure MenuItem21Click(Sender: TObject);
     procedure MenuItem22Click(Sender: TObject);
-    procedure MenuItem26Click(Sender: TObject);
+    procedure OptionsMenuItemClick(Sender: TObject);
     procedure MenuItem31Click(Sender: TObject);
     procedure MenuItem33Click(Sender: TObject);
     procedure MenuItem34Click(Sender: TObject);
@@ -1492,7 +1492,7 @@ begin
 
   // Start the Oscilloscope repaint timer
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
-  Panel2.Visible := ScopesOn;
+  ScopesPanel.Visible := ScopesOn;
 
   // Switch to general tab sheet
   PageControl1.ActivePageIndex := 0;
@@ -2318,7 +2318,7 @@ begin
   ReloadPatterns;
 end;
 
-procedure TfrmTracker.MenuItem26Click(Sender: TObject);
+procedure TfrmTracker.OptionsMenuItemClick(Sender: TObject);
 begin
   frmOptions.ShowModal;
 
@@ -2333,7 +2333,7 @@ begin
   ScopesOn := TrackerSettings.UseScopes;
 
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
-  Panel2.Visible := ScopesOn;
+  ScopesPanel.Visible := ScopesOn;
 
   RecreateRowNumbers;
   TrackerGrid.Invalidate;
