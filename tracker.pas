@@ -9,8 +9,8 @@ uses
   FileUtil, math, Instruments, Song, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
-  bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils, Types,
-  Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview;
+  bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils, Rtti,
+  Types, Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview;
 
 // TODO: Move to config file?
 const
@@ -282,7 +282,7 @@ type
     PageControl1: TPageControl;
     WavePaintbox: TPaintBox;
     Panel1: TPanel;
-    Panel2: TPanel;
+    ScopesPanel: TPanel;
     InstrumentNumberSpinner: TSpinEdit;
     Panel4: TPanel;
     Splitter1: TSplitter;
@@ -517,6 +517,7 @@ type
     procedure UpdateWindowTitle;
     procedure UpdateHexWaveTextbox;
     procedure UpdateBPMLabel;
+    procedure AdjustTrackerGridScrollBox;
 
     function CheckUnsavedChanges: Boolean;
 
@@ -660,6 +661,26 @@ begin
 
   BeatHZ := (TimerHZ / Song.TicksPerRow) / 4; // 4 rows comprise one beat
   TempoBPMLabel.Caption := '~'+FormatFloat('###.##', BeatHZ * 60)+' BPM';
+end;
+
+procedure TfrmTracker.AdjustTrackerGridScrollBox;
+begin
+  if TrackerSettings.AlwaysCenterActiveRow then begin
+    ScrollBox1.AutoScroll := False;
+    ScrollBox1.VertScrollBar.Smooth := False;
+    ScrollBox1.VertScrollBar.Increment := 1;
+    ScrollBox1.VertScrollBar.Page := 1;
+    ScrollBox1.VertScrollBar.Position := 0;
+    ScrollBox1.VertScrollBar.Range := TrackerGrid.Height;
+    TrackerGrid.Top := ScrollBox1.Height div 2;
+  end else begin
+    TrackerGrid.Top := 0;
+    ScrollBox1.VertScrollBar.Smooth := True;
+    ScrollBox1.AutoScroll := True;
+  end;
+
+  RowNumberStringGrid.Top := TrackerGrid.Top;
+  RowNumberStringGrid.Height := TrackerGrid.Height;
 end;
 
 function TfrmTracker.CheckUnsavedChanges: Boolean;
@@ -1134,8 +1155,14 @@ begin
   OrderEditStringGrid.Row := (PeekSymbol(SYM_CURRENT_ORDER) div 2) + 1;
   InFDCallback := False; // HACK!!!!!!!!
 
-  TrackerGrid.Repaint;
-  ScrollBox1.VertScrollBar.Position := Round(ScrollBox1.VertScrollBar.Range*(TrackerGrid.HighlightedRow/64));
+  if TrackerSettings.AlwaysCenterActiveRow then begin
+    TrackerGrid.Repaint;
+    ScrollBox1.VertScrollBar.Position := Round(ScrollBox1.VertScrollBar.Range*(TrackerGrid.HighlightedRow/64));
+  end;
+
+  with ScrollBox1.VertScrollBar do begin;
+    //writeln(increment, ' ', page, ' ', position, ' ', range, ' ', smooth, ' ', tracking, ' ', scrollbox1.AutoScroll, ' ', TrackerGrid.Top);
+  end;
 end;
 
 procedure TfrmTracker.OnSampleSongMenuItemClicked(Sender: TObject);
@@ -1174,11 +1201,10 @@ begin
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.PopupMenu := TrackerGridPopup;
 
-  RowNumberStringGrid.Left := 0;
-  RowNumberStringGrid.Top := 0;
-  RowNumberStringGrid.Height := TrackerGrid.Height;
   RowNumberStringGrid.DefaultRowHeight := TrackerGrid.RowHeight;
   RowNumberStringGrid.DisabledFontColor := RowNumberStringGrid.Font.Color;
+
+  AdjustTrackerGridScrollBox;
 
   // Recreate TableGrid
   if Assigned(TableGrid) then TableGrid.Free;
@@ -1500,7 +1526,7 @@ begin
 
   // Start the Oscilloscope repaint timer
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
-  Panel2.Visible := ScopesOn;
+  ScopesPanel.Visible := ScopesOn;
 
   // Switch to general tab sheet
   PageControl1.ActivePageIndex := 0;
@@ -2037,11 +2063,7 @@ end;
 
 procedure TfrmTracker.ScrollBox1Resize(Sender: TObject);
 begin
-  TrackerGrid.Top := ScrollBox1.Height div 2;
-  ScrollBox1.VertScrollBar.Range := TrackerGrid.Height;
-
-  RowNumberStringGrid.Top := TrackerGrid.Top;
-  RowNumberStringGrid.Height := TrackerGrid.Height;
+  AdjustTrackerGridScrollBox;
 end;
 
 procedure TfrmTracker.FileSave1Execute(Sender: TObject);
@@ -2350,9 +2372,10 @@ begin
   ScopesOn := TrackerSettings.UseScopes;
 
   OscilloscopeUpdateTimer.Enabled := ScopesOn;
-  Panel2.Visible := ScopesOn;
+  ScopesPanel.Visible := ScopesOn;
 
   RecreateRowNumbers;
+  AdjustTrackerGridScrollBox;
   TrackerGrid.Invalidate;
 
   CreateKeymap

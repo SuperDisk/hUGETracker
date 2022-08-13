@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1461
+  Left = 2146
   Height = 857
-  Top = 206
+  Top = 342
   Width = 1318
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -62,10 +62,10 @@ object frmTracker: TfrmTracker
       Height = 725
       Top = 0
       Width = 1120
-      ActivePage = WavesTabSheet
+      ActivePage = PatternTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 3
+      TabIndex = 1
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -255,13 +255,12 @@ object frmTracker: TfrmTracker
             HorzScrollBar.Increment = 3
             HorzScrollBar.Page = 32
             HorzScrollBar.Smooth = True
-            HorzScrollBar.Range = 32
             HorzScrollBar.Tracking = True
-            VertScrollBar.Increment = 1
-            VertScrollBar.Page = 1
+            VertScrollBar.Increment = 66
+            VertScrollBar.Page = 665
+            VertScrollBar.Smooth = True
             VertScrollBar.Tracking = True
             Align = alClient
-            AutoScroll = False
             BorderStyle = bsNone
             ClientHeight = 665
             ClientWidth = 886
@@ -1716,7 +1715,7 @@ object frmTracker: TfrmTracker
       end
     end
   end
-  object Panel2: TPanel
+  object ScopesPanel: TPanel
     Left = 0
     Height = 64
     Top = 25
