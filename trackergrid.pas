@@ -213,9 +213,9 @@ begin
     Font.Color := clDots;
     TextOut(PenPos.X, PenPos.Y, '..');
 
-    if Cell.Volume <> 0 then begin
+    if Cell.Volume.Value <> 0 then begin
       Font.Color := clTblJump;
-      TextOut(PenPos.X, PenPos.Y, 'J'+FormatFloat('00', Cell.Volume));
+      TextOut(PenPos.X, PenPos.Y, 'J'+FormatFloat('00', Cell.Volume.Value));
     end
     else begin
       Font.Color := clDots;
@@ -247,9 +247,9 @@ var
 begin
   BeginUndoAction;
   with Patterns[Cursor.X]^[Cursor.Y] do begin
-    if Key = VK_DELETE then Volume := 0
+    if Key = VK_DELETE then Volume.Value := 0
     else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
-      Volume := ((Volume mod 10) * 10) + Temp;
+      Volume.Value := ((Volume.Value mod 10) * 10) + Temp;
   end;
 
   Invalidate;
@@ -613,7 +613,7 @@ procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos; Mix
         Cell1.Instrument := Cell2.Cell.Instrument;
 
      if cpVolume in Cell2.Parts then
-        if (not Mix) or (Cell2.Cell.Volume <> 0) then
+        if (not Mix) or (Cell2.Cell.Volume.Value <> 0) then
            Cell1.Volume := Cell2.Cell.Volume;
 
     if cpEffectCode in Cell2.Parts then
@@ -1028,8 +1028,19 @@ begin
 end;
 
 procedure TTrackerGrid.InputVolume(Key: Word);
+var
+  Temp: Nibble;
 begin
+  BeginUndoAction;
+  with Patterns[Cursor.X]^[Cursor.Y] do
+    if Key = VK_DELETE then begin
+      Volume.Value := 0;
+    end
+    else if KeycodeToHexNumber(Key, Temp) then
+      Volume.Value := ((Volume.Value mod $10) * $10) + Temp;
 
+  Invalidate;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.InputEffectCode(Key: Word);
@@ -1105,18 +1116,24 @@ begin
       TextOut(PenPos.X, PenPos.Y, '..');
     end;
 
-    //Font.Color := clDark; //clGreen;
-    Font.Color := clDots;
-    TextOut(PenPos.X, PenPos.Y, '...');
+    if (Cell.Volume.Value <> 0) then begin
+      Font.Color := GetEffectColor(Cell.Volume.Code);
+      TextOut(
+        PenPos.X,
+        PenPos.Y,
+        IntToHex(Cell.Volume.Code, 1) + IntToHex(Cell.Volume.Param, 2)
+      );
+    end else begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, '...');
+    end;
 
     if (Cell.EffectCode <> 0) or (Cell.EffectParams.Value <> 0) then begin
       Font.Color := GetEffectColor(Cell.EffectCode);
       TextOut(
         PenPos.X,
         PenPos.Y,
-        IntToHex(Cell.EffectCode, 1)
-          + IntToHex(Cell.EffectParams.Param1, 1)
-          + IntToHex(Cell.EffectParams.Param2, 1)
+        IntToHex(Cell.EffectCode, 1) + IntToHex(Cell.EffectParams.Value, 2)
       );
     end
     else begin
@@ -1399,7 +1416,7 @@ begin
     case SelectionPos.SelectedPart of
       cpNote: Note := NO_NOTE;
       cpInstrument: Instrument := 0;
-      cpVolume: Volume := 0;
+      cpVolume: Volume.Value := 0;
       cpEffectCode: EffectCode := 0;
       cpEffectParams: EffectParams.Value := 0;
     end;

@@ -745,7 +745,7 @@ var
       Result^[J].EffectCode := Pat^[J].EffectCode;
       Result^[J].EffectParams.Value := Pat^[J].EffectParams.Value;
       Result^[J].Note := Pat^[J].Note;
-      Result^[J].Volume := 0;
+      Result^[J].Volume.Value := 0;
     end;
   end;
 
@@ -759,7 +759,7 @@ var
       Result[J+1].Note := NoiseMacro[J] + 36;
 
     WrapPoint := Min(S.TicksPerRow, 7);
-    Result[WrapPoint-1].Volume := WrapPoint; // hold on last row
+    Result[WrapPoint-1].Volume.Value := WrapPoint; // hold on last row
   end;
 begin
   SV6.Version:=6;

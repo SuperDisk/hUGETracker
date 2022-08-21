@@ -18,6 +18,12 @@ type
       False: (Value: Byte);
   end;
 
+  TBonusEffect = bitpacked record
+    case Boolean of
+      True: (Param, Code: Nibble);
+      False: (Value: Integer);
+  end;
+
   TCellV1 = packed record
     Note: Integer;
     Instrument: Integer;
@@ -28,7 +34,7 @@ type
   TCellV2 = packed record
     Note: Integer;
     Instrument: Integer;
-    Volume: Integer;
+    Volume: TBonusEffect;
     EffectCode: Integer;
     EffectParams: TEffectParams;
   end;

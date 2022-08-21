@@ -276,9 +276,9 @@ begin
 
       ConvertEffect(Row.Effects[I].EffectType, Row.Effects[I].Param, RowType, Result.EffectCode, Result.EffectParams);
       if TTBMEffectType(Row.Effects[I].EffectType) in ContinuousEffects then
-        Result.Volume := 1 // Mark this effect as "continuous"
+        Result.Volume.Value := 1 // Mark this effect as "continuous"
       else
-        Result.Volume := 0;
+        Result.Volume.Value := 0;
     end;
 
     if Row.Note = 0 then
@@ -309,7 +309,7 @@ begin
     if (Pat^[I].Instrument <> 0) and (Pat^[I].Note = NO_NOTE) then
       Pat^[I].Note := CurNote;
 
-    if Pat^[I].Volume = 1 then begin
+    if Pat^[I].Volume.Value = 1 then begin
       ContinuousCode := Pat^[I].EffectCode;
       ContinuousParam := Pat^[I].EffectParams.Value;
     end;
@@ -319,7 +319,7 @@ begin
       Pat^[I].EffectParams.Value := ContinuousParam;
     end;
 
-    Pat^[I].Volume := 0;
+    Pat^[I].Volume.Value := 0;
   end;
 end;
 
@@ -463,7 +463,7 @@ begin
         Ins^.Subpattern[J].Note := MIDDLE_NOTE + Offs;
       end;
 
-      Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
+      Ins^.Subpattern[SeqFormat.Length].Volume.Value := SeqFormat.LoopIndex;
 
       // Panning sequence
       Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
@@ -487,7 +487,7 @@ begin
         PitchOffset := Offs;
       end;
 
-      Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
+      Ins^.Subpattern[SeqFormat.Length].Volume.Value := SeqFormat.LoopIndex;
 
       // Duty/noise-type sequence
       Stream.ReadBuffer(SeqFormat, SizeOf(TTBMSequenceFormat));
@@ -525,7 +525,7 @@ begin
         end
       end;
 
-      Ins^.Subpattern[SeqFormat.Length].Volume := SeqFormat.LoopIndex;
+      Ins^.Subpattern[SeqFormat.Length].Volume.Value := SeqFormat.LoopIndex;
     end;
 
     // WAVE Block
