@@ -10,7 +10,7 @@ uses
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
   bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils, Rtti,
-  Types, Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview;
+  Types, Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview, FURImport;
 
 // TODO: Move to config file?
 const
@@ -2069,8 +2069,14 @@ end;
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
 var
   Stream: TFileStream;
+  NewSong: TSong;
 begin
-  // debug
+  Stream := TFileStream.Create('C:/tmp/pocket.fur', fmOpenRead);
+  NewSong := LoadSongFromFURStream(Stream);
+  DestroySong(Song);
+  Song := NewSong;
+  UpdateUIAfterLoad('Yoooo');
+  Stream.Free;
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);
