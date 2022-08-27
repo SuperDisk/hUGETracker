@@ -157,7 +157,7 @@ const
     $0
   ];
 
-procedure CleanupPattern(Pat: PPattern);//; InstMap: TFURInstrumentMap);
+procedure CleanupPattern(Pat: PPattern);// InstMap: TTBMInstrumentMap);
 var
   I: Integer;
   CurNote: Integer = NO_NOTE;
@@ -168,15 +168,13 @@ begin
     {if not InstMap.TryGetData(Pat^[I].Instrument-1, Pat^[I].Instrument) then
       Pat^[I].Instrument := 0;}
 
-    //Pat^[I].Instrument := 0;
-
     if Pat^[I].Note <> NO_NOTE then
       CurNote := Pat^[I].Note;
 
     if (Pat^[I].Instrument <> 0) and (Pat^[I].Note = NO_NOTE) then
       Pat^[I].Note := CurNote;
 
-    if Pat^[I].EffectCode in ContinuousEffects then begin
+    if Pat^[I].Volume = 1 then begin
       ContinuousCode := Pat^[I].EffectCode;
       ContinuousParam := Pat^[I].EffectParams.Value;
     end;
@@ -362,11 +360,15 @@ begin
       OParams := EffectParams;
     end;
 
+    $ED: begin
+      OCode := $7;
+      OParams := EffectParams;
+    end
+
     else begin
       OCode := $0;
       OParams := $00;
     end;
-
   end;
 end;
 
@@ -387,15 +389,17 @@ begin
       if FRow.Instrument <> -1 then
         Instrument := FRow.Instrument + 1;
 
-      for J := Low(FRow.Effects) to High(FRow.Effects) do begin
-        if (FRow.Effects[J].EffectCode <> -1) and (FRow.Effects[J].EffectParams <> -1) then
+      for J := Low(FRow.Effects) to High(FRow.Effects) do
+        if (FRow.Effects[J].EffectCode <> -1) and (FRow.Effects[J].EffectParams <> -1) then begin
           TranslateEffect(
             FRow.Effects[J].EffectCode,
             FRow.Effects[J].EffectParams,
             EffectCode,
             EffectParams.Value
           );
-      end;
+          {if EffectCode in ContinuousEffects then
+            Volume := 1; // Mark as continuous}
+        end;
 
       if (EffectCode = 0) and (EffectParams.Value = 0) and (FRow.Volume <> -1) then begin
         EffectCode := $C;
