@@ -389,11 +389,8 @@ begin
   Canvas.Pen.Color := clDividers;
   Canvas.Pen.Width := 2;
 
-  for I := 0 to NumColumns do begin
-    //TODO: WTF? Why do we need this IfThen?
-    R := TRect.Create(ColumnWidth*I, 0, ColumnWidth + IfThen(I=0, 1, 0), Height);
-    Canvas.Rectangle(R);
-  end;
+  for I := 0 to NumColumns do
+    Canvas.Line((ColumnWidth*I) - 1, 0, (ColumnWidth*I) - 1, Height);
 
   RenderSelectedArea;
   if DraggingSelection then
