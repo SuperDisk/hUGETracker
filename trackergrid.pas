@@ -7,7 +7,9 @@ interface
 uses
   Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, LCLIntf,
   LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor,
-  Keymap;
+  Keymap, IntfGraphics, GraphType,
+  EasyLazFreeType,  LazFreeTypeIntfDrawer,  //EasyFreeType with Intf
+  LazFreeTypeFontCollection, FPImage;
 
 const
   UNDO_STACK_SIZE = 100;
@@ -91,6 +93,7 @@ type
     function KeycodeToHexNumber(Key: Word; var Num: Integer): Boolean; overload;
 
     procedure ChangeFontSize;
+    procedure TextOut2(X, Y: Integer; S: AnsiString);
   private
     PatternMap: TPatternMap;
     Patterns: TPatternGrid;
@@ -111,6 +114,11 @@ type
     CurrentUndoAction: TUndoRedoAction;
     Performed: TUndoDeque;
     Recall: TRedoStack;
+
+    FTFont: TFreeTypeFont;
+    LazImg: TLazIntfImage;
+    Drawer: TIntfFreeTypeDrawer;
+    TextBufferBmp: TBitmap;
 
     FHighlightedRow: Integer;
     FFontSize: Integer;
@@ -200,31 +208,31 @@ begin
 
     if (Cell.Note = NO_NOTE) then begin
       Font.Color := clDots;
-      TextOut(PenPos.X, PenPos.Y, '...')
+      TextOut2(PenPos.X, PenPos.Y, '...')
     end
     else if Cell.Note >= MIDDLE_NOTE then
-      TextOut(PenPos.X, PenPos.Y, '+'+FormatFloat('00', Cell.Note - MIDDLE_NOTE))
+      TextOut2(PenPos.X, PenPos.Y, '+'+FormatFloat('00', Cell.Note - MIDDLE_NOTE))
     else if Cell.Note < MIDDLE_NOTE then
-      TextOut(PenPos.X, PenPos.Y, '-'+FormatFloat('00', MIDDLE_NOTE - Cell.Note));
+      TextOut2(PenPos.X, PenPos.Y, '-'+FormatFloat('00', MIDDLE_NOTE - Cell.Note));
 
-    TextOut(PenPos.X, PenPos.Y, ' ');
+    TextOut2(PenPos.X, PenPos.Y, ' ');
 
     // Instrument column empty
     Font.Color := clDots;
-    TextOut(PenPos.X, PenPos.Y, '..');
+    TextOut2(PenPos.X, PenPos.Y, '..');
 
     if Cell.Volume <> 0 then begin
       Font.Color := clTblJump;
-      TextOut(PenPos.X, PenPos.Y, 'J'+FormatFloat('00', Cell.Volume));
+      TextOut2(PenPos.X, PenPos.Y, 'J'+FormatFloat('00', Cell.Volume));
     end
     else begin
       Font.Color := clDots;
-      TextOut(PenPos.X, PenPos.Y, '...');
+      TextOut2(PenPos.X, PenPos.Y, '...');
     end;
 
     if (Cell.EffectCode <> 0) or (Cell.EffectParams.Value <> 0) then begin
       Font.Color := GetEffectColor(Cell.EffectCode);
-      TextOut(
+      TextOut2(
         PenPos.X,
         PenPos.Y,
         IntToHex(Cell.EffectCode, 1)
@@ -234,10 +242,10 @@ begin
     end
     else begin
       Font.Color := clDots;
-      TextOut(PenPos.X, PenPos.Y, '...');
+      TextOut2(PenPos.X, PenPos.Y, '...');
     end;
 
-    TextOut(PenPos.X, PenPos.Y, ' ');
+    TextOut2(PenPos.X, PenPos.Y, ' ');
   end;
 end;
 
@@ -313,8 +321,19 @@ constructor TTrackerGrid.Create(
   PatternMap: TPatternMap;
   NumColumns: Integer;
   NumRows: Integer);
+var
+  FontFamilyName: String;
 begin
   inherited Create(AOwner);
+
+  lazimg := TLazIntfImage.Create(0,0, [riqfRGB, riqfAlpha]);
+  drawer := TIntfFreeTypeDrawer.Create(lazimg);
+
+  FontFamilyName := FontCollection.AddFile('./PixeliteTTF.ttf').Family.FamilyName;
+  FTFont := TFreeTypeFont.Create;
+  FTFont.Name := FontFamilyName;
+  FTFont.ClearType := False;
+  TextBufferBmp := TBitmap.Create;
 
   FFontSize := 12;
 
@@ -362,8 +381,12 @@ procedure TTrackerGrid.Paint;
 var
   I: Integer;
   R: TRect;
+  Col: TFPColor;
 begin
   inherited Paint;
+
+  Col.Alpha := 255;
+  Drawer.FillPixels(Col);
 
   with Canvas do begin
     Brush.Color := clBackground;
@@ -394,6 +417,9 @@ begin
     R := TRect.Create(ColumnWidth*I, 0, ColumnWidth + IfThen(I=0, 1, 0), Height);
     Canvas.Rectangle(R);
   end;
+
+  TextBufferBmp.LoadFromIntfImage(LazImg);
+  Canvas.Draw(0, 0, TextBufferBmp);
 
   RenderSelectedArea;
   if DraggingSelection then
@@ -828,19 +854,15 @@ procedure TTrackerGrid.RenderSelectedArea;
 var
   R: TRect;
 begin
+  with Canvas do begin
     R := SelectionsToRect(Cursor, Other);
-
-    with Cursor do
-      BitBlt(
-        Canvas.Handle,
-        R.Left,
-        R.Top,
-        R.Width,
-        R.Height,
-        Canvas.Handle,
-        R.Left,
-        R.Top,
-        DSTINVERT);
+    Pen.Color := clWhite;
+    Brush.Color := clWhite;
+    Pen.Width := 1;
+    Pen.Mode := pmXor;
+    Rectangle(R);
+    Pen.Mode := pmCopy;
+  end;
 end;
 
 procedure TTrackerGrid.ClampCursors;
@@ -1084,34 +1106,34 @@ begin
   with Canvas do begin
     if NoteMap.TryGetData(Cell.Note, NoteString) then begin
       Font.Color := clNote;
-      TextOut(PenPos.X, PenPos.Y, NoteString);
+      TextOut2(PenPos.X, PenPos.Y, NoteString);
     end
     else begin
       Font.Color := clDots;
       if Cell.Note = NO_NOTE then
-        TextOut(PenPos.X, PenPos.Y, '...')
+        TextOut2(PenPos.X, PenPos.Y, '...')
       else
-        TextOut(PenPos.X, PenPos.Y, '???');
+        TextOut2(PenPos.X, PenPos.Y, '???');
     end;
 
-    TextOut(PenPos.X, PenPos.Y, ' ');
+    TextOut2(PenPos.X, PenPos.Y, ' ');
 
     if Cell.Instrument <> 0 then begin
       Font.Color := clInstrument;
-      TextOut(PenPos.X, PenPos.Y, FormatFloat('00', Cell.Instrument));
+      TextOut2(PenPos.X, PenPos.Y, FormatFloat('00', Cell.Instrument));
     end
     else begin
       Font.Color := clDots;
-      TextOut(PenPos.X, PenPos.Y, '..');
+      TextOut2(PenPos.X, PenPos.Y, '..');
     end;
 
     //Font.Color := clDark; //clGreen;
     Font.Color := clDots;
-    TextOut(PenPos.X, PenPos.Y, '...');
+    TextOut2(PenPos.X, PenPos.Y, '...');
 
     if (Cell.EffectCode <> 0) or (Cell.EffectParams.Value <> 0) then begin
       Font.Color := GetEffectColor(Cell.EffectCode);
-      TextOut(
+      TextOut2(
         PenPos.X,
         PenPos.Y,
         IntToHex(Cell.EffectCode, 1)
@@ -1121,10 +1143,10 @@ begin
     end
     else begin
       Font.Color := clDots;
-      TextOut(PenPos.X, PenPos.Y, '...');
+      TextOut2(PenPos.X, PenPos.Y, '...');
     end;
 
-    TextOut(PenPos.X, PenPos.Y, ' ');
+    TextOut2(PenPos.X, PenPos.Y, ' ');
   end;
 end;
 
@@ -1327,8 +1349,17 @@ begin
     CharWidth := GetTextWidth('C');
   end;
 
+  FTFont.SizeInPoints:=FontSize;
+
   Width := ColumnWidth*NumColumns;
   Height := RowHeight*NumRows;
+  LazImg.SetSize(Canvas.Width, Canvas.Height);
+end;
+
+procedure TTrackerGrid.TextOut2(X, Y: Integer; S: AnsiString);
+begin
+  Drawer.DrawText(S, FTFont, Canvas.PenPos.X, Canvas.PenPos.Y, TColorToFPColor(Canvas.Font.Color));
+  Canvas.PenPos.Offset(Canvas.Font.GetTextWidth(S), 0);
 end;
 
 procedure TTrackerGrid.SetFontSize(AValue: Integer);
