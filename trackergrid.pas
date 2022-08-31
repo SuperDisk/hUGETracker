@@ -385,6 +385,8 @@ var
 begin
   inherited Paint;
 
+  LazImg.SetSize(Canvas.Width, Canvas.Height);
+
   Col.Alpha := 255;
   Drawer.FillPixels(Col);
 
@@ -1353,7 +1355,6 @@ begin
 
   Width := ColumnWidth*NumColumns;
   Height := RowHeight*NumRows;
-  LazImg.SetSize(Canvas.Width, Canvas.Height);
 end;
 
 procedure TTrackerGrid.TextOut2(X, Y: Integer; S: AnsiString);
