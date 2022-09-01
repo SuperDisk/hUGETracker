@@ -2071,7 +2071,7 @@ var
   Stream: TFileStream;
   NewSong: TSong;
 begin
-  Stream := TFileStream.Create('C:/tmp/pocket.fur', fmOpenRead);
+  Stream := TFileStream.Create('C:/tmp/pocket2.fur', fmOpenRead);
   NewSong := LoadSongFromFURStream(Stream);
   DestroySong(Song);
   Song := NewSong;
