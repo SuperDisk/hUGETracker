@@ -978,12 +978,14 @@ begin
   Result.SnareHiHatFrequency := S.ReadWord;
   Result.TomTopFrequency := S.ReadWord;
   Result.UseNoteMap := S.ReadByte;
-  SetLength(Result.NoteFrequency120, 120);
-  if Length(Result.NoteFrequency120) <> 0 then
-    S.ReadBuffer(Result.NoteFrequency120[0], SizeOf(UInt32)*120);
-  SetLength(Result.NoteSample120, 120);
-  if Length(Result.NoteSample120) <> 0 then
-    S.ReadBuffer(Result.NoteSample120[0], SizeOf(UInt16)*120);
+  if Result.UseNoteMap <> 0 then begin
+    SetLength(Result.NoteFrequency120, 120);
+    if Length(Result.NoteFrequency120) <> 0 then
+      S.ReadBuffer(Result.NoteFrequency120[0], SizeOf(UInt32)*120);
+    SetLength(Result.NoteSample120, 120);
+    if Length(Result.NoteSample120) <> 0 then
+      S.ReadBuffer(Result.NoteSample120[0], SizeOf(UInt16)*120);
+  end;
   Result.InitialWaveform := S.ReadDWord;
   Result.WavePosition := S.ReadByte;
   Result.WaveLength := S.ReadByte;
