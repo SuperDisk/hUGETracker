@@ -587,6 +587,8 @@ type
 
   TFURInstrumentMap = specialize TFPGMap<Integer, Integer>;
 
+  TInstrumentSet = set of Byte;
+
 const
   ContinuousEffects = [
     $0
@@ -666,8 +668,6 @@ function ReadFURInstrument(S: TFurStream): TFURInstrument;
 var
   I: Integer;
 begin
-  Result := Default(TFURInstrument);
-
   Result.InstBlockId := S.ReadDWord;
   Result.SizeOfThisBlock := S.ReadDWord;
   Result.FormatVersionSeeHeader := S.ReadWord;
@@ -1386,14 +1386,36 @@ begin
   end;
 end;
 
+procedure RewriteInstruments(Pat: PPattern);
+begin
+
+end;
+
+function InstrsUsedInPattern(const Pat: TFURPattern): TInstrumentSet;
+var
+  I: Integer;
+begin
+  Result := [];
+  for I := Low(Pat.PatternData) to High(Pat.PatternData) do
+    if Pat.PatternData[I].Instrument <> -1 then
+      Include(Result, Pat.PatternData[I].Instrument);
+end;
+
+function ConvertInstrument(const Inst: TFURInstrument): TInstrument;
+begin
+
+end;
+
 function LoadSongFromFURStream(Stream: TStream): TSong;
 var
   S: TFURStream;
   Header: TFURHeader;
   SongInfo: TFURSongInfo;
   Pat: TFURPattern;
-  Instr: TFURInstrument;
+  Sq, Wv, Ns: TInstrumentSet;
+  SqCnt, WvCnt, NsCnt: Integer;
 
+  FurInstrument: TFURInstrument;
   PPatHT: PPattern;
   I, J: Integer;
 begin
@@ -1412,20 +1434,49 @@ begin
       Result.OrderMatrix[I, J] := ((I+1)*100) + SongInfo.OrdersOfFirstSong[I, J];
   end;
 
+  Sq := [];
+  Wv := [];
+  Ns := [];
+
   // Translate patterns
   for I in SongInfo.PointersToPatterns do begin
     S.Seek(I, soBeginning);
     Pat := ReadFURPattern(S, SongInfo.PatternLengthOfFirstSong, SongInfo.EffectColumnsOfFirstSong);
+
+    case Pat.Channel of
+      0, 1: Sq += InstrsUsedInPattern(Pat);
+      2:    Wv += InstrsUsedInPattern(Pat);
+      3:    Ns += InstrsUsedInPattern(Pat);
+    end;
+
     PPatHT := Result.Patterns.GetOrCreateNew(((Pat.Channel+1)*100)+Pat.PatternIndex);
     TranslatePattern(Pat, PPatHT);
     CleanupPattern(PPatHT);
   end;
 
+  SqCnt := 0;
+  WvCnt := 0;
+  NsCnt := 0;
+
   // Load instruments
-  for I in SongInfo.PointersToInstruments do begin
-    S.Seek(I, soBeginning);
-    Instr := ReadFURInstrument(S);
-    writeln;
+  for I := Low(SongInfo.PointersToInstruments) to High(SongInfo.PointersToInstruments) do begin
+    S.Seek(SongInfo.PointersToInstruments[I], soBeginning);
+    FurInstrument := ReadFURInstrument(S);
+
+    if I in Sq then begin
+      Result.Instruments.Duty[SqCnt] := ConvertInstrument(FurInstrument);
+      Inc(SqCnt);
+    end;
+
+    if I in Wv then begin
+      Result.Instruments.Wave[WvCnt] := ConvertInstrument(FurInstrument);
+      Inc(WvCnt);
+    end;
+
+    if I in Ns then begin
+      Result.Instruments.Noise[NsCnt] := ConvertInstrument(FurInstrument);
+      Inc(NsCnt);
+    end;
   end;
 end;
 
