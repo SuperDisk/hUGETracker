@@ -62,10 +62,10 @@ object frmTracker: TfrmTracker
       Height = 725
       Top = 0
       Width = 1120
-      ActivePage = CommentsTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 4
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -2118,18 +2118,6 @@ object frmTracker: TfrmTracker
     end
     object MenuItem2: TMenuItem
       Caption = 'Edit'
-      object MenuItem6: TMenuItem
-        Action = CopyAction
-      end
-      object MenuItem7: TMenuItem
-        Action = CutAction
-      end
-      object MenuItem9: TMenuItem
-        Action = PasteAction
-      end
-      object N2: TMenuItem
-        Caption = '-'
-      end
       object MenuItem11: TMenuItem
         Caption = '&Undo'
         Hint = 'Undo'
@@ -2142,6 +2130,18 @@ object frmTracker: TfrmTracker
         ImageIndex = 56
         ShortCut = 16473
         OnClick = MenuItem8Click
+      end
+      object N2: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem6: TMenuItem
+        Action = CopyAction
+      end
+      object MenuItem7: TMenuItem
+        Action = CutAction
+      end
+      object MenuItem9: TMenuItem
+        Action = PasteAction
       end
       object MenuItem25: TMenuItem
         Caption = '-'
