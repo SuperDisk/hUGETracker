@@ -27,7 +27,7 @@ jobs:
         run: |
           sudo apt -qq update
           sudo apt install -yq lazarus libsdl2-dev bison
-          curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.5.2/rgbds-0.5.2.tar.gz'
+          curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.6.0/rgbds-0.6.0.tar.gz'
           tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
           cd rgbds
           make -j4 rgbasm rgblink rgbfix Q=
@@ -46,7 +46,7 @@ jobs:
         run: |
           choco install lazarus
           curl -Lo 'sdl2.zip' 'https://www.libsdl.org/release/SDL2-2.0.22-win32-x64.zip'
-          curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.5.2/rgbds-0.5.2-win64.zip'
+          curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.6.0/rgbds-0.6.0-win64.zip'
           unzip -d rgbds rgbds.zip rgb{asm,link,fix}.exe
 
       - name: Set up MSYS2
