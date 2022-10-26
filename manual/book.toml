@@ -1,0 +1,18 @@
+[book]
+authors = ["SuperDisk <yux50000@hotmail.com>", "ISSOtm <me@eldred.fr>"]
+language = "en"
+multilingual = false
+src = "src"
+title = "hUGETracker manual"
+
+[output.html]
+curly-quotes = true
+print = { enable = true }
+git-repository-url = "https://github.com/SuperDisk/hUGETracker"
+edit-url-template = "https://github.com/SuperDisk/hUGETracker/edit/master/manual/{path}"
+site-url = "/hUGETracker/"
+
+[output.linkcheck]
+follow-web-links = true
+traverse-parent-directories = false
+optional = true

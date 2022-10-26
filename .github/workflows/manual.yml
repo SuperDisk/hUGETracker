@@ -1,0 +1,44 @@
+name: Render manual to Pages
+
+on:
+  push:
+    branches: ["hUGETracker"]
+    paths: ["manual/**"]
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+      - name: Install mdBook and some plugins
+        uses: jontze/action-mdbook@v1.1.1
+        with:
+          token: ${{ github.token }}
+          use-linkcheck: true
+      - name: Render manual
+        run: mdbook build manual/
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: 'manual/book/html/'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
