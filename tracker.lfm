@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1507
+  Left = 1258
   Height = 1171
-  Top = 295
+  Top = 279
   Width = 1878
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -2052,6 +2052,11 @@ object frmTracker: TfrmTracker
       end
       object MenuItem13: TMenuItem
         Action = FileSaveAs1
+      end
+      object RevertMenuItem: TMenuItem
+        Caption = 'Revert to last saved'
+        Enabled = False
+        OnClick = RevertMenuItemClick
       end
       object MenuItem4: TMenuItem
         Caption = '-'

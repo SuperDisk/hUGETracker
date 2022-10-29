@@ -46,6 +46,7 @@ type
     MenuItem26: TMenuItem;
     MenuItem42: TMenuItem;
     MenuItem55: TMenuItem;
+    RevertMenuItem: TMenuItem;
     TBMOpenDialog: TOpenDialog;
     ToolButton11: TToolButton;
     LoopSongToolButton: TToolButton;
@@ -300,6 +301,7 @@ type
     procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
+    procedure RevertMenuItemClick(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
     procedure LoopSongToolButtonClick(Sender: TObject);
@@ -586,6 +588,8 @@ begin
 
   TimerTempoLabel.Enabled := TimerEnabledCheckBox.Checked;
   TimerDividerSpinEdit.Enabled := TimerEnabledCheckBox.Checked;
+
+  RevertMenuItem.Enabled := (FileName <> '');
 
   UpdateBPMLabel;
 
@@ -1669,6 +1673,7 @@ begin
     SaveSucceeded := True;
     LoadedFileName := FileSaveAs1.Dialog.FileName;
     UpdateWindowTitle;
+    RevertMenuItem.Enabled := (LoadedFileName <> '');
   finally
     stream.Free;
   end;
@@ -2046,6 +2051,14 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmTracker.RevertMenuItemClick(Sender: TObject);
+begin
+  if not CheckUnsavedChanges then Exit;
+
+  if Trim(LoadedFileName) <> '' then
+    LoadSong(LoadedFileName)
 end;
 
 procedure TfrmTracker.FileSave1Execute(Sender: TObject);
