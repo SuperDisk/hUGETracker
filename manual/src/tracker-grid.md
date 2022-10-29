@@ -40,7 +40,7 @@ Each cell is divided into three parts: the **<span class="note">note</span>**, t
 
 A note ranges from `C-3` to `B-8`, and is the pitch of the tone that will play on that cell.
 
-An instrument is a value from 01 to 15, which specifies which instrument parameters will be applied to the playing note.
+An instrument is a value from `01` to `15`, which specifies which instrument parameters will be applied to the playing note.
 
 An effect is the combination of an **effect code** (the first hexadecimal digit, from `0` to `F`) and its **effect parameter** (the last two hexadecimal digits, from `00` to `FF`).
 See the [effect reference](./effect-reference.md) for more details.
