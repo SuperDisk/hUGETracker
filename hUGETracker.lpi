@@ -208,7 +208,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="27">
+    <Units Count="28">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -350,6 +350,13 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="InstrumentPreview"/>
       </Unit26>
+      <Unit27>
+        <Filename Value="findreplace.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmFindReplace"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+      </Unit27>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -10,7 +10,7 @@ uses
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
   bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils, Rtti,
-  Types, Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview;
+  Types, Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview, findreplace;
 
 // TODO: Move to config file?
 const
@@ -43,6 +43,7 @@ type
 
   TfrmTracker = class(TForm)
     FileSave1: TAction;
+    MenuItem26: TMenuItem;
     MenuItem42: TMenuItem;
     MenuItem55: TMenuItem;
     TBMOpenDialog: TOpenDialog;
@@ -297,6 +298,7 @@ type
     TableGrid: TTableGrid;
     procedure FileSave1Execute(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
+    procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
@@ -355,7 +357,7 @@ type
     procedure Duty2VisualizerPaint(Sender: TObject);
     procedure FileOpen1Accept(Sender: TObject);
     procedure FileSaveAs1Accept(Sender: TObject);
-    procedure HeaderControl1MouseDown(Sender: TObject; Button: TMouseButton;
+    procedure HeaderControl1MouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure HeaderControl1SectionClick(HeaderControl: TCustomHeaderControl;
       Section: THeaderSection);
@@ -1677,31 +1679,45 @@ begin
   LoadSong(FileOpen1.Dialog.FileName);
 end;
 
-procedure TfrmTracker.HeaderControl1MouseDown(Sender: TObject;
+procedure TfrmTracker.HeaderControl1MouseUp(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var
   SelectedSection: THeaderSection;
   P: TPoint;
   I: Integer;
+
+  function OnlyOneSelected(Sct: Integer): Boolean;
+  var
+    J: Integer;
+  begin
+    for J := 1 to 4 do
+      if (HeaderControl1.Sections[J].ImageIndex = 1) and (J <> Sct) then
+        Exit(False);
+
+    Result := (HeaderControl1.Sections[Sct].ImageIndex = 1);
+  end;
 begin
-  // Hack
+  if Button <> mbRight then Exit;
 
-  if Button = mbRight then begin
-    P.X := X;
-    P.Y := Y;
+  P.X := X;
+  P.Y := Y;
 
-    if HeaderControl1.GetSectionAt(P) = 0 then
-      Exit;
+  if HeaderControl1.GetSectionAt(P) = 0 then
+    Exit;
 
+  if OnlyOneSelected(HeaderControl1.GetSectionAt(P)) then begin
+    for I := 1 to 4 do
+      HeaderControl1.Sections[I].ImageIndex := 1;
+  end else begin
     for I := 1 to 4 do
       HeaderControl1.Sections[I].ImageIndex := 0;
 
     SelectedSection := HeaderControl1.Sections[HeaderControl1.GetSectionAt(P)];
     SelectedSection.ImageIndex := 1;
-
-    for I := 1 to 4 do
-      snd[I].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
   end;
+
+  for I := 1 to 4 do
+    snd[I].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
 end;
 
 procedure TfrmTracker.HeaderControl1SectionClick(
@@ -1998,6 +2014,11 @@ begin
     StartPlayback;
     HaltPlayback;
   end;
+end;
+
+procedure TfrmTracker.MenuItem26Click(Sender: TObject);
+begin
+  frmFindReplace.ShowModal;
 end;
 
 procedure TfrmTracker.MenuItem55Click(Sender: TObject);

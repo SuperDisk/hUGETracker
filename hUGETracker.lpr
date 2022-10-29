@@ -24,7 +24,7 @@ uses
   EffectEditor in 'effecteditor.pas',
   options in 'options.pas',
   about_hugetracker in 'about_hugetracker.pas',
-  rendertowave in 'rendertowave.pas';
+  rendertowave in 'rendertowave.pas', findreplace;
 
 {$R *.res}
 
@@ -84,5 +84,6 @@ begin
   Application.CreateForm(TfrmEffectEditor, frmEffectEditor);
   Application.CreateForm(TfrmRenderToWave, frmRenderToWave);
   Application.CreateForm(TfrmOptions, frmOptions);
+  Application.CreateForm(TfrmFindReplace, frmFindReplace);
   Application.Run;
 end.
