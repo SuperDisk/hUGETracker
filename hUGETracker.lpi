@@ -104,6 +104,8 @@
             </Debugging>
             <LinkSmart Value="True"/>
             <Options>
+              <PassLinkerOptions Value="True"/>
+              <LinkerOptions Value="-z relro -z now"/>
               <Win32>
                 <GraphicApplication Value="True"/>
               </Win32>
