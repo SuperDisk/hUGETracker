@@ -95,6 +95,7 @@ jobs:
           lazbuild --add-package-link bgrabitmap/bgrabitmap/bgrabitmappack.lpk
 
           lazbuild hUGETracker.lpi --build-mode="Production ${{ matrix.name }}"
+          lazbuild uge2source/uge2source.lpi --build-mode=Release
 
       - name: Package build
         shell: bash
@@ -108,7 +109,7 @@ jobs:
           rgbds/rgblink -o packaging/halt.gb -n packaging/halt.sym "$OBJ" "$HDOBJ"
           rgbds/rgbfix -vp0xFF packaging/halt.gb
           rm "$OBJ" "$HDOBJ"
-          cp -v hUGETracker/Release/hUGETracker packaging
+          cp -v hUGETracker/Release/hUGETracker hUGETracker/uge2source/Release/uge2source packaging
 
       - name: Extra Windows packaging
         if: matrix.name == 'Windows'
