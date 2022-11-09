@@ -12,6 +12,7 @@ lib
 *.map
 *.gb
 *trace*.txt
+revision.inc
 *.so
 ~*
 Release-windows

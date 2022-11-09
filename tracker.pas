@@ -632,10 +632,7 @@ procedure TfrmTracker.UpdateWindowTitle;
 var
   S: String;
 begin
-  S := 'hUGETracker';
-
-  if Trim(LoadedFileName) <> '' then
-    S += ' - '+LoadedFilename;
+  S := 'hUGETracker '+HT_GIT_TAG;
 
   if Trim(Song.Name) <> '' then begin
     S += ' - [';
@@ -644,6 +641,9 @@ begin
 
     S += Song.Name+']';
   end;
+
+  if Trim(LoadedFileName) <> '' then
+    S += ' - '+LoadedFilename;
 
   Self.Caption := S;
 end;
