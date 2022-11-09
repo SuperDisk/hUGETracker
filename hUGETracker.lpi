@@ -121,7 +121,7 @@
             <WriteFPCLogo Value="False"/>
             <CustomOptions Value="-dPRODUCTION"/>
             <ExecuteBefore>
-              <Command Value="ls"/>
+              <Command Value="./git2revisioninc.cmd"/>
             </ExecuteBefore>
           </Other>
         </CompilerOptions>
@@ -176,7 +176,7 @@
             <WriteFPCLogo Value="False"/>
             <CustomOptions Value="-dPRODUCTION"/>
             <ExecuteBefore>
-              <Command Value="ls"/>
+              <Command Value="./git2revisioninc.cmd"/>
             </ExecuteBefore>
           </Other>
         </CompilerOptions>
