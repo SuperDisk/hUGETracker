@@ -67,9 +67,6 @@
             </Verbosity>
             <WriteFPCLogo Value="False"/>
             <CustomOptions Value="-dPRODUCTION"/>
-            <ExecuteBefore>
-              <Command Value="./git2revisioninc.cmd"/>
-            </ExecuteBefore>
           </Other>
         </CompilerOptions>
       </Item2>
@@ -120,9 +117,6 @@
             </Verbosity>
             <WriteFPCLogo Value="False"/>
             <CustomOptions Value="-dPRODUCTION"/>
-            <ExecuteBefore>
-              <Command Value="./git2revisioninc.cmd"/>
-            </ExecuteBefore>
           </Other>
         </CompilerOptions>
       </Item3>
@@ -175,9 +169,6 @@
             </Verbosity>
             <WriteFPCLogo Value="False"/>
             <CustomOptions Value="-dPRODUCTION"/>
-            <ExecuteBefore>
-              <Command Value="./git2revisioninc.cmd"/>
-            </ExecuteBefore>
           </Other>
         </CompilerOptions>
       </Item4>
@@ -409,9 +400,6 @@
       </Verbosity>
       <WriteFPCLogo Value="False"/>
       <CustomOptions Value="-dDEVELOPMENT"/>
-      <ExecuteBefore>
-        <Command Value="./git2revisioninc.cmd"/>
-      </ExecuteBefore>
     </Other>
   </CompilerOptions>
 </CONFIG>

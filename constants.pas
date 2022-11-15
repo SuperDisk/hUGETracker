@@ -20,7 +20,7 @@ type
 const
   UGE_FORMAT_VERSION = 6;
 
-  HT_GIT_TAG = {$INCLUDE revision.inc} {$ifdef DEVELOPMENT} + '-DEBUG'{$ENDIF};
+  //HT_GIT_TAG = {$INCLUDE revision.inc} {$ifdef DEVELOPMENT} + '-DEBUG'{$ENDIF};
 
   SYM_ROW = 'row';
   SYM_TICK = 'tick';
