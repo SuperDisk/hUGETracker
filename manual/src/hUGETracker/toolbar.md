@@ -1,6 +1,6 @@
 # Toolbar
 
-![Screenshot of the toolbar](img/toolbar.png)
+![Screenshot of the toolbar](../img/toolbar.png)
 
 The toolbar contains various functions that are useful when writing music:
 
