@@ -1,6 +1,6 @@
 # Tracker grid
 
-![Screenshot of the tracker grid](./img/tracker_grid.png)
+![Screenshot of the tracker grid](../img/tracker_grid.png)
 
 The **tracker grid** displays four patterns together.
 This represents one row in the **order table**, and is the component used to compose a song.
@@ -77,7 +77,7 @@ The **headers** of the channels are clickable, and will mute/unmute the playback
 
 <figure>
 
-![Test](img/right_click_menu.png)
+![Test](../img/right_click_menu.png)
 
 </figure>
 

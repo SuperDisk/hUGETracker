@@ -2,7 +2,7 @@
 
 <figure style="float: left;">
 
-![Screenshot of the song components](img/song_components.png)
+![Screenshot of the song components](../img/song_components.png)
 
 </figure>
 

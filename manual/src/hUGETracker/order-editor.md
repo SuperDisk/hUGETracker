@@ -1,6 +1,6 @@
 <figure style="float: right;">
 
-![Screenshot of the order editor](img/order_editor.png)
+![Screenshot of the order editor](../img/order_editor.png)
 
 </figure>
 
