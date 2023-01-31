@@ -1,10 +1,18 @@
 # Subpatterns
 
-**TODO: insert screenshot**
-
 Subpatterns are one of hUGETracker's most powerful features.
 They are like mini-tracker grids attached to instruments, which allow you to modulate them quite precisely.
 They fulfill the same role as instrument macros in FamiTracker.
+
+What are subpatterns useful for?
+- Percussion! (Subpatterns replace noise macros)
+- Cooler arpeggios than [effect](./effect-reference.md) `0`!
+- Cooler vibratos than effect `4`!
+- "Pluck" sounds! (Start one octave up, then go back to base)
+- Serves as an extra FX channel in a pinch!
+- Changing timbre really quickly! (Use effect `9`)
+
+**TODO: insert screenshot**
 
 Rows are composed of three columns, similiar *but not identical* to the tracker grid's:
 - an offset,
@@ -26,9 +34,7 @@ Effects in subpatterns work just like in the regular tracker grid ([reference](.
 - each effect only lasts for a single tick (just like the rows);
 - not all effects can be used in subpatterns:
 
-<style>
-	.y { color: green; } .n { color: red; }
-</style>
+<style>.y { color: green; } .n { color: red; }</style>
 
 Effect | Name              | Usable?              | Notes
 -------|-------------------|----------------------|-------
