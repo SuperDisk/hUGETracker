@@ -28,7 +28,7 @@ use { stroke: red; stroke-width: 6px; }
 
 <figure>
 <svg width="191" height="623">
-	<image href="img/pattern.png"/>
+	<image href="../img/pattern.png"/>
 	<rect x="0" y="32" width="50" height="589" class="note"/>
 	<rect x="58" y="32" width="34" height="589" class="instr"/>
 	<rect x="130" y="32" width="50" height="589" class="fx"/>
@@ -60,7 +60,7 @@ The numeric keys, as well as keys <kbd>A</kbd> through <kbd>F</kbd>, enter value
 			<polyline points="-13,13 0,0 13,13" fill="none"/>
 		</g>
 	</defs>
-	<image href="img/highlighted_row.png"/>
+	<image href="../img/highlighted_row.png"/>
 	<use href="#arrow" x="300" y="65"/>
 </svg>
 
@@ -68,7 +68,7 @@ While a song is playing, the highlighted row, representing the row currently bei
 The tempo of your song (speed at which the highlighted row moves) can be adjusted in the General tab.
 
 <svg width="780" height="251">
-	<image href="img/channel_headers.png"/>
+	<image href="../img/channel_headers.png"/>
 	<use href="#arrow" x="15" y="50"/>
 	<use href="#arrow" x="407" y="50"/>
 </svg>
