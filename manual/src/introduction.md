@@ -25,6 +25,4 @@ I'd like to acknowledge:
 
 I hope you enjoy composing in hUGETracker, and if you make any cool songs, I'd love to hear from you and potentially include them as demo tunes that come with the tracker.
 
-E-mail me at [yux50000@hotmail.com](mailto:yux50000@hotmail.com) or add me on Discord (superdisk#5726) and get in touch!
-
 —Nick "[SuperDisk](https://nickfa.ro)" Faro

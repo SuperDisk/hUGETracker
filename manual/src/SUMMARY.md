@@ -1,4 +1,5 @@
 [Introduction](./introduction.md)
+[Contact us](./contact.md)
 
 # hUGETracker
 
@@ -23,5 +24,6 @@
 
 # hUGEDriver
 
-- [What is hUGEDriver](hUGEDriver/what-is-hugedriver.md)
+- [What is hUGEDriver?](hUGEDriver/what-is-hugedriver.md)
 - [Integration](hUGEDriver/integration.md)
+- [Sound effects](hUGEDriver/sfx.md)
