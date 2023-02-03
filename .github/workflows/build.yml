@@ -111,7 +111,7 @@ jobs:
           rgbds/rgblink -o packaging/halt.gb -n packaging/halt.sym "$OBJ" "$HDOBJ"
           rgbds/rgbfix -vp0xFF packaging/halt.gb
           rm "$OBJ" "$HDOBJ"
-          cp -v hUGETracker/src/Release/hUGETracker hUGETracker/uge2source/Release/uge2source packaging
+          cp -v hUGETracker/src/Release/hUGETracker hUGETracker/src/uge2source/Release/uge2source packaging
 
           mv packaging/sample-songs "packaging/Sample Songs"
           mv packaging/keymaps "packaging/Keymaps"
