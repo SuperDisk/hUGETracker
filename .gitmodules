@@ -1,12 +1,12 @@
 [submodule "hUGEDriver"]
-	path = src/hugetracker/hUGEDriver
+	path = src/hUGEDriver
 	url = http://github.com/SuperDisk/hUGEDriver
 [submodule "Pascal-SDL-2-Headers"]
-	path = src/hugetracker/Pascal-SDL-2-Headers
+	path = src/Pascal-SDL-2-Headers
 	url = https://github.com/ev1313/Pascal-SDL-2-Headers
 [submodule "rackctls"]
-	path = src/hugetracker/rackctls
+	path = src/rackctls
 	url = https://github.com/olivluca/rackctls
 [submodule "bgrabitmap"]
-	path = src/hugetracker/bgrabitmap
+	path = src/bgrabitmap
 	url = https://github.com/bgrabitmap/bgrabitmap
