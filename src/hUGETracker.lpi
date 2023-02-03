@@ -63,6 +63,8 @@
           </Linking>
           <Other>
             <Verbosity>
+              <ShowNotes Value="False"/>
+              <ShowHints Value="False"/>
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
@@ -113,6 +115,8 @@
           </Linking>
           <Other>
             <Verbosity>
+              <ShowNotes Value="False"/>
+              <ShowHints Value="False"/>
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
@@ -165,6 +169,8 @@
           </Linking>
           <Other>
             <Verbosity>
+              <ShowNotes Value="False"/>
+              <ShowHints Value="False"/>
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
