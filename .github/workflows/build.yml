@@ -27,7 +27,7 @@ jobs:
         run: |
           sudo apt -qq update
           sudo apt install -yq lazarus libsdl2-dev bison
-          curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.6.0/rgbds-0.6.0.tar.gz'
+          curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.6.1/rgbds-0.6.1.tar.gz'
           tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
           cd rgbds
           make -j4 rgbasm rgblink rgbfix Q=
@@ -45,8 +45,8 @@ jobs:
         shell: bash
         run: |
           choco install lazarus
-          curl -Lo 'sdl2.zip' 'https://www.libsdl.org/release/SDL2-2.0.22-win32-x64.zip'
-          curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.6.0/rgbds-0.6.0-win64.zip'
+          curl -Lo 'sdl2.zip' 'https://github.com/libsdl-org/SDL/releases/download/release-2.26.2/SDL2-2.26.2-win32-x64.zip'
+          curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.6.1/rgbds-0.6.1-win64.zip'
           unzip -d rgbds rgbds.zip rgb{asm,link,fix}.exe
 
       - name: Set up MSYS2
@@ -91,25 +91,28 @@ jobs:
         run: | # The PATH manipulation is because the macOS and Windows installs do NOT put it in the PATH >_<
           export PATH="$PATH":/Applications/Lazarus:/c/lazarus
 
-          lazbuild --add-package-link rackctls/RackCtlsPkg.lpk
-          lazbuild --add-package-link bgrabitmap/bgrabitmap/bgrabitmappack.lpk
+          lazbuild --add-package-link src/rackctls/RackCtlsPkg.lpk
+          lazbuild --add-package-link src/bgrabitmap/bgrabitmap/bgrabitmappack.lpk
 
-          lazbuild hUGETracker.lpi --build-mode="Production ${{ matrix.name }}"
-          lazbuild uge2source/uge2source.lpi --build-mode=Release
+          lazbuild src/hUGETracker.lpi --build-mode="Production ${{ matrix.name }}"
+          lazbuild src/uge2source/uge2source.lpi --build-mode=Release
 
       - name: Package build
         shell: bash
         run: | # macOS does NOT have `realpath` :)
           mkdir packaging
-          for f in hUGETracker/{Resources/"Sample Songs",hUGEDriver,Resources/Fonts/PixeliteTTF.ttf,Resources/Keymaps}; do ln -sv "$PWD/$f" packaging; done
+          for f in hUGETracker/{sample-songs,src/hUGEDriver,fonts/PixeliteTTF.ttf,keymaps}; do ln -sv "$PWD/$f" packaging; done
           OBJ=`mktemp`
           HDOBJ=`mktemp`
-          rgbds/rgbasm -E -i hUGETracker/hUGEDriver -o "$HDOBJ" hUGETracker/hUGEDriver/hUGEDriver.asm
-          rgbds/rgbasm -i hUGETracker/hUGEDriver/include -o "$OBJ" hUGETracker/halt.asm
+          rgbds/rgbasm -E -i hUGETracker/src/hUGEDriver -o "$HDOBJ" hUGETracker/src/hUGEDriver/hUGEDriver.asm
+          rgbds/rgbasm -i hUGETracker/src/hUGEDriver/include -o "$OBJ" hUGETracker/src/halt.asm
           rgbds/rgblink -o packaging/halt.gb -n packaging/halt.sym "$OBJ" "$HDOBJ"
           rgbds/rgbfix -vp0xFF packaging/halt.gb
           rm "$OBJ" "$HDOBJ"
-          cp -v hUGETracker/Release/hUGETracker hUGETracker/uge2source/Release/uge2source packaging
+          cp -v hUGETracker/src/Release/hUGETracker hUGETracker/src/uge2source/Release/uge2source packaging
+
+          mv packaging/sample-songs "packaging/Sample Songs"
+          mv packaging/keymaps "packaging/Keymaps"
 
       - name: Extra Windows packaging
         if: matrix.name == 'Windows'

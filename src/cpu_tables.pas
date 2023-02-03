@@ -1,3 +1,7 @@
+unit cpu_tables;
+
+interface
+
 Const
  PARITY:array[0..255] of byte=
  (4, 0, 0, 4, 0, 4, 4, 0, 0, 4, 4, 0, 4, 0, 0, 4,
@@ -1187,7 +1191,5 @@ Const
   $8A,$8B,$8C,$8D,$8E,$8F,$90,$91,$92,$93,$94,$95,$96,$97,$98,
   $99));
 
-var in_table: array[0..255] of byte;
-    { $ifndef assembler}
-    add8_table,sub8_table,cpsub8_table  : array[0..255] of byte;
-    { $endif}
+ implementation
+ end.

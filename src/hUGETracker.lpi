@@ -29,8 +29,8 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="CPU;Sound;Global;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -63,6 +63,8 @@
           </Linking>
           <Other>
             <Verbosity>
+              <ShowNotes Value="False"/>
+              <ShowHints Value="False"/>
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
@@ -78,8 +80,8 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="CPU;Sound;Global;$(ProjOutDir)"/>
-            <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
+            <OtherUnitFiles Value="Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -113,6 +115,8 @@
           </Linking>
           <Other>
             <Verbosity>
+              <ShowNotes Value="False"/>
+              <ShowHints Value="False"/>
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
@@ -131,9 +135,9 @@
             <Filename Value="Release\hUGETracker"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="CPU;Sound;Global;$(ProjOutDir)"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
             <Libraries Value="\usr\local\lib"/>
-            <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+            <OtherUnitFiles Value="Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -165,6 +169,8 @@
           </Linking>
           <Other>
             <Verbosity>
+              <ShowNotes Value="False"/>
+              <ShowHints Value="False"/>
               <ShoLineNum Value="True"/>
             </Verbosity>
             <WriteFPCLogo Value="False"/>
@@ -216,148 +222,147 @@
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="CPU\machine.pas"/>
+        <Filename Value="mainloop.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
       <Unit2>
-        <Filename Value="CPU\z80cpu.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Z80CPU"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="Sound\sound.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit3>
-      <Unit4>
-        <Filename Value="Global\vars.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="mainloop.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit5>
-      <Unit6>
         <Filename Value="tracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmTracker"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Tracker"/>
-      </Unit6>
-      <Unit7>
+      </Unit2>
+      <Unit3>
         <Filename Value="instruments.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit7>
-      <Unit8>
+      </Unit3>
+      <Unit4>
         <Filename Value="song.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Song"/>
-      </Unit8>
-      <Unit9>
+      </Unit4>
+      <Unit5>
         <Filename Value="utils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Utils"/>
-      </Unit9>
-      <Unit10>
+      </Unit5>
+      <Unit6>
         <Filename Value="constants.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Constants"/>
-      </Unit10>
-      <Unit11>
+      </Unit6>
+      <Unit7>
         <Filename Value="about_hugetracker.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmAboutHugetracker"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit11>
-      <Unit12>
+      </Unit7>
+      <Unit8>
         <Filename Value="trackergrid.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TrackerGrid"/>
-      </Unit12>
-      <Unit13>
+      </Unit8>
+      <Unit9>
         <Filename Value="clipboardutils.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ClipboardUtils"/>
-      </Unit13>
-      <Unit14>
+      </Unit9>
+      <Unit10>
         <Filename Value="hugedatatypes.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="HugeDatatypes"/>
-      </Unit14>
-      <Unit15>
+      </Unit10>
+      <Unit11>
         <Filename Value="codegen.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Codegen"/>
-      </Unit15>
-      <Unit16>
+      </Unit11>
+      <Unit12>
         <Filename Value="symparser.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="SymParser"/>
-      </Unit16>
-      <Unit17>
+      </Unit12>
+      <Unit13>
         <Filename Value="effecteditor.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmEffectEditor"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit17>
-      <Unit18>
+      </Unit13>
+      <Unit14>
         <Filename Value="options.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmOptions"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit18>
-      <Unit19>
+      </Unit14>
+      <Unit15>
         <Filename Value="rendertowave.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmRenderToWave"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="RenderToWave"/>
-      </Unit19>
-      <Unit20>
+      </Unit15>
+      <Unit16>
         <Filename Value="modimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MODImport"/>
-      </Unit20>
-      <Unit21>
+      </Unit16>
+      <Unit17>
         <Filename Value="keymap.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="Keymap"/>
-      </Unit21>
-      <Unit22>
+      </Unit17>
+      <Unit18>
         <Filename Value="hugesettings.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="hUGESettings"/>
-      </Unit22>
-      <Unit23>
-        <Filename Value="dmfimport.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="DMFImport"/>
-      </Unit23>
-      <Unit24>
+      </Unit18>
+      <Unit19>
         <Filename Value="vgm.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="VGM"/>
-      </Unit24>
-      <Unit25>
+      </Unit19>
+      <Unit20>
         <Filename Value="tbmimport.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="TBMImport"/>
-      </Unit25>
-      <Unit26>
+      </Unit20>
+      <Unit21>
         <Filename Value="instrumentpreview.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="InstrumentPreview"/>
-      </Unit26>
-      <Unit27>
+      </Unit21>
+      <Unit22>
         <Filename Value="findreplace.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmFindReplace"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="z80cpu.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Z80CPU"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="cpu_tables.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="machine.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="sound.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="vars.pas"/>
+        <IsPartOfProject Value="True"/>
       </Unit27>
     </Units>
   </ProjectOptions>
@@ -365,8 +370,8 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <SearchPaths>
-      <IncludeFiles Value="CPU;Sound;Global;$(ProjOutDir)"/>
-      <OtherUnitFiles Value="CPU;Sound;Global;Pascal-SDL-2-Headers"/>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="Pascal-SDL-2-Headers"/>
       <UnitOutputDirectory Value="lib\Development\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

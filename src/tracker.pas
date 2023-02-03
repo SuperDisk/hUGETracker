@@ -1425,7 +1425,6 @@ var
   SampleSongs: TStringList;
   S: String;
   MenuItem: TMenuItem;
-  I: Integer;
 begin
   if (not FileExists('PixeliteTTF.ttf'))
   or (not FileExists('halt.gb'))
@@ -1436,7 +1435,7 @@ begin
       'the tracker. This likely means that you haven''t extracted the program ' +
       'before running it. Please do so, and relaunch. Thanks!',
       mtError, [mbOk], 0);
-    Application.Terminate;
+    Halt;
   end;
 
   {$ifdef PRODUCTION}

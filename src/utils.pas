@@ -134,7 +134,7 @@ var
 begin
   for I := 0 to 31 do begin
     with Pat[I] do begin
-      DN(Note, IfThen(I = 31, 1, Volume), (EffectCode shl 8) or EffectParams.Value, B1, B2, B3);
+      DN(Note, IfThen((Volume = 0) and (I = 31), 1, Volume), (EffectCode shl 8) or EffectParams.Value, B1, B2, B3);
       Result[(I*3) + 0] := B1;
       Result[(I*3) + 1] := B2;
       Result[(I*3) + 2] := B3;

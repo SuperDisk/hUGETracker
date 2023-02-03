@@ -20,11 +20,8 @@ uses
 
   hUGESettings,
 
-  Tracker in 'Tracker.pas',
-  EffectEditor in 'effecteditor.pas',
-  options in 'options.pas',
-  about_hugetracker in 'about_hugetracker.pas',
-  rendertowave in 'rendertowave.pas', findreplace;
+  Tracker, EffectEditor, options, about_hugetracker, rendertowave, findreplace,
+  machine, sound, vars, Z80CPU;
 
 {$R *.res}
 

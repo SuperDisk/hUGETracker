@@ -3,6 +3,7 @@ backup
 ConverterBackup
 **/backup
 lib
+*.zip
 *.exe
 *.dll
 *.lps
