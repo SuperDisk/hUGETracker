@@ -21,7 +21,7 @@ uses
   hUGESettings,
 
   Tracker, EffectEditor, options, about_hugetracker, rendertowave, findreplace,
-  cpu_tables, machine, sound, vars, Z80CPU;
+  machine, sound, vars, Z80CPU;
 
 {$R *.res}
 
