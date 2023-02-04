@@ -179,34 +179,34 @@ run_table4:
   ret
 
 init:
+    ld a, $FF
 _addr = _AUD3WAVERAM
     REPT 16
-    ld a, $FF
-    ld [_addr], a
+    ldh [_addr], a
 _addr = _addr + 1
     ENDR
 
     ld a, $80
-    ld [rAUDENA], a
+    ldh [rAUDENA], a
     ; Enable all channels in stereo
     ld a, $FF
-    ld [rAUDTERM], a
+    ldh [rAUDTERM], a
     ; Set volume
     ld a, $77
-    ld [rAUDVOL], a
+    ldh [rAUDVOL], a
 	  ; silence ch3
-	  ld a, 0
-	  ld [rAUD3LEVEL], a
+	  xor a
+	  ldh [rAUD3LEVEL], a
 
     ;; Enable the HBlank interrupt on scanline 0
-    ld a, [rSTAT]
+    ldh a, [rSTAT]
     or a, STATF_LYC
-    ld [rSTAT], a
+    ldh [rSTAT], a
     xor a
-    ld [rLYC], a
+    ldh [rLYC], a
 
     ld a, IEF_LCDC
-    ld [rIE], a
+    ldh [rIE], a
     ei
 
     ;; Initialize hUGEDriver-related vars
