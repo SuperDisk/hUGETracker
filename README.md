@@ -26,10 +26,11 @@ lazbuild --add-package-link src/bgrabitmap/bgrabitmap/bgrabitmappack.lpk
 
 :: At this point, you'll successfully be able to build hUGETracker.
 :: However, in order to run properly, it needs some extra files (SDL, halt.gb, fonts, etc)
-:: so run the following script to automatically set that up. If you're on Mac or Linux,
-:: you can replicate the commands in it yourself.
+:: so run the following script to automatically set that up.
 
 setup-windows.cmd
+:: or
+./setup-linux.sh
 
 :: Now, you can either build and run hUGETracker from within Lazarus,
 :: or run one of the following to just build a binary:
