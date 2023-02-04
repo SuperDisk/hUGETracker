@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Song, hugedatatypes, fgl, math, constants,
-  instruments;
+  instruments, LazLoggerBase;
 
 function LoadSongFromModStream(Stream: TStream): TSong;
 
@@ -184,7 +184,7 @@ begin
     NoiseBreak := 0;
 
     if (MR.Instrument < 16) then
-      writeln(StdErr, '[DEBUG] Note value ', MR.Note, ' was accompanied by incorrect instrument ', MR.Instrument);
+      DebugLn(['[DEBUG] Note value ', MR.Note, ' was accompanied by incorrect instrument ', MR.Instrument]);
 
     if (MR.Instrument < 32) and (MR.Instrument > 16) then begin
         Instrument := GBT_NOISE[((MR.Instrument - 16) and $1F)]; // Only 0 - 0xF implemented
@@ -204,7 +204,7 @@ begin
 
       Ch4Freq := Trunc((524288 / RealR) / 2**(PolyCounter.ShiftClockFrequency+1));
       if not Ch4FreqToNoteCodeMap.TryGetData(Ch4Freq, Result.Note) then
-        writeln(StdErr, '[DEBUG] Note value ', Result.Note, ' not found.');
+        DebugLn(['[DEBUG] Note value ', Result.Note, ' not found.']);
     end else
       Result.Note := NO_NOTE;
   end else

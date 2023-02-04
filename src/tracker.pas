@@ -2022,7 +2022,7 @@ end;
 
 procedure TfrmTracker.MenuItem26Click(Sender: TObject);
 begin
-  frmFindReplace.ShowModal;
+  //frmFindReplace.ShowModal;
 end;
 
 procedure TfrmTracker.MenuItem55Click(Sender: TObject);

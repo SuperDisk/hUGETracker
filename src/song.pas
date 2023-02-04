@@ -7,7 +7,7 @@ unit Song;
 
 interface
 
-uses Classes, HugeDatatypes, instruments, Constants, math, sysutils;
+uses Classes, HugeDatatypes, instruments, Constants, math, sysutils, LazLoggerBase;
 
 type
   ESongVersionException = class(Exception);
@@ -701,7 +701,7 @@ var
 
       Ch4Freq := Trunc((524288 / RealR) / 2**(PolyCounter.ShiftClockFrequency+1));
       if not Ch4FreqToNoteCodeMap.TryGetData(Ch4Freq, Pat[I].Note) then
-        writeln(StdErr, '[DEBUG] Note value ', Pat[I].Note, ' not found.');
+        DebugLn(['[DEBUG] Note value ', Pat[I].Note, ' not found.']);
     end;
   end;
 begin
@@ -833,7 +833,7 @@ begin
   for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
     for J := Low(Result.OrderMatrix[I]) to High(Result.OrderMatrix[I])-1 do begin
       if Result.Patterns.IndexOf(Result.OrderMatrix[I, J]) = -1 then
-        WriteLn(StdErr, '[ERROR] Nonexistent pattern number in order table: ', Result.OrderMatrix[I, J], '!!!');
+        DebugLn(['[ERROR] Nonexistent pattern number in order table: ', Result.OrderMatrix[I, J], '!!!']);
       Result.OrderMatrix[I, J] := FindMatchingPattern(Result.Patterns.GetOrCreateNew(Result.OrderMatrix[I, J])^);
     end;
 end;

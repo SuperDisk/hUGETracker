@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
-  Left = 1027
+  Left = 1751
   Height = 819
-  Top = 223
+  Top = 191
   Width = 1301
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -1855,7 +1855,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 474
+      Left = 482
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1866,17 +1866,17 @@ object frmTracker: TfrmTracker
       ShowHint = True
     end
     object ToolButton2: TToolButton
-      Left = 114
+      Left = 116
       Top = 0
       Action = PlayCursorAction
     end
     object ToolButton4: TToolButton
-      Left = 143
+      Left = 145
       Top = 0
       Action = StopAction
     end
     object ExportGBButton: TToolButton
-      Left = 207
+      Left = 213
       Hint = 'Export the song as a standalone ROM'
       Top = 0
       AutoSize = True
@@ -1892,21 +1892,21 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 172
+      Left = 174
       Height = 22
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 1014
+      Left = 1025
       Height = 22
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object OctaveSpinEdit: TSpinEdit
-      Left = 580
+      Left = 591
       Height = 23
       Hint = 'The octave offset for entering new notes'
       Top = 0
@@ -1917,14 +1917,14 @@ object frmTracker: TfrmTracker
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 532
+      Left = 540
       Height = 22
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 537
+      Left = 548
       Height = 22
       Top = 0
       Width = 43
@@ -1935,7 +1935,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object Label23: TLabel
-      Left = 645
+      Left = 656
       Height = 22
       Top = 0
       Width = 70
@@ -1946,7 +1946,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object InstrumentComboBox: TComboBox
-      Left = 715
+      Left = 726
       Height = 23
       Hint = 'The selected instrument for new notes'
       Top = 0
@@ -1964,7 +1964,7 @@ object frmTracker: TfrmTracker
       Text = '(no instrument)'
     end
     object Label24: TLabel
-      Left = 929
+      Left = 940
       Height = 22
       Top = 0
       Width = 35
@@ -1975,7 +1975,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object StepSpinEdit: TSpinEdit
-      Left = 964
+      Left = 975
       Height = 23
       Hint = 'How many rows to step down after entering a new note'
       Top = 0
@@ -1986,12 +1986,12 @@ object frmTracker: TfrmTracker
       TabOrder = 2
     end
     object ToolButton3: TToolButton
-      Left = 85
+      Left = 87
       Top = 0
       Action = PlayStartAction
     end
     object ExportGBSButton: TToolButton
-      Left = 288
+      Left = 294
       Hint = 'Export the song as a GBS soundtrack'
       Top = 0
       Caption = 'Export GBS'
@@ -1999,14 +1999,14 @@ object frmTracker: TfrmTracker
       OnClick = ExportGBSButtonClick
     end
     object ToolButton5: TToolButton
-      Left = 471
+      Left = 477
       Height = 22
       Top = 0
       Caption = 'ToolButton5'
       Style = tbsDivider
     end
     object ToolButton10: TToolButton
-      Left = 375
+      Left = 381
       Hint = 'Export the song as WAV or MP3'
       Top = 0
       Caption = 'Render Song'
@@ -2014,14 +2014,14 @@ object frmTracker: TfrmTracker
       OnClick = ToolButton10Click
     end
     object ToolButton11: TToolButton
-      Left = 204
+      Left = 208
       Height = 22
       Top = 0
       Caption = 'ToolButton11'
       Style = tbsDivider
     end
     object LoopSongToolButton: TToolButton
-      Left = 175
+      Left = 179
       Top = 0
       ImageIndex = 87
       OnClick = LoopSongToolButtonClick

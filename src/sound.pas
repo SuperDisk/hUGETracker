@@ -128,7 +128,7 @@ Bit0  Sound 1 on[1]/off[0]
 
 *)
 
-uses Classes, sysutils, sdl2;
+uses Classes, sysutils, sdl2, LazLoggerBase;
 
 const
   SAMPLE_BUFFER_SIZE = 1024;
@@ -252,8 +252,7 @@ begin
     z80_decode;
 
   if sndBytesWritten > len then
-    Writeln(StdErr,
-      Format('[WARNING] Audio callback wrote into uninitialized ram! (%d written, %d requested)', [sndBytesWritten, len]));
+    DebugLn('[WARNING] Audio callback wrote into uninitialized ram! (%d written, %d requested)', [sndBytesWritten, len]);
 end;
 
 procedure EnableSound;

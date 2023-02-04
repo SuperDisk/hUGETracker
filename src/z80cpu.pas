@@ -16,7 +16,7 @@ var
 
 implementation
 
-uses vars, machine, cpu_tables;
+uses vars, machine, cpu_tables, LazLoggerBase;
 
 // temporary variables
 var
@@ -2012,9 +2012,9 @@ var
 begin
   I := speekb(pc.w);
   Inc(pc.w);
-  if I <> 0 then writeln('DEBUG: ', I);
+  if I <> 0 then DebugLn(['DEBUG: ', I]);
   if I = 0 then  begin
-    writeln('MEM: ', speekb(wordpeek(pc.w)));
+    DebugLn(['MEM: ', speekb(wordpeek(pc.w))]);
     Inc(pc.w,2);
   end;
   Result := 0;

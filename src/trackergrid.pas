@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, LCLIntf,
   LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor,
-  Keymap;
+  Keymap, LazLoggerBase;
 
 const
   UNDO_STACK_SIZE = 100;
@@ -639,7 +639,7 @@ begin
     Cursor.SelectedPart := High(TCellPart);
   except
     on E: Exception do
-      WriteLn(StdErr, '[DEBUG] Clipboard did not contain valid note data!');
+      DebugLn('[DEBUG] Clipboard did not contain valid note data!');
   end;
 end;
 
@@ -670,7 +670,7 @@ begin
     end;
   except
     on E: EClipboardFormatException do begin
-      WriteLn(StdErr, '[WARNING] ', E.Message);
+      DebugLn('[WARNING] ', E.Message);
       RevertUndoAction;
       Exit
     end;
@@ -688,7 +688,7 @@ begin
     PerformPaste(GetPastedCells, True);
   except
     on E: EClipboardFormatException do begin
-      WriteLn(StdErr, '[WARNING] ', E.Message);
+      DebugLn('[WARNING] ', E.Message);
       RevertUndoAction;
       Exit
     end;
@@ -706,7 +706,7 @@ begin
     PerformPaste(GetPastedCells);
   except
     on E: EClipboardFormatException do begin
-      WriteLn(StdErr, '[WARNING] ', E.Message);
+      DebugLn('[WARNING] ', E.Message);
       RevertUndoAction;
       Exit
     end;

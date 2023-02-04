@@ -5,7 +5,7 @@ unit SymParser;
 interface
 
 uses
-  Classes, SysUtils, fgl;
+  Classes, SysUtils, fgl, LazLoggerBase;
 
 type
   TSymbolMap = specialize TFPGMap<String, Integer>;
@@ -69,7 +69,7 @@ end;
 function SymbolAddress(Symbol: String): Integer;
 begin
   if not SymbolTable.TryGetData(Symbol, Result) then begin
-    Writeln(StdErr, '[WARNING] Attempting to read address of unloaded symbol: ', symbol);
+    DebugLn(['[WARNING] Attempting to read address of unloaded symbol: ', symbol]);
     Result := 0;
   end;
 end;
@@ -77,7 +77,7 @@ end;
 function PeekSymbol(Symbol: String): Integer;
 begin
   if SymbolTable.IndexOf(Symbol) = -1 then begin
-    WriteLn(StdErr, '[WARNING] Attempting to peek unloaded symbol: ', symbol);
+    DebugLn(['[WARNING] Attempting to peek unloaded symbol: ', symbol]);
     Exit(0);
   end;
 
@@ -87,7 +87,7 @@ end;
 procedure PokeSymbol(Symbol: String; Value: Byte);
 begin
   if SymbolTable.IndexOf(Symbol) = -1 then begin
-    WriteLn(StdErr, '[WARNING] Attempting to poke unloaded symbol: ', symbol);
+    DebugLn(['[WARNING] Attempting to poke unloaded symbol: ', symbol]);
     Exit;
   end;
 
@@ -97,7 +97,7 @@ end;
 function WordPeekSymbol(Symbol: String): Integer;
 begin
   if SymbolTable.IndexOf(Symbol) = -1 then begin
-    WriteLn(StdErr, '[WARNING] Attempting to wordpeek unloaded symbol: ', symbol);
+    DebugLn('[WARNING] Attempting to wordpeek unloaded symbol: ', symbol);
     Exit(0);
   end;
 
@@ -107,7 +107,7 @@ end;
 procedure WordPokeSymbol(Symbol: String; Value: Word);
 begin
   if SymbolTable.IndexOf(Symbol) = -1 then begin
-    WriteLn(StdErr, '[WARNING] Attempting to wordpoke unloaded symbol: ', symbol);
+    DebugLn('[WARNING] Attempting to wordpoke unloaded symbol: ', symbol);
     Exit;
   end;
   wordpoke(SymbolTable.KeyData[Symbol], Value);

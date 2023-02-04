@@ -17,7 +17,7 @@ uses
   SysUtils,
   Forms,
   Interfaces,
-
+  LazLogger,
   hUGESettings,
 
   Tracker, EffectEditor, options, about_hugetracker, rendertowave, findreplace,
@@ -50,7 +50,7 @@ begin
       DeleteFile('heap.trc');
     SetHeapTraceOutput('heap.trc');
 
-    Writeln(StdErr, '[DEBUG] Using heaptrc...');
+    DebugLn('[DEBUG] Using heaptrc...');
   {$endIf}
 
   { Before the LCL starts, embed Pixelite so users dont have to install it.
@@ -59,19 +59,15 @@ begin
   {$ifdef MSWINDOWS}
     // $10 is FR_PRIVATE which uninstalls the font when the process ends
     if not AddFontResourceExA(PChar('PixeliteTTF.ttf'), $10) then
-      Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
+      DebugLn('[ERROR] Couldn''t load Pixelite!!!');
   {$endif}
 
   {$if defined(LINUX) or defined(FREEBSD) or defined(OPENBSD)}
     // https://gitlab.gnome.org/GNOME/gtk/-/issues/3886
     if FcConfigAppFontAddFile(nil, PChar('PixeliteTTF.ttf')) = 0 then
-      Writeln(StdErr, '[ERROR] Couldn''t load Pixelite!!!');
+      DebugLn('[ERROR] Couldn''t load Pixelite!!!');
 
     PangoFcFontMapConfigChanged(PangoCairoFontMapGetDefault);
-  {$endif}
-
-  {$ifdef PRODUCTION}
-  Output := StdErr;
   {$endif}
 
   Application.Scaled:=True;
