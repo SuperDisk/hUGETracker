@@ -14,4 +14,4 @@ rgblink -o $BUILD_DIR/halt.gb -n $BUILD_DIR/halt.sym halt.obj hUGEDriver.obj
 rgbfix -vp0xFF $BUILD_DIR/halt.gb
 
 # Link the hUGEDriver directory
-ln -s src/hUGEDriver $BUILD_DIR/hUGEDriver
+ln -s `realpath src/hUGEDriver` `realpath $BUILD_DIR/hUGEDriver`
