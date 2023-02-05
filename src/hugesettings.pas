@@ -102,7 +102,7 @@ begin
   SettingsFile := TINIFile.Create('options.ini');
 
   FPatternEditorFontSize := SettingsFile.ReadInteger('hUGETracker', 'fontsize', 12);
-  FUseScopes := SettingsFile.ReadBool('hUGETracker', 'ScopesOn', True);
+  FUseScopes := SettingsFile.ReadBool('hUGETracker', 'ScopesOn', False);
   FUseCustomKeymap := SettingsFile.ReadBool('hUGETracker', 'CustomKeymap', False);
   FPreviewWhenPlacing := SettingsFile.ReadBool('hUGETracker', 'PreviewWhenPlacing', True);
   FPreviewWhenBumping := SettingsFile.ReadBool('hUGETracker', 'PreviewWhenBumping', False);

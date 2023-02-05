@@ -476,7 +476,6 @@ type
     Playing: Boolean;
     LoadingFile: Boolean;
     SaveSucceeded: Boolean;
-    ScopesOn: Boolean;
 
     WaveInstrumentsNode,
     NoiseInstrumentsNode,
@@ -1496,8 +1495,8 @@ begin
   StartPlayback;
 
   // Start the Oscilloscope repaint timer
-  OscilloscopeUpdateTimer.Enabled := ScopesOn;
-  ScopesPanel.Visible := ScopesOn;
+  OscilloscopeUpdateTimer.Enabled := TrackerSettings.UseScopes;
+  ScopesPanel.Visible := TrackerSettings.UseScopes;
 
   // Switch to general tab sheet
   PageControl1.ActivePageIndex := 0;
@@ -2365,10 +2364,8 @@ begin
 
   SubpatternGroupBox.Width := RowNumberStringGrid1.Width + TableGrid.Width + 10;
 
-  ScopesOn := TrackerSettings.UseScopes;
-
-  OscilloscopeUpdateTimer.Enabled := ScopesOn;
-  ScopesPanel.Visible := ScopesOn;
+  OscilloscopeUpdateTimer.Enabled := TrackerSettings.UseScopes;
+  ScopesPanel.Visible := TrackerSettings.UseScopes;
 
   RecreateRowNumbers;
   TrackerGrid.Invalidate;
