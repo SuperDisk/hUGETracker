@@ -1689,6 +1689,7 @@ var
   SelectedSection: THeaderSection;
   P: TPoint;
   I: Integer;
+  SectionIndex: Integer;
 
   function OnlyOneSelected(Sct: Integer): Boolean;
   var
@@ -1705,18 +1706,19 @@ begin
 
   P.X := X;
   P.Y := Y;
+  SectionIndex := HeaderControl1.GetSectionAt(P);
 
-  if HeaderControl1.GetSectionAt(P) = 0 then
+  if (SectionIndex = 0) or (SectionIndex = -1) then
     Exit;
 
-  if OnlyOneSelected(HeaderControl1.GetSectionAt(P)) then begin
+  if OnlyOneSelected(SectionIndex) then begin
     for I := 1 to 4 do
       HeaderControl1.Sections[I].ImageIndex := 1;
   end else begin
     for I := 1 to 4 do
       HeaderControl1.Sections[I].ImageIndex := 0;
 
-    SelectedSection := HeaderControl1.Sections[HeaderControl1.GetSectionAt(P)];
+    SelectedSection := HeaderControl1.Sections[SectionIndex];
     SelectedSection.ImageIndex := 1;
   end;
 
