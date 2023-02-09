@@ -38,5 +38,5 @@ Call `hUGE_mute_channel`; see `hUGEDriver.h` for the corresponding arguments.
 
 - **IMPORTANT** precaution for CH3: if you release this channel and modify wave RAM, you **must** inform hUGEDriver, by writing `hUGE_NO_WAVE` to `hUGE_current_wave`.
   This will tell hUGEDriver to reload wave RAM when the channel is un-released; otherwise, you may get corrupted notes.
-- "Global" [effects](../hUGETracker/effect_reference.md) (5, 8, B, D, and F) still play, even if the channel they are attached to is released.
+- "Global" [effects](../hUGETracker/effect-reference.md) (5, 8, B, D, and F) still play, even if the channel they are attached to is released.
   Importantly, this means hUGEDriver *will* write to `NR50` (5) and `NR51` (8).
