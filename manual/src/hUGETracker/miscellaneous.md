@@ -14,6 +14,6 @@ Note that the effects are not converted when pasted, so you'll need to manually 
 
 ## File format
 
-The hUGETracker file format is very simple; the reading/writing code [can be found here](https://github.com/SuperDisk/hUGETracker/blob/hUGETracker/song.pas).
+The hUGETracker file format is very simple; the reading/writing code [can be found here](https://github.com/SuperDisk/hUGETracker/blob/hUGETracker/src/song.pas).
 
 The file format might change to an NBT-, JSON-, or XML-based format in the future.
