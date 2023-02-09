@@ -29,9 +29,9 @@ Effect | Name              | Description
 `7xx`  | Note delay        | Wait <var>xx</var> ticks before playing the note in this cell. *If `xx` is strictly greater than the tempo, the note will not play at all!*
 `8xx`  | Set panning       | Set [which channels play on which speakers][NR51]. Consider using the effect editor. Setting a channel to neither left nor right will mute it, but is not recommended[^nr51_mute].
 `9xx`  | Change timbre    | *For pulse channels* (CH1 &amp; 2), this changes the duty cycle[^nrx1]; *for the wave channel* (CH3), this loads wave <var>xx</var>[^wave_retrig]; *for the noise channel* (CH4), this changes [the LFSR's width][NR43] (caution! [^lfsr_lockup]).
-`Axy`  | Volume slide      | Slide the note's volume up by <var>x</var> units, or down by <var>y</var> units (either <var>x</var> or <var>y</var> must be 0). *The active note will be retriggered on each tick*, which may sound bad if envelope and/or length are present. It is recommended to use instead either instrument envelopes, or the `C` effect, if possible. **This effect is not available on the wave channel (CH3)!**
+`Axy`  | Volume slide      | Slide the note's volume[^slide_base] up by <var>x</var> units, or down by <var>y</var> units (either <var>x</var> or <var>y</var> must be 0). *The active note will be retriggered on each tick*, which may sound bad if envelope and/or length are present. It is recommended to use instead either instrument envelopes, or the `C` effect, if possible. **This effect is not available on the wave channel (CH3)!**
 `Bxx`  | Position jump     | Jump to order <var>xx</var>.
-`Cxy`  | Set volume        | Set the volume of the channel to <var>y</var>, *and retrigger the active note*. If <var>x</var> is not 0, <var>x</var> will be written to [the envelope bits][NR12].
+`Cxy`  | Set volume        | Set the volume of the channel to <var>y</var>, *and retrigger the active note*. If <var>x</var> is not 0, <var>x</var> will be written to [the envelope bits][NR12]. (To stop the envelope instead, effect `A` can be used; see below.)
 `Dxx`  | Pattern break     | Jump to the next order, and start on row <var>xx</var>.
 `Exx`  | Note cut          | Cut the note short after <var>xx</var> ticks; *the note won't be cut if <var>xx</var> is not strictly less than the tempo!*
 `Fxx`  | Set tempo         | Set the number of ticks per row to <var>xx</var>. Can be used in an alternating fashion to create a swing beat.
@@ -49,6 +49,19 @@ Due to hardware limitations, changing the wave requires restarting the active no
 [^lfsr_lockup]:
 Switching the LFSR from "long mode" to "short mode" at a certain time ["locks up" the noise channel](https://gbdev.io/pandocs/Audio_details.html#noise-channel-ch4), silencing it until it's retriggered.
 This should happen consistently for an affected song, and may not appear in the tracker.
+
+[^slide_base]:
+Due to hardware limitations, `A` bases itself off of the instrument's *initial* volume, and doesn't take its envelope, if any, into account.
+
+## Tips and tricks
+
+- `A` stops the current instrument's envelope if one is active.
+  `A00` is probably not desirable (see footnote above[^slide_base]), so consider using it in a subpattern, so that it is only active for a single tick.
+- Using `C` causes a click, so prefer baking the volume into the instrument when possible.
+- Vibrato using repeated `2xx` and `1xx` effects can give better results and more intricate/detailed vibrato than `4xy`, especially in [subpatterns](./subpatterns.md).
+- Alternated `Fxx` effects can help with reaching decimal speeds. For example, alternating between `F04` and `F03` yields a speed of 3.5; cycling through `F01`, `F01`, `F02` and `F01` yields a speed of 1.25; and so on.
+- Notes without an instrument on their row can help with reducing noise, as the note isn't retriggered.
+  Of course, this only works if you weren't planning to change the instrument.
 
 [NR11]: https://gbdev.io/pandocs/Audio_Registers.html#ff11--nr11-channel-1-length-timer--duty-cycle
 [NR12]: https://gbdev.io/pandocs/Audio_Registers.html#ff12--nr12-channel-1-volume--envelope
