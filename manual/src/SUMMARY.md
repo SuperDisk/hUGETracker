@@ -20,6 +20,7 @@
 - [Hotkeys](hUGETracker/hotkeys.md)
 - [Subpatterns](hUGETracker/subpatterns.md)
 - [Routines](hUGETracker/routines.md)
+- [UGE file format](hUGETracker/uge-format.md)
 - [Miscellaneous](hUGETracker/miscellaneous.md)
 
 # hUGEDriver

@@ -11,9 +11,3 @@ Note that the effects are not converted when pasted, so you'll need to manually 
 ![Screenshot of the clipboard format of hUGETracker and ModPlug](../img/clipboards.png)
 
 ![Screenshot of the same clipboards, pasted into hUGETracker and ModPlug](../img/pasted.png)
-
-## File format
-
-The hUGETracker file format is very simple; the reading/writing code [can be found here](https://github.com/SuperDisk/hUGETracker/blob/hUGETracker/src/song.pas).
-
-The file format might change to an NBT-, JSON-, or XML-based format in the future.
