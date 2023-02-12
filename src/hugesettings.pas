@@ -5,7 +5,7 @@ unit hUGESettings;
 interface
 
 uses
-  Classes, SysUtils, INIFiles;
+  Classes, SysUtils, INIFiles, Constants;
 
 type
 
@@ -99,7 +99,7 @@ end;
 
 constructor TTrackerSettings.Create;
 begin
-  SettingsFile := TINIFile.Create('options.ini');
+  SettingsFile := TINIFile.Create(ConcatPaths([ConfDir, 'options.ini']));
 
   FPatternEditorFontSize := SettingsFile.ReadInteger('hUGETracker', 'fontsize', 12);
   FUseScopes := SettingsFile.ReadBool('hUGETracker', 'ScopesOn', False);

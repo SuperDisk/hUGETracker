@@ -174,8 +174,8 @@ end;
 
 procedure TfrmOptions.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
-  KeyMapStringGrid.SaveToFile('custom_keymap.km');
-  SaveColorsToFile('color_scheme.col');
+  KeyMapStringGrid.SaveToFile(ConcatPaths([ConfDir, 'custom_keymap.km']));
+  SaveColorsToFile(ConcatPaths([ConfDir, 'color_scheme.col']));
 
   TrackerSettings.PatternEditorFontSize := FontSizeSpinner.Value;
   TrackerSettings.UseScopes := CheckListBox1.Checked[0];
@@ -194,11 +194,11 @@ begin
   OptionsPageControl.TabIndex := 0;
   KeyMapStringGrid.SaveOptions := soAll;
 
-  if FileExists('custom_keymap.km') then
-    KeyMapStringGrid.LoadFromFile('custom_keymap.km');
+  if FileExists(ConcatPaths([ConfDir, 'custom_keymap.km'])) then
+    KeyMapStringGrid.LoadFromFile(ConcatPaths([ConfDir, 'custom_keymap.km']));
 
-  if FileExists('color_scheme.col') then
-    LoadColorsFromFile('color_scheme.col');
+  if FileExists(ConcatPaths([ConfDir, 'color_scheme.col'])) then
+    LoadColorsFromFile(ConcatPaths([ConfDir, 'color_scheme.col']));
 
   FontSizeSpinner.Value := TrackerSettings.PatternEditorFontSize;
   CheckListBox1.Checked[0] := TrackerSettings.UseScopes;

@@ -136,7 +136,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <Libraries Value="\usr\local\lib"/>
+            <Libraries Value="\usr\local\lib\"/>
             <OtherUnitFiles Value="Pascal-SDL-2-Headers"/>
             <UnitOutputDirectory Value="lib\Production\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>

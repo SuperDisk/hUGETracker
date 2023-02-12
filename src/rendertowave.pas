@@ -139,7 +139,7 @@ begin
   enablesound;
 
   FCCallback := nil;
-  load('render/preview.gb');
+  load(ConcatPaths([CacheDir, 'render', 'preview.gb']));
 
   Proc := TProcess.Create(nil);
   Proc.Executable := 'ffmpeg';

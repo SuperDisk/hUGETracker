@@ -134,7 +134,7 @@ begin
   z80_reset;
   ResetSound;
   enablesound;
-  load('render/preview.gb');
+  load(ConcatPaths([CacheDir, 'render/preview.gb']));
 
   SetLength(SeenOrders, PeekSymbol(SYM_ORDER_COUNT) div 2);
   StartOfSong := -1;

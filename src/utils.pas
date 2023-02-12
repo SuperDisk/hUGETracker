@@ -5,7 +5,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Song, HugeDatatypes, Constants, gHashSet, fgl, instruments, math;
+  Classes, SysUtils, HugeDatatypes, Constants, math;
 
 type
   TSubpatternBytes = array[0..((3*32)-1)] of Byte;

@@ -1044,7 +1044,7 @@ end;
 
 function TfrmTracker.RenderPreviewROM: Boolean;
 begin
-  Result := RenderSongToFile('preview.gb', emPreview);
+  Result := RenderSongToFile(ConcatPaths([CacheDir, 'preview.gb']), emPreview);
 end;
 
 function TfrmTracker.RenderSongToFile(Filename: String; Mode: TExportMode = emNormal): Boolean;
@@ -1089,10 +1089,10 @@ begin
     LockPlayback;
 
     // Load the new symbol table
-    ParseSymFile('render/preview.sym');
+    ParseSymFile(ConcatPaths([CacheDir, 'render', 'preview.sym']));
 
     // Start emulation on the rendered preview binary
-    GetROMReady('render/preview.gb');
+    GetROMReady(ConcatPaths([CacheDir, 'render', 'preview.gb']));
 
     for I := 1 to 4 do
       snd[I].ChannelOFF := HeaderControl1.Sections[I].ImageIndex = 0;
@@ -1117,8 +1117,8 @@ procedure TfrmTracker.HaltPlayback;
 begin
   LockPlayback;
   Application.ProcessMessages; // flush out any FD messages
-  GetROMReady('halt.gb');
-  ParseSymFile('halt.sym');
+  GetROMReady(ConcatPaths([RuntimeDir, 'halt.gb']));
+  ParseSymFile(ConcatPaths([RuntimeDir, 'halt.sym']));
   UnlockPlayback;
 
   Playing := False;
@@ -1141,7 +1141,7 @@ end;
 
 procedure TfrmTracker.OnSampleSongMenuItemClicked(Sender: TObject);
 begin
-  LoadSong('Sample Songs/'+TMenuItem(Sender).Caption);
+  LoadSong(ConcatPaths([RuntimeDir, 'Sample Songs', TMenuItem(Sender).Caption]));
 end;
 
 procedure TfrmTracker.CreateKeymap;
@@ -1154,7 +1154,7 @@ begin
     StringGrid := TStringGrid.Create(nil); // UGH!
     try
       StringGrid.SaveOptions := soAll;
-      StringGrid.LoadFromFile('custom_keymap.km');
+      StringGrid.LoadFromFile(ConcatPaths([ConfDir, 'custom_keymap.km']));
       LoadCustomKeybindings(StringGrid);
     finally
       StringGrid.Free;
@@ -1341,7 +1341,7 @@ var
   OutName: String;
 begin
   CreateGuid(G);
-  OutName := 'BACKUP_'+GUIDToString(G)+'.uge';
+  OutName := ConcatPaths([CacheDir, 'BACKUP_'+GUIDToString(G)+'.uge']);
 
   stream := TFileStream.Create(OutName, fmCreate);
   try
@@ -1425,10 +1425,10 @@ var
   S: String;
   MenuItem: TMenuItem;
 begin
-  if (not FileExists('PixeliteTTF.ttf'))
-  or (not FileExists('halt.gb'))
-  or (not FileExists('halt.sym'))
-  or (not DirectoryExists('hUGEDriver')) then begin
+  if (not FileExists(ConcatPaths([RuntimeDir, 'PixeliteTTF.ttf'])))
+  or (not FileExists(ConcatPaths([RuntimeDir, 'halt.gb'])))
+  or (not FileExists(ConcatPaths([RuntimeDir, 'halt.sym'])))
+  or (not DirectoryExists(ConcatPaths([RuntimeDir, 'hUGEDriver']))) then begin
     MessageDlg('Error',
       'hUGETracker can''t load a required file which comes with '+
       'the tracker. This likely means that you haven''t extracted the program ' +
@@ -1507,7 +1507,7 @@ begin
   {$endif}
 
   // Load sample songs list
-  SampleSongs := FindAllFiles('./Sample Songs/', '*.uge', False);
+  SampleSongs := FindAllFiles(ConcatPaths([RuntimeDir, 'Sample Songs/']), '*.uge', False);
   if SampleSongs.Count > 0 then
     for S in SampleSongs do begin
       MenuItem := TMenuItem.Create(MainMenu1);
@@ -2012,7 +2012,7 @@ procedure TfrmTracker.MenuItem10Click(Sender: TObject);
 begin
   if RenderPreviewROM and VGMSaveDialog.Execute then begin
     StopPlayback;
-    ParseSymFile('render/preview.sym');
+    ParseSymFile(ConcatPaths([CacheDir, 'render/preview.sym']));
 
     ExportVGMFile(VGMSaveDialog.FileName, Song.Name, Song.Artist, Song.Comment);
 
@@ -2572,7 +2572,7 @@ procedure TfrmTracker.ToolButton10Click(Sender: TObject);
 begin
   if RenderPreviewROM then begin
     StopPlayback;
-    ParseSymFile('render/preview.sym');
+    ParseSymFile(ConcatPaths([CacheDir, 'render/preview.sym']));
     frmRenderToWave.ShowModal;
     StartPlayback;
     HaltPlayback;

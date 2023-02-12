@@ -144,6 +144,10 @@ var
   NoteToCodeMap: TNoteToCodeMap;
   Ch4FreqToNoteCodeMap: TIntToIntMap;
 
+  ConfDir: String = '.'; // Directory for configuration (options.ini)
+  CacheDir: String = '.'; // Directory for crash backups
+  RuntimeDir: String = '.'; // Directory for runtime files (fonts, halt.gb, hUGEDriver)
+
 function NoteCodeToString(NoteCode: Integer): String;
 
 implementation
@@ -605,5 +609,4 @@ begin
   Ch4FreqToNoteCodeMap.Add(2, 1);
   Ch4FreqToNoteCodeMap.Add(2, 0);
   {%EndRegion}
-
 end.

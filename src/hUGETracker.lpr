@@ -19,9 +19,9 @@ uses
   Interfaces,
   LazLogger,
   hUGESettings,
-
+  Constants,
   Tracker, EffectEditor, options, about_hugetracker, rendertowave, findreplace,
-  machine, sound, vars, Z80CPU;
+  utils;
 
 {$R *.res}
 
@@ -39,9 +39,6 @@ procedure PangoFcFontMapConfigChanged(FcFontMap: Pointer); cdecl; External 'libp
 begin
   ReturnNilIfGrowHeapFails := False;
 
-  // Change working directory to the tracker directory
-  ChDir(ExtractFileDir(ParamStr(0)));
-
   InitializeTrackerSettings;
 
   {$if declared(useHeapTrace)}
@@ -58,13 +55,13 @@ begin
 
   {$ifdef MSWINDOWS}
     // $10 is FR_PRIVATE which uninstalls the font when the process ends
-    if not AddFontResourceExA(PChar('PixeliteTTF.ttf'), $10) then
+    if not AddFontResourceExA(PChar(ConcatPaths([RuntimeDir, 'PixeliteTTF.ttf'])), $10) then
       DebugLn('[ERROR] Couldn''t load Pixelite!!!');
   {$endif}
 
   {$if defined(LINUX) or defined(FREEBSD) or defined(OPENBSD)}
     // https://gitlab.gnome.org/GNOME/gtk/-/issues/3886
-    if FcConfigAppFontAddFile(nil, PChar('PixeliteTTF.ttf')) = 0 then
+    if FcConfigAppFontAddFile(nil, PChar(ConcatPaths([RuntimeDir, 'PixeliteTTF.ttf']))) = 0 then
       DebugLn('[ERROR] Couldn''t load Pixelite!!!');
 
     PangoFcFontMapConfigChanged(PangoCairoFontMapGetDefault);

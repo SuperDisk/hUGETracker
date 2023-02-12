@@ -584,8 +584,8 @@ var
   begin
     Proc.Executable := 'rgbasm';
     Proc.Parameters.Clear;
-    Proc.Parameters.Add('-i' + 'render');
-    Proc.Parameters.Add('-i' + 'hUGEDriver');
+    Proc.Parameters.Add('-i' + ConcatPaths([CacheDir, 'render']));
+    Proc.Parameters.Add('-i' + ConcatPaths([RuntimeDir, 'hUGEDriver']));
     Proc.Parameters.Add('-o' + OutFile);
     for Define in Defines do
       // HACK: This just removes all instances of double quotes to avoid a bug
@@ -630,21 +630,21 @@ var
 begin
   Song := OptimizeSong(Song);
 
-  if not DirectoryExists('render') then
-    CreateDir('render');
+  if not DirectoryExists(ConcatPaths([CacheDir, 'render'])) then
+    CreateDir(ConcatPaths([CacheDir, 'render']));
 
   FilePath := Filename;
-  Filename := 'render/' + ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename));
+  Filename := ConcatPaths([CacheDir, 'render', ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename))]);
 
-  WriteHTT('render/wave.htt', RenderWaveforms(Song.Waves));
-  WriteHTT('render/order.htt', RenderOrderTable(Song.OrderMatrix));
-  WriteHTT('render/duty_instrument.htt',  RenderInstruments(Song.Instruments.Duty));
-  WriteHTT('render/wave_instrument.htt',  RenderInstruments(Song.Instruments.Wave));
-  WriteHTT('render/noise_instrument.htt', RenderInstruments(Song.Instruments.Noise));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']), RenderWaveforms(Song.Waves));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'order.htt']), RenderOrderTable(Song.OrderMatrix));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),  RenderInstruments(Song.Instruments.Duty));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),  RenderInstruments(Song.Instruments.Wave));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']), RenderInstruments(Song.Instruments.Noise));
   for I := Low(TRoutineBank) to High(TRoutineBank) do
-    WriteHTT('render/routine'+IntToStr(I)+'.htt', Song.Routines[I]);
+    WriteHTT(ConcatPaths([CacheDir, 'render', 'routine'+IntToStr(I)+'.htt']), Song.Routines[I]);
 
-  AssignFile(OutFile, 'render/pattern.htt');
+  AssignFile(OutFile, ConcatPaths([CacheDir, 'render', 'pattern.htt']));
   Rewrite(OutFile);
 
   for I := 0 to Song.Patterns.Count - 1 do
@@ -654,7 +654,7 @@ begin
 
   CloseFile(OutFile);
 
-  AssignFile(OutFile, 'render/subpattern.htt');
+  AssignFile(OutFile, ConcatPaths([CacheDir, 'render', 'subpattern.htt']));
   Rewrite(OutFile);
 
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
@@ -675,64 +675,55 @@ begin
     // Assemble
     if Mode = emPreview then
     begin
-      if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', ['PREVIEW_MODE']) <> 0 then
-        Die;
+      if Assemble(ConcatPaths([CacheDir, Filename + '_driver.obj']),
+                  ConcatPaths([RuntimeDir, 'hUGEDriver', 'hUGEDriver.asm']),
+                  ['PREVIEW_MODE']) <> 0 then Die;
     end
-    else
-    begin
-      if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', []) <> 0 then
-        Die;
-    end;
+    else if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', []) <> 0 then Die;
 
-    if Assemble(Filename + '_song.obj',
-                'hUGEDriver/song.asm',
-                ['SONG_DESCRIPTOR=song', 'TICKS='+IntToStr(Song.TicksPerRow)]) <> 0 then
-      Die;
+    if Assemble(ConcatPaths([CacheDir, Filename + '_song.obj']),
+                ConcatPaths([RuntimeDir, 'hUGEDriver', 'song.asm']),
+                ['SONG_DESCRIPTOR=song', 'TICKS='+IntToStr(Song.TicksPerRow)]) <> 0 then Die;
 
     if Mode = emGBS then
     begin
-      if Assemble(
-            Filename + '_gbs.obj', 'hUGEDriver/gbs.asm',
-            ['SONG_DESCRIPTOR=song',
-             'GBS_TITLE="'+PadRight(LeftStr(Song.Name, 32), 32)+'"',
-             'GBS_AUTHOR="'+PadRight(LeftStr(Song.Artist, 32), 32)+'"',
-             'GBS_COPYRIGHT="'+PadRight(IntToStr(CurrentYear), 32)+'"']
-         ) <> 0 then Die;
+      if Assemble(ConcatPaths([CacheDir, Filename + '_gbs.obj']),
+                  ConcatPaths([RuntimeDir, 'hUGEDriver', 'gbs.asm']),
+                  ['SONG_DESCRIPTOR=song',
+                   'GBS_TITLE="'+PadRight(LeftStr(Song.Name, 32), 32)+'"',
+                   'GBS_AUTHOR="'+PadRight(LeftStr(Song.Artist, 32), 32)+'"',
+                   'GBS_COPYRIGHT="'+PadRight(IntToStr(CurrentYear), 32)+'"']) <> 0 then Die;
     end
-    else
-    begin
-      if Assemble(Filename + '_player.obj',
-                 'hUGEDriver/player.asm',
-                 ['SONG_DESCRIPTOR=song',
-                  IfThen(Song.TimerEnabled, 'USE_TIMER=1', ''),
-                  'TIMER_MODULO='+IntToStr(Song.TimerDivider)]) <> 0 then
-        Die;
-    end;
+    else if Assemble(ConcatPaths([CacheDir, Filename + '_player.obj']),
+                     ConcatPaths([RuntimeDir, 'hUGEDriver', 'player.asm']),
+                     ['SONG_DESCRIPTOR=song',
+                      IfThen(Song.TimerEnabled, 'USE_TIMER=1', ''),
+                      'TIMER_MODULO='+IntToStr(Song.TimerDivider)]) <> 0 then Die;
 
     // Link
     if Mode = emGBS then
     begin
-      if Link(Filename + '.gbs',
-              [Filename + '_driver.obj',
-               Filename + '_song.obj',
-               Filename + '_gbs.obj']) <> 0 then Die;
+      if Link(ConcatPaths([CacheDir, Filename + '.gbs']),
+              [ConcatPaths([CacheDir, Filename + '_driver.obj']),
+               ConcatPaths([CacheDir, Filename + '_song.obj']),
+               ConcatPaths([CacheDir, Filename + '_gbs.obj'])]) <> 0 then Die;
     end
     else
     begin
-      if Link(Filename + '.gb',
-              [Filename + '_driver.obj',
-               Filename + '_song.obj',
-               Filename + '_player.obj'],
-              Filename + '.map',
-              Filename + '.sym') <> 0 then Die;
+      if Link(ConcatPaths([CacheDir, Filename + '.gb']),
+              [ConcatPaths([CacheDir, Filename + '_driver.obj']),
+               ConcatPaths([CacheDir, Filename + '_song.obj']),
+               ConcatPaths([CacheDir, Filename + '_player.obj'])],
+              ConcatPaths([CacheDir, Filename + '.map']),
+              ConcatPaths([CacheDir, Filename + '.sym'])) <> 0 then Die;
     end;
 
     // Fix
     if Mode = emGBS then
-      RectifyGBSFile(Filename + '.gbs')
+      RectifyGBSFile(ConcatPaths([CacheDir, Filename + '.gbs']))
     else
     begin
-      if (Fix(Filename + '.gb') <> 0) then
+      if (Fix(ConcatPaths([CacheDir, Filename + '.gb'])) <> 0) then
         Die;
     end;
 
@@ -743,26 +734,26 @@ begin
         DeleteFile(FilePath);
 
       case Mode of
-        emGBS: RenameSucceeded := RenameFile(Filename + '.gbs', FilePath);
-        else RenameSucceeded := RenameFile(Filename + '.gb', FilePath);
+        emGBS: RenameSucceeded := RenameFile(ConcatPaths([CacheDir, Filename + '.gbs']), FilePath);
+        else RenameSucceeded := RenameFile(ConcatPaths([CacheDir, Filename + '.gb']), FilePath);
       end;
 
       if not RenameSucceeded then
         raise ECodegenRenameException.Create(FilePath);
 
       {$ifdef DEVELOPMENT}
-      RenameFile(Filename + '.sym',        FilePath + '.sym');
-      RenameFile(Filename + '.map',        FilePath + '.map');
+      RenameFile(ConcatPaths([CacheDir, Filename + '.sym']),        FilePath + '.sym');
+      RenameFile(ConcatPaths([CacheDir, Filename + '.map']),        FilePath + '.map');
       {$endif}
       {$ifdef PRODUCTION}
-      DeleteFile(Filename + '.sym');
-      DeleteFile(Filename + '.map');
+      DeleteFile(ConcatPaths([CacheDir, Filename + '.sym']));
+      DeleteFile(ConcatPaths([CacheDir, Filename + '.map']));
       {$endif}
 
-      DeleteFile(Filename + '_driver.obj');
-      DeleteFile(Filename + '_song.obj');
-      DeleteFile(Filename + '_player.obj');
-      DeleteFile(Filename + '_gbs.obj');
+      DeleteFile(ConcatPaths([CacheDir, Filename + '_driver.obj']));
+      DeleteFile(ConcatPaths([CacheDir, Filename + '_song.obj']));
+      DeleteFile(ConcatPaths([CacheDir, Filename + '_player.obj']));
+      DeleteFile(ConcatPaths([CacheDir, Filename + '_gbs.obj']));
     end;
   finally
     Proc.Free;
