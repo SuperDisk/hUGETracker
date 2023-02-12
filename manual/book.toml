@@ -9,7 +9,7 @@ title = "hUGETracker manual"
 curly-quotes = true
 print = { enable = true }
 git-repository-url = "https://github.com/SuperDisk/hUGETracker"
-edit-url-template = "https://github.com/SuperDisk/hUGETracker/edit/master/manual/{path}"
+edit-url-template = "https://github.com/SuperDisk/hUGETracker/edit/hUGETracker/manual/src/{path}"
 site-url = "/hUGETracker/"
 
 [output.linkcheck]
