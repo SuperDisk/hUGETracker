@@ -1,6 +1,8 @@
 # Instruments
 
-**TODO: updated screenshot**
+![Screenshot of the instruments tab, editing a square instrument](../../img/square_inst_tab.png)
+![Screenshot of the instruments tab, editing a wave instrument](../../img/wave_inst_tab.png)
+![Screenshot of the instruments tab, editing a noise instrument](../../img/noise_inst_tab.png)
 
 Legend:
 

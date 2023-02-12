@@ -13,7 +13,8 @@ What are subpatterns useful for?
 - Changing timbre really quickly! (Use effect `9`)
 - And much more!
 
-**TODO: insert screenshot**
+![Screenshot of a subpattern with offsets and jumps](../img/subpattern1.png)
+![Screenshot of a subpattern with effects](../img/subpattern2.png)
 
 Rows are composed of three columns, similiar *but not identical* to the tracker grid's:
 - an offset,

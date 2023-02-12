@@ -1,1 +1,0 @@
-# VU meters and oscilloscopes

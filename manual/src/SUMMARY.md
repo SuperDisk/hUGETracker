@@ -5,7 +5,6 @@
 
 - [Glossary](hUGETracker/glossary.md)
 - [Interface](hUGETracker/interface.md)
-  - [VU meters and oscilloscopes](hUGETracker/vu-meters-oscilloscopes.md)
   - [Tracker grid](hUGETracker/tracker-grid.md)
   - [Order editor](hUGETracker/order-editor.md)
   - [Song components](hUGETracker/song-components.md)

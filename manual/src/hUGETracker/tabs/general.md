@@ -1,6 +1,6 @@
 # General
 
-**TODO: updated screenshot**
+![Screenshot of the general tab](../../img/general_tab.png)
 
 The **general** tab allows specifying the name, artist, and tempo of your song.
 Name and artist are limited to 255 characters each.
