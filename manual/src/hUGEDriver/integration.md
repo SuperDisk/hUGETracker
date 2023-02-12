@@ -60,7 +60,7 @@ The function `hUGE_dosound` plays a single tick of the current song when called.
 
 First and foremost, *how often* should that function be called? That actually depends on what the song expects!
 
-**TODO: screenshot**
+![Screenshot of the tempo settings](../img/timer_tempo.png)
 
 If the song does not use "timer playback", then `hUGE_dosound` must be called once per frame.
 This is usually done either by calling it from your game's main loop, or by calling it from your VBlank interrupt handler.

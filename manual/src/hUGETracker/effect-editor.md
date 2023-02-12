@@ -1,6 +1,6 @@
 # Effect editor
 
-**TODO: updated screenshots**
+![Screenshot of the effect editor](../img/effect_editor.png)
 
 The effect editor is a tool for creating effect values in the tracker grid.
 This is especially useful for things like panning, or master volume, which operate on a bit level and may be difficult to input manually.
