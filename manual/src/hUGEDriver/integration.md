@@ -2,18 +2,16 @@
 
 Integrating hUGEDriver into your project depends on what you are using.
 
-<details><summary>RGBDS (assembly)</summary>
+First, get the [release of hUGEDriver](https://github.com/SuperDisk/hUGEDriver/releases) that matches your version of hUGETracker.
 
-Get the [release of hUGEDriver](https://github.com/SuperDisk/hUGEDriver/releases) that matches your version of hUGETracker.
+### RGBDS (assembly)
 
 Import [`hUGEDriver.asm`](https://github.com/SuperDisk/hUGEDriver/blob/master/hUGEDriver.asm) and [`hUGE.inc`](https://github.com/SuperDisk/hUGEDriver/blob/master/include/hUGE.inc) (in the `include` directory) into your project (songs need the latter as well).
 You will additionally need [`hardware.inc`](https://github.com/gbdev/hardware.inc) 4.2 or later, if you don't already.
 
 Then, simply compile `hUGEDriver.asm` with the rest of your code, and you're done!
 
-</details>
-
-<details><summary>GBDK (C)</summary>
+### GBDK (C)
 
 hUGEDriver releases contain a pre-compiled `.lib` for use with GBDK-2020. Link it while compiling, include `hUGEDriver.h`, and you're done:
 
@@ -28,8 +26,6 @@ If you want to compile the driver yourself, a few extra steps are necessary.
 3. Convert the object file: `python tools\rgb2sdas.py -o hUGEDriver.o hUGEDriver.obj`
 4. Import `hUGEDriver.h` into your project
 5. Simply link `hUGEDriver.o` with the rest of your code, and you're done!
-
-</details>
 
 ## Usage
 

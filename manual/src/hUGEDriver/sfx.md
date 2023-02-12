@@ -12,17 +12,13 @@ The general outline of how to play sound effects and music is as follows:
 
 ## How-to
 
-<details><summary>RGBDS (assembly)</summary>
+### RGBDS (assembly)
 
 Call `hUGE_mute_channel` with `b` containing the channel's ID minus one (so between 0 and 3 inclusive), and `c` being `0` to release the channel, or `1` to unmute it.
 
-</details>
-
-<details><summary>GBDK (C)</summary>
+### GBDK (C)
 
 Call `hUGE_mute_channel`; see `hUGEDriver.h` for the corresponding arguments.
-
-</details>
 
 ## Notes
 
