@@ -6,7 +6,6 @@ If you're comfortable composing in a tracker interface, then you'll feel right a
 ![Screenshot of the hUGETracker main interface](../img/interface.png)
 
 Legend:
-1. [VU meters and oscilloscopes](./vu-meters-oscilloscopes.md)
 1. [Tracker grid](./tracker-grid.md)
 2. [Order editor](./order-editor.md)
 3. [Song components](./song-components.md)
