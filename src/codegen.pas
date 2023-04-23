@@ -692,7 +692,9 @@ begin
                   ['SONG_DESCRIPTOR=song',
                    'GBS_TITLE="'+PadRight(LeftStr(Song.Name, 32), 32)+'"',
                    'GBS_AUTHOR="'+PadRight(LeftStr(Song.Artist, 32), 32)+'"',
-                   'GBS_COPYRIGHT="'+PadRight(IntToStr(CurrentYear), 32)+'"']) <> 0 then Die;
+                   'GBS_COPYRIGHT="'+PadRight(IntToStr(CurrentYear), 32)+'"',
+                   'TIMER_MODULO='+IntToStr(IfThen(Song.TimerEnabled, Song.TimerDivider, 0)),
+                   'TIMER_CONTROL='+IntToStr(IfThen(Song.TimerEnabled, 4, 0))]) <> 0 then Die;
     end
     else if Assemble(ConcatPaths([CacheDir, Filename + '_player.obj']),
                      ConcatPaths([RuntimeDir, 'hUGEDriver', 'player.asm']),
