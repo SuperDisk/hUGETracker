@@ -463,7 +463,7 @@ begin
 
   OutSL.Add('include "include/hUGE.inc"');
   OutSL.Add('');
-  OutSL.Add('SECTION "Song Data", ROMX');
+  OutSL.Add('SECTION "'+DescriptorName+' Song Data", ROMX');
   OutSL.Add('');
 
   // Render song descriptor
