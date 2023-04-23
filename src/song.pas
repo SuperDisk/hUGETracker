@@ -733,7 +733,7 @@ end;
 function UpgradeSong(S: TSongV4): TSong;
 var
   SV6: TSongV6;
-  I: Integer;
+  I, K: Integer;
 
   function ConvertPattern(Pat: PPatternV1): PPattern;
   var
@@ -786,10 +786,13 @@ begin
     SV6.Instruments.All[I].SubpatternEnabled := False;
     BlankPattern(@SV6.Instruments.All[I].Subpattern);
   end;
-  // TODO: Port over noise macro
+
   for I := Low(S.Instruments.Noise) to High(S.Instruments.Noise) do begin
     SV6.Instruments.Noise[I].Subpattern := ConvertNoiseMacro(S.Instruments.Noise[I].NoiseMacro);
-    SV6.Instruments.Noise[I].SubpatternEnabled := True;
+    for K := Low(TNoiseMacro) to High(TNoiseMacro) do begin
+      if S.Instruments.Noise[I].NoiseMacro[K] <> 0 then
+        SV6.Instruments.Noise[I].SubpatternEnabled := True;
+    end;
   end;
 
   SV6.Waves := S.Waves;
