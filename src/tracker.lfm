@@ -1,7 +1,7 @@
 object frmTracker: TfrmTracker
   Left = 571
   Height = 1049
-  Top = 191
+  Top = 149
   Width = 1667
   AllowDropFiles = True
   Caption = 'hUGETracker'
@@ -191,13 +191,13 @@ object frmTracker: TfrmTracker
         ClientWidth = 1408
         ParentFont = False
         object Panel3: TPanel
-          Left = 287
+          Left = 293
           Height = 841
           Top = 0
-          Width = 1121
+          Width = 1115
           Align = alClient
           ClientHeight = 841
-          ClientWidth = 1121
+          ClientWidth = 1115
           ParentFont = False
           TabOrder = 0
           object HeaderControl1: THeaderControl
@@ -205,7 +205,7 @@ object frmTracker: TfrmTracker
             Height = 38
             Hint = 'Left click to mute, right click to solo'
             Top = 1
-            Width = 1119
+            Width = 1113
             DragReorder = False
             Images = ImageList2
             Sections = <            
@@ -252,7 +252,7 @@ object frmTracker: TfrmTracker
             Left = 1
             Height = 801
             Top = 39
-            Width = 1119
+            Width = 1113
             HorzScrollBar.Increment = 4
             HorzScrollBar.Page = 41
             HorzScrollBar.Smooth = True
@@ -264,7 +264,7 @@ object frmTracker: TfrmTracker
             Align = alClient
             BorderStyle = bsNone
             ClientHeight = 801
-            ClientWidth = 1119
+            ClientWidth = 1113
             ParentFont = False
             TabOrder = 1
             OnMouseWheelDown = ScrollBox1MouseWheelDown
@@ -350,6 +350,12 @@ object frmTracker: TfrmTracker
             47
             47
           )
+        end
+        object Splitter2: TSplitter
+          Left = 287
+          Height = 841
+          Top = 0
+          Width = 6
         end
       end
       object InstrumentTabSheet: TTabSheet

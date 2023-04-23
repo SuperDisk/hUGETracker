@@ -47,6 +47,7 @@ type
     MenuItem42: TMenuItem;
     MenuItem55: TMenuItem;
     RevertMenuItem: TMenuItem;
+    Splitter2: TSplitter;
     TBMOpenDialog: TOpenDialog;
     ToolButton11: TToolButton;
     LoopSongToolButton: TToolButton;
