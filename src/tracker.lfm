@@ -2173,12 +2173,12 @@ object frmTracker: TfrmTracker
     object MenuItem3: TMenuItem
       Caption = 'Help'
       object MenuItem15: TMenuItem
-        Action = HelpLookupManual
-        Visible = False
+        Caption = 'Open manual ...'
+        ImageIndex = 19
+        OnClick = MenuItem15Click
       end
       object N3: TMenuItem
         Caption = '-'
-        Visible = False
       end
       object SampleSongsMenuItem: TMenuItem
         Caption = 'Example Songs'

@@ -300,6 +300,7 @@ type
     TableGrid: TTableGrid;
     procedure FileSave1Execute(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
+    procedure MenuItem15Click(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
     procedure OrderEditStringGridMouseDown(Sender: TObject;
@@ -2030,6 +2031,12 @@ begin
     StartPlayback;
     HaltPlayback;
   end;
+end;
+
+procedure TfrmTracker.MenuItem15Click(Sender: TObject);
+begin
+  // TODO: Don't rely on ISSO hosting this! (thanks though buddy)
+  OpenURL('https://eldred.fr/hUGETracker');
 end;
 
 procedure TfrmTracker.MenuItem26Click(Sender: TObject);
