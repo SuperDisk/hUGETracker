@@ -461,7 +461,7 @@ var
 begin
   OutSL := TStringList.Create;
 
-  OutSL.Add('include "include/hUGE.inc"');
+  OutSL.Add('include "hUGE.inc"');
   OutSL.Add('');
   OutSL.Add('SECTION "'+DescriptorName+' Song Data", ROMX');
   OutSL.Add('');
