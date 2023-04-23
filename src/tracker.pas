@@ -9,7 +9,7 @@ uses
   FileUtil, math, Instruments, Song, Utils, Constants, sound, vars, machine,
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
-  bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils, Rtti,
+  bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils,
   Types, Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview, findreplace;
 
 // TODO: Move to config file?
@@ -301,6 +301,8 @@ type
     procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
+    procedure OrderEditStringGridMouseDown(Sender: TObject;
+      Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RevertMenuItemClick(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
@@ -2058,6 +2060,15 @@ begin
         Exit;
       end;
     end;
+  end;
+end;
+
+procedure TfrmTracker.OrderEditStringGridMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = mbRight then begin;
+    OrderEditStringGrid.MouseDown(mbLeft, [], X, Y);
+    OrderEditStringGrid.MouseUp(mbLeft, [], X, Y);
   end;
 end;
 
