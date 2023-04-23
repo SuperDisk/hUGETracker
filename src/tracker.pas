@@ -2318,6 +2318,8 @@ begin
   for X := 0 to 3 do
     Song.Patterns.GetOrCreateNew(Highest+X);
 
+  OrderEditStringGrid.Row := OrderEditStringGrid.Row+1;
+
   ReloadPatterns;
 end;
 
@@ -2325,6 +2327,8 @@ procedure TfrmTracker.MenuItem18Click(Sender: TObject);
 begin
   with OrderEditStringGrid do
     InsertRowWithValues(Row+1, ['', '0', '0', '0', '0']);
+
+  OrderEditStringGrid.Row := OrderEditStringGrid.Row+1;
 
   ReloadPatterns;
 end;
@@ -2366,6 +2370,8 @@ begin
     for X := 0 to 3 do
       Song.Patterns.GetOrCreateNew(Highest+X)^ :=
         Song.Patterns.KeyData[StrToInt(Rows[Row][X+1])]^;
+
+    Row := Row+1;
   end;
 
   ReloadPatterns;
