@@ -17,6 +17,7 @@ type
     FDisplayOrderRowNumbersAsHex: Boolean;
     FPreviewWhenBumping: Boolean;
     FPreviewWhenPlacing: Boolean;
+    FDrawWaveformGrid: Boolean;
     SettingsFile: TINIFile;
 
     FPatternEditorFontSize: Integer;
@@ -24,6 +25,7 @@ type
 
     procedure SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
     procedure SetDisplayRowNumbersAsHex(AValue: Boolean);
+    procedure SetDrawWaveformGrid(AValue: Boolean);
     procedure SetPatternEditorFontSize(AValue: Integer);
     procedure SetPreviewWhenBumping(AValue: Boolean);
     procedure SetPreviewWhenPlacing(AValue: Boolean);
@@ -37,6 +39,7 @@ type
     property PreviewWhenBumping: Boolean read FPreviewWhenBumping write SetPreviewWhenBumping;
     property DisplayRowNumbersAsHex: Boolean read FDisplayRowNumbersAsHex write SetDisplayRowNumbersAsHex;
     property DisplayOrderRowNumbersAsHex: Boolean read FDisplayOrderRowNumbersAsHex write SetDisplayOrderRowNumbersAsHex;
+    property DrawWaveformGrid: Boolean read FDrawWaveformGrid write SetDrawWaveformGrid;
 
     constructor Create;
   end;
@@ -65,6 +68,12 @@ procedure TTrackerSettings.SetDisplayRowNumbersAsHex(AValue: Boolean);
 begin
   FDisplayRowNumbersAsHex:=AValue;
   SettingsFile.WriteBool('hUGETracker', 'DisplayRowNumbersAsHex', AValue);
+end;
+
+procedure TTrackerSettings.SetDrawWaveformGrid(AValue: Boolean);
+begin
+  FDrawWaveformGrid:=AValue;
+  SettingsFile.WriteBool('hUGETracker', 'DrawWaveformGrid', AValue);
 end;
 
 procedure TTrackerSettings.SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
@@ -108,6 +117,7 @@ begin
   FPreviewWhenBumping := SettingsFile.ReadBool('hUGETracker', 'PreviewWhenBumping', False);
   FDisplayRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayRowNumbersAsHex', False);
   FDisplayOrderRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayOrderRowNumbersAsHex', False);
+  FDrawWaveformGrid := SettingsFile.ReadBool('hUGETracker', 'DrawWaveformGrid', False);
 end;
 
 finalization

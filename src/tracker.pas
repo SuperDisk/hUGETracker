@@ -522,7 +522,7 @@ type
 
     function CheckUnsavedChanges: Boolean;
 
-    procedure DrawWaveform(PB: TPaintBox; Wave: TWave);
+    procedure DrawWaveform(PB: TPaintBox; Wave: TWave; DrawGrid: Boolean);
     procedure DrawEnvelope(PB: TPaintBox);
     procedure DrawVizualizer(PB: TPaintBox; Channel: Integer);
 
@@ -681,11 +681,12 @@ begin
   end;
 end;
 
-procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave);
+procedure TfrmTracker.DrawWaveform(PB: TPaintBox; Wave: TWave; DrawGrid: Boolean);
 var
   Interval: Single;
   I: Integer;
   W, H : Integer;
+  X, Y: Integer;
 begin
   W := PB.Width;
   H := PB.Height-4;
@@ -701,6 +702,13 @@ begin
     for I := Low(Wave) to High(Wave) do
       LineTo(Round(I*Interval), H-Trunc((Wave[I]/$F)*H)+2);
     LineTo(W, H-Trunc((Wave[0]/$F)*H));
+
+    if DrawGrid then begin
+      Pen.Color := clGray;
+      for X := 0 to 32 do
+        for Y := 0 to $F do
+          Ellipse(Trunc((X/32)*W), Trunc((Y/$F)*H)+1, Trunc((X/32)*W)+2, Trunc((Y/$F)*H)+3);
+    end;
   end;
 end;
 
@@ -1321,7 +1329,7 @@ begin
     end;
   end
   else if WaveformCombobox.ItemIndex > -1 then
-    DrawWaveform(WavePaintbox, Song.Waves[WaveformCombobox.ItemIndex]);
+    DrawWaveform(WavePaintbox, Song.Waves[WaveformCombobox.ItemIndex], False);
 end;
 
 procedure TfrmTracker.WaveVisualizerPaint(Sender: TObject);
@@ -2764,7 +2772,7 @@ end;
 
 procedure TfrmTracker.WaveEditPaintBoxPaint(Sender: TObject);
 begin
-  DrawWaveform(WaveEditPaintBox, CurrentWave^);
+  DrawWaveform(WaveEditPaintBox, CurrentWave^, TrackerSettings.DrawWaveformGrid);
 end;
 
 procedure TfrmTracker.LengthEnabledCheckboxChange(Sender: TObject);
