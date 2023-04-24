@@ -188,13 +188,13 @@
     </PublishOptions>
     <RunParams>
       <local>
-        <CommandLineParams Value="&quot;C:\Projects\GB-Stuff\uge\Resources\Sample Songs\raphaelgoulart - The Murderous Funk Machine (intro).uge&quot;"/>
+        <LaunchingApplication Use="True"/>
       </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
         <Mode0 Name="default">
           <local>
-            <CommandLineParams Value="&quot;C:\Projects\GB-Stuff\uge\Resources\Sample Songs\raphaelgoulart - The Murderous Funk Machine (intro).uge&quot;"/>
+            <LaunchingApplication Use="True"/>
           </local>
         </Mode0>
       </Modes>

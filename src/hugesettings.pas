@@ -5,7 +5,7 @@ unit hUGESettings;
 interface
 
 uses
-  Classes, SysUtils, INIFiles, Constants;
+  Classes, SysUtils, INIFiles, Constants, Forms, Dialogs;
 
 type
 
@@ -51,8 +51,48 @@ var
 
 implementation
 
-procedure InitializeTrackerSettings;
+procedure SetupDirectoryParameter(Param: String; Default: String; out Variable: ShortString);
+var
+  S: String;
 begin
+  Variable := Default;
+
+  S := Application.GetOptionValue(Param);
+  if S <> '' then begin
+    if not DirectoryExists(S) then
+      ShowMessage('Specified '+Param+' does not exist. Using '+Default+' instead.')
+    else
+      Variable := S;
+  end;
+end;
+
+procedure InitializeTrackerSettings;
+var
+  XDGConfigDir, XDGCacheDir: String;
+begin
+  {$ifdef MSWINDOWS}
+  SetupDirectoryParameter('conf_dir', '.', ConfDir);
+  SetupDirectoryParameter('cache_dir', '.', CacheDir);
+  SetupDirectoryParameter('runtime_dir', '.', RuntimeDir);
+  {$endif}
+
+  {$if defined(LINUX) or defined(FREEBSD) or defined(OPENBSD)}
+  XDGConfigDir := GetEnvironmentVariable('XDG_CONFIG_HOME');
+  if XDGConfigDir = '' then
+    XDGConfigDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.config', 'hUGETracker']);
+
+  XDGCacheDir := GetEnvironmentVariable('XDG_CACHE_HOME');
+  if XDGCacheDir = '' then
+    XDGCacheDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.cache', 'hUGETracker']);
+
+  if not DirectoryExists(XDGConfigDir) then CreateDir(XDGConfigDir);
+  if not DirectoryExists(XDGCacheDir) then CreateDir(XDGCacheDir);
+
+  SetupDirectoryParameter('conf_dir', XDGConfigDir, ConfDir);
+  SetupDirectoryParameter('cache_dir', XDGCacheDir, CacheDir);
+  SetupDirectoryParameter('runtime_dir', '.', RuntimeDir);
+  {$endif}
+
   TrackerSettings := TTrackerSettings.Create;
 end;
 

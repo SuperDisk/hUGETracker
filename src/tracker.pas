@@ -1364,7 +1364,7 @@ begin
 
   MessageDlg('Error',
     'An exception in hUGETracker has occured.' + LineEnding +
-    'Your song has been backed up to the hUGETracker folder, so don''t worry!' + LineEnding+LineEnding+
+    'Your song has been backed up to '+OutName+', so don''t worry!' + LineEnding+LineEnding+
     'Please report this issue on GitHub, or contact the maintainer directly via Discord or Email.'+LineEnding+LineEnding+
     'Email: '+MaintainerEmail+LineEnding+
     'Discord: '+MaintainerDiscord+LineEnding+LineEnding+

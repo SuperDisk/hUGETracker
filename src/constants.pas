@@ -145,7 +145,7 @@ var
   Ch4FreqToNoteCodeMap: TIntToIntMap;
 
   ConfDir: String = '.'; // Directory for configuration (options.ini)
-  CacheDir: String = '.'; // Directory for crash backups
+  CacheDir: String = '.'; // Directory for crash backups, intermediate assembled files
   RuntimeDir: String = '.'; // Directory for runtime files (fonts, halt.gb, hUGEDriver)
 
 function NoteCodeToString(NoteCode: Integer): String;

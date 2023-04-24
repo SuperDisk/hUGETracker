@@ -675,19 +675,19 @@ begin
     // Assemble
     if Mode = emPreview then
     begin
-      if Assemble(ConcatPaths([CacheDir, Filename + '_driver.obj']),
+      if Assemble(Filename + '_driver.obj',
                   ConcatPaths([RuntimeDir, 'hUGEDriver', 'hUGEDriver.asm']),
                   ['PREVIEW_MODE']) <> 0 then Die;
     end
     else if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', []) <> 0 then Die;
 
-    if Assemble(ConcatPaths([CacheDir, Filename + '_song.obj']),
+    if Assemble(Filename + '_song.obj',
                 ConcatPaths([RuntimeDir, 'hUGEDriver', 'song.asm']),
                 ['SONG_DESCRIPTOR=song', 'TICKS='+IntToStr(Song.TicksPerRow)]) <> 0 then Die;
 
     if Mode = emGBS then
     begin
-      if Assemble(ConcatPaths([CacheDir, Filename + '_gbs.obj']),
+      if Assemble(Filename + '_gbs.obj',
                   ConcatPaths([RuntimeDir, 'hUGEDriver', 'gbs.asm']),
                   ['SONG_DESCRIPTOR=song',
                    'GBS_TITLE="'+PadRight(LeftStr(Song.Name, 32), 32)+'"',
@@ -696,7 +696,7 @@ begin
                    'TIMER_MODULO='+IntToStr(IfThen(Song.TimerEnabled, Song.TimerDivider, 0)),
                    'TIMER_CONTROL='+IntToStr(IfThen(Song.TimerEnabled, 4, 0))]) <> 0 then Die;
     end
-    else if Assemble(ConcatPaths([CacheDir, Filename + '_player.obj']),
+    else if Assemble(Filename + '_player.obj',
                      ConcatPaths([RuntimeDir, 'hUGEDriver', 'player.asm']),
                      ['SONG_DESCRIPTOR=song',
                       IfThen(Song.TimerEnabled, 'USE_TIMER=1', ''),
@@ -705,27 +705,27 @@ begin
     // Link
     if Mode = emGBS then
     begin
-      if Link(ConcatPaths([CacheDir, Filename + '.gbs']),
-              [ConcatPaths([CacheDir, Filename + '_driver.obj']),
-               ConcatPaths([CacheDir, Filename + '_song.obj']),
-               ConcatPaths([CacheDir, Filename + '_gbs.obj'])]) <> 0 then Die;
+      if Link(Filename + '.gbs',
+              [Filename + '_driver.obj',
+               Filename + '_song.obj',
+               Filename + '_gbs.obj']) <> 0 then Die;
     end
     else
     begin
-      if Link(ConcatPaths([CacheDir, Filename + '.gb']),
-              [ConcatPaths([CacheDir, Filename + '_driver.obj']),
-               ConcatPaths([CacheDir, Filename + '_song.obj']),
-               ConcatPaths([CacheDir, Filename + '_player.obj'])],
-              ConcatPaths([CacheDir, Filename + '.map']),
-              ConcatPaths([CacheDir, Filename + '.sym'])) <> 0 then Die;
+      if Link(Filename + '.gb',
+              [Filename + '_driver.obj',
+               Filename + '_song.obj',
+               Filename + '_player.obj'],
+              Filename + '.map',
+              Filename + '.sym') <> 0 then Die;
     end;
 
     // Fix
     if Mode = emGBS then
-      RectifyGBSFile(ConcatPaths([CacheDir, Filename + '.gbs']))
+      RectifyGBSFile(Filename + '.gbs')
     else
     begin
-      if (Fix(ConcatPaths([CacheDir, Filename + '.gb'])) <> 0) then
+      if (Fix(Filename + '.gb') <> 0) then
         Die;
     end;
 
@@ -736,26 +736,26 @@ begin
         DeleteFile(FilePath);
 
       case Mode of
-        emGBS: RenameSucceeded := RenameFile(ConcatPaths([CacheDir, Filename + '.gbs']), FilePath);
-        else RenameSucceeded := RenameFile(ConcatPaths([CacheDir, Filename + '.gb']), FilePath);
+        emGBS: RenameSucceeded := RenameFile(Filename + '.gbs', FilePath);
+        else RenameSucceeded := RenameFile(Filename + '.gb', FilePath);
       end;
 
       if not RenameSucceeded then
         raise ECodegenRenameException.Create(FilePath);
 
       {$ifdef DEVELOPMENT}
-      RenameFile(ConcatPaths([CacheDir, Filename + '.sym']),        FilePath + '.sym');
-      RenameFile(ConcatPaths([CacheDir, Filename + '.map']),        FilePath + '.map');
+      RenameFile(Filename + '.sym', FilePath + '.sym');
+      RenameFile(Filename + '.map', FilePath + '.map');
       {$endif}
       {$ifdef PRODUCTION}
-      DeleteFile(ConcatPaths([CacheDir, Filename + '.sym']));
-      DeleteFile(ConcatPaths([CacheDir, Filename + '.map']));
+      DeleteFile(Filename + '.sym');
+      DeleteFile(Filename + '.map');
       {$endif}
 
-      DeleteFile(ConcatPaths([CacheDir, Filename + '_driver.obj']));
-      DeleteFile(ConcatPaths([CacheDir, Filename + '_song.obj']));
-      DeleteFile(ConcatPaths([CacheDir, Filename + '_player.obj']));
-      DeleteFile(ConcatPaths([CacheDir, Filename + '_gbs.obj']));
+      DeleteFile(Filename + '_driver.obj');
+      DeleteFile(Filename + '_song.obj');
+      DeleteFile(Filename + '_player.obj');
+      DeleteFile(Filename + '_gbs.obj');
     end;
   finally
     Proc.Free;
