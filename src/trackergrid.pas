@@ -392,9 +392,9 @@ begin
   for I := 0 to NumColumns do
     Canvas.Line((ColumnWidth*I) - 1, 0, (ColumnWidth*I) - 1, Height);
 
-  RenderSelectedArea;
   if DraggingSelection then
     Canvas.DrawFocusRect(SelectionsToRect(DragSelCursor, DragSelOther));
+  RenderSelectedArea;
 end;
 
 procedure TTrackerGrid.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
@@ -822,22 +822,13 @@ begin
 end;
 
 procedure TTrackerGrid.RenderSelectedArea;
-var
-  R: TRect;
 begin
-    R := SelectionsToRect(Cursor, Other);
-
-    with Cursor do
-      BitBlt(
-        Canvas.Handle,
-        R.Left,
-        R.Top,
-        R.Width,
-        R.Height,
-        Canvas.Handle,
-        R.Left,
-        R.Top,
-        DSTINVERT);
+    Canvas.Pen.Width := 1;
+    Canvas.Pen.Color := clBlack;
+    Canvas.Brush.Color := clWhite;
+    Canvas.Pen.Mode := pmXOR;
+    Canvas.Rectangle(SelectionsToRect(Cursor, Other));
+    Canvas.Pen.Mode := pmCopy;
 end;
 
 procedure TTrackerGrid.ClampCursors;
