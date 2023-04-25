@@ -13,6 +13,9 @@ uses
 {$ifdef MSWINDOWS}
   Windows,
 {$endif}
+{$ifdef LCLQT5}
+  qt5,
+{$endif}
   FileUtil,
   SysUtils,
   Forms,
@@ -36,6 +39,8 @@ function PangoCairoFontMapGetDefault: Pointer; cdecl; External 'libpangocairo-1.
 procedure PangoFcFontMapConfigChanged(FcFontMap: Pointer); cdecl; External 'libpangoft2-1.0.so' Name 'pango_fc_font_map_config_changed';
 {$endif}
 
+var
+  PixelitePath: WideString;
 begin
   ReturnNilIfGrowHeapFails := False;
 
@@ -65,6 +70,11 @@ begin
       DebugLn('[ERROR] Couldn''t load Pixelite!!!');
 
     PangoFcFontMapConfigChanged(PangoCairoFontMapGetDefault);
+  {$endif}
+
+  {$ifdef LCLQT5}
+    PixelitePath := WideString(ConcatPaths([RuntimeDir, 'PixeliteTTF.ttf']));
+    QFontDatabase_addApplicationFont(@PixelitePath);
   {$endif}
 
   Application.Scaled:=True;
