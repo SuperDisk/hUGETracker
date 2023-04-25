@@ -68,11 +68,12 @@ object frmOptions: TfrmOptions
             'Display pattern row numbers in hexadecimal notation'
             'Display order row numbers in hexadecimal notation'
             'Display grid on waveform editor'
+            'Display tabs vertically'
           )
           ItemHeight = 28
           TabOrder = 0
           Data = {
-            06000000000000000000
+            0700000000000000000000
           }
         end
       end
@@ -104,13 +105,13 @@ object frmOptions: TfrmOptions
               MinSize = 13
               MaxSize = 256
               Title.Caption = 'Key'
-              Width = 235
+              Width = 234
             end          
             item
               MinSize = 13
               MaxSize = 256
               Title.Caption = 'Note'
-              Width = 235
+              Width = 234
             end>
           DefaultColWidth = 154
           FixedCols = 0
@@ -120,8 +121,8 @@ object frmOptions: TfrmOptions
           TabOrder = 0
           OnValidateEntry = KeyMapStringGridValidateEntry
           ColWidths = (
-            235
-            235
+            234
+            234
           )
         end
         object Button2: TButton
@@ -190,9 +191,9 @@ object frmOptions: TfrmOptions
         TabOrder = 0
         object SampleTrackerGridPanel: TPanel
           Left = 3
-          Height = 733
+          Height = 729
           Top = 3
-          Width = 250
+          Width = 246
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0

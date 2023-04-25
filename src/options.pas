@@ -185,6 +185,7 @@ begin
   TrackerSettings.DisplayRowNumbersAsHex := CheckListBox1.Checked[3];
   TrackerSettings.DisplayOrderRowNumbersAsHex := CheckListBox1.Checked[4];
   TrackerSettings.DrawWaveformGrid := CheckListBox1.Checked[5];
+  TrackerSettings.VerticalTabs := CheckListBox1.Checked[6];
 end;
 
 procedure TfrmOptions.FormCreate(Sender: TObject);
@@ -209,6 +210,7 @@ begin
   CheckListBox1.Checked[3] := TrackerSettings.DisplayRowNumbersAsHex;
   CheckListBox1.Checked[4] := TrackerSettings.DisplayOrderRowNumbersAsHex;
   CheckListBox1.Checked[5] := TrackerSettings.DrawWaveformGrid;
+  CheckListBox1.Checked[6] := TrackerSettings.VerticalTabs;
 
   SamplePatternMap := TPatternMap.Create;
   SamplePattern := SamplePatternMap.GetOrCreateNew(0);

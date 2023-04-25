@@ -18,6 +18,7 @@ type
     FPreviewWhenBumping: Boolean;
     FPreviewWhenPlacing: Boolean;
     FDrawWaveformGrid: Boolean;
+    FVerticalTabs: Boolean;
     SettingsFile: TINIFile;
 
     FPatternEditorFontSize: Integer;
@@ -26,6 +27,7 @@ type
     procedure SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
     procedure SetDisplayRowNumbersAsHex(AValue: Boolean);
     procedure SetDrawWaveformGrid(AValue: Boolean);
+    procedure SetVerticalTabs(AValue: Boolean);
     procedure SetPatternEditorFontSize(AValue: Integer);
     procedure SetPreviewWhenBumping(AValue: Boolean);
     procedure SetPreviewWhenPlacing(AValue: Boolean);
@@ -40,6 +42,7 @@ type
     property DisplayRowNumbersAsHex: Boolean read FDisplayRowNumbersAsHex write SetDisplayRowNumbersAsHex;
     property DisplayOrderRowNumbersAsHex: Boolean read FDisplayOrderRowNumbersAsHex write SetDisplayOrderRowNumbersAsHex;
     property DrawWaveformGrid: Boolean read FDrawWaveformGrid write SetDrawWaveformGrid;
+    property VerticalTabs: Boolean read FVerticalTabs write SetVerticalTabs;
 
     constructor Create;
   end;
@@ -116,6 +119,12 @@ begin
   SettingsFile.WriteBool('hUGETracker', 'DrawWaveformGrid', AValue);
 end;
 
+procedure TTrackerSettings.SetVerticalTabs(AValue: Boolean);
+begin
+  FVerticalTabs:=AValue;
+  SettingsFile.WriteBool('hUGETracker', 'VerticalTabs', AValue);
+end;
+
 procedure TTrackerSettings.SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
 begin
   FDisplayOrderRowNumbersAsHex:=AValue;
@@ -158,6 +167,7 @@ begin
   FDisplayRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayRowNumbersAsHex', False);
   FDisplayOrderRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayOrderRowNumbersAsHex', False);
   FDrawWaveformGrid := SettingsFile.ReadBool('hUGETracker', 'DrawWaveformGrid', False);
+  FVerticalTabs := SettingsFile.ReadBool('hUGETracker', 'VerticalTabs', False);
 end;
 
 finalization

@@ -1501,6 +1501,12 @@ begin
   OrderEditStringGrid.ColWidths[0]:=50;
   OrderEditStringGrid.DrawHexAutonumbering := TrackerSettings.DisplayOrderRowNumbersAsHex;
 
+  // Set tab position
+  if TrackerSettings.VerticalTabs then
+    PageControl1.TabPosition := tpLeft
+  else
+    PageControl1.TabPosition := tpTop;
+
   // Get the emulator ready to make sound...
   EnableSound;
   HaltPlayback;
@@ -2399,6 +2405,11 @@ begin
 
   OscilloscopeUpdateTimer.Enabled := TrackerSettings.UseScopes;
   ScopesPanel.Visible := TrackerSettings.UseScopes;
+
+  if TrackerSettings.VerticalTabs then
+    PageControl1.TabPosition := tpLeft
+  else
+    PageControl1.TabPosition := tpTop;
 
   RecreateRowNumbers;
   TrackerGrid.Invalidate;

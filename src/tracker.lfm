@@ -412,7 +412,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 9
             BorderSpacing.Bottom = 9
             Caption = 'Instrument'
-            ClientHeight = 346
+            ClientHeight = 326
             ClientWidth = 355
             ParentFont = False
             TabOrder = 0
@@ -634,7 +634,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 9
             BorderSpacing.Bottom = 9
             Caption = 'Envelope'
-            ClientHeight = 170
+            ClientHeight = 150
             ClientWidth = 742
             ParentFont = False
             TabOrder = 1
@@ -689,16 +689,16 @@ object frmTracker: TfrmTracker
               Top = 0
               Width = 346
               BevelOuter = bvLowered
-              ClientHeight = 129
-              ClientWidth = 342
+              ClientHeight = 133
+              ClientWidth = 346
               ParentFont = False
               TabOrder = 1
               object EnvelopePaintbox: TPaintBox
                 Left = 1
-                Height = 127
+                Height = 131
                 Hint = 'Preview of the volume envelope'
                 Top = 1
-                Width = 340
+                Width = 344
                 Align = alClient
                 ParentFont = False
                 OnPaint = EnvelopePaintboxPaint
@@ -738,7 +738,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 9
             BorderSpacing.Bottom = 9
             Caption = 'Square'
-            ClientHeight = 213
+            ClientHeight = 193
             ClientWidth = 405
             ParentFont = False
             TabOrder = 2
@@ -869,7 +869,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 9
             BorderSpacing.Bottom = 9
             Caption = 'Wave'
-            ClientHeight = 213
+            ClientHeight = 193
             ClientWidth = 377
             ParentFont = False
             TabOrder = 3
@@ -929,16 +929,16 @@ object frmTracker: TfrmTracker
               Top = 102
               Width = 348
               BevelOuter = bvLowered
-              ClientHeight = 72
-              ClientWidth = 344
+              ClientHeight = 76
+              ClientWidth = 348
               ParentFont = False
               TabOrder = 1
               object WavePaintbox: TPaintBox
                 Left = 1
-                Height = 70
+                Height = 74
                 Hint = 'Preview of the waveform associated with this instrument'
                 Top = 1
-                Width = 342
+                Width = 346
                 Align = alClient
                 Color = clBlack
                 ParentColor = False
@@ -1864,7 +1864,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 589
+      Left = 585
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1875,17 +1875,17 @@ object frmTracker: TfrmTracker
       ShowHint = True
     end
     object ToolButton2: TToolButton
-      Left = 140
+      Left = 139
       Top = 0
       Action = PlayCursorAction
     end
     object ToolButton4: TToolButton
-      Left = 171
+      Left = 170
       Top = 0
       Action = StopAction
     end
     object ExportGBButton: TToolButton
-      Left = 245
+      Left = 242
       Hint = 'Export the song as a standalone ROM'
       Top = 0
       AutoSize = True
@@ -1901,21 +1901,21 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 202
+      Left = 201
       Height = 28
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 1280
+      Left = 1274
       Height = 28
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object OctaveSpinEdit: TSpinEdit
-      Left = 724
+      Left = 718
       Height = 32
       Hint = 'The octave offset for entering new notes'
       Top = 0
@@ -1926,14 +1926,14 @@ object frmTracker: TfrmTracker
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 659
+      Left = 655
       Height = 28
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 669
+      Left = 663
       Height = 28
       Top = 0
       Width = 55
@@ -1944,7 +1944,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object Label23: TLabel
-      Left = 807
+      Left = 801
       Height = 28
       Top = 0
       Width = 90
@@ -1955,7 +1955,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object InstrumentComboBox: TComboBox
-      Left = 897
+      Left = 891
       Height = 30
       Hint = 'The selected instrument for new notes'
       Top = 0
@@ -1973,7 +1973,7 @@ object frmTracker: TfrmTracker
       Text = '(no instrument)'
     end
     object Label24: TLabel
-      Left = 1171
+      Left = 1165
       Height = 28
       Top = 0
       Width = 45
@@ -1984,7 +1984,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object StepSpinEdit: TSpinEdit
-      Left = 1216
+      Left = 1210
       Height = 32
       Hint = 'How many rows to step down after entering a new note'
       Top = 0
@@ -1995,12 +1995,12 @@ object frmTracker: TfrmTracker
       TabOrder = 2
     end
     object ToolButton3: TToolButton
-      Left = 109
+      Left = 108
       Top = 0
       Action = PlayStartAction
     end
     object ExportGBSButton: TToolButton
-      Left = 348
+      Left = 345
       Hint = 'Export the song as a GBS soundtrack'
       Top = 0
       Caption = 'Export GBS'
@@ -2008,14 +2008,14 @@ object frmTracker: TfrmTracker
       OnClick = ExportGBSButtonClick
     end
     object ToolButton5: TToolButton
-      Left = 583
+      Left = 580
       Height = 28
       Top = 0
       Caption = 'ToolButton5'
       Style = tbsDivider
     end
     object ToolButton10: TToolButton
-      Left = 459
+      Left = 456
       Hint = 'Export the song as WAV or MP3'
       Top = 0
       Caption = 'Render Song'
@@ -2023,14 +2023,14 @@ object frmTracker: TfrmTracker
       OnClick = ToolButton10Click
     end
     object ToolButton11: TToolButton
-      Left = 239
+      Left = 237
       Height = 28
       Top = 0
       Caption = 'ToolButton11'
       Style = tbsDivider
     end
     object LoopSongToolButton: TToolButton
-      Left = 208
+      Left = 206
       Top = 0
       ImageIndex = 87
       OnClick = LoopSongToolButtonClick
