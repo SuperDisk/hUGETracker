@@ -9,11 +9,11 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-22.04
+          - ubuntu-20.04
           - macos-10.15
           - windows-2019
         include:
-          - os: ubuntu-22.04
+          - os: ubuntu-20.04
             name: Linux
           - os: macos-10.15
             name: Mac
@@ -26,11 +26,17 @@ jobs:
         if: matrix.name == 'Linux'
         run: |
           sudo apt -qq update
-          sudo apt install -yq lazarus libsdl2-dev bison
+          sudo apt install -yq libsdl2-dev bison
           curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.6.1/rgbds-0.6.1.tar.gz'
           tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
           cd rgbds
           make -j4 rgbasm rgblink rgbfix Q=
+
+          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/lazarus-project_2.2.6-0_amd64.deb
+          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/fpc-laz_3.2.2-210709_amd64.deb
+          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/fpc-src_3.2.2-210709_amd64.deb
+
+          sudo apt install -yq ./fpc-laz_3.2.2-210709_amd64.deb ./fpc-src_3.2.2-210709_amd64.deb ./lazarus-project_2.2.6-0_amd64.deb
 
       - name: Install macOS dependencies
         if: matrix.name == 'Mac'
