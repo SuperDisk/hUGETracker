@@ -53,6 +53,9 @@ type
     Splitter2: TSplitter;
     TBMOpenDialog: TOpenDialog;
     FUROpenDialog: TOpenDialog;
+    TicksPerRowSpinEdit1: TSpinEdit;
+    TicksPerRowSpinEdit2: TSpinEdit;
+    TicksPerRowSpinEdit3: TSpinEdit;
     ToolButton11: TToolButton;
     LoopSongToolButton: TToolButton;
     ToolButton12: TToolButton;
@@ -313,6 +316,9 @@ type
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RevertMenuItemClick(Sender: TObject);
     procedure SingleStepActionExecute(Sender: TObject);
+    procedure TicksPerRowSpinEdit1Change(Sender: TObject);
+    procedure TicksPerRowSpinEdit2Change(Sender: TObject);
+    procedure TicksPerRowSpinEdit3Change(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
     procedure LoopSongToolButtonClick(Sender: TObject);
@@ -603,7 +609,11 @@ begin
   ArtistEdit.Text := Song.Artist;
   CommentMemo.Text := Song.Comment;
 
-  TicksPerRowSpinEdit.Value := Song.TicksPerRow;
+  TicksPerRowSpinEdit.Value := Song.TicksPerRow[0];
+  TicksPerRowSpinEdit1.Value := Song.TicksPerRow[1];
+  TicksPerRowSpinEdit2.Value := Song.TicksPerRow[2];
+  TicksPerRowSpinEdit3.Value := Song.TicksPerRow[3];
+
   TimerDividerSpinEdit.Value := Song.TimerDivider;
   TimerEnabledCheckBox.Checked := Song.TimerEnabled;
 
@@ -685,7 +695,7 @@ begin
   else
     TimerHZ := 59.727500569606; // VBlank hz
 
-  BeatHZ := (TimerHZ / Song.TicksPerRow) / 4; // 4 rows comprise one beat
+  BeatHZ := (TimerHZ / Song.TicksPerRow[0]) / 4; // 4 rows comprise one beat
   TempoBPMLabel.Caption := '~'+FormatFloat('###.##', BeatHZ * 60)+' BPM';
 end;
 
@@ -1563,7 +1573,10 @@ begin
   CreateKeymap;
 
   // Initialize ticks per row
-  Song.TicksPerRow := TicksPerRowSpinEdit.Value;
+  Song.TicksPerRow[0] := TicksPerRowSpinEdit.Value;
+  Song.TicksPerRow[1] := TicksPerRowSpinEdit1.Value;
+  Song.TicksPerRow[2] := TicksPerRowSpinEdit2.Value;
+  Song.TicksPerRow[3] := TicksPerRowSpinEdit3.Value;
 
   // Initialize order table (InitializeSong creates the default order table)
   CopyOrderMatrixToOrderGrid;
@@ -2722,7 +2735,25 @@ end;
 
 procedure TfrmTracker.TicksPerRowSpinEditChange(Sender: TObject);
 begin
-  Song.TicksPerRow := TicksPerRowSpinEdit.Value;
+  Song.TicksPerRow[0] := TicksPerRowSpinEdit.Value;
+  UpdateBPMLabel
+end;
+
+procedure TfrmTracker.TicksPerRowSpinEdit1Change(Sender: TObject);
+begin
+  Song.TicksPerRow[1] := TicksPerRowSpinEdit1.Value;
+  UpdateBPMLabel
+end;
+
+procedure TfrmTracker.TicksPerRowSpinEdit2Change(Sender: TObject);
+begin
+  Song.TicksPerRow[2] := TicksPerRowSpinEdit2.Value;
+  UpdateBPMLabel
+end;
+
+procedure TfrmTracker.TicksPerRowSpinEdit3Change(Sender: TObject);
+begin
+  Song.TicksPerRow[3] := TicksPerRowSpinEdit3.Value;
   UpdateBPMLabel
 end;
 
