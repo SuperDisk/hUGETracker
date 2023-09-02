@@ -105,9 +105,30 @@ type
     Routines: TRoutineBank;
   end;
 
+  TSongV7 = packed record
+    Version: Integer;
+
+    Name: ShortString;
+    Artist: ShortString;
+    Comment: ShortString;
+
+    Instruments: TInstrumentCollection;
+    Waves: TWaveBank;
+
+    TicksPerRow: packed array[0..3] of Integer;
+
+    TimerEnabled: Boolean;
+    TimerDivider: Integer;
+
+    Patterns: TPatternMap;
+    OrderMatrix: TOrderMatrix;
+
+    Routines: TRoutineBank;
+  end;
+
   { TSong }
 
-  TSong = TSongV6;
+  TSong = TSongV7;
 
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
@@ -119,7 +140,7 @@ function UpgradeSong(S: TSongV1): TSong; overload;
 function UpgradeSong(S: TSongV2): TSong; overload;
 function UpgradeSong(S: TSongV3): TSong; overload;
 function UpgradeSong(S: TSongV4): TSong; overload;
-//function UpgradeSong(S: TSongV5): TSong; overload;
+function UpgradeSong(S: TSongV6): TSong; overload;
 
 function OptimizeSong(const S: TSong): TSong;
 function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
@@ -374,6 +395,49 @@ begin
     ASong.Routines[I] := S.ReadAnsiString;
 end;
 
+procedure ReadSongFromStreamV7(S: TStream; out ASong: TSongV7);
+var
+  i, n, PatKey: Integer;
+  pat: PPattern;
+begin
+  // Read the fixed elements first
+  n := SizeOf(TSongV7)
+     - SizeOf(TPatternMap)
+     - SizeOf(TOrderMatrix)
+     - SizeOf(TRoutineBank);
+
+  S.Read(ASong, n);
+
+  // Create the patterns
+  ASong.Patterns := TPatternMap.Create;
+  // Read the pattern count
+  S.Read(n, SizeOf(Integer));
+  for i:=0 to n - 1 do begin
+    // Read pattern key
+    S.Read(PatKey, SizeOf(Integer));
+    // Allocate memory for each pattern ...
+    New(pat);
+    // and read the pattern content
+    S.Read(pat^, SizeOf(TPattern));
+    // Add the pattern to the list
+    ASong.Patterns.Add(PatKey, pat);
+  end;
+
+  // Read the OrderMatrix
+  for i := 0 to 3 do
+  begin
+    // Read length of each OrderMatrix array
+    S.Read(n, SizeOf(Integer));
+    // Allocate memory for it
+    SetLength(ASong.OrderMatrix[i], n);
+    // Read content of OrderMatrix array
+    S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
+  end;
+
+  for I := Low(TRoutineBank) to High(TRoutineBank) do
+    ASong.Routines[I] := S.ReadAnsiString;
+end;
+
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 var
   i, n: Integer;
@@ -415,6 +479,7 @@ var
   SV3: TSongV3;
   SV4: TSongV4;
   SV5: TSongV5;
+  SV6: TSongV6;
 begin
   S.Read(Version, SizeOf(Integer));
   S.Seek(0, soBeginning);
@@ -440,8 +505,12 @@ begin
       ASong := UpgradeSong(SV5);
     end;
     6: begin
-      ReadSongFromStreamV6(S, ASong);
+      ReadSongFromStreamV6(S, SV6);
+      ASong := UpgradeSong(SV6);
     end;
+    7: begin
+      ReadSongFromStreamV7(S, ASong);
+    end
     else begin
       raise ESongVersionException.Create(IntToStr(Version));
     end;
@@ -516,7 +585,10 @@ begin
   for I := Low(TRoutineBank) to High(TRoutineBank) do
     S.Routines[I] := '';
 
-  S.TicksPerRow := 7;
+  S.TicksPerRow[0] := 7;
+  S.TicksPerRow[1] := 7;
+  S.TicksPerRow[2] := 7;
+  S.TicksPerRow[3] := 7;
   S.TimerDivider := 0;
   S.TimerEnabled := False;
   S.Patterns := TPatternMap.Create;
@@ -810,7 +882,36 @@ begin
   for I := 0 to S.Patterns.Count-1 do
     SV6.Patterns.Add(S.Patterns.Keys[I], ConvertPattern(S.Patterns.Data[I]));
 
-  Result := SV6;
+  Result := UpgradeSong(SV6);
+end;
+
+function UpgradeSong(S: TSongV6): TSong;
+var
+  SV7: TSongV7;
+begin
+  SV7.Version := 7;
+
+  SV7.Name := S.Name;
+  SV7.Artist := S.Artist;
+  SV7.Comment := S.Comment;
+
+  SV7.Instruments := S.Instruments;
+  SV7.Waves := S.Waves;
+
+  SV7.TicksPerRow[0] := S.TicksPerRow;
+  SV7.TicksPerRow[1] := S.TicksPerRow;
+  SV7.TicksPerRow[2] := S.TicksPerRow;
+  SV7.TicksPerRow[3] := S.TicksPerRow;
+
+  SV7.TimerEnabled := S.TimerEnabled;
+  SV7.TimerDivider := S.TimerDivider;
+
+  SV7.Patterns := S.Patterns;
+  SV7.OrderMatrix := S.OrderMatrix;
+
+  SV7.Routines := S.Routines;
+
+  Result := SV7;
 end;
 
 function OptimizeSong(const S: TSong): TSong;

@@ -187,16 +187,9 @@
       <OpenInFileMan Value="True"/>
     </PublishOptions>
     <RunParams>
-      <local>
-        <LaunchingApplication Use="True"/>
-      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default">
-          <local>
-            <LaunchingApplication Use="True"/>
-          </local>
-        </Mode0>
+        <Mode0 Name="default"/>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">

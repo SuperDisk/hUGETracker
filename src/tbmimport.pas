@@ -375,7 +375,7 @@ begin
     // stoneface about it.
     Stream.ReadByte;
 
-    Result.TicksPerRow := SongFormat.RowsPerBeat;
+    Result.TicksPerRow[0] := SongFormat.RowsPerBeat;
 
     for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
       SetLength(Result.OrderMatrix[I], SongFormat.PatternCount+2); // off-by-one error on my part

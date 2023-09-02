@@ -28,6 +28,15 @@ procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: st
 
 implementation
 
+function OrderCount(const Song: TSong): Integer;
+var
+  OrderMatrix: TOrderMatrix;
+begin
+  OrderMatrix := Song.OrderMatrix;
+  Result := MaxIntValue([High(OrderMatrix[0]), High(OrderMatrix[1]),
+    High(OrderMatrix[2]), High(OrderMatrix[3])]) * 2;
+end;
+
 procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
   function RenderGBDKCell(Cell: TCell): string;
   var
@@ -195,7 +204,6 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
 var
   OrderMatrix: TOrderMatrix;
   OutSL: TStringList;
-  OrderCnt: integer;
   I: integer;
   F: Text;
   TypePrefix: String;
@@ -211,13 +219,6 @@ begin
 
   OutSL.Add('#include "hUGEDriver.h"');
   OutSL.Add('#include <stddef.h>');
-  OutSL.Add('');
-
-  OrderMatrix := Song.OrderMatrix;
-  OrderCnt := MaxIntValue([High(OrderMatrix[0]), High(OrderMatrix[1]),
-    High(OrderMatrix[2]), High(OrderMatrix[3])]);
-
-  OutSL.Add(Format('static const unsigned char order_cnt = %d;', [OrderCnt * 2]));
   OutSL.Add('');
 
   for I := 0 to Song.Patterns.Count - 1 do
@@ -252,9 +253,12 @@ begin
     OutSL.Add(Format('const void __at(%d) __bank_%s;', [Bank, DescriptorName]));
 
   OutSL.Add(Format(
-    'const hUGESong_t %s = {%d, &order_cnt, order1, order2, order3,'+
+    'const hUGESong_t %s = {%d, %d, %d, %d, %d, order1, order2, order3,'+
     'order4, duty_instruments, wave_instruments, noise_instruments, NULL, waves};',
-    [DescriptorName, Song.TicksPerRow]));
+    [DescriptorName,
+     Song.TicksPerRow[0], Song.TicksPerRow[1], Song.TicksPerRow[2], Song.TicksPerRow[3],
+     OrderCount(Song)
+    ]));
 
   AssignFile(F, Filename);
   Rewrite(F);
@@ -281,13 +285,9 @@ function RenderOrderTable(OrderMatrix: TOrderMatrix): string;
 
 var
   Res: TStringList;
-  OrderCnt: integer;
 begin
   Res := TStringList.Create;
-  OrderCnt := MaxIntValue([High(OrderMatrix[0]), High(OrderMatrix[1]),
-    High(OrderMatrix[2]), High(OrderMatrix[3])]);
 
-  Res.Add('order_cnt: db ' + IntToStr(OrderCnt * 2));
   Res.Add('order1: dw ' + ArrayHelper(OrderMatrix[0]));
   Res.Add('order2: dw ' + ArrayHelper(OrderMatrix[1]));
   Res.Add('order3: dw ' + ArrayHelper(OrderMatrix[2]));
@@ -468,8 +468,11 @@ begin
 
   // Render song descriptor
   OutSL.Add(DescriptorName+'::');
-  OutSL.Add('db '+IntToStr(Song.TicksPerRow));
-  OutSL.Add('dw order_cnt');
+  OutSL.Add('db '+IntToStr(Song.TicksPerRow[0])+', '
+                 +IntToStr(Song.TicksPerRow[1])+', '
+                 +IntToStr(Song.TicksPerRow[2])+', '
+                 +IntToStr(Song.TicksPerRow[3]));
+  OutSL.Add('dw '+IntToStr(OrderCount(Song)));
   OutSL.Add('dw order1, order2, order3, order4');
   OutSL.Add('dw duty_instruments, wave_instruments, noise_instruments');
   OutSL.Add('dw routines');
@@ -683,7 +686,12 @@ begin
 
     if Assemble(Filename + '_song.obj',
                 ConcatPaths([RuntimeDir, 'hUGEDriver', 'song.asm']),
-                ['SONG_DESCRIPTOR=song', 'TICKS='+IntToStr(Song.TicksPerRow)]) <> 0 then Die;
+                ['SONG_DESCRIPTOR=song',
+                 'ORDER_COUNT='+IntToStr(OrderCount(Song)),
+                 'TICKS0='+IntToStr(Song.TicksPerRow[0]),
+                 'TICKS1='+IntToStr(Song.TicksPerRow[1]),
+                 'TICKS2='+IntToStr(Song.TicksPerRow[2]),
+                 'TICKS3='+IntToStr(Song.TicksPerRow[3])]) <> 0 then Die;
 
     if Mode = emGBS then
     begin
