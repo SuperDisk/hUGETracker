@@ -18,7 +18,7 @@ type
   TRoutineIndex = 0..15;
 
 const
-  UGE_FORMAT_VERSION = 6;
+  UGE_FORMAT_VERSION = 7;
 
   //HT_GIT_TAG = {$INCLUDE revision.inc} {$ifdef DEVELOPMENT} + '-DEBUG'{$ENDIF};
 
