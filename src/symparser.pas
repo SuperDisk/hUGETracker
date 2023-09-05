@@ -13,7 +13,7 @@ type
 function SymbolAddress(Symbol: String): Integer;
 function WordPeekSymbol(Symbol: String): Integer;
 procedure WordPokeSymbol(Symbol: String; Value: Word);
-function PeekSymbol(Symbol: String): Integer;
+function PeekSymbol(Symbol: String; Offset: Integer = 0): Integer;
 procedure PokeSymbol(Symbol: String; Value: Byte);
 procedure WriteBufferToSymbol(Symbol: String; const Buffer; Count: Integer);
 procedure WriteBufferToAddress(Address: Integer; const Buffer; Count: Integer);
@@ -74,14 +74,14 @@ begin
   end;
 end;
 
-function PeekSymbol(Symbol: String): Integer;
+function PeekSymbol(Symbol: String; Offset: Integer = 0): Integer;
 begin
   if SymbolTable.IndexOf(Symbol) = -1 then begin
     DebugLn(['[WARNING] Attempting to peek unloaded symbol: ', symbol]);
     Exit(0);
   end;
 
-  Result := speekb(SymbolTable.KeyData[Symbol]);
+  Result := speekb(SymbolTable.KeyData[Symbol]+Offset);
 end;
 
 procedure PokeSymbol(Symbol: String; Value: Byte);
