@@ -136,7 +136,7 @@ begin
   enablesound;
   load(ConcatPaths([CacheDir, 'render/preview.gb']));
 
-  SetLength(SeenOrders, PeekSymbol(SYM_ORDER_COUNT) div 2);
+  SetLength(SeenOrders, PeekSymbol(SYM_SONG_DESCRIPTOR, 4) div 2);
   StartOfSong := -1;
 
   WritingVGM := True;

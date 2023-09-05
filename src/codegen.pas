@@ -366,7 +366,7 @@ begin
     'order4, duty_instruments, wave_instruments, noise_instruments, NULL, waves};',
     [DescriptorName,
      Song.TicksPerRow[0], Song.TicksPerRow[1], Song.TicksPerRow[2], Song.TicksPerRow[3],
-     OrderCount(Song)
+     OrderCount(Song)*2
     ]));
 
   AssignFile(F, Filename);
@@ -586,7 +586,7 @@ begin
                  +IntToStr(Song.TicksPerRow[1])+', '
                  +IntToStr(Song.TicksPerRow[2])+', '
                  +IntToStr(Song.TicksPerRow[3]));
-  OutSL.Add('dw '+IntToStr(OrderCount(Song)));
+  OutSL.Add('dw '+IntToStr(OrderCount(Song)*2));
   OutSL.Add('dw order1, order2, order3, order4');
   OutSL.Add('dw duty_instruments, wave_instruments, noise_instruments');
   OutSL.Add('dw routines');
@@ -808,7 +808,7 @@ begin
     if Assemble(Filename + '_song.obj',
                 ConcatPaths([RuntimeDir, 'hUGEDriver', 'song.asm']),
                 ['SONG_DESCRIPTOR=song',
-                 'ORDER_COUNT='+IntToStr(OrderCount(Song)),
+                 'ORDER_COUNT='+IntToStr(OrderCount(Song)*2),
                  'TICKS0='+IntToStr(Song.TicksPerRow[0]),
                  'TICKS1='+IntToStr(Song.TicksPerRow[1]),
                  'TICKS2='+IntToStr(Song.TicksPerRow[2]),

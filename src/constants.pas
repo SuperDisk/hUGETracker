@@ -28,10 +28,10 @@ const
   SYM_NEXT_ORDER = 'next_order';
   SYM_ROW_BREAK = 'row_break';
   SYM_TICKS_PER_ROW = 'ticks_per_row';
-  SYM_ORDER_COUNT = 'order_cnt';
   SYM_LOOP_ORDER = 'loop_order';
   SYM_SINGLE_STEPPING = 'single_stepping';
   SYM_SINGLE_STEP_STOPPED = 'single_step_stopped';
+  SYM_SONG_DESCRIPTOR = 'song_descriptor';
 
   SYM_HALT_INSTR = 'instrument';
   SYM_HALT_PERIOD = 'channel_period';
