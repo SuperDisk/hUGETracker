@@ -274,7 +274,7 @@ begin
   FCCallback := @OrderCheckCallback;
   FDCallback := nil;
 
-  SetLength(SeenPatterns, PeekSymbol(SYM_ORDER_COUNT) div 2);
+  SetLength(SeenPatterns, PeekSymbol(SYM_SONG_DESCRIPTOR, 4) div 2);
   StartOfSong := -1;
   CurrentPattern := -1;
 
@@ -299,7 +299,7 @@ begin
   FCCallback := @OrderCheckCallback;
   FDCallback := nil;
 
-  SetLength(SeenPatterns, PeekSymbol(SYM_ORDER_COUNT) div 2);
+  SetLength(SeenPatterns, PeekSymbol(SYM_SONG_DESCRIPTOR, 4) div 2);
   StartOfSong := -1;
   CurrentPattern := -1;
   StartPattern := FromPositionLowerSpinEdit.Value;
