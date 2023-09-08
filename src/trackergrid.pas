@@ -132,7 +132,7 @@ type
 
     function GetAt(SelectionPos: TSelectionPos): Integer;
     procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
-    procedure IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
+    procedure IncrementAt(SelectionPos: TSelectionPos; Value: Integer); virtual;
     procedure ClearAt(SelectionPos: TSelectionPos);
 
     procedure InsertRowInPatternAtCursor(Pattern: Integer);
@@ -169,6 +169,7 @@ type
   TTableGrid = class(TTrackerGrid)
     procedure RenderCell(const Cell: TCell); override;
     procedure InputVolume(Key: Word); override;
+    procedure IncrementAt(SelectionPos: TSelectionPos; Value: Integer); override;
   end;
 
 var
@@ -269,6 +270,15 @@ begin
 
   Invalidate;
   EndUndoAction;
+end;
+
+procedure TTableGrid.IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
+begin
+  with Patterns[SelectionPos.X]^[SelectionPos.Y] do
+    if (Note = NO_NOTE) and (SelectionPos.SelectedPart = cpNote) then
+      Note := MIDDLE_NOTE;
+
+  inherited;
 end;
 
 { TSelectionEnumerator }
