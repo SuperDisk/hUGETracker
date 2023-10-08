@@ -1,4 +1,4 @@
-![hUGETracker](https://nickfa.ro/images/HUGELogo.gif)
+![hUGETracker](https://github.com/SuperDisk/hUGETracker/assets/1688837/def3b70d-dbe4-4b9b-8b74-58b1efcea02c)
 ---
 
 This is the repository for hUGETracker, the music editing suite for the Gameboy.
