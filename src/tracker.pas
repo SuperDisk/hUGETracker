@@ -1635,13 +1635,23 @@ end;
 procedure TfrmTracker.InstrumentImportButtonClick(Sender: TObject);
 var
   F: file of TInstrument;
+  I: TInstrument;
 begin
   OpenDialog1.Filter := 'hUGETracker instruments|*.ugi';
   if OpenDialog1.Execute then begin
     AssignFile(F, OpenDialog1.FileName);
     Reset(F);
-    Read(F, CurrentInstrument^);
+    Read(F, I);
     CloseFile(F);
+
+    if CurrentInstrument^.Type_ <> I.Type_ then
+      ShowMessage('The selected instrument is not for this channel type.')
+    else begin
+      CurrentInstrument^ := I;
+
+      // Refresh the UI
+      LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
+    end;
   end;
 end;
 
