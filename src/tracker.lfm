@@ -62,10 +62,10 @@ object frmTracker: TfrmTracker
       Height = 684
       Top = 0
       Width = 1103
-      ActivePage = GeneralTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -411,7 +411,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Instrument'
-            ClientHeight = 269
+            ClientHeight = 254
             ClientWidth = 276
             ParentFont = False
             TabOrder = 0
@@ -633,7 +633,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Envelope'
-            ClientHeight = 132
+            ClientHeight = 117
             ClientWidth = 578
             ParentFont = False
             TabOrder = 1
@@ -688,16 +688,16 @@ object frmTracker: TfrmTracker
               Top = 0
               Width = 270
               BevelOuter = bvLowered
-              ClientHeight = 100
-              ClientWidth = 266
+              ClientHeight = 104
+              ClientWidth = 270
               ParentFont = False
               TabOrder = 1
               object EnvelopePaintbox: TPaintBox
                 Left = 1
-                Height = 98
+                Height = 102
                 Hint = 'Preview of the volume envelope'
                 Top = 1
-                Width = 264
+                Width = 268
                 Align = alClient
                 ParentFont = False
                 OnPaint = EnvelopePaintboxPaint
@@ -737,7 +737,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Square'
-            ClientHeight = 165
+            ClientHeight = 150
             ClientWidth = 315
             ParentFont = False
             TabOrder = 2
@@ -868,7 +868,7 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Wave'
-            ClientHeight = 165
+            ClientHeight = 150
             ClientWidth = 293
             ParentFont = False
             TabOrder = 3
@@ -928,16 +928,16 @@ object frmTracker: TfrmTracker
               Top = 80
               Width = 272
               BevelOuter = bvLowered
-              ClientHeight = 55
-              ClientWidth = 268
+              ClientHeight = 59
+              ClientWidth = 272
               ParentFont = False
               TabOrder = 1
               object WavePaintbox: TPaintBox
                 Left = 1
-                Height = 53
+                Height = 57
                 Hint = 'Preview of the waveform associated with this instrument'
                 Top = 1
-                Width = 266
+                Width = 270
                 Align = alClient
                 Color = clBlack
                 ParentColor = False
@@ -2795,6 +2795,11 @@ object frmTracker: TfrmTracker
       Caption = 'Interpolate'
       ShortCut = 16459
       OnClick = MenuItem31Click
+    end
+    object MenuItem56: TMenuItem
+      Caption = 'Change Instrument'
+      ShortCut = 16457
+      OnClick = MenuItem56Click
     end
     object MenuItem30: TMenuItem
       Caption = '-'

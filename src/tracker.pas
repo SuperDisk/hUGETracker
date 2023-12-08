@@ -46,6 +46,7 @@ type
     MenuItem26: TMenuItem;
     MenuItem42: TMenuItem;
     MenuItem55: TMenuItem;
+    MenuItem56: TMenuItem;
     RevertMenuItem: TMenuItem;
     Splitter2: TSplitter;
     TBMOpenDialog: TOpenDialog;
@@ -303,6 +304,7 @@ type
     procedure MenuItem15Click(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
+    procedure MenuItem56Click(Sender: TObject);
     procedure OrderEditStringGridMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RevertMenuItemClick(Sender: TObject);
@@ -2085,6 +2087,11 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TfrmTracker.MenuItem56Click(Sender: TObject);
+begin
+  (ActiveControl as TTrackerGrid).ChangeSelectionInstrument;
 end;
 
 procedure TfrmTracker.OrderEditStringGridMouseDown(Sender: TObject;

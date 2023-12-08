@@ -149,6 +149,7 @@ type
     procedure TransposeSelection(Semitones: Integer);
     procedure IncrementSelection(Note, Instrument, Volume, EffectCode, EffectParam: Integer);
     procedure InterpolateSelection;
+    procedure ChangeSelectionInstrument;
     procedure OpenEffectEditor;
 
     constructor Create(
@@ -944,6 +945,31 @@ begin
 
   Invalidate;
   EndUndoAction
+end;
+
+procedure TTrackerGrid.ChangeSelectionInstrument;
+var
+  Pos: TSelectionPos;
+  R: Integer;
+begin
+  BeginUndoAction;
+
+  NormalizeCursors;
+
+  for R := Cursor.Y to Other.Y do begin
+    Pos := Cursor;
+    Pos.Y := R;
+    while Pos <= Other do begin
+      with Patterns[Pos.X]^[Pos.Y] do
+        if Note <> NO_NOTE then
+          Instrument := SelectedInstrument;
+
+      IncSelectionPos(Pos);
+    end;
+  end;
+
+  Invalidate;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.OpenEffectEditor;
