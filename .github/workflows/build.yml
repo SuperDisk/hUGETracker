@@ -96,6 +96,7 @@ jobs:
         working-directory: hUGETracker
         run: | # The PATH manipulation is because the macOS and Windows installs do NOT put it in the PATH >_<
           export PATH="$PATH":/Applications/Lazarus:/c/lazarus
+          export VERSION_STRING=`git describe --tags --dirty --always`
 
           lazbuild --add-package-link src/rackctls/RackCtlsPkg.lpk
           lazbuild --add-package-link src/bgrabitmap/bgrabitmap/bgrabitmappack.lpk

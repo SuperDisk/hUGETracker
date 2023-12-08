@@ -78,7 +78,7 @@ object frmTracker: TfrmTracker
           Top = 8
           Width = 297
           Caption = 'Song information'
-          ClientHeight = 173
+          ClientHeight = 188
           ClientWidth = 293
           ParentFont = False
           TabOrder = 0
@@ -299,28 +299,28 @@ object frmTracker: TfrmTracker
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Dty1'
-              Width = 35
+              Width = 38
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Dty2'
-              Width = 35
+              Width = 38
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Wav'
-              Width = 35
+              Width = 38
             end          
             item
               Alignment = taCenter
               MinSize = 33
               MaxSize = 33
               Title.Caption = 'Nse'
-              Width = 38
+              Width = 39
             end>
           DefaultColWidth = 17
           DefaultRowHeight = 21
@@ -344,10 +344,10 @@ object frmTracker: TfrmTracker
           OnValidateEntry = OrderEditStringGridValidateEntry
           ColWidths = (
             64
-            35
-            35
-            35
             38
+            38
+            38
+            39
           )
         end
         object Splitter2: TSplitter
@@ -1862,7 +1862,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 495
+      Left = 499
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1873,17 +1873,17 @@ object frmTracker: TfrmTracker
       ShowHint = True
     end
     object ToolButton2: TToolButton
-      Left = 119
+      Left = 120
       Top = 0
       Action = PlayCursorAction
     end
     object ToolButton4: TToolButton
-      Left = 148
+      Left = 149
       Top = 0
       Action = StopAction
     end
     object ExportGBButton: TToolButton
-      Left = 214
+      Left = 217
       Hint = 'Export the song as a standalone ROM'
       Top = 0
       AutoSize = True
@@ -1899,21 +1899,21 @@ object frmTracker: TfrmTracker
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 177
+      Left = 178
       Height = 22
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 1037
+      Left = 1043
       Height = 22
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object OctaveSpinEdit: TSpinEdit
-      Left = 603
+      Left = 609
       Height = 27
       Hint = 'The octave offset for entering new notes'
       Top = 0
@@ -1924,14 +1924,14 @@ object frmTracker: TfrmTracker
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 554
+      Left = 558
       Height = 22
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 560
+      Left = 566
       Height = 22
       Top = 0
       Width = 43
@@ -1942,7 +1942,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object Label23: TLabel
-      Left = 668
+      Left = 674
       Height = 22
       Top = 0
       Width = 70
@@ -1953,7 +1953,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object InstrumentComboBox: TComboBox
-      Left = 738
+      Left = 744
       Height = 25
       Hint = 'The selected instrument for new notes'
       Top = 0
@@ -1971,7 +1971,7 @@ object frmTracker: TfrmTracker
       Text = '(no instrument)'
     end
     object Label24: TLabel
-      Left = 952
+      Left = 958
       Height = 22
       Top = 0
       Width = 35
@@ -1982,7 +1982,7 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object StepSpinEdit: TSpinEdit
-      Left = 987
+      Left = 993
       Height = 27
       Hint = 'How many rows to step down after entering a new note'
       Top = 0
@@ -1993,12 +1993,12 @@ object frmTracker: TfrmTracker
       TabOrder = 2
     end
     object ToolButton3: TToolButton
-      Left = 90
+      Left = 91
       Top = 0
       Action = PlayStartAction
     end
     object ExportGBSButton: TToolButton
-      Left = 299
+      Left = 302
       Hint = 'Export the song as a GBS soundtrack'
       Top = 0
       Caption = 'Export GBS'
@@ -2006,14 +2006,14 @@ object frmTracker: TfrmTracker
       OnClick = ExportGBSButtonClick
     end
     object ToolButton5: TToolButton
-      Left = 491
+      Left = 494
       Height = 22
       Top = 0
       Caption = 'ToolButton5'
       Style = tbsDivider
     end
     object ToolButton10: TToolButton
-      Left = 391
+      Left = 394
       Hint = 'Export the song as WAV or MP3'
       Top = 0
       Caption = 'Render Song'
@@ -2021,14 +2021,14 @@ object frmTracker: TfrmTracker
       OnClick = ToolButton10Click
     end
     object ToolButton11: TToolButton
-      Left = 210
+      Left = 212
       Height = 22
       Top = 0
       Caption = 'ToolButton11'
       Style = tbsDivider
     end
     object LoopSongToolButton: TToolButton
-      Left = 181
+      Left = 183
       Top = 0
       ImageIndex = 87
       OnClick = LoopSongToolButtonClick
