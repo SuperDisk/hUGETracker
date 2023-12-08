@@ -108,7 +108,9 @@ function GetFamitrackerPastedCells: TSelection;
   begin
     case Note.Note of
       0, 13, 14, 15: Result.Note := NO_NOTE;
-      else Result.Note := (C_3 + (Note.Note-1)) + (12*(Note.Octave - 1));
+      else begin
+        Result.Note := EnsureRange((C_3 + (Note.Note-1)) + (12*(Note.Octave - 1)), LOWEST_NOTE, HIGHEST_NOTE);
+      end;
     end;
 
     if Note.Instrument = 64 then
