@@ -86,8 +86,9 @@ jobs:
           make
 
       - name: Check out hUGETracker
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
+          fetch-depth: 0
           path: hUGETracker
           submodules: true # This is intentionally not "recursive", change if needed
 
