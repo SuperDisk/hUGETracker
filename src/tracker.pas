@@ -42,6 +42,7 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    SingleStepAction: TAction;
     FileSave1: TAction;
     MenuItem26: TMenuItem;
     MenuItem42: TMenuItem;
@@ -52,6 +53,7 @@ type
     TBMOpenDialog: TOpenDialog;
     ToolButton11: TToolButton;
     LoopSongToolButton: TToolButton;
+    ToolButton12: TToolButton;
     VGMSaveDialog: TSaveDialog;
     MenuItem10: TMenuItem;
     TempoBPMLabel: TLabel;
@@ -308,6 +310,7 @@ type
     procedure OrderEditStringGridMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RevertMenuItemClick(Sender: TObject);
+    procedure SingleStepActionExecute(Sender: TObject);
     procedure TimerDividerSpinEditChange(Sender: TObject);
     procedure TimerEnabledCheckBoxChange(Sender: TObject);
     procedure LoopSongToolButtonClick(Sender: TObject);
@@ -2109,6 +2112,24 @@ begin
 
   if Trim(LoadedFileName) <> '' then
     LoadSong(LoadedFileName)
+end;
+
+procedure TfrmTracker.SingleStepActionExecute(Sender: TObject);
+begin
+  if Playing then begin
+    PokeSymbol(SYM_SINGLE_STEP_STOPPED, 0);
+  end
+  else if GetPreviewReady then begin
+    Playing := True;
+
+    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
+    PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
+    PokeSymbol(SYM_SINGLE_STEPPING, 1);
+    PokeSymbol(SYM_SINGLE_STEP_STOPPED, 0);
+
+    UnlockPlayback;
+  end
 end;
 
 procedure TfrmTracker.FileSave1Execute(Sender: TObject);
