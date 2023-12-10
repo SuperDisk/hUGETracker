@@ -826,8 +826,14 @@ procedure TTrackerGrid.RenderSelectedArea;
 begin
     Canvas.Pen.Width := 1;
     Canvas.Pen.Color := clBlack;
+
+    // TODO: Seems like the Cocoa backend doesn't support pmXOR.
+    // For now, just don't set it, and draw a black box around the thing.
+    {$ifndef DARWIN}
     Canvas.Brush.Color := clWhite;
     Canvas.Pen.Mode := pmXOR;
+    {$endif}
+
     Canvas.Rectangle(SelectionsToRect(Cursor, Other));
     Canvas.Pen.Mode := pmCopy;
 end;

@@ -187,9 +187,16 @@
       <OpenInFileMan Value="True"/>
     </PublishOptions>
     <RunParams>
+      <local>
+        <WorkingDirectory Value="\Users\npfaro\hUGETracker\src\lib\Development\x86_64-darwin"/>
+      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default"/>
+        <Mode0 Name="default">
+          <local>
+            <WorkingDirectory Value="\Users\npfaro\hUGETracker\src\lib\Development\x86_64-darwin"/>
+          </local>
+        </Mode0>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">
@@ -364,6 +371,7 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <Libraries Value="\usr\local\lib\"/>
       <OtherUnitFiles Value="Pascal-SDL-2-Headers"/>
       <UnitOutputDirectory Value="lib\Development\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>

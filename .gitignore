@@ -1,6 +1,7 @@
 AutomaticConversion.log
 backup
 ConverterBackup
+.DS_Store
 **/backup
 lib
 *.zip

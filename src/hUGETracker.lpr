@@ -43,7 +43,7 @@ var
   PixelitePath: WideString;
 begin
   ReturnNilIfGrowHeapFails := False;
-
+  ChDir(ExtractFileDir(ParamStr(0)));
   InitializeTrackerSettings;
 
   {$if declared(useHeapTrace)}

@@ -728,6 +728,9 @@ var
   I: Integer;
   W, H, V, S, L: Integer;
 begin
+  // For some reason, this gets called on MacOS with CurrentInstrument = nil.
+  if not Assigned(CurrentInstrument) then Exit;
+
   W := PB.Width;
   H := PB.Height-3;
   V := Min(CurrentInstrument^.InitialVolume,15);
