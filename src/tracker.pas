@@ -2116,6 +2116,8 @@ end;
 
 procedure TfrmTracker.SingleStepActionExecute(Sender: TObject);
 begin
+  if ActiveControl <> TrackerGrid then Exit;
+
   if Playing then begin
     PokeSymbol(SYM_SINGLE_STEP_STOPPED, 0);
   end
