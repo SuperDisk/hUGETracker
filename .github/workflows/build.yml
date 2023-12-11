@@ -42,7 +42,16 @@ jobs:
         if: matrix.name == 'Mac'
         run: |
           brew install --cask lazarus
-          brew install sdl2 rgbds
+          brew install rgbds
+
+          curl -Lo 'sdl2.tgz' https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.28.5.tar.gz
+          tar xzf sdl2.tgz
+          pushd SDL-release-2.28.5
+          ./configure --disable-video --disable-render --disable-haptic --disable-joystick --disable-power --disable-hidapi --disable-sensor --disable-filesystem --disable-timers
+          make
+          cp build/.libs/libSDL2.a /usr/local/lib
+          popd
+
           mkdir rgbds
           for f in asm link fix; do ln -s `which rgb$f` rgbds/rgb$f; done
 
@@ -51,7 +60,7 @@ jobs:
         shell: bash
         run: |
           choco install lazarus
-          curl -Lo 'sdl2.zip' 'https://github.com/libsdl-org/SDL/releases/download/release-2.26.2/SDL2-2.26.2-win32-x64.zip'
+          curl -Lo 'sdl2.zip' 'https://github.com/libsdl-org/SDL/releases/download/release-2.28.5/SDL2-2.28.5-win32-x64.zip'
           curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.6.1/rgbds-0.6.1-win64.zip'
           unzip -d rgbds rgbds.zip rgb{asm,link,fix}.exe
 

@@ -3,7 +3,9 @@ program hUGETracker;
 {$MODE Delphi}
 
 {$ifdef DARWIN}
-  {$linklib SDL2}
+  {$link /usr/local/lib/libSDL2.a}
+  {$linkframework CoreAudio}
+  {$linkframework AudioToolbox}
 {$endif}
 
 uses
