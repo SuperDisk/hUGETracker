@@ -131,6 +131,23 @@ jobs:
           mv packaging/sample-songs "packaging/Sample Songs"
           mv packaging/keymaps "packaging/Keymaps"
 
+      - name: Extra Mac packaging
+        if: matrix.name == 'Mac'
+        shell: bash
+        run: |
+          echo contents of release
+          ls hUGETracker/src/Release
+          cp -Rv hUGETracker/src/Release/hUGETracker.app packaging
+          mkdir packaging/hUGETracker.app/Contents/Resources
+          cp -v hUGETracker/graphics/hUGETracker.icns packaging/hUGETracker.app/Contents/Resources
+          ed packaging/hUGETracker.app/Contents/Info.plist << END
+          5i
+          <key>CFBundleIconFile</key>
+          <string>hUGETracker.icns</string>
+          .
+          wq
+          END
+
       - name: Extra Windows packaging
         if: matrix.name == 'Windows'
         shell: bash
