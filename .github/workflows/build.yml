@@ -138,7 +138,6 @@ jobs:
           echo contents of release
           ls hUGETracker/src/Release
           cp -Rv hUGETracker/src/Release/hUGETracker.app packaging
-          mkdir packaging/hUGETracker.app/Contents/Resources
           cp -v hUGETracker/graphics/hUGETracker.icns packaging/hUGETracker.app/Contents/Resources
           ed packaging/hUGETracker.app/Contents/Info.plist << END
           5i
