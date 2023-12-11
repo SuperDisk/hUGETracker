@@ -270,7 +270,7 @@ begin
   Want.freq := playbackFrequency;
   Want.format := AUDIO_F32;
   Want.channels := 2;
-  Want.samples := 512;
+  Want.samples := 1024;
   Want.callback := @AudioCallback;
 
   PlayStream := SDL_OpenAudioDevice(nil, 0, @Want, @Have, 0);

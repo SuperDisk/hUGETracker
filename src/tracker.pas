@@ -869,6 +869,8 @@ var
   Addr: Integer;
   Wave: TWave;
 begin
+  if Playing then Exit;
+
   LockPlayback;
 
   if Instr.Type_ = itWave then begin
@@ -888,7 +890,7 @@ end;
 
 procedure TfrmTracker.PreviewNote(Note: Integer);
 begin
-  if not LoadingFile then begin
+  if (not Playing) and (not LoadingFile) then begin
     PreviewInstrument(Note, UnmodInst(CurrentInstrumentBank, InstrumentNumberSpinner.Value));
     NoteHaltTimer.Enabled := False;
     NoteHaltTimer.Enabled := True
