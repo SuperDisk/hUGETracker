@@ -138,7 +138,7 @@ jobs:
           cp -Rpv hUGETracker/src/Release/hUGETracker.app packaging
           cp -v hUGETracker/graphics/hUGETracker.icns packaging/hUGETracker.app/Contents/Resources
           mv packaging/{halt.gb,halt.sym,hUGEDriver,PixeliteTTF.ttf} packaging/hUGETracker.app/Contents/Resources/
-          for f in asm link fix; do ln -s `which rgb$f` packaging/hUGETracker.app/Contents/Resources/rgb$f; done
+          for f in asm link fix; do ln -s `which rgb$f` packaging/hUGETracker.app/Contents/MacOS/rgb$f; done
           ed packaging/hUGETracker.app/Contents/Info.plist << END
           5i
           <key>CFBundleIconFile</key>
