@@ -105,7 +105,7 @@ begin
 
   SetupDirectoryParameter('conf_dir', MacConfigDir, ConfDir);
   SetupDirectoryParameter('cache_dir', MacCacheDir, CacheDir);
-  SetupDirectoryParameter('runtime_dir', '/Users/npfaro/hUGETracker/src/lib/Development/x86_64-darwin', RuntimeDir);
+  SetupDirectoryParameter('runtime_dir', '../Resources', RuntimeDir);
   {$endif}
 
   TrackerSettings := TTrackerSettings.Create;
