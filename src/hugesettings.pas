@@ -71,7 +71,7 @@ end;
 
 procedure InitializeTrackerSettings;
 var
-  XDGConfigDir, XDGCacheDir: String;
+  XDGConfigDir, XDGCacheDir, MacConfigDir, MacCacheDir: String;
 begin
   {$ifdef MSWINDOWS}
   SetupDirectoryParameter('conf_dir', '.', ConfDir);
@@ -94,6 +94,15 @@ begin
   SetupDirectoryParameter('conf_dir', XDGConfigDir, ConfDir);
   SetupDirectoryParameter('cache_dir', XDGCacheDir, CacheDir);
   SetupDirectoryParameter('runtime_dir', '.', RuntimeDir);
+  {$endif}
+
+  {$ifdef DARWIN}
+  MacConfigDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.config', 'hUGETracker']);
+  MacCacheDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.cache', 'hUGETracker']);
+
+  SetupDirectoryParameter('conf_dir', MacConfigDir, ConfDir);
+  SetupDirectoryParameter('cache_dir', MacCacheDir, CacheDir);
+  SetupDirectoryParameter('runtime_dir', '../Resources', RuntimeDir);
   {$endif}
 
   TrackerSettings := TTrackerSettings.Create;

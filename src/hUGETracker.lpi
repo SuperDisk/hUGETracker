@@ -187,16 +187,9 @@
       <OpenInFileMan Value="True"/>
     </PublishOptions>
     <RunParams>
-      <local>
-        <WorkingDirectory Value="\Users\npfaro\hUGETracker\src\lib\Development\x86_64-darwin"/>
-      </local>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default">
-          <local>
-            <WorkingDirectory Value="\Users\npfaro\hUGETracker\src\lib\Development\x86_64-darwin"/>
-          </local>
-        </Mode0>
+        <Mode0 Name="default"/>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">

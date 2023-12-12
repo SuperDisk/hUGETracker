@@ -582,7 +582,7 @@ var
   var
     Define: string;
   begin
-    Proc.Executable := '/usr/local/bin/rgbasm';
+    Proc.Executable := 'rgbasm';
     Proc.Parameters.Clear;
     Proc.Parameters.Add('-i' + ConcatPaths([CacheDir, 'render']));
     Proc.Parameters.Add('-i' + ConcatPaths([RuntimeDir, 'hUGEDriver']));
@@ -602,7 +602,7 @@ var
   var
     InFile: string;
   begin
-    Proc.Executable := '/usr/local/bin/rgblink';
+    Proc.Executable := 'rgblink';
     Proc.Parameters.Clear;
     Proc.Parameters.Add('-o' + OutFile);
     if Map <> '' then
@@ -618,7 +618,7 @@ var
 
   function Fix(GBFile: string): integer;
   begin
-    Proc.Executable := '/usr/local/bin/rgbfix';
+    Proc.Executable := 'rgbfix';
     Proc.Parameters.Clear;
     Proc.Parameters.Add('-p0');
     Proc.Parameters.Add('-v');
