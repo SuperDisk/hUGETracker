@@ -100,9 +100,12 @@ begin
   MacConfigDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.config', 'hUGETracker']);
   MacCacheDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.cache', 'hUGETracker']);
 
+  if not DirectoryExists(MacConfigDir) then CreateDir(MacConfigDir);
+  if not DirectoryExists(MacCacheDir) then CreateDir(MacCacheDir);
+
   SetupDirectoryParameter('conf_dir', MacConfigDir, ConfDir);
   SetupDirectoryParameter('cache_dir', MacCacheDir, CacheDir);
-  SetupDirectoryParameter('runtime_dir', '../Resources', RuntimeDir);
+  SetupDirectoryParameter('runtime_dir', '/Users/npfaro/hUGETracker/src/lib/Development/x86_64-darwin', RuntimeDir);
   {$endif}
 
   TrackerSettings := TTrackerSettings.Create;
