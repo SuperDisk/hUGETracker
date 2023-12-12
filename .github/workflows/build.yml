@@ -11,14 +11,14 @@ jobs:
         os:
           - ubuntu-20.04
           - macos-12
-          - windows-2019
+          # - windows-2019
         include:
           - os: ubuntu-20.04
             name: Linux
           - os: macos-12
             name: Mac
-          - os: windows-2019
-            name: Windows
+          # - os: windows-2019
+          #   name: Windows
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
