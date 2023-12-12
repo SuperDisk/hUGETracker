@@ -135,17 +135,19 @@ jobs:
         if: matrix.name == 'Mac'
         shell: bash
         run: |
-          echo contents of release
-          ls hUGETracker/src/Release
-          cp -Rv hUGETracker/src/Release/hUGETracker.app packaging
+          cp -Rpv hUGETracker/src/Release/hUGETracker.app packaging
           cp -v hUGETracker/graphics/hUGETracker.icns packaging/hUGETracker.app/Contents/Resources
+          mv hUGETracker/src/Release/{halt.gb,halt.sym,hUGEDriver,PixeliteTTF.ttf} packaging/hUGETracker.app/Contents/Resources/
+          for f in asm link fix; do ln -s `which rgb$f` packaging/hUGETracker.app/Contents/Resources/rgb$f; done
           ed packaging/hUGETracker.app/Contents/Info.plist << END
           5i
           <key>CFBundleIconFile</key>
           <string>hUGETracker.icns</string>
           .
-          wq
+          w
+          q
           END
+
 
       - name: Extra Windows packaging
         if: matrix.name == 'Windows'
