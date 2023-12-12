@@ -187,9 +187,20 @@
       <OpenInFileMan Value="True"/>
     </PublishOptions>
     <RunParams>
+      <environment>
+        <UserOverrides Count="1">
+          <Variable0 Name="PATH" Value="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"/>
+        </UserOverrides>
+      </environment>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default"/>
+        <Mode0 Name="default">
+          <environment>
+            <UserOverrides Count="1">
+              <Variable0 Name="PATH" Value="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"/>
+            </UserOverrides>
+          </environment>
+        </Mode0>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">
