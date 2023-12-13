@@ -187,20 +187,9 @@
       <OpenInFileMan Value="True"/>
     </PublishOptions>
     <RunParams>
-      <environment>
-        <UserOverrides Count="1">
-          <Variable0 Name="PATH" Value="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"/>
-        </UserOverrides>
-      </environment>
       <FormatVersion Value="2"/>
       <Modes Count="1">
-        <Mode0 Name="default">
-          <environment>
-            <UserOverrides Count="1">
-              <Variable0 Name="PATH" Value="/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin"/>
-            </UserOverrides>
-          </environment>
-        </Mode0>
+        <Mode0 Name="default"/>
       </Modes>
     </RunParams>
     <RequiredPackages Count="5">
@@ -375,7 +364,6 @@
     <PathDelim Value="\"/>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <Libraries Value="\usr\local\lib\"/>
       <OtherUnitFiles Value="Pascal-SDL-2-Headers"/>
       <UnitOutputDirectory Value="lib\Development\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>

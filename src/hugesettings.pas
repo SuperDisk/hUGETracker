@@ -82,11 +82,11 @@ begin
   {$if defined(LINUX) or defined(FREEBSD) or defined(OPENBSD)}
   XDGConfigDir := GetEnvironmentVariable('XDG_CONFIG_HOME');
   if XDGConfigDir = '' then
-    XDGConfigDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.config', 'hUGETracker']);
+    XDGConfigDir := ConcatPaths([GetUserDir, '.config', 'hUGETracker']);
 
   XDGCacheDir := GetEnvironmentVariable('XDG_CACHE_HOME');
   if XDGCacheDir = '' then
-    XDGCacheDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.cache', 'hUGETracker']);
+    XDGCacheDir := ConcatPaths([GetUserDir, '.cache', 'hUGETracker']);
 
   if not DirectoryExists(XDGConfigDir) then CreateDir(XDGConfigDir);
   if not DirectoryExists(XDGCacheDir) then CreateDir(XDGCacheDir);
@@ -97,8 +97,8 @@ begin
   {$endif}
 
   {$ifdef DARWIN}
-  MacConfigDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.config', 'hUGETracker']);
-  MacCacheDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.cache', 'hUGETracker']);
+  MacConfigDir := ConcatPaths([GetUserDir, '.config', 'hUGETracker']);
+  MacCacheDir := ConcatPaths([GetUserDir, '.cache', 'hUGETracker']);
 
   if not DirectoryExists(MacConfigDir) then CreateDir(MacConfigDir);
   if not DirectoryExists(MacCacheDir) then CreateDir(MacCacheDir);
