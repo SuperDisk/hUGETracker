@@ -26,7 +26,7 @@ jobs:
         if: matrix.name == 'Linux'
         run: |
           sudo apt -qq update
-          sudo apt install -yq libsdl2-dev bison
+          sudo apt install -yq libsdl2-dev bison nasm
           curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.6.1/rgbds-0.6.1.tar.gz'
           tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
           cd rgbds
@@ -42,7 +42,7 @@ jobs:
         if: matrix.name == 'Mac'
         run: |
           brew install --cask lazarus
-          brew install rgbds
+          brew install rgbds nasm
 
           curl -Lo 'sdl2.tgz' https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.28.5.tar.gz
           tar xzf sdl2.tgz
@@ -96,7 +96,7 @@ jobs:
           curl -Lo ffmpeg.tar.xz 'http://ffmpeg.org/releases/ffmpeg-4.4.tar.xz'
           tar xf ffmpeg.tar.xz
           cd ffmpeg-4.4
-          ./configure --extra-ldflags="-static" --disable-debug --enable-lto --disable-programs --enable-ffmpeg --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le --enable-encoder=flac --enable-muxer=ogg --enable-muxer=flac --enable-encoder=pcm_s16le --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 --extra-cflags="-I`_realpath ../lame-install/include`" --extra-ldflags="-L`_realpath ../lame-install/lib`"
+          ./configure --extra-ldflags="-static" --disable-debug --enable-lto --disable-programs --enable-ffmpeg --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le --enable-encoder=flac --enable-muxer=ogg --enable-muxer=flac --enable-encoder=pcm_s16le --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 --extra-cflags="-I`_realpath ../lame-install/include`" --extra-ldflags="-L`_realpath ../lame-install/lib`" || cat config.log
           make
 
       - name: Compile FFmpeg
