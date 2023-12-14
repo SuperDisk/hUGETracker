@@ -10,6 +10,7 @@
       <SessionStorage Value="InProjectDir"/>
       <Title Value="hUGETracker"/>
       <Scaled Value="True"/>
+      <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
       <XPManifest>
@@ -188,9 +189,6 @@
     </PublishOptions>
     <RunParams>
       <FormatVersion Value="2"/>
-      <Modes Count="1">
-        <Mode0 Name="default"/>
-      </Modes>
     </RunParams>
     <RequiredPackages Count="5">
       <Item1>
