@@ -88,8 +88,8 @@ begin
   if XDGCacheDir = '' then
     XDGCacheDir := ConcatPaths([GetUserDir, '.cache', 'hUGETracker']);
 
-  if not DirectoryExists(XDGConfigDir) then CreateDir(XDGConfigDir);
-  if not DirectoryExists(XDGCacheDir) then CreateDir(XDGCacheDir);
+  if not DirectoryExists(XDGConfigDir) then ForceDirectories(XDGConfigDir);
+  if not DirectoryExists(XDGCacheDir) then ForceDirectories(XDGCacheDir);
 
   SetupDirectoryParameter('conf_dir', XDGConfigDir, ConfDir);
   SetupDirectoryParameter('cache_dir', XDGCacheDir, CacheDir);
@@ -100,8 +100,8 @@ begin
   MacConfigDir := ConcatPaths([GetUserDir, '.config', 'hUGETracker']);
   MacCacheDir := ConcatPaths([GetUserDir, '.cache', 'hUGETracker']);
 
-  if not DirectoryExists(MacConfigDir) then CreateDir(MacConfigDir);
-  if not DirectoryExists(MacCacheDir) then CreateDir(MacCacheDir);
+  if not DirectoryExists(MacConfigDir) then ForceDirectories(MacConfigDir);
+  if not DirectoryExists(MacCacheDir) then ForceDirectories(MacCacheDir);
 
   SetupDirectoryParameter('conf_dir', MacConfigDir, ConfDir);
   SetupDirectoryParameter('cache_dir', MacCacheDir, CacheDir);

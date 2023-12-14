@@ -195,7 +195,10 @@ jobs:
 
       - name: Zip files (preserving permissions)
         shell: bash
-        run: zip -r build.zip packaging/*
+        run: |
+          pushd packaging
+          zip -r ../build.zip .
+          popd
 
       - name: Store build
         uses: actions/upload-artifact@v2
