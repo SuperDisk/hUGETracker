@@ -22,6 +22,8 @@ type
     Button6: TButton;
     Button7: TButton;
     Button8: TButton;
+    Label16: TLabel;
+    JumpColumnTextColorButton: TColorButton;
     UseCustomKeymapCheckbox: TCheckBox;
     CheckListBox1: TCheckListBox;
     NoteTextColorButton: TColorButton;
@@ -150,6 +152,7 @@ begin
   SixteenthRowColorButton.ButtonColor := $00B5C5CE;
   DotsColorButton.ButtonColor := clGray;
   DividersColorButton.ButtonColor := $00ABB7BC;
+  JumpColumnTextColorButton.ButtonColor := $72004E;
 
   UpdateTrackerGridColors;
 end;
@@ -286,6 +289,8 @@ begin
   clDots := DotsColorButton.ButtonColor;
   clDividers := DividersColorButton.ButtonColor;
 
+  clTblJump := JumpColumnTextColorButton.ButtonColor;
+
   SampleTrackerGridPanel.Invalidate;
 end;
 
@@ -315,6 +320,8 @@ begin
 
     Write(F, clDots);
     Write(F, clDividers);
+
+    Write(F, clTblJump);
 
     CloseFile(F);
   except
@@ -352,10 +359,12 @@ begin
     Read(F, clDots);
     Read(F, clDividers);
 
+    Read(F, clTblJump);
+
     CloseFile(F);
   except
     on E: Exception do begin
-      ShowMessage('Couldn''t load colors from ' + Filename);
+      DebugLn('[WARNING] Couldn''t load all colors from ' + Filename);
     end;
   end;
 
@@ -377,6 +386,8 @@ begin
 
   DotsColorButton.ButtonColor := clDots;
   DividersColorButton.ButtonColor := clDividers;
+
+  JumpColumnTextColorButton.ButtonColor := clTblJump;
 
   LoadingColors := False;
 
