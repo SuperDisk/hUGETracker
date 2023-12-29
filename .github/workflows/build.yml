@@ -22,29 +22,34 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Check out hUGETracker
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: hUGETracker
+          submodules: true # This is intentionally not "recursive", change if needed
+
       - name: Install Ubuntu dependencies
         if: matrix.name == 'Linux'
         run: |
           sudo apt -qq update
-          sudo apt install -yq libsdl2-dev bison nasm
+          sudo apt install -yq libsdl2-dev bison
           curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.6.1/rgbds-0.6.1.tar.gz'
           tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
           cd rgbds
           make -j4 rgbasm rgblink rgbfix Q=
 
-          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/lazarus-project_2.2.6-0_amd64.deb
-          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/fpc-laz_3.2.2-210709_amd64.deb
-          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/fpc-src_3.2.2-210709_amd64.deb
+          wget https://netactuate.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%203.0/lazarus-project_3.0.0-0_amd64.deb
+          wget https://cytranet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%203.0/fpc-laz_3.2.2-210709_amd64.deb
+          wget https://versaweb.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%203.0/fpc-src_3.2.2-210709_amd64.deb
 
-          sudo apt install -yq ./fpc-laz_3.2.2-210709_amd64.deb ./fpc-src_3.2.2-210709_amd64.deb ./lazarus-project_2.2.6-0_amd64.deb
+          sudo apt install -yq ./fpc-laz_3.2.2-210709_amd64.deb ./fpc-src_3.2.2-210709_amd64.deb ./lazarus-project_3.0.0-0_amd64.deb
 
       - name: Install macOS dependencies
         if: matrix.name == 'Mac'
         run: |
-          brew install --cask lazarus
-          brew install rgbds
-          brew install automake fdk-aac git lame libass libtool libvorbis libvpx \
-                       opus shtool texi2html theora wget x264 x265 xvid nasm
+          brew install --cask hUGETracker/.github/brew/lazarus.rb
+          brew install rgbds yasm
 
           curl -Lo 'sdl2.tgz' https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.28.5.tar.gz
           tar xzf sdl2.tgz
@@ -85,19 +90,12 @@ jobs:
       - name: Compile FFmpeg (Windows)
         if: matrix.name == 'Windows'
         shell: msys2 {0}
-        run: ./.github/scripts/build-ffmpeg.sh
+        run: ./hUGETracker/.github/scripts/build-ffmpeg.sh
 
       - name: Compile FFmpeg (Mac)
         if: matrix.name == 'Mac'
         shell: bash
-        run: ./.github/scripts/build-ffmpeg.sh
-
-      - name: Check out hUGETracker
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: hUGETracker
-          submodules: true # This is intentionally not "recursive", change if needed
+        run: ./hUGETracker/.github/scripts/build-ffmpeg.sh
 
       - name: Build release
         shell: bash
