@@ -50,8 +50,7 @@ jobs:
         run: |
           brew install --cask hUGETracker/.github/brew/lazarus.rb
           brew install rgbds
-          brew install automake fdk-aac git lame libass libtool libvorbis \
-                       libvpx  opus shtool texi2html theora wget x264 x265 xvid yasm
+          brew install automake libtool shtool wget yasm
 
           curl -Lo 'sdl2.tgz' https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.28.5.tar.gz
           tar xzf sdl2.tgz
