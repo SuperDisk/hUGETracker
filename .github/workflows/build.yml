@@ -10,12 +10,12 @@ jobs:
       matrix:
         os:
           - ubuntu-20.04
-          - macos-12
+          - macos-13
           # - windows-2019
         include:
           - os: ubuntu-20.04
             name: Linux
-          - os: macos-12
+          - os: macos-13
             name: Mac
           # - os: windows-2019
           #   name: Windows
