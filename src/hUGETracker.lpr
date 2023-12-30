@@ -18,7 +18,7 @@ uses
 {$ifdef LCLQT5}
   qt5,
 {$endif}
-  FileUtil,
+  FileUtil, Dialogs,
   SysUtils,
   Forms,
   Interfaces,
@@ -72,6 +72,15 @@ begin
       DebugLn('[ERROR] Couldn''t load Pixelite!!!');
 
     PangoFcFontMapConfigChanged(PangoCairoFontMapGetDefault);
+  {$endif}
+
+  {$ifdef DARWIN}
+    if not FileExists(ConcatPaths([GetUserDir, 'Library', 'Fonts', 'Pixelite.ttf'])) then begin
+      ForceDirectories(ConcatPaths([GetUserDir, 'Library', 'Fonts']));
+      CopyFile(ConcatPaths([RuntimeDir, 'PixeliteTTF.ttf']), ConcatPaths([GetUserDir, 'Library', 'Fonts', 'Pixelite.ttf']));
+      ShowMessage('Successfully loaded required fonts for the first time. Please restart hUGETracker!');
+      Halt;
+    end;
   {$endif}
 
   {$ifdef LCLQT5}
