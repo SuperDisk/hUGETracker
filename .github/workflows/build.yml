@@ -11,14 +11,14 @@ jobs:
         os:
           - ubuntu-20.04
           - macos-13
-          # - windows-2019
+          - windows-2019
         include:
           - os: ubuntu-20.04
             name: Linux
           - os: macos-13
             name: Mac
-          # - os: windows-2019
-          #   name: Windows
+          - os: windows-2019
+            name: Windows
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -159,7 +159,7 @@ jobs:
         shell: bash
         run: |
           pushd packaging
-          zip -r ../build.zip .
+          zip -r ../build.zip *
           popd
 
       - name: Store build
