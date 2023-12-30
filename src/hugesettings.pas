@@ -97,18 +97,23 @@ begin
   {$endif}
 
   {$ifdef DARWIN}
-  MacConfigDir := ConcatPaths([GetUserDir, '.config', 'hUGETracker']);
-  MacCacheDir := ConcatPaths([GetUserDir, '.cache', 'hUGETracker']);
+    MacConfigDir := ConcatPaths([GetUserDir, '.config', 'hUGETracker']);
+    MacCacheDir := ConcatPaths([GetUserDir, '.cache', 'hUGETracker']);
 
-  if not DirectoryExists(MacConfigDir) then ForceDirectories(MacConfigDir);
-  if not DirectoryExists(MacCacheDir) then ForceDirectories(MacCacheDir);
+    if not DirectoryExists(MacConfigDir) then ForceDirectories(MacConfigDir);
+    if not DirectoryExists(MacCacheDir) then ForceDirectories(MacCacheDir);
 
-  SetupDirectoryParameter('conf_dir', MacConfigDir, ConfDir);
-  SetupDirectoryParameter('cache_dir', MacCacheDir, CacheDir);
-  SetupDirectoryParameter('runtime_dir', '../Resources', RuntimeDir);
+    SetupDirectoryParameter('conf_dir', MacConfigDir, ConfDir);
+    SetupDirectoryParameter('cache_dir', MacCacheDir, CacheDir);
+
+    {$ifdef DEVELOPMENT}
+      SetupDirectoryParameter('runtime_dir', '../../..', RuntimeDir);
+    {$else}
+      SetupDirectoryParameter('runtime_dir', '../Resources', RuntimeDir);
+    {$endif}
+
+    TrackerSettings := TTrackerSettings.Create;
   {$endif}
-
-  TrackerSettings := TTrackerSettings.Create;
 end;
 
 { TTrackerSettings }
