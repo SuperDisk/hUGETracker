@@ -15,6 +15,12 @@ popd
 curl -Lo ffmpeg.tar.xz 'http://ffmpeg.org/releases/ffmpeg-4.4.tar.xz'
 tar xf ffmpeg.tar.xz
 cd ffmpeg-4.4
-echo ./configure --pkg-config-flags=--static --disable-debug --enable-lto --disable-programs --enable-ffmpeg --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le --enable-encoder=flac --enable-muxer=ogg --enable-muxer=flac --enable-encoder=pcm_s16le --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 --extra-cflags="-I`_realpath ../lame-install/include`" --extra-ldflags="-L`_realpath ../lame-install/lib`"
-./configure --pkg-config-flags=--static --disable-debug --enable-lto --disable-programs --enable-ffmpeg --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le --enable-encoder=flac --enable-muxer=ogg --enable-muxer=flac --enable-encoder=pcm_s16le --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 --extra-cflags="-I`_realpath ../lame-install/include`" --extra-ldflags="-L`_realpath ../lame-install/lib`" || cat ffbuild/config.log
+./configure --disable-shared --enable-static  --pkg-config-flags=--static \
+            --disable-debug --enable-lto --disable-programs --enable-ffmpeg \
+            --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file \
+            --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le \
+            --enable-encoder=flac --enable-muxer=ogg --enable-muxer=flac --enable-encoder=pcm_s16le \
+            --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 \
+            --extra-cflags="-I`_realpath ../lame-install/include`" \
+            --extra-ldflags="-L`_realpath ../lame-install/lib` -l:libmp3lame.a" || cat ffbuild/config.log
 make
