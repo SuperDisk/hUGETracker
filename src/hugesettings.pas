@@ -71,7 +71,7 @@ end;
 
 procedure InitializeTrackerSettings;
 var
-  XDGConfigDir, XDGCacheDir: String;
+  XDGConfigDir, XDGCacheDir, MacConfigDir, MacCacheDir: String;
 begin
   {$ifdef MSWINDOWS}
   SetupDirectoryParameter('conf_dir', '.', ConfDir);
@@ -82,18 +82,35 @@ begin
   {$if defined(LINUX) or defined(FREEBSD) or defined(OPENBSD)}
   XDGConfigDir := GetEnvironmentVariable('XDG_CONFIG_HOME');
   if XDGConfigDir = '' then
-    XDGConfigDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.config', 'hUGETracker']);
+    XDGConfigDir := ConcatPaths([GetUserDir, '.config', 'hUGETracker']);
 
   XDGCacheDir := GetEnvironmentVariable('XDG_CACHE_HOME');
   if XDGCacheDir = '' then
-    XDGCacheDir := ConcatPaths([GetEnvironmentVariable('HOME'), '.cache', 'hUGETracker']);
+    XDGCacheDir := ConcatPaths([GetUserDir, '.cache', 'hUGETracker']);
 
-  if not DirectoryExists(XDGConfigDir) then CreateDir(XDGConfigDir);
-  if not DirectoryExists(XDGCacheDir) then CreateDir(XDGCacheDir);
+  if not DirectoryExists(XDGConfigDir) then ForceDirectories(XDGConfigDir);
+  if not DirectoryExists(XDGCacheDir) then ForceDirectories(XDGCacheDir);
 
   SetupDirectoryParameter('conf_dir', XDGConfigDir, ConfDir);
   SetupDirectoryParameter('cache_dir', XDGCacheDir, CacheDir);
   SetupDirectoryParameter('runtime_dir', '.', RuntimeDir);
+  {$endif}
+
+  {$ifdef DARWIN}
+    MacConfigDir := ConcatPaths([GetUserDir, '.config', 'hUGETracker']);
+    MacCacheDir := ConcatPaths([GetUserDir, '.cache', 'hUGETracker']);
+
+    if not DirectoryExists(MacConfigDir) then ForceDirectories(MacConfigDir);
+    if not DirectoryExists(MacCacheDir) then ForceDirectories(MacCacheDir);
+
+    SetupDirectoryParameter('conf_dir', MacConfigDir, ConfDir);
+    SetupDirectoryParameter('cache_dir', MacCacheDir, CacheDir);
+
+    {$ifdef DEVELOPMENT}
+      SetupDirectoryParameter('runtime_dir', '../../..', RuntimeDir);
+    {$else}
+      SetupDirectoryParameter('runtime_dir', '../Resources', RuntimeDir);
+    {$endif}
   {$endif}
 
   TrackerSettings := TTrackerSettings.Create;

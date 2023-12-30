@@ -10,18 +10,25 @@ jobs:
       matrix:
         os:
           - ubuntu-20.04
-          # - macos-12
+          - macos-13
           - windows-2019
         include:
           - os: ubuntu-20.04
             name: Linux
-          # - os: macos-12
-          #   name: Mac
+          - os: macos-13
+            name: Mac
           - os: windows-2019
             name: Windows
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Check out hUGETracker
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: hUGETracker
+          submodules: true # This is intentionally not "recursive", change if needed
+
       - name: Install Ubuntu dependencies
         if: matrix.name == 'Linux'
         run: |
@@ -32,17 +39,30 @@ jobs:
           cd rgbds
           make -j4 rgbasm rgblink rgbfix Q=
 
-          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/lazarus-project_2.2.6-0_amd64.deb
-          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/fpc-laz_3.2.2-210709_amd64.deb
-          wget https://tenet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.2.6/fpc-src_3.2.2-210709_amd64.deb
+          wget https://netactuate.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%203.0/lazarus-project_3.0.0-0_amd64.deb
+          wget https://cytranet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%203.0/fpc-laz_3.2.2-210709_amd64.deb
+          wget https://versaweb.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%203.0/fpc-src_3.2.2-210709_amd64.deb
 
-          sudo apt install -yq ./fpc-laz_3.2.2-210709_amd64.deb ./fpc-src_3.2.2-210709_amd64.deb ./lazarus-project_2.2.6-0_amd64.deb
+          sudo apt install -yq ./fpc-laz_3.2.2-210709_amd64.deb ./fpc-src_3.2.2-210709_amd64.deb ./lazarus-project_3.0.0-0_amd64.deb
 
       - name: Install macOS dependencies
         if: matrix.name == 'Mac'
         run: |
-          brew install --cask lazarus
-          brew install sdl2 rgbds
+          brew install --cask hUGETracker/.github/brew/lazarus.rb
+          brew install rgbds
+          brew install automake libtool shtool wget yasm
+
+          curl -Lo 'sdl2.tgz' https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.28.5.tar.gz
+          tar xzf sdl2.tgz
+          pushd SDL-release-2.28.5
+          ./configure --disable-video --disable-render --disable-haptic --disable-joystick \
+                      --disable-power --disable-hidapi --disable-sensor --disable-filesystem \
+                      --disable-timers --disable-atomic --disable-file --disable-misc \
+                      --disable-locale --disable-loadso --disable-cpuinfo
+          make
+          cp build/.libs/libSDL2.a /usr/local/lib
+          popd
+
           mkdir rgbds
           for f in asm link fix; do ln -s `which rgb$f` rgbds/rgb$f; done
 
@@ -50,8 +70,8 @@ jobs:
         if: matrix.name == 'Windows'
         shell: bash
         run: |
-          choco install lazarus
-          curl -Lo 'sdl2.zip' 'https://github.com/libsdl-org/SDL/releases/download/release-2.26.2/SDL2-2.26.2-win32-x64.zip'
+          choco install lazarus zip
+          curl -Lo 'sdl2.zip' 'https://github.com/libsdl-org/SDL/releases/download/release-2.28.5/SDL2-2.28.5-win32-x64.zip'
           curl -Lo 'rgbds.zip' 'https://github.com/gbdev/rgbds/releases/download/v0.6.1/rgbds-0.6.1-win64.zip'
           unzip -d rgbds rgbds.zip rgb{asm,link,fix}.exe
 
@@ -68,29 +88,15 @@ jobs:
             mingw-w64-x86_64-toolchain
             yasm
 
-      - name: Compile FFmpeg
+      - name: Compile FFmpeg (Windows)
         if: matrix.name == 'Windows'
         shell: msys2 {0}
-        run: |
-          curl -Lo lame.tar.gz 'https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz'
-          tar xf lame.tar.gz
-          pushd lame-3.100
-          ./configure --prefix="`realpath ..`/lame-install" --disable-dependency-tracking --disable-shared --enable-nasm --disable-gtktest --disable-decoder --disable-frontend
-          make
-          make install
-          popd
-          curl -Lo ffmpeg.tar.xz 'http://ffmpeg.org/releases/ffmpeg-4.4.tar.xz'
-          tar xf ffmpeg.tar.xz
-          cd ffmpeg-4.4
-          ./configure --extra-ldflags="-static" --disable-debug --enable-lto --disable-programs --enable-ffmpeg --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le --enable-encoder=flac --enable-muxer=ogg --enable-muxer=flac --enable-encoder=pcm_s16le --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 --extra-cflags="-I`realpath ../lame-install/include`" --extra-ldflags="-L`realpath ../lame-install/lib`"
-          make
+        run: ./hUGETracker/.github/scripts/build-ffmpeg.sh
 
-      - name: Check out hUGETracker
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: hUGETracker
-          submodules: true # This is intentionally not "recursive", change if needed
+      - name: Compile FFmpeg (Mac)
+        if: matrix.name == 'Mac'
+        shell: bash
+        run: ./hUGETracker/.github/scripts/build-ffmpeg.sh
 
       - name: Build release
         shell: bash
@@ -129,8 +135,35 @@ jobs:
           unzip -d packaging sdl2.zip SDL2.dll
           cp -v ffmpeg-4.4/ffmpeg.exe rgbds/* packaging
 
+      - name: Extra Mac packaging
+        if: matrix.name == 'Mac'
+        shell: bash
+        run: |
+          cp -Rpv hUGETracker/src/Release/hUGETracker.app packaging
+          cp -v hUGETracker/graphics/hUGETracker.icns packaging/hUGETracker.app/Contents/Resources
+          mv packaging/{halt.gb,halt.sym,hUGEDriver,PixeliteTTF.ttf} packaging/hUGETracker.app/Contents/Resources
+          for f in asm link fix; do ln -s `which rgb$f` packaging/hUGETracker.app/Contents/MacOS/rgb$f; done
+          cp -v ffmpeg-4.4/ffmpeg packaging/hUGETracker.app/Contents/MacOS
+
+          # Hacky, but unlikely to break any time soon.
+          ed packaging/hUGETracker.app/Contents/Info.plist << END
+          5i
+          <key>CFBundleIconFile</key>
+          <string>hUGETracker.icns</string>
+          .
+          w
+          q
+          END
+
+      - name: Zip files (preserving permissions)
+        shell: bash
+        run: |
+          pushd packaging
+          zip -r ../build.zip *
+          popd
+
       - name: Store build
         uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.name }} build
-          path: packaging/
+          path: build.zip

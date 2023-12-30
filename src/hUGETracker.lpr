@@ -3,7 +3,9 @@ program hUGETracker;
 {$MODE Delphi}
 
 {$ifdef DARWIN}
-  {$linklib SDL2}
+  {$link /usr/local/lib/libSDL2.a}
+  {$linkframework CoreAudio}
+  {$linkframework AudioToolbox}
 {$endif}
 
 uses
@@ -16,7 +18,7 @@ uses
 {$ifdef LCLQT5}
   qt5,
 {$endif}
-  FileUtil,
+  FileUtil, Dialogs,
   SysUtils,
   Forms,
   Interfaces,
@@ -43,7 +45,7 @@ var
   PixelitePath: WideString;
 begin
   ReturnNilIfGrowHeapFails := False;
-
+  ChDir(ExtractFileDir(ParamStr(0)));
   InitializeTrackerSettings;
 
   {$if declared(useHeapTrace)}
@@ -70,6 +72,15 @@ begin
       DebugLn('[ERROR] Couldn''t load Pixelite!!!');
 
     PangoFcFontMapConfigChanged(PangoCairoFontMapGetDefault);
+  {$endif}
+
+  {$ifdef DARWIN}
+    if not FileExists(ConcatPaths([GetUserDir, 'Library', 'Fonts', 'Pixelite.ttf'])) then begin
+      ForceDirectories(ConcatPaths([GetUserDir, 'Library', 'Fonts']));
+      CopyFile(ConcatPaths([RuntimeDir, 'PixeliteTTF.ttf']), ConcatPaths([GetUserDir, 'Library', 'Fonts', 'Pixelite.ttf']));
+      ShowMessage('Successfully loaded required fonts for the first time. Please restart hUGETracker!');
+      Halt;
+    end;
   {$endif}
 
   {$ifdef LCLQT5}
