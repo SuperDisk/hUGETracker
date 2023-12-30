@@ -679,7 +679,7 @@ begin
                   ConcatPaths([RuntimeDir, 'hUGEDriver', 'hUGEDriver.asm']),
                   ['PREVIEW_MODE']) <> 0 then Die;
     end
-    else if Assemble(Filename + '_driver.obj', 'hUGEDriver/hUGEDriver.asm', []) <> 0 then Die;
+    else if Assemble(Filename + '_driver.obj', ConcatPaths([RuntimeDir, 'hUGEDriver', 'hUGEDriver.asm']), []) <> 0 then Die;
 
     if Assemble(Filename + '_song.obj',
                 ConcatPaths([RuntimeDir, 'hUGEDriver', 'song.asm']),

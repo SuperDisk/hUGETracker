@@ -111,9 +111,9 @@ begin
     {$else}
       SetupDirectoryParameter('runtime_dir', '../Resources', RuntimeDir);
     {$endif}
-
-    TrackerSettings := TTrackerSettings.Create;
   {$endif}
+
+  TrackerSettings := TTrackerSettings.Create;
 end;
 
 { TTrackerSettings }
