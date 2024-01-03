@@ -1,4 +1,4 @@
-![hUGETracker logo](https://camo.githubusercontent.com/47f1b09f240985f1e93c3188ebb73f503a050430a67f18a12411838cc41270b5/68747470733a2f2f6e69636b66612e726f2f696d616765732f485547454c6f676f2e676966)
+![hUGETracker logo](https://nickfa.ro/images/HUGELogo.gif)
 
 This is the manual to [hUGETracker](https://github.com/SuperDisk/hUGETracker).
 I wrote this program because there wasn't a music editing tool for the Game Boy which fulfilled the following requirements:
