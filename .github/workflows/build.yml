@@ -48,8 +48,8 @@ jobs:
       - name: Install macOS dependencies
         if: matrix.name == 'Mac'
         run: |
-          brew install --cask hUGETracker/.github/brew/lazarus.rb
-          brew install hUGETracker/.github/brew/rgbds.rb
+          brew install --cask ./hUGETracker/.github/brew/lazarus.rb
+          brew install --verbose ./hUGETracker/.github/brew/rgbds.rb
           brew install automake libtool shtool wget yasm
 
           curl -Lo 'sdl2.tgz' https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.28.5.tar.gz

@@ -17,12 +17,10 @@ class Rgbds < Formula
   depends_on "libpng"
 
   def install
-    system "cmake", "-S", ".", "-B", "build",
-           "-DCMAKE_C_FLAGS=-O3 -flto -DNDEBUG -mmacosx-version-min=10.9",
-           "-DCMAKE_CXX_FLAGS=-O3 -flto -DNDEBUG -mmacosx-version-min=10.9",
-           *std_cmake_args
+    ENV["CFLAGS"] = "-O3 -flto -DNDEBUG -mmacosx-version-min=10.9"
+    ENV["CXXFLAGS"] = "-O3 -flto -DNDEBUG -mmacosx-version-min=10.9"
 
-    system "cmake", "--build", "build"
-    system "cmake", "--install", "build"
+    system "make"
+    system "make", "install", "PREFIX=#{prefix}"
   end
 end
