@@ -158,8 +158,13 @@ jobs:
       - name: Zip files (preserving permissions)
         shell: bash
         run: |
+          shopt -s extglob
           pushd packaging
-          zip -r ../build.zip *
+          if [ "${{ matrix.name }}" == "Mac" ]; then
+            zip -r ../build.zip !(hUGETracker)
+          else
+            zip -r ../build.zip *
+          fi
           popd
 
       - name: Store build
