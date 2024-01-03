@@ -21,6 +21,7 @@
 - [Routines](hUGETracker/routines.md)
 - [UGE file format](hUGETracker/uge-format.md)
 - [Miscellaneous](hUGETracker/miscellaneous.md)
+- [Command line options](hUGETracker/command-line.md)
 
 # hUGEDriver
 
