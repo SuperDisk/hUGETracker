@@ -13,12 +13,12 @@ popd
 curl -Lo ffmpeg.tar.xz 'http://ffmpeg.org/releases/ffmpeg-4.4.tar.xz'
 tar xf ffmpeg.tar.xz
 cd ffmpeg-4.4
-./configure --pkg-config-flags=--static \
+./configure --extra-ldflags="-static" \
             --disable-debug --enable-lto --disable-programs --enable-ffmpeg \
             --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file \
             --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le \
             --enable-encoder=flac --enable-muxer=ogg --enable-muxer=flac --enable-encoder=pcm_s16le \
             --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 \
             --extra-cflags="-I`realpath ../lame-install/include`" \
-            --extra-ldflags="-L`realpath ../lame-install/lib`" || cat ffbuild/config.log
+            --extra-ldflags="-L`realpath ../lame-install/lib`"
 make
