@@ -20,7 +20,7 @@ else
     STATIC_FLAG="--extra-ldflags=-static"
 fi
 
-./configure $STATIC_FLAG
+./configure $STATIC_FLAG \
             --disable-debug --enable-lto --disable-programs --enable-ffmpeg \
             --disable-doc --disable-everything --enable-protocol=pipe --enable-protocol=file \
             --enable-filter=aresample --enable-decoder=pcm_f32le --enable-demuxer=pcm_f32le \
