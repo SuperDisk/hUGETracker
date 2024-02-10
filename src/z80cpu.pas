@@ -20,7 +20,6 @@ uses vars, machine, cpu_tables, LazLoggerBase;
 
 // temporary variables
 var
-  addr: Word;
   qtemp: Quadruple;
   ptemp: Pair;
   w1, w2: word;
@@ -1826,8 +1825,6 @@ var
   b: byte;
 begin
   b := speekb(pc.W - 1);
-  addr := hl.w;
-
   Result := Z80[b or 256]();
 end;
 
@@ -2400,9 +2397,9 @@ function rlc: byte;
 var
   btemp: byte;
 begin
-  btemp := speekb(ADDR);
+  btemp := speekb(hl.w);
   af.l := rlcr_f[btemp];
-  spokeb(ADDR, rlcr_a[btemp]);
+  spokeb(hl.w, rlcr_a[btemp]);
 
   Result := 24;
 end;
@@ -2475,9 +2472,9 @@ function rrc: byte;
 var
   btemp: byte;
 begin
-  btemp := speekb(ADDR);
+  btemp := speekb(hl.w);
   af.l := rrcr_f[btemp];
-  spokeb(ADDR, rrcr_a[btemp]);
+  spokeb(hl.w, rrcr_a[btemp]);
 
   Result := 16;
 end;
@@ -2584,15 +2581,15 @@ var
 begin
   if af.l and 1 = 0 then
   begin
-    btemp := speekb(Addr);
+    btemp := speekb(hl.w);
     af.l := rlr_f[0][btemp];
-    spokeb(Addr, rlr_a[0][btemp]);
+    spokeb(hl.w, rlr_a[0][btemp]);
   end
   else
   begin
-    btemp := speekb(Addr);
+    btemp := speekb(hl.w);
     af.l := rlr_f[1][btemp];
-    spokeb(Addr, rlr_a[1][btemp]);
+    spokeb(hl.w, rlr_a[1][btemp]);
   end;
 
   Result := 16;
@@ -2716,15 +2713,15 @@ var
 begin
   if af.l and 1 = 0 then
   begin
-    btemp := speekb(Addr);
+    btemp := speekb(hl.w);
     af.l := rrr_f[0][btemp];
-    spokeb(Addr, rrr_a[0][btemp]);
+    spokeb(hl.w, rrr_a[0][btemp]);
   end
   else
   begin
-    btemp := speekb(Addr);
+    btemp := speekb(hl.w);
     af.l := rrr_f[1][btemp];
-    spokeb(Addr, rrr_a[1][btemp]);
+    spokeb(hl.w, rrr_a[1][btemp]);
   end;
 
   Result := 16;
@@ -2798,9 +2795,9 @@ function sla: byte;
 var
   btemp: byte;
 begin
-  btemp := speekb(Addr);
+  btemp := speekb(hl.w);
   af.l := sla_f[btemp];
-  spokeb(Addr, sla_a[btemp]);
+  spokeb(hl.w, sla_a[btemp]);
 
   Result := 16;
 end;
@@ -2865,9 +2862,9 @@ function sra: byte;
 var
   btemp: byte;
 begin
-  btemp := speekb(Addr);
+  btemp := speekb(hl.w);
   af.l := sra_f[btemp];
-  spokeb(Addr, sra_a[btemp]);
+  spokeb(hl.w, sra_a[btemp]);
 
   Result := 16;
 end;
@@ -2926,9 +2923,9 @@ function sll: byte;
 var
   btemp: byte;
 begin
-  btemp := speekb(Addr);
+  btemp := speekb(hl.w);
   swap(btemp);
-  spokeb(Addr, btemp);
+  spokeb(hl.w, btemp);
 
   Result := 16;
 end;
@@ -2992,9 +2989,9 @@ function srl: byte;
 var
   btemp: byte;
 begin
-  btemp := speekb(Addr);
+  btemp := speekb(hl.w);
   af.l := srl_f[btemp];
-  spokeb(Addr, srl_a[btemp]);
+  spokeb(hl.w, srl_a[btemp]);
 
   Result := 16;
 end;
@@ -3051,7 +3048,7 @@ end;
 
 function bit0: byte;
 begin
-  af.l := bit_f0[speekb(Addr)] or (af.l and 1);
+  af.l := bit_f0[speekb(hl.w)] or (af.l and 1);
 
   Result := 12;
 end;
@@ -3107,7 +3104,7 @@ end;
 
 function bit1: byte;
 begin
-  af.l := bit_f1[speekb(Addr)] or (af.l and 1);
+  af.l := bit_f1[speekb(hl.w)] or (af.l and 1);
 
   Result := 12;
 end;
@@ -3163,7 +3160,7 @@ end;
 
 function bit2: byte;
 begin
-  af.l := bit_f2[speekb(Addr)] or (af.l and 1);
+  af.l := bit_f2[speekb(hl.w)] or (af.l and 1);
 
   Result := 12;
 end;
@@ -3219,7 +3216,7 @@ end;
 
 function bit3: byte;
 begin
-  af.l := bit_f3[speekb(Addr)] or (af.l and 1);
+  af.l := bit_f3[speekb(hl.w)] or (af.l and 1);
 
   Result := 12;
 end;
@@ -3275,7 +3272,7 @@ end;
 
 function bit4: byte;
 begin
-  af.l := bit_f4[speekb(Addr)] or (af.l and 1);
+  af.l := bit_f4[speekb(hl.w)] or (af.l and 1);
 
   Result := 12;
 end;
@@ -3331,7 +3328,7 @@ end;
 
 function bit5: byte;
 begin
-  af.l := bit_f5[speekb(Addr)] or (af.l and 1);
+  af.l := bit_f5[speekb(hl.w)] or (af.l and 1);
 
   Result := 12;
 end;
@@ -3387,7 +3384,7 @@ end;
 
 function bit6: byte;
 begin
-  af.l := bit_f6[speekb(Addr)] or (af.l and 1);
+  af.l := bit_f6[speekb(hl.w)] or (af.l and 1);
 
   Result := 12;
 end;
@@ -3443,7 +3440,7 @@ end;
 
 function bit7: byte;
 begin
-  af.l := bit_f7[speekb(Addr)] or (af.l and 1);
+  af.l := bit_f7[speekb(hl.w)] or (af.l and 1);
 
   Result := 12;
 end;
@@ -3947,7 +3944,7 @@ end;
 
 function set0: byte;
 begin
-  spokeb(Addr, speekb(Addr) or 1);
+  spokeb(hl.w, speekb(hl.w) or 1);
 
   Result := 16;
 end;
@@ -4003,7 +4000,7 @@ end;
 
 function set1: byte;
 begin
-  spokeb(Addr, speekb(Addr) or 2);
+  spokeb(hl.w, speekb(hl.w) or 2);
 
   Result := 16;
 end;
@@ -4059,7 +4056,7 @@ end;
 
 function set2: byte;
 begin
-  spokeb(Addr, speekb(Addr) or 4);
+  spokeb(hl.w, speekb(hl.w) or 4);
 
   Result := 16;
 end;
@@ -4115,7 +4112,7 @@ end;
 
 function set3: byte;
 begin
-  spokeb(Addr, speekb(Addr) or 8);
+  spokeb(hl.w, speekb(hl.w) or 8);
 
   Result := 16;
 end;
@@ -4171,7 +4168,7 @@ end;
 
 function set4: byte;
 begin
-  spokeb(Addr, speekb(Addr) or 16);
+  spokeb(hl.w, speekb(hl.w) or 16);
 
   Result := 16;
 end;
@@ -4227,7 +4224,7 @@ end;
 
 function set5: byte;
 begin
-  spokeb(Addr, speekb(Addr) or 32);
+  spokeb(hl.w, speekb(hl.w) or 32);
 
   Result := 16;
 end;
@@ -4283,7 +4280,7 @@ end;
 
 function set6: byte;
 begin
-  spokeb(Addr, speekb(Addr) or 64);
+  spokeb(hl.w, speekb(hl.w) or 64);
 
   Result := 16;
 end;
@@ -4339,7 +4336,7 @@ end;
 
 function set7: byte;
 begin
-  spokeb(Addr, speekb(Addr) or 128);
+  spokeb(hl.w, speekb(hl.w) or 128);
 
   Result := 16;
 end;
