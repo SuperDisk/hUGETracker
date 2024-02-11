@@ -123,6 +123,10 @@ function UpgradeSong(S: TSongV4): TSong; overload;
 
 function OptimizeSong(const S: TSong): TSong;
 function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
+function MaxInstrumentIndex(const Song: TSong): Integer;
+function InstrumentIsUsed(Idx: Integer; const Song: TSong): Boolean;
+function MaxWaveIndex(const Song: TSong): Integer;
+function WaveIsUsed(Idx: Integer; const Song: TSong): Boolean;
 
 implementation
 
@@ -850,6 +854,47 @@ begin
       if Song.OrderMatrix[I, J] = Idx then Exit(True);
 
   Result := False;
+end;
+
+function MaxInstrumentIndex(const Song: TSong): Integer;
+var
+  I, J, K: Integer;
+begin
+  K := -1;
+
+  for I := 0 to Song.Patterns.Count - 1 do
+    if PatternIsUsed(Song.Patterns.Keys[I], Song) then
+      for J := Low(Song.Patterns.Data[I]^) to High(Song.Patterns.Data[I]^) do
+        if K < Song.Patterns.Data[I]^[J].Instrument then
+           K := Song.Patterns.Data[I]^[J].Instrument;
+
+  Result := K;
+end;
+
+function InstrumentIsUsed(Idx: Integer; const Song: TSong): Boolean;
+begin
+  if Idx > 15 then
+    Idx := ((Idx - 1) mod 15) + 1;
+  Result := Idx <= MaxInstrumentIndex(Song);
+end;
+
+function MaxWaveIndex(const Song: TSong): Integer;
+var
+  I, K, MaxInstrIdx: Integer;
+begin
+  K := -1;
+  MaxInstrIdx := MaxInstrumentIndex(Song);
+
+  for I := Low(Song.Instruments.Wave) to MaxInstrIdx do
+    if K < Song.Instruments.Wave[I].Waveform then
+      K := Song.Instruments.Wave[I].Waveform;
+
+  Result := K;
+end;
+
+function WaveIsUsed(Idx: Integer; const Song: TSong): Boolean;
+begin
+  Result := Idx <= MaxWaveIndex(Song);
 end;
 
 end.
