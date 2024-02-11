@@ -459,6 +459,8 @@ var
   I: Integer;
   TypePrefix: String;
 begin
+  Song := OptimizeSong(Song);
+
   OutSL := TStringList.Create;
 
   OutSL.Add('include "hUGE.inc"');
