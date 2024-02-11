@@ -192,6 +192,8 @@ var
 
 implementation
 
+uses Forms;
+
 { TTableGrid }
 
 procedure TTableGrid.RenderCell(const Cell: TCell);
@@ -1338,7 +1340,15 @@ procedure TTrackerGrid.ChangeFontSize;
 begin
   // Kind of a hack
   with Canvas.Font do begin
-    Name := 'PixeliteTTF';
+    if Screen.Fonts.IndexOf('PixeliteTTF') >= 0 then begin
+       Name := 'PixeliteTTF';
+       Style := [];
+    end
+    else
+    begin
+       Name := 'Courier New';
+       Style := [fsBold];
+    end;
     Size := FontSize;
     ColumnWidth := GetTextWidth('C-5 01v64C01 ');
     RowHeight := GetTextHeight('C-5 01v64C01 ');
