@@ -156,7 +156,7 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     Result := '{'+SL.DelimitedText+'}';
   end;
 
-  function RenderGBDKInstrumentBank(Name: string; Bank: TInstrumentBank): string;
+  function RenderGBDKInstrumentBank(Name: string; Bank: TInstrumentBank; Limit: Integer): string;
   var
     I: integer;
     InstrType: String;
@@ -167,18 +167,18 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
       itNoise: InstrType := 'hUGENoiseInstr_t';
     end;
     Result := 'static const ' + InstrType + ' ' + Name + '[] = {'+LineEnding;
-    for I := Low(Bank) to High(Bank) do begin
+    for I := Low(Bank) to Limit do begin
       Result += '    '+RenderGBDKInstrument(Bank[I], I) + ','+LineEnding;
     end;
     Result += '};';
   end;
 
-  function RenderGBDKWaves(Waves: TWaveBank): string;
+  function RenderGBDKWaves(Waves: TWaveBank; Limit: Integer): string;
   var
     I, J: integer;
   begin
     Result := 'static const unsigned char waves[] = {'+LineEnding;
-    for I := Low(Waves) to High(Waves) do
+    for I := Low(Waves) to Limit do
     begin
       Result += '    ';
       J := Low(Waves[I]);
@@ -197,10 +197,12 @@ var
   OutSL: TStringList;
   OrderCnt: integer;
   I: integer;
+  MaxInstrIdx: integer;
   F: Text;
   TypePrefix: String;
 begin
   Song := OptimizeSong(Song);
+  MaxInstrIdx := MaxInstrumentIndex(Song);
 
   OutSL := TStringList.Create;
 
@@ -227,12 +229,13 @@ begin
   OutSL.Add('');
 
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
-    with Song.Instruments.All[I] do begin
-      if SubpatternEnabled then begin
-        WriteStr(TypePrefix, Type_);
-        OutSL.Add(RenderGBDKSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+    if InstrumentIsUsed(I, Song) then
+      with Song.Instruments.All[I] do begin
+        if SubpatternEnabled then begin
+          WriteStr(TypePrefix, Type_);
+          OutSL.Add(RenderGBDKSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+        end;
       end;
-    end;
 
   OutSL.Add(RenderGBDKOrder(1, Song.OrderMatrix[0]));
   OutSL.Add(RenderGBDKOrder(2, Song.OrderMatrix[1]));
@@ -240,12 +243,12 @@ begin
   OutSL.Add(RenderGBDKOrder(4, Song.OrderMatrix[3]));
   OutSL.Add('');
 
-  OutSL.Add(RenderGBDKInstrumentBank('duty_instruments', Song.Instruments.Duty));
-  OutSL.Add(RenderGBDKInstrumentBank('wave_instruments', Song.Instruments.Wave));
-  OutSL.Add(RenderGBDKInstrumentBank('noise_instruments', Song.Instruments.Noise));
+  OutSL.Add(RenderGBDKInstrumentBank('duty_instruments', Song.Instruments.Duty, MaxInstrIdx));
+  OutSL.Add(RenderGBDKInstrumentBank('wave_instruments', Song.Instruments.Wave, MaxInstrIdx));
+  OutSL.Add(RenderGBDKInstrumentBank('noise_instruments', Song.Instruments.Noise, MaxInstrIdx));
   OutSL.Add('');
 
-  OutSL.Add(RenderGBDKWaves(Song.Waves));
+  OutSL.Add(RenderGBDKWaves(Song.Waves, MaxWaveIndex(Song)));
   OutSL.Add('');
 
   if Bank <> -1 then
@@ -297,7 +300,7 @@ begin
   Res.Free;
 end;
 
-function RenderInstruments(Instruments: TInstrumentBank): string;
+function RenderInstruments(Instruments: TInstrumentBank; Limit: Integer): string;
 var
   ResultSL: TStringList;
   AsmInstrument: TAsmInstrument;
@@ -307,7 +310,7 @@ var
 begin
   ResultSL := TStringList.Create;
 
-  for I := Low(Instruments) to High(Instruments) do
+  for I := Low(Instruments) to Limit do
   begin
     WriteStr(TypePrefix, Instruments[I].Type_);
     ResultSL.Add(Format('%s%s:', [TypePrefix, 'inst' + IntToStr(I)]));
@@ -425,14 +428,14 @@ begin
   SL.Free;
 end;
 
-function RenderWaveforms(Waves: TWaveBank): string;
+function RenderWaveforms(Waves: TWaveBank; Limit: Integer): string;
 var
   SL, ResultSL: TStringList;
   I, J: integer;
 begin
   ResultSL := TStringList.Create;
 
-  for I := Low(Waves) to High(Waves) do
+  for I := Low(Waves) to Limit do
   begin
     SL := TStringList.Create;
     SL.StrictDelimiter := True;
@@ -457,9 +460,11 @@ var
   OutSL: TStringList;
   F: Text;
   I: Integer;
+  MaxInstrIdx: Integer;
   TypePrefix: String;
 begin
   Song := OptimizeSong(Song);
+  MaxInstrIdx := MaxInstrumentIndex(Song);
 
   OutSL := TStringList.Create;
 
@@ -487,25 +492,26 @@ begin
       OutSL.Add(RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]), Song.Patterns.Data[I]^));
 
   // Render subpatterns
-  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
-    with Song.Instruments.All[I] do begin
-      if SubpatternEnabled then begin
-        WriteStr(TypePrefix, Type_);
-        OutSL.Add(RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do        
+    if InstrumentIsUsed(I, Song) then
+      with Song.Instruments.All[I] do begin
+        if SubpatternEnabled then begin
+          WriteStr(TypePrefix, Type_);
+          OutSL.Add(RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+        end;
       end;
-    end;
 
   // Render instruments
   OutSL.Add('duty_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Duty));
+  OutSL.Add(RenderInstruments(Song.Instruments.Duty, MaxInstrIdx));
   OutSL.Add('');
 
   OutSL.Add('wave_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Wave));
+  OutSL.Add(RenderInstruments(Song.Instruments.Wave, MaxInstrIdx));
   OutSL.Add('');
 
   OutSL.Add('noise_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Noise));
+  OutSL.Add(RenderInstruments(Song.Instruments.Noise, MaxInstrIdx));
   OutSL.Add('');
 
   // Render routines
@@ -520,7 +526,7 @@ begin
 
   // Render waves
   OutSL.Add('waves:');
-  OutSL.Add(RenderWaveforms(Song.Waves));
+  OutSL.Add(RenderWaveforms(Song.Waves, MaxWaveIndex(Song)));
 
   AssignFile(F, Filename);
   Rewrite(F);
@@ -554,6 +560,7 @@ procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode);
 var
   OutFile: Text;
   I: integer;
+  MaxInstrIdx: integer;
   TypePrefix: String;
   Proc: TProcess;
   FilePath: string;
@@ -631,6 +638,7 @@ var
   end;
 begin
   Song := OptimizeSong(Song);
+  MaxInstrIdx := MaxInstrumentIndex(Song);
 
   if not DirectoryExists(ConcatPaths([CacheDir, 'render'])) then
     CreateDir(ConcatPaths([CacheDir, 'render']));
@@ -638,11 +646,11 @@ begin
   FilePath := Filename;
   Filename := ConcatPaths([CacheDir, 'render', ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename))]);
 
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']), RenderWaveforms(Song.Waves));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']), RenderWaveforms(Song.Waves, MaxWaveIndex(Song)));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'order.htt']), RenderOrderTable(Song.OrderMatrix));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),  RenderInstruments(Song.Instruments.Duty));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),  RenderInstruments(Song.Instruments.Wave));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']), RenderInstruments(Song.Instruments.Noise));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),  RenderInstruments(Song.Instruments.Duty, MaxInstrIdx));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),  RenderInstruments(Song.Instruments.Wave, MaxInstrIdx));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']), RenderInstruments(Song.Instruments.Noise, MaxInstrIdx));
   for I := Low(TRoutineBank) to High(TRoutineBank) do
     WriteHTT(ConcatPaths([CacheDir, 'render', 'routine'+IntToStr(I)+'.htt']), Song.Routines[I]);
 
@@ -659,13 +667,14 @@ begin
   AssignFile(OutFile, ConcatPaths([CacheDir, 'render', 'subpattern.htt']));
   Rewrite(OutFile);
 
-  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
-    with Song.Instruments.All[I] do begin
-      if SubpatternEnabled then begin
-        WriteStr(TypePrefix, Type_);
-        Write(OutFile, RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do   
+    if InstrumentIsUsed(I, Song) then
+      with Song.Instruments.All[I] do begin
+        if SubpatternEnabled then begin
+          WriteStr(TypePrefix, Type_);
+          Write(OutFile, RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+        end;
       end;
-    end;
 
   CloseFile(OutFile);
 
