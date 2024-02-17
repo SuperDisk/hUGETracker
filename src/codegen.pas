@@ -28,6 +28,82 @@ procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: st
 
 implementation
 
+uses AvgLvlTree;
+
+type
+  TUsedStuff = record
+    HighestDutyInst, HighestWaveInst, HighestNoiseInst: Integer;
+    HighestWaveform: Integer;
+    UsedPatterns: TAvgLvlTree;
+  end;
+
+function CompareIntPointers(Data1, Data2: Pointer): integer;
+begin
+  Result := Integer(Data1^) - Integer(Data2^);
+end;
+
+function FindUsedStuff(const Song: TSong): TUsedStuff;
+var
+  I, J: Integer;
+  Pat: PPattern;
+  Cell: TCell;
+  Highest: ^Integer;
+  Waveform: Integer;
+begin
+  Result.UsedPatterns := TAvgLvlTree.Create(@CompareIntPointers);
+  Result.HighestDutyInst := -1;
+  Result.HighestWaveInst := -1;
+  Result.HighestNoiseInst := -1;
+  Result.HighestWaveform := -1;
+
+  for I := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do begin
+    case I of
+      0, 1: Highest := @Result.HighestDutyInst;
+      2: Highest := @Result.HighestWaveInst;
+      3: Highest := @Result.HighestNoiseInst;
+    end;
+
+    for J := Low(Song.OrderMatrix[I]) to High(Song.OrderMatrix[I])-1 do begin
+      if Result.UsedPatterns.Find(@Song.OrderMatrix[I, J]) <> nil then Continue;
+
+      Result.UsedPatterns.Add(@Song.OrderMatrix[I, J]);
+
+      Pat := Song.Patterns.KeyData[Song.OrderMatrix[I, J]];
+      for Cell in Pat^ do begin
+        if Cell.Instrument = 0 then Continue;
+
+        if Cell.Instrument > Highest^ then
+          Highest^ := Cell.Instrument;
+
+        if (I = 2) then begin // Wave channel
+          Waveform := Song.Instruments.Wave[Cell.Instrument].Waveform;
+          if Waveform > Result.HighestWaveform then
+            Result.HighestWaveform := Waveform;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure FreeUsedStuff(const UsedStuff: TUsedStuff);
+begin
+  UsedStuff.UsedPatterns.Free;
+end;
+
+function PatternIsUsed(Pattern: Integer; const UsedStuff: TUsedStuff): Boolean;
+begin
+  Result := UsedStuff.UsedPatterns.Find(@Pattern) <> nil;
+end;
+
+function InstrumentIsUsed(Instrument: Integer; Type_: TInstrumentType; const UsedStuff: TUsedStuff): Boolean;
+begin
+  case Type_ of
+    itSquare: Result := Instrument <= UsedStuff.HighestDutyInst;
+    itWave: Result := Instrument <= UsedStuff.HighestWaveInst;
+    itNoise: Result := Instrument <= UsedStuff.HighestNoiseInst;
+  end;
+end;
+
 procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
   function RenderGBDKCell(Cell: TCell): string;
   var
@@ -197,12 +273,12 @@ var
   OutSL: TStringList;
   OrderCnt: integer;
   I: integer;
-  MaxInstrIdx: integer;
   F: Text;
   TypePrefix: String;
+  UsedStuff: TUsedStuff;
 begin
   Song := OptimizeSong(Song);
-  MaxInstrIdx := MaxInstrumentIndex(Song);
+  UsedStuff := FindUsedStuff(Song);
 
   OutSL := TStringList.Create;
 
@@ -223,13 +299,13 @@ begin
   OutSL.Add('');
 
   for I := 0 to Song.Patterns.Count - 1 do
-    if PatternIsUsed(Song.Patterns.Keys[I], Song) then
+    if PatternIsUsed(Song.Patterns.Keys[I], UsedStuff) then
       OutSL.Add(RenderGBDKPattern('P' + IntToStr(Song.Patterns.Keys[I]),
         Song.Patterns.Data[I]^));
   OutSL.Add('');
 
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
-    if InstrumentIsUsed(I, Song) then
+    if InstrumentIsUsed(ModInst(I), Song.Instruments.All[I].Type_, UsedStuff) then
       with Song.Instruments.All[I] do begin
         if SubpatternEnabled then begin
           WriteStr(TypePrefix, Type_);
@@ -243,12 +319,12 @@ begin
   OutSL.Add(RenderGBDKOrder(4, Song.OrderMatrix[3]));
   OutSL.Add('');
 
-  OutSL.Add(RenderGBDKInstrumentBank('duty_instruments', Song.Instruments.Duty, MaxInstrIdx));
-  OutSL.Add(RenderGBDKInstrumentBank('wave_instruments', Song.Instruments.Wave, MaxInstrIdx));
-  OutSL.Add(RenderGBDKInstrumentBank('noise_instruments', Song.Instruments.Noise, MaxInstrIdx));
+  OutSL.Add(RenderGBDKInstrumentBank('duty_instruments', Song.Instruments.Duty, UsedStuff.HighestDutyInst));
+  OutSL.Add(RenderGBDKInstrumentBank('wave_instruments', Song.Instruments.Wave, UsedStuff.HighestWaveInst));
+  OutSL.Add(RenderGBDKInstrumentBank('noise_instruments', Song.Instruments.Noise, UsedStuff.HighestNoiseInst));
   OutSL.Add('');
 
-  OutSL.Add(RenderGBDKWaves(Song.Waves, MaxWaveIndex(Song)));
+  OutSL.Add(RenderGBDKWaves(Song.Waves, UsedStuff.HighestWaveform));
   OutSL.Add('');
 
   if Bank <> -1 then
@@ -265,6 +341,7 @@ begin
   CloseFile(F);
 
   OutSL.Free;
+  FreeUsedStuff(UsedStuff);
 end;
 
 function RenderOrderTable(OrderMatrix: TOrderMatrix): string;
@@ -460,11 +537,11 @@ var
   OutSL: TStringList;
   F: Text;
   I: Integer;
-  MaxInstrIdx: Integer;
   TypePrefix: String;
+  UsedStuff: TUsedStuff;
 begin
   Song := OptimizeSong(Song);
-  MaxInstrIdx := MaxInstrumentIndex(Song);
+  UsedStuff := FindUsedStuff(Song);
 
   OutSL := TStringList.Create;
 
@@ -488,12 +565,12 @@ begin
 
   // Render patterns
   for I := 0 to Song.Patterns.Count - 1 do
-    if PatternIsUsed(Song.Patterns.Keys[I], Song) then
+    if PatternIsUsed(Song.Patterns.Keys[I], UsedStuff) then
       OutSL.Add(RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]), Song.Patterns.Data[I]^));
 
   // Render subpatterns
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do        
-    if InstrumentIsUsed(I, Song) then
+    if InstrumentIsUsed(ModInst(I), Song.Instruments.All[I].Type_, UsedStuff) then
       with Song.Instruments.All[I] do begin
         if SubpatternEnabled then begin
           WriteStr(TypePrefix, Type_);
@@ -503,15 +580,15 @@ begin
 
   // Render instruments
   OutSL.Add('duty_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Duty, MaxInstrIdx));
+  OutSL.Add(RenderInstruments(Song.Instruments.Duty, UsedStuff.HighestDutyInst));
   OutSL.Add('');
 
   OutSL.Add('wave_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Wave, MaxInstrIdx));
+  OutSL.Add(RenderInstruments(Song.Instruments.Wave, UsedStuff.HighestWaveInst));
   OutSL.Add('');
 
   OutSL.Add('noise_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Noise, MaxInstrIdx));
+  OutSL.Add(RenderInstruments(Song.Instruments.Noise, UsedStuff.HighestNoiseInst));
   OutSL.Add('');
 
   // Render routines
@@ -526,7 +603,7 @@ begin
 
   // Render waves
   OutSL.Add('waves:');
-  OutSL.Add(RenderWaveforms(Song.Waves, MaxWaveIndex(Song)));
+  OutSL.Add(RenderWaveforms(Song.Waves, UsedStuff.HighestWaveform));
 
   AssignFile(F, Filename);
   Rewrite(F);
@@ -534,6 +611,7 @@ begin
   CloseFile(F);
 
   OutSL.Free;
+  FreeUsedStuff(UsedStuff);
 end;
 
 procedure RectifyGBSFile(GBSFile: string);
@@ -560,11 +638,11 @@ procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode);
 var
   OutFile: Text;
   I: integer;
-  MaxInstrIdx: integer;
   TypePrefix: String;
   Proc: TProcess;
   FilePath: string;
   RenameSucceeded: Boolean;
+  UsedStuff: TUsedStuff;
 
   procedure Die;
   var
@@ -638,7 +716,7 @@ var
   end;
 begin
   Song := OptimizeSong(Song);
-  MaxInstrIdx := MaxInstrumentIndex(Song);
+  UsedStuff := FindUsedStuff(Song);
 
   if not DirectoryExists(ConcatPaths([CacheDir, 'render'])) then
     CreateDir(ConcatPaths([CacheDir, 'render']));
@@ -646,11 +724,11 @@ begin
   FilePath := Filename;
   Filename := ConcatPaths([CacheDir, 'render', ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename))]);
 
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']), RenderWaveforms(Song.Waves, MaxWaveIndex(Song)));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']), RenderWaveforms(Song.Waves, UsedStuff.HighestWaveform));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'order.htt']), RenderOrderTable(Song.OrderMatrix));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),  RenderInstruments(Song.Instruments.Duty, MaxInstrIdx));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),  RenderInstruments(Song.Instruments.Wave, MaxInstrIdx));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']), RenderInstruments(Song.Instruments.Noise, MaxInstrIdx));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),  RenderInstruments(Song.Instruments.Duty, UsedStuff.HighestDutyInst));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),  RenderInstruments(Song.Instruments.Wave, UsedStuff.HighestWaveInst));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']), RenderInstruments(Song.Instruments.Noise, UsedStuff.HighestNoiseInst));
   for I := Low(TRoutineBank) to High(TRoutineBank) do
     WriteHTT(ConcatPaths([CacheDir, 'render', 'routine'+IntToStr(I)+'.htt']), Song.Routines[I]);
 
@@ -658,7 +736,7 @@ begin
   Rewrite(OutFile);
 
   for I := 0 to Song.Patterns.Count - 1 do
-    if PatternIsUsed(Song.Patterns.Keys[I], Song) then
+    if PatternIsUsed(Song.Patterns.Keys[I], UsedStuff) then
       Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]),
         Song.Patterns.Data[I]^));
 
@@ -668,7 +746,7 @@ begin
   Rewrite(OutFile);
 
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do   
-    if InstrumentIsUsed(I, Song) then
+    if InstrumentIsUsed(ModInst(I), Song.Instruments.All[I].Type_, UsedStuff) then
       with Song.Instruments.All[I] do begin
         if SubpatternEnabled then begin
           WriteStr(TypePrefix, Type_);
@@ -770,6 +848,7 @@ begin
     end;
   finally
     Proc.Free;
+    FreeUsedStuff(UsedStuff);
   end;
 end;
 
