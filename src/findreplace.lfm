@@ -1,30 +1,30 @@
 object frmFindReplace: TfrmFindReplace
-  Left = 1706
-  Height = 639
-  Top = 205
-  Width = 665
+  Left = 796
+  Height = 487
+  Top = 408
+  Width = 507
   BorderStyle = bsDialog
   Caption = 'Find/Replace'
-  ClientHeight = 639
-  ClientWidth = 665
-  DesignTimePPI = 168
+  ClientHeight = 487
+  ClientWidth = 507
+  DesignTimePPI = 128
   OnCreate = FormCreate
-  LCLVersion = '2.2.3.0'
+  LCLVersion = '3.0.0.3'
   object GroupBox1: TGroupBox
-    Left = 28
-    Height = 266
-    Top = 14
-    Width = 604
+    Left = 21
+    Height = 203
+    Top = 11
+    Width = 460
     Caption = 'Find'
-    ClientHeight = 231
-    ClientWidth = 600
+    ClientHeight = 178
+    ClientWidth = 456
     TabOrder = 0
     object FindNoteLow: TComboBox
-      Left = 180
-      Height = 38
-      Top = 7
-      Width = 175
-      ItemHeight = 30
+      Left = 137
+      Height = 31
+      Top = 5
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         'C-3'
@@ -105,71 +105,71 @@ object frmFindReplace: TfrmFindReplace
       Text = 'C-3'
     end
     object FindNoteCheckbox: TCheckBox
-      Left = 14
-      Height = 34
-      Top = 14
-      Width = 80
+      Left = 11
+      Height = 25
+      Top = 11
+      Width = 60
       Caption = 'Note'
       TabOrder = 1
     end
     object FindInstrCheckbox: TCheckBox
-      Left = 14
-      Height = 34
-      Top = 70
-      Width = 135
+      Left = 11
+      Height = 25
+      Top = 53
+      Width = 109
       Caption = 'Instrument'
       TabOrder = 2
     end
     object FindInstrLow: TSpinEdit
-      Left = 180
-      Height = 38
-      Top = 63
-      Width = 175
+      Left = 137
+      Height = 33
+      Top = 48
+      Width = 133
       MaxValue = 15
       MinValue = 1
       TabOrder = 3
       Value = 1
     end
     object Label1: TLabel
-      Left = 364
-      Height = 30
-      Top = 70
-      Width = 19
+      Left = 277
+      Height = 23
+      Top = 53
+      Width = 16
       Caption = 'to'
       ParentColor = False
     end
     object FindInstrHigh: TSpinEdit
-      Left = 392
-      Height = 38
-      Top = 63
-      Width = 175
+      Left = 299
+      Height = 33
+      Top = 48
+      Width = 133
       MaxValue = 15
       MinValue = 1
       TabOrder = 4
       Value = 1
     end
     object FindFXCodeCheckbox: TCheckBox
-      Left = 14
-      Height = 34
-      Top = 126
-      Width = 138
+      Left = 11
+      Height = 25
+      Top = 96
+      Width = 107
       Caption = 'Effect code'
       TabOrder = 5
     end
     object FindFXParamCheckbox: TCheckBox
-      Left = 14
-      Height = 34
-      Top = 182
-      Width = 161
+      Left = 11
+      Height = 25
+      Top = 139
+      Width = 127
       Caption = 'Effect params'
       TabOrder = 6
     end
     object FindFXCodeLow: TComboBox
-      Left = 180
-      Height = 38
-      Top = 119
-      Width = 175
-      ItemHeight = 30
+      Left = 137
+      Height = 31
+      Top = 91
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         '0'
@@ -194,19 +194,19 @@ object frmFindReplace: TfrmFindReplace
       Text = '0'
     end
     object Label2: TLabel
-      Left = 364
-      Height = 30
-      Top = 126
-      Width = 19
+      Left = 277
+      Height = 23
+      Top = 96
+      Width = 16
       Caption = 'to'
       ParentColor = False
     end
     object FindFXCodeHigh: TComboBox
-      Left = 392
-      Height = 38
-      Top = 119
-      Width = 175
-      ItemHeight = 30
+      Left = 299
+      Height = 31
+      Top = 91
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         '0'
@@ -231,11 +231,11 @@ object frmFindReplace: TfrmFindReplace
       Text = '0'
     end
     object FindFXParamLow: TComboBox
-      Left = 180
-      Height = 38
-      Top = 175
-      Width = 175
-      ItemHeight = 30
+      Left = 137
+      Height = 33
+      Top = 133
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         '00'
@@ -499,19 +499,19 @@ object frmFindReplace: TfrmFindReplace
       Text = '00'
     end
     object Label3: TLabel
-      Left = 364
-      Height = 30
-      Top = 182
-      Width = 19
+      Left = 277
+      Height = 23
+      Top = 139
+      Width = 16
       Caption = 'to'
       ParentColor = False
     end
     object FindFXParamHigh: TComboBox
-      Left = 392
-      Height = 38
-      Top = 175
-      Width = 175
-      ItemHeight = 30
+      Left = 299
+      Height = 33
+      Top = 133
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         '00'
@@ -775,19 +775,19 @@ object frmFindReplace: TfrmFindReplace
       Text = '00'
     end
     object Label4: TLabel
-      Left = 364
-      Height = 30
-      Top = 14
-      Width = 19
+      Left = 277
+      Height = 23
+      Top = 11
+      Width = 16
       Caption = 'to'
       ParentColor = False
     end
     object FindNoteHigh: TComboBox
-      Left = 392
-      Height = 38
-      Top = 7
-      Width = 175
-      ItemHeight = 30
+      Left = 299
+      Height = 31
+      Top = 5
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         'C-3'
@@ -869,71 +869,71 @@ object frmFindReplace: TfrmFindReplace
     end
   end
   object Button1: TButton
-    Left = 28
-    Height = 44
-    Top = 574
-    Width = 131
+    Left = 21
+    Height = 34
+    Top = 437
+    Width = 100
     Caption = 'Replace'
-    OnClick = Button1Click
     TabOrder = 1
+    OnClick = Button1Click
   end
   object GroupBox2: TGroupBox
-    Left = 28
-    Height = 266
-    Top = 294
-    Width = 604
+    Left = 21
+    Height = 203
+    Top = 224
+    Width = 460
     Caption = 'Replace'
-    ClientHeight = 231
-    ClientWidth = 600
+    ClientHeight = 178
+    ClientWidth = 456
     TabOrder = 2
     object ReplaceNoteCheckbox: TCheckBox
-      Left = 14
-      Height = 34
-      Top = 14
-      Width = 80
+      Left = 11
+      Height = 25
+      Top = 11
+      Width = 60
       Caption = 'Note'
       TabOrder = 0
     end
     object ReplaceInstrCheckbox: TCheckBox
-      Left = 14
-      Height = 34
-      Top = 70
-      Width = 135
+      Left = 11
+      Height = 25
+      Top = 53
+      Width = 109
       Caption = 'Instrument'
       TabOrder = 1
     end
     object InstrReplaceValue: TSpinEdit
-      Left = 392
-      Height = 38
-      Top = 63
-      Width = 175
+      Left = 299
+      Height = 33
+      Top = 48
+      Width = 133
       MaxValue = 15
       MinValue = 1
       TabOrder = 2
       Value = 1
     end
     object ReplaceFXCodeCheckbox: TCheckBox
-      Left = 14
-      Height = 34
-      Top = 126
-      Width = 138
+      Left = 11
+      Height = 25
+      Top = 96
+      Width = 107
       Caption = 'Effect code'
       TabOrder = 3
     end
     object ReplaceFXParamCheckbox: TCheckBox
-      Left = 14
-      Height = 34
-      Top = 182
-      Width = 161
+      Left = 11
+      Height = 25
+      Top = 139
+      Width = 127
       Caption = 'Effect params'
       TabOrder = 4
     end
     object FXCodeReplaceValue: TComboBox
-      Left = 392
-      Height = 38
-      Top = 119
-      Width = 175
-      ItemHeight = 30
+      Left = 299
+      Height = 31
+      Top = 91
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         '0'
@@ -958,11 +958,11 @@ object frmFindReplace: TfrmFindReplace
       Text = '0'
     end
     object FXParamReplaceValue: TComboBox
-      Left = 392
-      Height = 38
-      Top = 175
-      Width = 175
-      ItemHeight = 30
+      Left = 299
+      Height = 33
+      Top = 133
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         '00'
@@ -1226,11 +1226,11 @@ object frmFindReplace: TfrmFindReplace
       Text = '00'
     end
     object NoteReplaceValue: TComboBox
-      Left = 392
-      Height = 38
-      Top = 7
-      Width = 175
-      ItemHeight = 30
+      Left = 299
+      Height = 31
+      Top = 5
+      Width = 133
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         'C-3'
@@ -1311,11 +1311,11 @@ object frmFindReplace: TfrmFindReplace
       Text = 'C-3'
     end
     object NoteReplaceOp: TComboBox
-      Left = 180
-      Height = 38
-      Top = 7
-      Width = 184
-      ItemHeight = 30
+      Left = 137
+      Height = 31
+      Top = 5
+      Width = 140
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         'Set to'
@@ -1327,11 +1327,11 @@ object frmFindReplace: TfrmFindReplace
       Text = 'Set to'
     end
     object InstrReplaceOp: TComboBox
-      Left = 180
-      Height = 38
-      Top = 63
-      Width = 184
-      ItemHeight = 30
+      Left = 137
+      Height = 31
+      Top = 48
+      Width = 140
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         'Set to'
@@ -1343,11 +1343,11 @@ object frmFindReplace: TfrmFindReplace
       Text = 'Set to'
     end
     object FXCodeReplaceOp: TComboBox
-      Left = 180
-      Height = 38
-      Top = 119
-      Width = 184
-      ItemHeight = 30
+      Left = 137
+      Height = 31
+      Top = 91
+      Width = 140
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         'Set to'
@@ -1359,11 +1359,11 @@ object frmFindReplace: TfrmFindReplace
       Text = 'Set to'
     end
     object FXParamReplaceOp: TComboBox
-      Left = 180
-      Height = 38
-      Top = 175
-      Width = 184
-      ItemHeight = 30
+      Left = 137
+      Height = 31
+      Top = 133
+      Width = 140
+      ItemHeight = 0
       ItemIndex = 0
       Items.Strings = (
         'Set to'
@@ -1376,12 +1376,12 @@ object frmFindReplace: TfrmFindReplace
     end
   end
   object Button2: TButton
-    Left = 168
-    Height = 44
-    Top = 574
-    Width = 131
+    Left = 128
+    Height = 34
+    Top = 437
+    Width = 100
     Caption = 'Cancel'
-    OnClick = Button2Click
     TabOrder = 3
+    OnClick = Button2Click
   end
 end

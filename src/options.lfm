@@ -1,28 +1,29 @@
 object frmOptions: TfrmOptions
-  Left = 1734
-  Height = 710
-  Top = 220
-  Width = 550
+  Left = 623
+  Height = 947
+  Top = 260
+  Width = 733
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 710
-  ClientWidth = 550
+  ClientHeight = 947
+  ClientWidth = 733
+  DesignTimePPI = 128
   OnClose = FormClose
   OnCreate = FormCreate
   Position = poMainFormCenter
-  LCLVersion = '2.2.7.0'
+  LCLVersion = '3.0.0.3'
   object Button1: TButton
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Side = asrBottom
-    Left = 412
-    Height = 25
-    Top = 677
-    Width = 123
+    Left = 549
+    Height = 33
+    Top = 903
+    Width = 164
     Anchors = [akRight, akBottom]
     Caption = 'OK'
-    OnClick = Button1Click
     ParentFont = False
     TabOrder = 0
+    OnClick = Button1Click
   end
   object OptionsPageControl: TPageControl
     AnchorSideLeft.Control = Owner
@@ -30,36 +31,36 @@ object frmOptions: TfrmOptions
     AnchorSideRight.Control = Owner
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Button1
-    Left = 10
-    Height = 660
-    Top = 10
-    Width = 530
+    Left = 13
+    Height = 881
+    Top = 13
+    Width = 707
     ActivePage = CustomiztaionTabSheet
     Anchors = [akTop, akLeft, akRight, akBottom]
-    BorderSpacing.Left = 10
-    BorderSpacing.Top = 10
-    BorderSpacing.Right = 10
-    BorderSpacing.Bottom = 7
+    BorderSpacing.Left = 13
+    BorderSpacing.Top = 13
+    BorderSpacing.Right = 13
+    BorderSpacing.Bottom = 9
     TabIndex = 2
     TabOrder = 1
     object GeneralTabSheet: TTabSheet
       Caption = 'General'
-      ClientHeight = 625
-      ClientWidth = 524
+      ClientHeight = 840
+      ClientWidth = 701
       object OptionsGroupBox: TGroupBox
-        Left = 8
-        Height = 568
-        Top = 8
-        Width = 392
+        Left = 11
+        Height = 757
+        Top = 11
+        Width = 523
         Caption = 'Options'
-        ClientHeight = 549
-        ClientWidth = 388
+        ClientHeight = 732
+        ClientWidth = 519
         TabOrder = 0
         object CheckListBox1: TCheckListBox
-          Left = 8
-          Height = 528
-          Top = 8
-          Width = 370
+          Left = 11
+          Height = 704
+          Top = 11
+          Width = 493
           Items.Strings = (
             'Show scopes (uses more CPU)'
             'Play preview when placing notes'
@@ -71,6 +72,7 @@ object frmOptions: TfrmOptions
           )
           ItemHeight = 23
           TabOrder = 0
+          TopIndex = -1
           Data = {
             0700000000000000000000
           }
@@ -79,40 +81,40 @@ object frmOptions: TfrmOptions
     end
     object KeyboardTabSheet: TTabSheet
       Caption = 'Keyboard'
-      ClientHeight = 625
-      ClientWidth = 524
+      ClientHeight = 840
+      ClientWidth = 701
       object KeymapGroupBox: TGroupBox
-        Left = 16
-        Height = 544
-        Top = 48
-        Width = 392
+        Left = 21
+        Height = 725
+        Top = 64
+        Width = 523
         Caption = 'Custom key map'
-        ClientHeight = 525
-        ClientWidth = 388
+        ClientHeight = 700
+        ClientWidth = 519
         Enabled = False
         ParentFont = False
         TabOrder = 0
         object KeyMapStringGrid: TStringGrid
-          Left = 8
-          Height = 472
-          Top = 8
-          Width = 368
+          Left = 11
+          Height = 629
+          Top = 11
+          Width = 491
           AutoFillColumns = True
           ColCount = 2
           Columns = <          
             item
-              MinSize = 10
-              MaxSize = 200
+              MinSize = 13
+              MaxSize = 267
               Title.Caption = 'Key'
-              Width = 183
+              Width = 244
             end          
             item
-              MinSize = 10
-              MaxSize = 200
+              MinSize = 13
+              MaxSize = 267
               Title.Caption = 'Note'
-              Width = 183
+              Width = 243
             end>
-          DefaultColWidth = 120
+          DefaultColWidth = 160
           FixedCols = 0
           MouseWheelOption = mwGrid
           Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goAutoAddRows, goTabs, goSmoothScroll]
@@ -120,406 +122,406 @@ object frmOptions: TfrmOptions
           TabOrder = 0
           OnValidateEntry = KeyMapStringGridValidateEntry
           ColWidths = (
-            183
-            183
+            244
+            243
           )
         end
         object Button2: TButton
-          Left = 8
-          Height = 25
-          Top = 488
-          Width = 131
+          Left = 11
+          Height = 33
+          Top = 651
+          Width = 175
           Caption = 'Load'
-          OnClick = Button2Click
           ParentFont = False
           TabOrder = 1
+          OnClick = Button2Click
         end
         object Button3: TButton
-          Left = 144
-          Height = 25
-          Top = 488
-          Width = 126
+          Left = 192
+          Height = 33
+          Top = 651
+          Width = 168
           Caption = 'Save'
-          OnClick = Button3Click
           ParentFont = False
           TabOrder = 2
+          OnClick = Button3Click
         end
         object Button4: TButton
-          Left = 346
-          Height = 25
-          Top = 488
-          Width = 30
+          Left = 461
+          Height = 33
+          Top = 651
+          Width = 40
           Caption = '-'
-          OnClick = Button4Click
           ParentFont = False
           TabOrder = 3
+          OnClick = Button4Click
         end
         object Button5: TButton
-          Left = 312
-          Height = 25
-          Top = 488
-          Width = 30
+          Left = 416
+          Height = 33
+          Top = 651
+          Width = 40
           Caption = '+'
-          OnClick = Button5Click
           ParentFont = False
           TabOrder = 4
+          OnClick = Button5Click
         end
       end
       object UseCustomKeymapCheckbox: TCheckBox
-        Left = 24
-        Height = 21
-        Top = 16
-        Width = 136
+        Left = 32
+        Height = 25
+        Top = 21
+        Width = 177
         Caption = 'Use custom keymap'
-        OnChange = KeymapCheckboxChange
         TabOrder = 1
+        OnChange = KeymapCheckboxChange
       end
     end
     object CustomiztaionTabSheet: TTabSheet
       Caption = 'Appearance'
-      ClientHeight = 625
-      ClientWidth = 524
+      ClientHeight = 840
+      ClientWidth = 701
       object Panel1: TPanel
-        Left = 312
-        Height = 608
-        Top = 8
-        Width = 200
+        Left = 416
+        Height = 811
+        Top = 11
+        Width = 267
         BevelWidth = 3
-        ClientHeight = 608
-        ClientWidth = 200
+        ClientHeight = 811
+        ClientWidth = 267
         TabOrder = 0
         object SampleTrackerGridPanel: TPanel
           Left = 3
-          Height = 602
+          Height = 805
           Top = 3
-          Width = 194
+          Width = 261
           Align = alClient
           BevelOuter = bvNone
           TabOrder = 0
         end
       end
       object CustomizationGroupBox: TGroupBox
-        Left = 8
-        Height = 608
-        Top = 8
-        Width = 297
+        Left = 11
+        Height = 811
+        Top = 11
+        Width = 396
         Caption = 'Customization'
-        ClientHeight = 589
-        ClientWidth = 293
+        ClientHeight = 786
+        ClientWidth = 392
         TabOrder = 1
         object Label1: TLabel
-          Left = 14
-          Height = 17
-          Top = 14
-          Width = 127
+          Left = 19
+          Height = 23
+          Top = 19
+          Width = 176
           Caption = 'Pattern editor font size'
           ParentColor = False
           ParentFont = False
         end
         object FontSizeSpinner: TSpinEdit
-          Left = 155
-          Height = 27
-          Top = 9
-          Width = 123
+          Left = 207
+          Height = 33
+          Top = 12
+          Width = 164
           OnChange = FontSizeSpinnerChange
           ParentFont = False
           TabOrder = 0
           Value = 12
         end
         object NoteTextColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 40
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 53
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 8342016
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object Label2: TLabel
-          Left = 14
-          Height = 17
-          Top = 40
-          Width = 82
+          Left = 19
+          Height = 23
+          Top = 53
+          Width = 113
           Caption = 'Note text color'
           ParentColor = False
         end
         object InstrumentTextColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 72
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 96
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 8355584
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object MiscEffectTextColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 104
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 139
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 4145020
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object PitchEffectTextColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 136
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 181
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 25186
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object VolumeEffectTextColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 168
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 224
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 32550
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object PanningEffectTextColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 200
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 267
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 8355584
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object SongEffectTextColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 232
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 309
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 127
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object Label3: TLabel
-          Left = 14
-          Height = 17
-          Top = 72
-          Width = 117
+          Left = 19
+          Height = 23
+          Top = 96
+          Width = 162
           Caption = 'Instrument text color'
           ParentColor = False
         end
         object Label4: TLabel
-          Left = 14
-          Height = 17
-          Top = 104
-          Width = 119
+          Left = 19
+          Height = 23
+          Top = 139
+          Width = 162
           Caption = 'Misc. effect text color'
           ParentColor = False
         end
         object Label5: TLabel
-          Left = 14
-          Height = 17
-          Top = 136
-          Width = 117
+          Left = 19
+          Height = 23
+          Top = 181
+          Width = 161
           Caption = 'Pitch effect text color'
           ParentColor = False
         end
         object Label6: TLabel
-          Left = 14
-          Height = 17
-          Top = 168
-          Width = 132
+          Left = 19
+          Height = 23
+          Top = 224
+          Width = 180
           Caption = 'Volume effect text color'
           ParentColor = False
         end
         object Label7: TLabel
-          Left = 14
-          Height = 17
-          Top = 200
-          Width = 135
+          Left = 19
+          Height = 23
+          Top = 267
+          Width = 186
           Caption = 'Panning effect text color'
           ParentColor = False
         end
         object Label8: TLabel
-          Left = 14
-          Height = 17
-          Top = 232
-          Width = 118
+          Left = 19
+          Height = 23
+          Top = 309
+          Width = 162
           Caption = 'Song effect text color'
           ParentColor = False
         end
         object BackgroundColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 296
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 395
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 13687777
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object HighlightedColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 328
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 437
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 8034729
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object SelectedColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 360
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 480
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 10400960
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object FourthRowColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 392
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 523
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 12833240
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object SixteenthRowColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 424
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 565
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 11912654
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object Label9: TLabel
-          Left = 14
-          Height = 17
-          Top = 296
-          Width = 67
+          Left = 19
+          Height = 23
+          Top = 395
+          Width = 92
           Caption = 'Background'
           ParentColor = False
         end
         object Label10: TLabel
-          Left = 14
-          Height = 17
-          Top = 328
-          Width = 64
+          Left = 19
+          Height = 23
+          Top = 437
+          Width = 89
           Caption = 'Highlighted'
           ParentColor = False
         end
         object Label11: TLabel
-          Left = 14
-          Height = 17
-          Top = 360
-          Width = 48
+          Left = 19
+          Height = 23
+          Top = 480
+          Width = 64
           Caption = 'Selected'
           ParentColor = False
         end
         object Label12: TLabel
-          Left = 14
-          Height = 17
-          Top = 392
-          Width = 92
+          Left = 19
+          Height = 23
+          Top = 523
+          Width = 126
           Caption = 'Every fourth row'
           ParentColor = False
         end
         object Label13: TLabel
-          Left = 14
-          Height = 17
-          Top = 424
-          Width = 109
+          Left = 19
+          Height = 23
+          Top = 565
+          Width = 147
           Caption = 'Every sixteenth row'
           ParentColor = False
         end
         object DotsColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 456
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 608
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = clGray
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object DividersColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 488
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 651
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 11253692
           OnColorChanged = NoteTextColorButtonColorChanged
         end
         object Label14: TLabel
-          Left = 14
-          Height = 17
-          Top = 456
-          Width = 26
+          Left = 19
+          Height = 23
+          Top = 608
+          Width = 36
           Caption = 'Dots'
           ParentColor = False
         end
         object Label15: TLabel
-          Left = 14
-          Height = 17
-          Top = 488
-          Width = 46
+          Left = 19
+          Height = 23
+          Top = 651
+          Width = 62
           Caption = 'Dividers'
           ParentColor = False
         end
         object Button6: TButton
-          Left = 56
-          Height = 25
-          Top = 552
-          Width = 188
+          Left = 75
+          Height = 33
+          Top = 736
+          Width = 251
           Caption = 'Reset palette to default'
-          OnClick = Button6Click
           TabOrder = 1
+          OnClick = Button6Click
         end
         object Button7: TButton
-          Left = 56
-          Height = 25
-          Top = 520
-          Width = 90
+          Left = 75
+          Height = 33
+          Top = 693
+          Width = 120
           Caption = 'Load palette'
-          OnClick = Button7Click
           TabOrder = 2
+          OnClick = Button7Click
         end
         object Button8: TButton
-          Left = 154
-          Height = 25
-          Top = 520
-          Width = 90
+          Left = 205
+          Height = 33
+          Top = 693
+          Width = 120
           Caption = 'Save palette'
-          OnClick = Button8Click
           TabOrder = 3
+          OnClick = Button8Click
         end
         object Label16: TLabel
-          Left = 14
-          Height = 17
-          Top = 264
-          Width = 127
+          Left = 19
+          Height = 23
+          Top = 352
+          Width = 176
           Caption = 'Jump column text color'
           ParentColor = False
         end
         object JumpColumnTextColorButton: TColorButton
-          Left = 155
-          Height = 25
-          Top = 264
-          Width = 123
-          BorderWidth = 2
-          ButtonColorSize = 16
+          Left = 207
+          Height = 33
+          Top = 352
+          Width = 164
+          BorderWidth = 3
+          ButtonColorSize = 21
           ButtonColor = 7471182
           OnColorChanged = NoteTextColorButtonColorChanged
         end
@@ -527,11 +529,11 @@ object frmOptions: TfrmOptions
     end
   end
   object SaveDialog1: TSaveDialog
-    Left = 376
+    Left = 501
   end
   object KeymapOpenDialog: TOpenDialog
     InitialDir = './Keymaps'
-    Left = 328
+    Left = 437
   end
   object ColorDialog1: TColorDialog
     Color = clBlack
@@ -557,12 +559,12 @@ object frmOptions: TfrmOptions
       'ColorS=F0FBFF'
       'ColorT=A4A0A0'
     )
-    Left = 432
+    Left = 576
   end
   object SaveDialog2: TSaveDialog
-    Left = 480
+    Left = 640
   end
   object OpenDialog2: TOpenDialog
-    Left = 520
+    Left = 693
   end
 end
