@@ -162,7 +162,8 @@ jobs:
         if: matrix.name == 'Linux'
         shell: bash
         run: |
-          cp -v ffmpeg-4.4/ffmpeg rgbds/* packaging
+          for f in asm link fix; do ln -s `which rgb$f` packaging/rgb$f; done
+          cp -v ffmpeg-4.4/ffmpeg packaging
 
       - name: Zip files (preserving permissions)
         shell: bash
