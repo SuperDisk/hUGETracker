@@ -11,7 +11,9 @@ If you want help using the tracker, driver, or just want to chat, join the [hUGE
 
 # Build instructions
 
-The only requirements to build hUGETracker are a recent version of [Lazarus](https://www.lazarus-ide.org/) for your platform, and [RGBDS.](https://rgbds.gbdev.io/)
+The only requirements to build hUGETracker are a recent version of [Lazarus](https://www.lazarus-ide.org/) for your platform, [RGBDS](https://rgbds.gbdev.io/), and [SDL2](https://www.libsdl.org/).
+
+On Windows, the setup script will download SDL2 for you.
 
 ```bat
 :: Download this repo
@@ -29,6 +31,8 @@ lazbuild --add-package-link src/bgrabitmap/bgrabitmap/bgrabitmappack.lpk
 :: so run the following script to automatically set that up.
 
 setup-windows.cmd
+:: or
+./setup-mac.sh
 :: or
 ./setup-linux.sh
 
