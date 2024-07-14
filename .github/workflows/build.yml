@@ -93,8 +93,8 @@ jobs:
         shell: msys2 {0}
         run: ./hUGETracker/.github/scripts/build-ffmpeg.sh
 
-      - name: Compile FFmpeg (Mac)
-        if: matrix.name == 'Mac'
+      - name: Compile FFmpeg (Mac and Linux)
+        if: matrix.name == 'Mac' || matrix.name == 'Linux'
         shell: bash
         run: ./hUGETracker/.github/scripts/build-ffmpeg.sh
 
@@ -154,6 +154,12 @@ jobs:
           w
           q
           END
+
+      - name: Extra Linux packaging
+        if: matrix.name == 'Linux'
+        shell: bash
+        run: |
+          cp -v ffmpeg-4.4/ffmpeg rgbds/* packaging
 
       - name: Zip files (preserving permissions)
         shell: bash
