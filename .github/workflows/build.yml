@@ -45,6 +45,9 @@ jobs:
 
           sudo apt install -yq ./fpc-laz_3.2.2-210709_amd64.deb ./fpc-src_3.2.2-210709_amd64.deb ./lazarus-project_3.0.0-0_amd64.deb
 
+          # FFmpeg dependencies
+          sudo apt-get -y install autoconf automake cmake libtool meson ninja-build pkg-config yasm zlib1g-dev
+
       - name: Install macOS dependencies
         if: matrix.name == 'Mac'
         run: |
