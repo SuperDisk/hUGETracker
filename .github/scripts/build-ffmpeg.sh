@@ -6,7 +6,14 @@ pushd lame-3.100
 ./configure --prefix="`realpath ..`/lame-install" --disable-dependency-tracking \
             --enable-static --disable-shared --enable-nasm --disable-gtktest \
             --disable-decoder --disable-frontend
-make
+
+if [ "$(uname)" = "Darwin" ]; then
+    JOBS=$(sysctl -n hw.ncpu)
+else
+    JOBS=$(nproc)
+fi
+
+make -j${JOBS}
 make install
 popd
 
@@ -28,4 +35,4 @@ fi
             --enable-muxer=wav --enable-libmp3lame --enable-encoder=libmp3lame --enable-muxer=mp3 \
             --extra-cflags="-I`realpath ../lame-install/include`" \
             --extra-ldflags="-L`realpath ../lame-install/lib`"
-make
+make -j${JOBS}
