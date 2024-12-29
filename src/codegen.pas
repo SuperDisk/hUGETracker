@@ -266,6 +266,10 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
       itWave: InstrType := 'hUGEWaveInstr_t';
       itNoise: InstrType := 'hUGENoiseInstr_t';
     end;
+
+    if Limit = -1 then
+      Exit('static const ' + InstrType + '* ' + Name + ' = NULL;'+LineEnding);
+
     Result := 'static const ' + InstrType + ' ' + Name + '[] = {'+LineEnding;
     for I := Low(Bank) to Limit do begin
       Result += '    '+RenderGBDKInstrument(Bank[I], I) + ','+LineEnding;
@@ -277,6 +281,9 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
   var
     I, J: integer;
   begin
+    if Limit = -1 then
+      Exit('static const unsigned char* waves = NULL;'+LineEnding);
+
     Result := 'static const unsigned char waves[] = {'+LineEnding;
     for I := Low(Waves) to Limit do
     begin
