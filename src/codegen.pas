@@ -47,6 +47,7 @@ var
   I, J: Integer;
   Pat: PPattern;
   Cell: TCell;
+  Instr: TInstrument;
   InstValue: Integer;
   Highest: ^Integer;
   Waveform: Integer;
@@ -56,6 +57,17 @@ begin
   Result.HighestWaveInst := -1;
   Result.HighestNoiseInst := -1;
   Result.HighestWaveform := -1;
+
+  for Instr in Song.Instruments.Wave do begin
+    if not Instr.SubpatternEnabled then Continue;
+
+    for Cell in Instr.Subpattern do
+      if Cell.EffectCode = $9 then begin
+        Waveform := Cell.EffectParams.Value;
+        if Waveform > Result.HighestWaveform then
+          Result.HighestWaveform := Waveform;
+      end;
+  end;
 
   for I := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do begin
     case I of
@@ -71,6 +83,12 @@ begin
 
       Pat := Song.Patterns.KeyData[Song.OrderMatrix[I, J]];
       for Cell in Pat^ do begin
+        if (Cell.EffectCode = $9) and (I = 2) then begin // waveforms on wave channel
+          Waveform := Cell.EffectParams.Value;
+          if Waveform > Result.HighestWaveform then
+            Result.HighestWaveform := Waveform;
+        end;
+
         if Cell.Instrument = 0 then Continue;
 
         if InRange(Cell.Instrument, 0, 15) then
