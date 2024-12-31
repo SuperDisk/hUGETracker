@@ -126,6 +126,7 @@ begin
     itWave: Result := Instrument <= UsedStuff.HighestWaveInst;
     itNoise: Result := Instrument <= UsedStuff.HighestNoiseInst;
   end;
+end;
 
 function OrderCount(const Song: TSong): Integer;
 var
