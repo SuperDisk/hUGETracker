@@ -89,21 +89,20 @@ begin
             Result.HighestWaveform := Waveform;
         end;
 
-        if Cell.Instrument = 0 then Continue;
-
-        if InRange(Cell.Instrument, 0, 15) then
-          InstValue := Cell.Instrument
-        else
-          InstValue := 0;
+        if InRange(Cell.Instrument, 1, 15) then begin
+          InstValue := Cell.Instrument;
+          if (I = 2) then begin // Wave channel
+            Waveform := Song.Instruments.Wave[Cell.Instrument].Waveform;
+            if Waveform > Result.HighestWaveform then
+              Result.HighestWaveform := Waveform;
+          end
+        end
+        else begin
+          InstValue := 0
+        end;
 
         if InstValue > Highest^ then
           Highest^ := InstValue;
-
-        if (I = 2) then begin // Wave channel
-          Waveform := Song.Instruments.Wave[Cell.Instrument].Waveform;
-          if Waveform > Result.HighestWaveform then
-            Result.HighestWaveform := Waveform;
-        end;
       end;
     end;
   end;
