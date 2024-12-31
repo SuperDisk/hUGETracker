@@ -24,6 +24,10 @@ DS 1
 ; $0144 - $0145: "New" Licensee Code, a two character name.
 DB "NF"
 
+SECTION "Waveforms", WRAMX
+
+waveforms: ds (16*256)
+
 SECTION "Vars", WRAM0
 
 instrument1: ds 6
@@ -35,8 +39,6 @@ subpattern1: ds (3*64)
 subpattern2: ds (3*64)
 subpattern3: ds (3*64)
 subpattern4: ds (3*64)
-
-waveforms: ds (16*16)
 
 start_zero:
 
