@@ -234,37 +234,37 @@ _halt:
     nop
 
     ld a, [start_ch1]
-    and $FF
+    or a
     call nz, init_note1
 
     ld a, [start_ch2]
-    and $FF
+    or a
     call nz, init_note2
 
     ld a, [start_ch3]
-    and $FF
+    or a
     call nz, init_note3
 
     ld a, [start_ch4]
-    and $FF
+    or a
     call nz, init_note4
 
     ;;;;;;;;;;;;;;;;;;;;;
 
     ld a, [running_ch1]
-    and $FF
+    or a
     call nz, run_table1
 
     ld a, [running_ch2]
-    and $FF
+    or a
     call nz, run_table2
 
     ld a, [running_ch3]
-    and $FF
+    or a
     call nz, run_table3
 
     ld a, [running_ch4]
-    and $FF
+    or a
     call nz, run_table4
 
     jr _halt
