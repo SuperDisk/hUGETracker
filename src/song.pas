@@ -54,7 +54,7 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentCollectionV1;
-    Waves: TWaveBank;
+    Waves: TWaveBankV2;
 
     TicksPerRow: Integer;
 
@@ -72,7 +72,7 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentCollectionV2;
-    Waves: TWaveBank;
+    Waves: TWaveBankV2;
 
     TicksPerRow: Integer;
 
@@ -92,7 +92,7 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentCollection;
-    Waves: TWaveBank;
+    Waves: TWaveBankV2;
 
     TicksPerRow: Integer;
 
@@ -113,7 +113,7 @@ type
     Comment: ShortString;
 
     Instruments: TInstrumentCollection;
-    Waves: TWaveBank;
+    Waves: TWaveBankV3;
 
     TicksPerRow: packed array[0..3] of Integer;
 
@@ -889,6 +889,7 @@ end;
 function UpgradeSong(S: TSongV6): TSong;
 var
   SV7: TSongV7;
+  I, J: Integer;
 begin
   SV7.Version := 7;
 
@@ -897,7 +898,12 @@ begin
   SV7.Comment := S.Comment;
 
   SV7.Instruments := S.Instruments;
-  SV7.Waves := S.Waves;
+  for I := Low(S.Waves) to High(S.Waves) do
+    SV7.Waves[I] := S.Waves[I];
+
+  for I := Length(S.Waves) to High(SV7.Waves) do
+    for J := Low(SV7.Waves[I]) to High(SV7.Waves[I]) do
+      SV7.Waves[I, J] := Random($F);
 
   SV7.TicksPerRow[0] := S.TicksPerRow;
   SV7.TicksPerRow[1] := S.TicksPerRow;
