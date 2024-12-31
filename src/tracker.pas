@@ -1494,11 +1494,11 @@ begin
     TreeView1.Items.AddChild(DutyInstrumentsNode, IntToStr(PUI)+':').Data := {%H-}Pointer(PUI);
     TreeView1.Items.AddChild(WaveInstrumentsNode, IntToStr(PUI)+':').Data := {%H-}Pointer(PUI);
     TreeView1.Items.AddChild(NoiseInstrumentsNode, IntToStr(PUI)+':').Data := {%H-}Pointer(PUI);
+    TreeView1.Items.AddChild(RoutinesNode, 'Routine '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
   end;
 
-  for PUI := 0 to 15 do begin
+  for PUI := 0 to 255 do begin
     TreeView1.Items.AddChild(WavesNode, 'Wave '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
-    TreeView1.Items.AddChild(RoutinesNode, 'Routine '+IntToStr(PUI)).Data := {%H-}Pointer(PUI);
   end;
 
   InitializeSong(Song);

@@ -62,10 +62,10 @@ object frmTracker: TfrmTracker
       Height = 598
       Top = 0
       Width = 936
-      ActivePage = GeneralTabSheet
+      ActivePage = WavesTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 0
+      TabIndex = 3
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -1112,7 +1112,7 @@ object frmTracker: TfrmTracker
           Top = 8
           Width = 568
           Caption = 'Wave Editor'
-          ClientHeight = 135
+          ClientHeight = 120
           ClientWidth = 564
           ParentFont = False
           TabOrder = 0
@@ -1130,7 +1130,7 @@ object frmTracker: TfrmTracker
             Height = 27
             Top = 8
             Width = 80
-            MaxValue = 15
+            MaxValue = 255
             OnChange = WaveEditNumberSpinnerChange
             ParentFont = False
             TabOrder = 0

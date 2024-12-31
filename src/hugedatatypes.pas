@@ -304,7 +304,8 @@ type
 
   TWaveBankV1 = packed array[0..15] of TWaveV1;
   TWaveBankV2 = packed array[0..15] of TWaveV2;
-  TWaveBank = TWaveBankV2;
+  TWaveBankV3 = packed array[0..255] of TWaveV2;
+  TWaveBank = TWaveBankV3;
   TRoutineBank = packed array[0..15] of TRoutine;
 
   TOrderMatrix = packed array[0..3] of array of Integer;
