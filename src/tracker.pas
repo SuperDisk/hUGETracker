@@ -1450,6 +1450,26 @@ begin
   LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
 end;
 
+procedure CheckRequiredFile(FilePath: String; Directory: Boolean = False);
+var
+  Exists: Boolean;
+begin
+  if Directory then
+    Exists := DirectoryExists(Filepath)
+  else
+    Exists := FileExists(FilePath);
+
+  if not Exists then begin
+    MessageDlg('Error',
+          'hUGETracker can''t load '+ExtractFileName(FilePath)+', which is a '+
+          IfThen(Directory, 'directory', 'file')+' that comes with '+
+          'the tracker. This likely means that you haven''t extracted the program ' +
+          'before running it. Please do so, and relaunch. Thanks!',
+          mtError, [mbOk], 0);
+    Halt;
+  end;
+end;
+
 procedure TfrmTracker.FormCreate(Sender: TObject);
 var
   PUI: PtrUint;
@@ -1457,17 +1477,10 @@ var
   S: String;
   MenuItem: TMenuItem;
 begin
-  if (not FileExists(ConcatPaths([RuntimeDir, 'PixeliteTTF.ttf'])))
-  or (not FileExists(ConcatPaths([RuntimeDir, 'halt.gb'])))
-  or (not FileExists(ConcatPaths([RuntimeDir, 'halt.sym'])))
-  or (not DirectoryExists(ConcatPaths([RuntimeDir, 'hUGEDriver']))) then begin
-    MessageDlg('Error',
-      'hUGETracker can''t load a required file which comes with '+
-      'the tracker. This likely means that you haven''t extracted the program ' +
-      'before running it. Please do so, and relaunch. Thanks!',
-      mtError, [mbOk], 0);
-    Halt;
-  end;
+  CheckRequiredFile(ConcatPaths([RuntimeDir, 'PixeliteTTF.ttf']));
+  CheckRequiredFile(ConcatPaths([RuntimeDir, 'halt.gb']));
+  CheckRequiredFile(ConcatPaths([RuntimeDir, 'halt.sym']));
+  CheckRequiredFile(ConcatPaths([RuntimeDir, 'hUGEDriver']), True);
 
   {$ifdef PRODUCTION}
   Application.OnException := @CustomExceptionHandler;
