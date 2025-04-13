@@ -6,7 +6,7 @@ If you're comfortable composing in a tracker interface, then you'll feel right a
 ![Screenshot of the hUGETracker main interface](../img/interface.png)
 
 Legend:
-1. [Tracker grid](./tracker-grid.md)
-2. [Order editor](./order-editor.md)
-3. [Song components](./song-components.md)
-4. [Toolbar](./toolbar.md)
+1. [Toolbar](./toolbar.md)
+2. [Tracker grid](./tracker-grid.md)
+3. [Order editor](./order-editor.md)
+4. [Song components](./song-components.md)
