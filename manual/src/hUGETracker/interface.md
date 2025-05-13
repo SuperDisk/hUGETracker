@@ -3,6 +3,7 @@
 The hUGETracker interface is styled similarly to conventional trackers such as [ModPlug Tracker](https://www.modplug.com) / [OpenMPT](https://openmpt.org) or [ProTracker](https://en.wikipedia.org/wiki/ProTracker).
 If you're comfortable composing in a tracker interface, then you'll feel right at home.
 
+
 ![Screenshot of the hUGETracker main interface](../img/interface.png)
 
 Legend:
