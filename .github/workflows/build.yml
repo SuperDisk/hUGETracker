@@ -63,7 +63,7 @@ jobs:
                       --disable-timers --disable-atomic --disable-file --disable-misc \
                       --disable-locale --disable-loadso --disable-cpuinfo
           make -j$(sysctl -n hw.ncpu)
-          cp build/.libs/libSDL2.a /usr/local/lib
+          sudo cp build/.libs/libSDL2.a /usr/local/lib
           popd
 
           mkdir rgbds
