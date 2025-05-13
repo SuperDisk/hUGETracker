@@ -143,7 +143,6 @@ function UpgradeSong(S: TSongV4): TSong; overload;
 function UpgradeSong(S: TSongV6): TSong; overload;
 
 function OptimizeSong(const S: TSong): TSong;
-function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
 function OrderCount(const Song: TSong): Integer;
 
 implementation
@@ -943,19 +942,6 @@ begin
     end;
 end;
 
-<<<<<<< HEAD
-=======
-function PatternIsUsed(Idx: Integer; const Song: TSong): Boolean;
-var
-  I, J: Integer;
-begin
-  for I := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do
-    for J := Low(Song.OrderMatrix[I]) to High(Song.OrderMatrix[I])-1 do
-      if Song.OrderMatrix[I, J] = Idx then Exit(True);
-
-  Result := False;
-end;
-
 function OrderCount(const Song: TSong): Integer;
 var
   OrderMatrix: TOrderMatrix;
@@ -965,5 +951,4 @@ begin
     High(OrderMatrix[2]), High(OrderMatrix[3])]);
 end;
 
->>>>>>> 71f550f (Fix reading order count from symbol table)
 end.

@@ -126,14 +126,6 @@ begin
     itWave: Result := Instrument <= UsedStuff.HighestWaveInst;
     itNoise: Result := Instrument <= UsedStuff.HighestNoiseInst;
   end;
-
-function OrderCount(const Song: TSong): Integer;
-var
-  OrderMatrix: TOrderMatrix;
-begin
-  OrderMatrix := Song.OrderMatrix;
-  Result := MaxIntValue([High(OrderMatrix[0]), High(OrderMatrix[1]),
-    High(OrderMatrix[2]), High(OrderMatrix[3])]) * 2;
 end;
 
 procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
