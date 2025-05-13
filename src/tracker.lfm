@@ -65,7 +65,7 @@ object frmTracker: TfrmTracker
       ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 2
+      TabIndex = 0
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -181,6 +181,45 @@ object frmTracker: TfrmTracker
             Width = 94
             Caption = 'TempoBPMLabel'
             ParentColor = False
+          end
+          object TicksPerRowSpinEdit1: TSpinEdit
+            Left = 187
+            Height = 27
+            Hint = 'How many ticks should happen before the row changes. Higher means slower.'
+            Top = 72
+            Width = 50
+            MaxValue = 20
+            MinValue = 1
+            OnChange = TicksPerRowSpinEdit1Change
+            ParentFont = False
+            TabOrder = 5
+            Value = 7
+          end
+          object TicksPerRowSpinEdit2: TSpinEdit
+            Left = 241
+            Height = 27
+            Hint = 'How many ticks should happen before the row changes. Higher means slower.'
+            Top = 72
+            Width = 50
+            MaxValue = 20
+            MinValue = 1
+            OnChange = TicksPerRowSpinEdit2Change
+            ParentFont = False
+            TabOrder = 6
+            Value = 7
+          end
+          object TicksPerRowSpinEdit3: TSpinEdit
+            Left = 295
+            Height = 27
+            Hint = 'How many ticks should happen before the row changes. Higher means slower.'
+            Top = 72
+            Width = 50
+            MaxValue = 20
+            MinValue = 1
+            OnChange = TicksPerRowSpinEdit3Change
+            ParentFont = False
+            TabOrder = 7
+            Value = 7
           end
         end
       end
