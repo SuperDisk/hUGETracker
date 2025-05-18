@@ -62,10 +62,10 @@ object frmTracker: TfrmTracker
       Height = 684
       Top = 0
       Width = 1218
-      ActivePage = PatternTabSheet
+      ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
-      TabIndex = 1
+      TabIndex = 2
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
@@ -456,6 +456,18 @@ object frmTracker: TfrmTracker
             ClientWidth = 276
             ParentFont = False
             TabOrder = 0
+            object LengthTrackbar: TTrackBar
+              Left = 76
+              Height = 44
+              Top = 112
+              Width = 189
+              Max = 63
+              OnChange = LengthSpinnerChange
+              Position = 0
+              Enabled = False
+              ParentFont = False
+              TabOrder = 7
+            end
             object InstrumentNumberSpinner: TSpinEdit
               Left = 80
               Height = 27
@@ -572,18 +584,6 @@ object frmTracker: TfrmTracker
               TabOrder = 6
               OnClick = TestOctaveButtonClick
             end
-            object LengthTrackbar: TTrackBar
-              Left = 76
-              Height = 44
-              Top = 112
-              Width = 189
-              Max = 63
-              OnChange = LengthSpinnerChange
-              Position = 0
-              Enabled = False
-              ParentFont = False
-              TabOrder = 7
-            end
             object Label14: TLabel
               Left = 12
               Height = 17
@@ -665,7 +665,7 @@ object frmTracker: TfrmTracker
           end
           object EnvelopeGroupBox: TGroupBox
             Left = 301
-            Height = 136
+            Height = 153
             Top = 7
             Width = 582
             Anchors = []
@@ -674,10 +674,32 @@ object frmTracker: TfrmTracker
             BorderSpacing.Right = 7
             BorderSpacing.Bottom = 7
             Caption = 'Envelope'
-            ClientHeight = 117
+            ClientHeight = 134
             ClientWidth = 578
             ParentFont = False
             TabOrder = 1
+            object EnvChangeTrackbar: TTrackBar
+              Left = 82
+              Height = 44
+              Top = 82
+              Width = 196
+              Max = 7
+              OnChange = EnvChangeSpinnerChange
+              Position = 0
+              ParentFont = False
+              TabOrder = 3
+            end
+            object StartVolTrackbar: TTrackBar
+              Left = 82
+              Height = 44
+              Top = 8
+              Width = 196
+              Max = 15
+              OnChange = StartVolSpinnerChange
+              Position = 0
+              ParentFont = False
+              TabOrder = 2
+            end
             object Label4: TLabel
               Left = 8
               Height = 17
@@ -744,28 +766,6 @@ object frmTracker: TfrmTracker
                 OnPaint = EnvelopePaintboxPaint
               end
             end
-            object StartVolTrackbar: TTrackBar
-              Left = 82
-              Height = 44
-              Top = 8
-              Width = 196
-              Max = 15
-              OnChange = StartVolSpinnerChange
-              Position = 0
-              ParentFont = False
-              TabOrder = 2
-            end
-            object EnvChangeTrackbar: TTrackBar
-              Left = 82
-              Height = 44
-              Top = 82
-              Width = 196
-              Max = 7
-              OnChange = EnvChangeSpinnerChange
-              Position = 0
-              ParentFont = False
-              TabOrder = 3
-            end
           end
           object SquareGroupBox: TGroupBox
             Left = 7
@@ -782,6 +782,17 @@ object frmTracker: TfrmTracker
             ClientWidth = 315
             ParentFont = False
             TabOrder = 2
+            object SweepSizeTrackbar: TTrackBar
+              Left = 105
+              Height = 44
+              Top = 80
+              Width = 196
+              Max = 7
+              OnChange = SweepSizeSpinnerChange
+              Position = 0
+              ParentFont = False
+              TabOrder = 3
+            end
             object Label7: TLabel
               Left = 8
               Height = 17
@@ -885,17 +896,6 @@ object frmTracker: TfrmTracker
               TabOrder = 2
               Text = '50% (square)'
               OnChange = DutyComboboxChange
-            end
-            object SweepSizeTrackbar: TTrackBar
-              Left = 105
-              Height = 44
-              Top = 80
-              Width = 196
-              Max = 7
-              OnChange = SweepSizeSpinnerChange
-              Position = 0
-              ParentFont = False
-              TabOrder = 3
             end
           end
           object WaveGroupBox: TGroupBox
