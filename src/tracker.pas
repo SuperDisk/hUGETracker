@@ -42,6 +42,9 @@ type
   { TfrmTracker }
 
   TfrmTracker = class(TForm)
+    InstrumentPopupMenu: TPopupMenu;
+    MenuItem57: TMenuItem;
+    MenuItem58: TMenuItem;
     SingleStepAction: TAction;
     FileSave1: TAction;
     MenuItem26: TMenuItem;
@@ -309,6 +312,8 @@ type
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
     procedure MenuItem56Click(Sender: TObject);
+    procedure MenuItem57Click(Sender: TObject);
+    procedure MenuItem58Click(Sender: TObject);
     procedure OrderEditStringGridMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RevertMenuItemClick(Sender: TObject);
@@ -2131,6 +2136,33 @@ procedure TfrmTracker.MenuItem56Click(Sender: TObject);
 begin
   if not (ActiveControl is TTrackerGrid) then Exit;
   (ActiveControl as TTrackerGrid).ChangeSelectionInstrument;
+end;
+
+procedure TfrmTracker.MenuItem57Click(Sender: TObject);
+begin
+  Clipboard.AddFormat(PredefinedClipboardFormat(pcfCustomData), CurrentInstrument^, SizeOf(TInstrument));
+end;
+
+procedure TfrmTracker.MenuItem58Click(Sender: TObject);
+var
+  S: TMemoryStream;
+  Inst: ^TInstrument;
+begin
+  S := TMemoryStream.Create;
+
+  try
+    if Clipboard.HasFormat(PredefinedClipboardFormat(pcfCustomData)) then begin
+      Clipboard.GetFormat(PredefinedClipboardFormat(pcfCustomData), S);
+      Inst := S.Memory;
+
+      if Inst^.Type_ = CurrentInstrument^.Type_ then begin
+        CurrentInstrument^ := Inst^;
+        LoadInstrument(CurrentInstrumentBank, InstrumentNumberSpinner.Value);
+      end;
+    end;
+  finally
+    S.Free;
+  end;
 end;
 
 procedure TfrmTracker.OrderEditStringGridMouseDown(Sender: TObject;
