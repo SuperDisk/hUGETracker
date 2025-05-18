@@ -562,6 +562,7 @@ type
     procedure OnTrackerGridResize(Sender: TObject);
     procedure OnTrackerGridCursorOutOfBounds;
     procedure ApplyMidiSettings;
+    procedure OnTrackerGridDoubleClickedInstrument;
   end;
 
 var
@@ -1021,6 +1022,22 @@ begin
   end;
 end;
 
+procedure TfrmTracker.OnTrackerGridDoubleClickedInstrument;
+var
+  Inst: Integer;
+begin
+  Inst := TrackerGrid.GetAt(TrackerGrid.Cursor);
+  if not InRange(Inst, 1, 15) then Exit;
+
+  case TrackerGrid.Cursor.X of
+    0, 1: LoadInstrument(itSquare, Inst);
+    2: LoadInstrument(itWave, Inst);
+    3: LoadInstrument(itNoise, Inst);
+  end;
+
+  PageControl1.ActivePage := InstrumentTabSheet;
+end;
+
 procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
@@ -1264,6 +1281,7 @@ begin
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
+  TrackerGrid.OnDoubleClickedInstrument:=@OnTrackerGridDoubleClickedInstrument;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.PopupMenu := TrackerGridPopup;
