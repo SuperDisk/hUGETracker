@@ -317,6 +317,7 @@ type
     procedure MenuItem56Click(Sender: TObject);
     procedure MenuItem57Click(Sender: TObject);
     procedure MenuItem58Click(Sender: TObject);
+    procedure OrderEditStringGridEditingDone(Sender: TObject);
     procedure OrderEditStringGridMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RevertMenuItemClick(Sender: TObject);
@@ -2272,6 +2273,19 @@ begin
   finally
     S.Free;
   end;
+end;
+
+procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
+begin
+  if OrderEditStringGrid.Row > -1 then
+    ReloadPatterns;
+
+  if (not InFDCallback) and Playing then begin // Hacky solution, but probably the best there is.
+    LockPlayback;
+    PokeSymbol(SYM_NEXT_ORDER, OrderEditStringGrid.Row);
+    PokeSymbol(SYM_ROW_BREAK, 1);
+    UnlockPlayback;
+  end
 end;
 
 procedure TfrmTracker.OrderEditStringGridMouseDown(Sender: TObject;
