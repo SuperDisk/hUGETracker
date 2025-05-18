@@ -112,6 +112,8 @@ type
     Performed: TUndoDeque;
     Recall: TRedoStack;
 
+    LastFxParam: array [0..15] of Byte;
+
     FHighlightedRow: Integer;
     FFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
@@ -327,6 +329,8 @@ constructor TTrackerGrid.Create(
   PatternMap: TPatternMap;
   NumColumns: Integer;
   NumRows: Integer);
+var
+  I: Integer;
 begin
   inherited Create(AOwner);
 
@@ -347,6 +351,9 @@ begin
   NestedUndoCount := 0;
   Performed := TUndoDeque.Create;
   Recall := TRedoStack.Create;
+
+  for I := Low(LastFxParam) to High(LastFxParam) do
+    LastFxParam[I] := Byte(0);
 
   DoubleBuffered := True;
   ControlStyle := ControlStyle + [csCaptureMouse, csClickEvents, csDoubleClicks];
@@ -1081,7 +1088,11 @@ begin
       EffectCode := 0;
       EffectParams.Value := 0;
     end
-    else KeycodeToHexNumber(Key, EffectCode);
+    else begin
+      KeycodeToHexNumber(Key, EffectCode);
+      if EffectParams.Value = 0 then
+        EffectParams.Value := LastFxParam[EffectCode];
+    end;
 
   Invalidate;
   EndUndoAction;
@@ -1097,8 +1108,10 @@ begin
       EffectCode := 0;
       EffectParams.Value := 0;
     end
-    else if KeycodeToHexNumber(Key, Temp) then
+    else if KeycodeToHexNumber(Key, Temp) then begin
       EffectParams.Value := ((EffectParams.Value mod $10) * $10) + Temp;
+      LastFxParam[EffectCode] := EffectParams.Value;
+    end;
 
   Invalidate;
   EndUndoAction;
