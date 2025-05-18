@@ -123,6 +123,7 @@ type
     SelectedInstrument, SelectedOctave, Step: Integer;
 
     OnCursorOutOfBounds: procedure of object;
+    OnDoubleClickedInstrument: procedure of object;
 
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
@@ -533,7 +534,10 @@ end;
 
 procedure TTrackerGrid.DblClick;
 begin
-  OpenEffectEditor;
+  if (Cursor.SelectedPart = cpInstrument) and Assigned(OnDoubleClickedInstrument) then
+    OnDoubleClickedInstrument
+  else
+    OpenEffectEditor;
 
   NormalizeCursors;
   MouseButtonDown := False;
