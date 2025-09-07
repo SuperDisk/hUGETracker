@@ -572,6 +572,9 @@ begin
   OutSL.Add('SECTION "'+DescriptorName+' Song Data", ROMX');
   OutSL.Add('');
 
+  OutSL.Add('db "HUGE"');
+  OutSL.Add('');
+
   // Render song descriptor
   OutSL.Add(DescriptorName+'::');
   OutSL.Add('db '+IntToStr(Song.TicksPerRow[0])+', '
@@ -587,21 +590,6 @@ begin
 
   // Render order matrix
   OutSL.Add(RenderOrderTable(Song.OrderMatrix));
-
-  // Render patterns
-  for I := 0 to Song.Patterns.Count - 1 do
-    if PatternIsUsed(Song.Patterns.Keys[I], UsedStuff) then
-      OutSL.Add(RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]), Song.Patterns.Data[I]^));
-
-  // Render subpatterns
-  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
-    if InstrumentIsUsed(ModInst(I), Song.Instruments.All[I].Type_, UsedStuff) then
-      with Song.Instruments.All[I] do begin
-        if SubpatternEnabled then begin
-          WriteStr(TypePrefix, Type_);
-          OutSL.Add(RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
-        end;
-      end;
 
   // Render instruments
   OutSL.Add('duty_instruments:');
@@ -629,6 +617,21 @@ begin
   // Render waves
   OutSL.Add('waves:');
   OutSL.Add(RenderWaveforms(Song.Waves, UsedStuff.HighestWaveform));
+
+  // Render patterns
+  for I := 0 to Song.Patterns.Count - 1 do
+    if PatternIsUsed(Song.Patterns.Keys[I], UsedStuff) then
+      OutSL.Add(RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]), Song.Patterns.Data[I]^));
+
+  // Render subpatterns
+  for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
+    if InstrumentIsUsed(ModInst(I), Song.Instruments.All[I].Type_, UsedStuff) then
+      with Song.Instruments.All[I] do begin
+        if SubpatternEnabled then begin
+          WriteStr(TypePrefix, Type_);
+          OutSL.Add(RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+        end;
+      end;
 
   AssignFile(F, Filename);
   Rewrite(F);
