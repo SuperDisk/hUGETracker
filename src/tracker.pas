@@ -46,6 +46,7 @@ type
     InstrumentPopupMenu: TPopupMenu;
     MenuItem57: TMenuItem;
     MenuItem58: TMenuItem;
+    MenuItem59: TMenuItem;
     SingleStepAction: TAction;
     FileSave1: TAction;
     MenuItem26: TMenuItem;
@@ -317,6 +318,7 @@ type
     procedure MenuItem56Click(Sender: TObject);
     procedure MenuItem57Click(Sender: TObject);
     procedure MenuItem58Click(Sender: TObject);
+    procedure MenuItem59Click(Sender: TObject);
     procedure OrderEditStringGridEditingDone(Sender: TObject);
     procedure OrderEditStringGridMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -2275,6 +2277,22 @@ begin
   end;
 end;
 
+procedure TfrmTracker.MenuItem59Click(Sender: TObject);
+var
+  I: Integer;
+  T: Integer;
+begin
+    for I := Low(Song.OrderMatrix[0]) to High(Song.OrderMatrix[0]) do begin
+      writeln('swappin', I);
+      T :=Song.OrderMatrix[0][I];
+      Song.OrderMatrix[0][I] := Song.OrderMatrix[1][I];
+
+    Song.OrderMatrix[1][I] := T;
+  end;
+    CopyOrderMatrixToOrderGrid;
+  ReloadPatterns;
+end;
+
 procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
 begin
   if OrderEditStringGrid.Row > -1 then
@@ -2366,9 +2384,14 @@ end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
 var
-  Stream: TFileStream;
+  I: Integer;
 begin
-  // debug
+  for I := Low(Song.OrderMatrix[0]) to High(Song.OrderMatrix[1]) do begin
+    Song.OrderMatrix[0][I] := Song.OrderMatrix[0][I] xor Song.OrderMatrix[1][I];
+    Song.OrderMatrix[1][I] := Song.OrderMatrix[0][I] xor Song.OrderMatrix[1][I];
+    Song.OrderMatrix[0][I] := Song.OrderMatrix[0][I] xor Song.OrderMatrix[1][I];
+  end;
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);

@@ -465,6 +465,8 @@ begin
         if WritingVGM then
           VGMWriteReg(Address, Data);
 
+        //writeln('WRITING ', hexstr(Address,4), ' ', hexstr(data,2));
+
         sndRegChange := True;
         if address = $ff26 then
         begin
