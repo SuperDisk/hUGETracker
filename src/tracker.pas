@@ -10,7 +10,8 @@ uses
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
   bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils,
-  Types, Keymap, hUGESettings, vgm, TBMImport, FurImport, InstrumentPreview, findreplace;
+  Types, Keymap, hUGESettings, vgm, TBMImport, FurImport, InstrumentPreview, findreplace,
+  MidiInput;
 
 // TODO: Move to config file?
 const
@@ -541,9 +542,19 @@ type
     procedure PreviewInstrument(Note: Integer; Instr: TInstrument; SquareOnCh2: Boolean = False); overload;
     procedure PreviewNote(Note: Integer);
     procedure Panic;
+
+    procedure OnMidiNoteOn(Sender: TObject; Note, Velocity: Integer);
+    procedure OnMidiNoteOff(Sender: TObject; Note, Velocity: Integer);
+
+    // Shared between the computer-keyboard preview path (FormKeyDown) and
+    // MIDI note-on. Re-points InstrumentComboBox at the current channel's
+    // bank, then previews the note. Returns False if the note shouldn't
+    // actually be played (no instrument selected, unknown note, etc.).
+    function PreviewForNoteEntry(Note: Integer): Boolean;
   public
     procedure OnTrackerGridResize(Sender: TObject);
     procedure OnTrackerGridCursorOutOfBounds;
+    procedure ApplyMidiSettings;
   end;
 
 var
@@ -926,6 +937,53 @@ begin
   StopInstrumentPreview(4);
 
   UnlockPlayback;
+end;
+
+procedure TfrmTracker.OnMidiNoteOn(Sender: TObject; Note, Velocity: Integer);
+begin
+  if LoadingFile or Playing then Exit;
+  if (Note < LOWEST_NOTE) or (Note > HIGHEST_NOTE) then Exit;
+
+  // MIDI input mirrors computer-keyboard behaviour: re-aim the instrument
+  // combo box at the current channel's bank and preview through that
+  // instrument, then commit the note into the active cell. PreviewingInstrument
+  // is tracked so the matching Note Off can silence the preview, the same
+  // way FormKeyUp handles a released computer key.
+  if TrackerSettings.PreviewWhenPlacing
+     and (ActiveControl = TrackerGrid)
+     and PreviewForNoteEntry(Note) then
+    PreviewingInstrument := Note
+  else
+    PreviewNote(Note);
+
+  if (ActiveControl = TrackerGrid) and (TrackerGrid.Cursor.SelectedPart = cpNote) then
+    TrackerGrid.InputNoteValue(Note);
+end;
+
+procedure TfrmTracker.OnMidiNoteOff(Sender: TObject; Note, Velocity: Integer);
+begin
+  if PreviewingInstrument <> -1 then begin
+    PreviewingInstrument := -1;
+    Panic;
+  end;
+end;
+
+procedure TfrmTracker.ApplyMidiSettings;
+begin
+  if not TrackerSettings.MIDIInputEnabled then begin
+    if Midi.IsOpen then Midi.CloseDevice;
+    Exit;
+  end;
+
+  if not Midi.Available then Exit;
+
+  Midi.OnNoteOn := @OnMidiNoteOn;
+  Midi.OnNoteOff := @OnMidiNoteOff;
+
+  if TrackerSettings.MIDIInputDevice = '' then Exit;
+
+  if Midi.DeviceName <> TrackerSettings.MIDIInputDevice then
+    Midi.OpenDevice(TrackerSettings.MIDIInputDevice);
 end;
 
 procedure TfrmTracker.OnTrackerGridResize(Sender: TObject);
@@ -1553,13 +1611,42 @@ begin
     LoadSong(ParamStr(1))
   else
     UpdateUIAfterLoad;
+
+  ApplyMidiSettings;
+end;
+
+function TfrmTracker.PreviewForNoteEntry(Note: Integer): Boolean;
+var
+  Freq: Integer;
+begin
+  Result := False;
+  if TrackerGrid.Cursor.SelectedPart <> cpNote then Exit;
+  if InstrumentComboBox.ItemIndex <= 0 then Exit;
+  if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
+
+  // Re-map the current combo-box selection into the bank that matches the
+  // channel the cursor is on (square / wave / noise), then push that back
+  // onto TrackerGrid.SelectedInstrument so the note that gets committed
+  // into the cell picks up the correct instrument number.
+  case TrackerGrid.Cursor.X of
+    0..1: InstrumentComboBox.ItemIndex := UnmodInst(itSquare, TrackerGrid.SelectedInstrument);
+    2:    InstrumentComboBox.ItemIndex := UnmodInst(itWave, TrackerGrid.SelectedInstrument);
+    3:    InstrumentComboBox.ItemIndex := UnmodInst(itNoise, TrackerGrid.SelectedInstrument);
+  end;
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
+
+  if TrackerGrid.Cursor.X = 1 then
+    PreviewInstrument(Note, InstrumentComboBox.ItemIndex, True)
+  else
+    PreviewInstrument(Note, InstrumentComboBox.ItemIndex, False);
+
+  Result := True;
 end;
 
 procedure TfrmTracker.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   Note: Integer;
-  Freq: Integer;
 begin
   // Guard conditions
   if TrackerGrid.Cursor.SelectedPart <> cpNote then Exit;
@@ -1574,23 +1661,10 @@ begin
     PreviewingInstrument := -1;
 
   if (PreviewingInstrument > -1) or
-     (not (ActiveControl = TrackerGrid)) or
-     (InstrumentComboBox.ItemIndex <= 0)
+     (not (ActiveControl = TrackerGrid))
   then exit;
 
-  if not NotesToFreqs.TryGetData(Note, Freq) then Exit;
-
-  case TrackerGrid.Cursor.X of
-    0..1: InstrumentComboBox.ItemIndex := UnmodInst(itSquare, TrackerGrid.SelectedInstrument);
-    2:    InstrumentComboBox.ItemIndex := UnmodInst(itWave, TrackerGrid.SelectedInstrument);
-    3:    InstrumentComboBox.ItemIndex := UnmodInst(itNoise, TrackerGrid.SelectedInstrument);
-  end;
-  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
-
-  if TrackerGrid.Cursor.X = 1 then
-    PreviewInstrument(Note, InstrumentComboBox.ItemIndex, True)
-  else
-    PreviewInstrument(Note, InstrumentComboBox.ItemIndex, False);
+  if not PreviewForNoteEntry(Note) then Exit;
 
   PreviewingInstrument := Note;
   PreviewingWithKey := Key;

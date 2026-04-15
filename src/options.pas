@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Spin, Grids,
   LCLProc, Buttons, ExtCtrls, ComCtrls, CheckLst, Constants, Keymap,
-  hUGESettings, hUGEDataTypes, TrackerGrid;
+  hUGESettings, hUGEDataTypes, TrackerGrid, MidiInput;
 
 type
 
@@ -42,6 +42,12 @@ type
     KeyboardTabSheet: TTabSheet;
     GeneralTabSheet: TTabSheet;
     CustomiztaionTabSheet: TTabSheet;
+    MIDITabSheet: TTabSheet;
+    MIDIEnabledCheckbox: TCheckBox;
+    MIDIDeviceComboBox: TComboBox;
+    MIDIRefreshButton: TButton;
+    MIDIDeviceLabel: TLabel;
+    MIDIStatusLabel: TLabel;
     VolumeEffectTextColorButton: TColorButton;
     PanningEffectTextColorButton: TColorButton;
     SongEffectTextColorButton: TColorButton;
@@ -86,11 +92,17 @@ type
     procedure KeyMapStringGridValidateEntry(sender: TObject; aCol, aRow: Integer;
       const OldValue: string; var NewValue: String);
     procedure NoteTextColorButtonColorChanged(Sender: TObject);
+    procedure MIDIEnabledCheckboxChange(Sender: TObject);
+    procedure MIDIDeviceComboBoxChange(Sender: TObject);
+    procedure MIDIRefreshButtonClick(Sender: TObject);
   private
     SamplePatternMap: TPatternMap;
     SampleTrackerGrid: TTrackerGrid;
     LoadingColors: Boolean;
+    LoadingMidiUI: Boolean;
 
+    procedure RefreshMidiDevices;
+    procedure UpdateMidiStatus;
     procedure RecreateTrackerGrid;
     procedure UpdateTrackerGridColors;
     procedure SaveColorsToFile(Filename: String);
@@ -189,6 +201,10 @@ begin
   TrackerSettings.DisplayOrderRowNumbersAsHex := CheckListBox1.Checked[4];
   TrackerSettings.DrawWaveformGrid := CheckListBox1.Checked[5];
   TrackerSettings.VerticalTabs := CheckListBox1.Checked[6];
+
+  TrackerSettings.MIDIInputEnabled := MIDIEnabledCheckbox.Checked;
+  if MIDIDeviceComboBox.ItemIndex >= 0 then
+    TrackerSettings.MIDIInputDevice := MIDIDeviceComboBox.Items[MIDIDeviceComboBox.ItemIndex];
 end;
 
 procedure TfrmOptions.FormCreate(Sender: TObject);
@@ -226,6 +242,79 @@ begin
   end;
 
   RecreateTrackerGrid;
+
+  LoadingMidiUI := True;
+  MIDIEnabledCheckbox.Checked := TrackerSettings.MIDIInputEnabled;
+  RefreshMidiDevices;
+  LoadingMidiUI := False;
+  UpdateMidiStatus;
+end;
+
+procedure TfrmOptions.RefreshMidiDevices;
+var
+  Idx: Integer;
+begin
+  MIDIDeviceComboBox.Items.BeginUpdate;
+  try
+    MIDIDeviceComboBox.Items.Clear;
+    if Midi.Available then
+      Midi.EnumerateInputDevices(MIDIDeviceComboBox.Items);
+
+    Idx := MIDIDeviceComboBox.Items.IndexOf(TrackerSettings.MIDIInputDevice);
+    if Idx >= 0 then
+      MIDIDeviceComboBox.ItemIndex := Idx
+    else if MIDIDeviceComboBox.Items.Count > 0 then
+      MIDIDeviceComboBox.ItemIndex := 0
+    else
+      MIDIDeviceComboBox.ItemIndex := -1;
+  finally
+    MIDIDeviceComboBox.Items.EndUpdate;
+  end;
+
+  MIDIDeviceComboBox.Enabled := Midi.Available and MIDIEnabledCheckbox.Checked;
+  MIDIRefreshButton.Enabled := Midi.Available;
+end;
+
+procedure TfrmOptions.UpdateMidiStatus;
+begin
+  if not Midi.Available then
+    MIDIStatusLabel.Caption :=
+      'PortMidi is not installed or could not be loaded. Install libportmidi and restart hUGETracker to enable MIDI input.'
+  else if MIDIDeviceComboBox.Items.Count = 0 then
+    MIDIStatusLabel.Caption := 'No MIDI input devices detected.'
+  else
+    MIDIStatusLabel.Caption := '';
+end;
+
+procedure TfrmOptions.MIDIEnabledCheckboxChange(Sender: TObject);
+begin
+  if LoadingMidiUI then Exit;
+  TrackerSettings.MIDIInputEnabled := MIDIEnabledCheckbox.Checked;
+  MIDIDeviceComboBox.Enabled := Midi.Available and MIDIEnabledCheckbox.Checked;
+  if not MIDIEnabledCheckbox.Checked then
+    Midi.CloseDevice
+  else if (MIDIDeviceComboBox.ItemIndex >= 0) and Midi.Available then
+    Midi.OpenDevice(MIDIDeviceComboBox.Items[MIDIDeviceComboBox.ItemIndex]);
+end;
+
+procedure TfrmOptions.MIDIDeviceComboBoxChange(Sender: TObject);
+begin
+  if LoadingMidiUI then Exit;
+  if MIDIDeviceComboBox.ItemIndex < 0 then Exit;
+  TrackerSettings.MIDIInputDevice := MIDIDeviceComboBox.Items[MIDIDeviceComboBox.ItemIndex];
+  if TrackerSettings.MIDIInputEnabled and Midi.Available then
+    Midi.OpenDevice(TrackerSettings.MIDIInputDevice);
+end;
+
+procedure TfrmOptions.MIDIRefreshButtonClick(Sender: TObject);
+begin
+  LoadingMidiUI := True;
+  try
+    RefreshMidiDevices;
+  finally
+    LoadingMidiUI := False;
+  end;
+  UpdateMidiStatus;
 end;
 
 procedure TfrmOptions.KeymapCheckboxChange(Sender: TObject);

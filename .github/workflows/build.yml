@@ -33,7 +33,7 @@ jobs:
         if: matrix.name == 'Linux'
         run: |
           sudo apt -qq update
-          sudo apt install -yq libsdl2-dev bison
+          sudo apt install -yq libsdl2-dev bison libasound2-dev
           curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.8.0/rgbds-0.8.0.tar.gz'
           tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
           cd rgbds
@@ -47,6 +47,11 @@ jobs:
 
           # FFmpeg dependencies
           sudo apt-get -y install autoconf automake cmake libtool meson ninja-build pkg-config yasm zlib1g-dev
+
+      - name: Build PortMidi (Linux)
+        if: matrix.name == 'Linux'
+        shell: bash
+        run: ./hUGETracker/.github/scripts/build-portmidi.sh
 
       - name: Install macOS dependencies
         if: matrix.name == 'Mac'
@@ -69,6 +74,11 @@ jobs:
           mkdir rgbds
           for f in asm link fix; do ln -s `which rgb$f` rgbds/rgb$f; done
 
+      - name: Build PortMidi (Mac)
+        if: matrix.name == 'Mac'
+        shell: bash
+        run: ./hUGETracker/.github/scripts/build-portmidi.sh
+
       - name: Install Windows dependencies
         if: matrix.name == 'Windows'
         shell: bash
@@ -90,6 +100,11 @@ jobs:
             base-devel
             mingw-w64-x86_64-toolchain
             yasm
+
+      - name: Build PortMidi (Windows)
+        if: matrix.name == 'Windows'
+        shell: msys2 {0}
+        run: ./hUGETracker/.github/scripts/build-portmidi.sh
 
       - name: Compile FFmpeg (Windows)
         if: matrix.name == 'Windows'
@@ -137,6 +152,7 @@ jobs:
         run: |
           unzip -d packaging sdl2.zip SDL2.dll
           cp -v ffmpeg-4.4/ffmpeg.exe rgbds/* packaging
+          cp -v portmidi-install/bin/libportmidi.dll packaging/portmidi.dll
 
       - name: Extra Mac packaging
         if: matrix.name == 'Mac'
@@ -147,6 +163,9 @@ jobs:
           mv packaging/{halt.gb,halt.sym,hUGEDriver,PixeliteTTF.ttf} packaging/hUGETracker.app/Contents/Resources
           for f in asm link fix; do ln -s `which rgb$f` packaging/hUGETracker.app/Contents/MacOS/rgb$f; done
           cp -v ffmpeg-4.4/ffmpeg packaging/hUGETracker.app/Contents/MacOS
+          if [ -f portmidi-install/lib/libportmidi.dylib ]; then
+            cp -Rv portmidi-install/lib/libportmidi*.dylib packaging/hUGETracker.app/Contents/MacOS/
+          fi
 
           # Hacky, but unlikely to break any time soon.
           ed packaging/hUGETracker.app/Contents/Info.plist << END
@@ -164,6 +183,9 @@ jobs:
         run: |
           for f in asm link fix; do cp -v rgbds/rgb$f packaging/rgb$f; done
           cp -v ffmpeg-4.4/ffmpeg packaging
+          # Bundle portmidi so users don't need libportmidi-dev installed.
+          # We ship both versioned and unversioned names so dlopen finds it.
+          cp -Pv portmidi-install/lib/libportmidi.so* packaging/
 
       - name: Zip files (preserving permissions)
         shell: bash
