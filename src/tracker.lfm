@@ -1,13 +1,12 @@
 object frmTracker: TfrmTracker
-  Left = 384
-  Height = 950
-  Top = 132
-  Width = 1512
+  Left = 478
+  Height = 712
+  Top = 129
+  Width = 1134
   AllowDropFiles = True
   Caption = 'hUGETracker'
-  ClientHeight = 950
-  ClientWidth = 1512
-  DesignTimePPI = 128
+  ClientHeight = 712
+  ClientWidth = 1134
   KeyPreview = True
   Menu = MainMenu1
   OnCloseQuery = FormCloseQuery
@@ -21,9 +20,9 @@ object frmTracker: TfrmTracker
   LCLVersion = '3.0.0.3'
   object TreeView1: TTreeView
     Left = 0
-    Height = 803
-    Top = 120
-    Width = 257
+    Height = 598
+    Top = 93
+    Width = 193
     Align = alLeft
     ParentFont = False
     ReadOnly = True
@@ -42,27 +41,27 @@ object frmTracker: TfrmTracker
     }
   end
   object Splitter1: TSplitter
-    Left = 257
-    Height = 803
-    Top = 120
-    Width = 7
+    Left = 193
+    Height = 598
+    Top = 93
+    Width = 5
   end
   object Panel1: TPanel
-    Left = 264
-    Height = 803
-    Top = 120
-    Width = 1248
+    Left = 198
+    Height = 598
+    Top = 93
+    Width = 936
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 803
-    ClientWidth = 1248
+    ClientHeight = 598
+    ClientWidth = 936
     ParentFont = False
     TabOrder = 2
     object PageControl1: TPageControl
       Left = 0
-      Height = 803
+      Height = 598
       Top = 0
-      Width = 1248
+      Width = 936
       ActivePage = InstrumentTabSheet
       Align = alClient
       ParentFont = False
@@ -70,74 +69,74 @@ object frmTracker: TfrmTracker
       TabOrder = 0
       object GeneralTabSheet: TTabSheet
         Caption = 'General'
-        ClientHeight = 762
-        ClientWidth = 1242
+        ClientHeight = 563
+        ClientWidth = 930
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
-          Left = 11
-          Height = 256
-          Top = 11
-          Width = 396
+          Left = 8
+          Height = 192
+          Top = 8
+          Width = 297
           Caption = 'Song information'
-          ClientHeight = 231
-          ClientWidth = 392
+          ClientHeight = 188
+          ClientWidth = 293
           ParentFont = False
           TabOrder = 0
           object Label15: TLabel
-            Left = 11
-            Height = 23
-            Top = 21
-            Width = 39
+            Left = 8
+            Height = 17
+            Top = 16
+            Width = 28
             Caption = 'Song'
             ParentColor = False
             ParentFont = False
           end
           object Label16: TLabel
-            Left = 9
-            Height = 23
-            Top = 64
-            Width = 41
+            Left = 7
+            Height = 17
+            Top = 48
+            Width = 30
             Caption = 'Artist'
             ParentColor = False
             ParentFont = False
           end
           object SongEdit: TEdit
-            Left = 75
-            Height = 33
+            Left = 56
+            Height = 27
             Hint = 'The name of your composition'
-            Top = 11
-            Width = 288
+            Top = 8
+            Width = 216
             MaxLength = 255
             ParentFont = False
             TabOrder = 0
             OnChange = SongEditChange
           end
           object ArtistEdit: TEdit
-            Left = 75
-            Height = 33
+            Left = 56
+            Height = 27
             Hint = 'Your name or handle'
-            Top = 53
-            Width = 288
+            Top = 40
+            Width = 216
             MaxLength = 255
             ParentFont = False
             TabOrder = 1
             OnChange = ArtistEditChange
           end
           object Label21: TLabel
-            Left = 11
-            Height = 23
-            Top = 104
-            Width = 163
+            Left = 8
+            Height = 17
+            Top = 78
+            Width = 120
             Caption = 'Tempo (ticks per row)'
             ParentColor = False
             ParentFont = False
           end
           object TicksPerRowSpinEdit: TSpinEdit
-            Left = 177
-            Height = 33
+            Left = 133
+            Height = 27
             Hint = 'How many ticks should happen before the row changes. Higher means slower.'
-            Top = 96
-            Width = 67
+            Top = 72
+            Width = 50
             MaxValue = 20
             MinValue = 1
             OnChange = TicksPerRowSpinEditChange
@@ -146,40 +145,40 @@ object frmTracker: TfrmTracker
             Value = 7
           end
           object TimerEnabledCheckBox: TCheckBox
-            Left = 9
-            Height = 25
+            Left = 7
+            Height = 21
             Hint = 'Enable the GB hardware timer. This allows for more fine-grained tempo control.'
-            Top = 192
-            Width = 224
+            Top = 144
+            Width = 171
             Caption = 'Enable timer-based tempo'
             TabOrder = 3
             OnChange = TimerEnabledCheckBoxChange
           end
           object TimerTempoLabel: TLabel
-            Left = 11
-            Height = 23
-            Top = 149
-            Width = 163
+            Left = 8
+            Height = 17
+            Top = 112
+            Width = 120
             Caption = 'Tempo (timer divider)'
             Enabled = False
             ParentColor = False
           end
           object TimerDividerSpinEdit: TSpinEdit
-            Left = 177
-            Height = 33
+            Left = 133
+            Height = 27
             Hint = 'The "modulo" value for the GB hardware timer. Higher means faster.'
-            Top = 144
-            Width = 67
+            Top = 108
+            Width = 50
             Enabled = False
             MaxValue = 255
             OnChange = TimerDividerSpinEditChange
             TabOrder = 4
           end
           object TempoBPMLabel: TLabel
-            Left = 256
-            Height = 23
-            Top = 128
-            Width = 127
+            Left = 192
+            Height = 17
+            Top = 96
+            Width = 94
             Caption = 'TempoBPMLabel'
             ParentColor = False
           end
@@ -187,59 +186,59 @@ object frmTracker: TfrmTracker
       end
       object PatternTabSheet: TTabSheet
         Caption = 'Patterns'
-        ClientHeight = 762
-        ClientWidth = 1242
+        ClientHeight = 563
+        ClientWidth = 930
         ParentFont = False
         object Panel3: TPanel
-          Left = 306
-          Height = 762
+          Left = 229
+          Height = 563
           Top = 0
-          Width = 936
+          Width = 701
           Align = alClient
-          ClientHeight = 762
-          ClientWidth = 936
+          ClientHeight = 563
+          ClientWidth = 701
           ParentFont = False
           TabOrder = 0
           object HeaderControl1: THeaderControl
             Left = 1
-            Height = 40
+            Height = 30
             Hint = 'Left click to mute, right click to solo'
             Top = 1
-            Width = 934
+            Width = 699
             DragReorder = False
             Images = ImageList2
             Sections = <            
               item
                 Alignment = taLeftJustify
-                Width = 43
+                Width = 32
                 Visible = True
               end            
               item
                 Alignment = taCenter
                 ImageIndex = 1
                 Text = 'Duty 1'
-                Width = 177
+                Width = 133
                 Visible = True
               end            
               item
                 Alignment = taCenter
                 ImageIndex = 1
                 Text = 'Duty 2'
-                Width = 177
+                Width = 133
                 Visible = True
               end            
               item
                 Alignment = taCenter
                 ImageIndex = 1
                 Text = 'Wave'
-                Width = 177
+                Width = 133
                 Visible = True
               end            
               item
                 Alignment = taCenter
                 ImageIndex = 1
                 Text = 'Noise'
-                Width = 177
+                Width = 133
                 Visible = True
               end>
             OnSectionClick = HeaderControl1SectionClick
@@ -250,34 +249,34 @@ object frmTracker: TfrmTracker
           end
           object ScrollBox1: TScrollBox
             Left = 1
-            Height = 720
-            Top = 41
-            Width = 934
-            HorzScrollBar.Increment = 4
-            HorzScrollBar.Page = 43
+            Height = 531
+            Top = 31
+            Width = 699
+            HorzScrollBar.Increment = 3
+            HorzScrollBar.Page = 32
             HorzScrollBar.Smooth = True
             HorzScrollBar.Tracking = True
-            VertScrollBar.Increment = 6
-            VertScrollBar.Page = 67
+            VertScrollBar.Increment = 5
+            VertScrollBar.Page = 50
             VertScrollBar.Smooth = True
             VertScrollBar.Tracking = True
             Align = alClient
             BorderStyle = bsNone
-            ClientHeight = 720
-            ClientWidth = 934
+            ClientHeight = 531
+            ClientWidth = 699
             ParentFont = False
             TabOrder = 1
             OnMouseWheelDown = ScrollBox1MouseWheelDown
             OnMouseWheelUp = ScrollBox1MouseWheelUp
             object RowNumberStringGrid: TStringGrid
               Left = 0
-              Height = 720
+              Height = 531
               Top = 0
-              Width = 43
+              Width = 32
               Align = alLeft
               BorderStyle = bsNone
               ColCount = 1
-              DefaultColWidth = 43
+              DefaultColWidth = 32
               Enabled = False
               ParentFont = False
               RowCount = 64
@@ -288,43 +287,43 @@ object frmTracker: TfrmTracker
         end
         object OrderEditStringGrid: TStringGrid
           Left = 0
-          Height = 762
+          Height = 563
           Top = 0
-          Width = 299
+          Width = 224
           Align = alLeft
           AutoEdit = False
           AutoFillColumns = True
           Columns = <          
             item
               Alignment = taCenter
-              MinSize = 44
-              MaxSize = 44
+              MinSize = 33
+              MaxSize = 33
               Title.Caption = 'Dty1'
-              Width = 44
+              Width = 33
             end          
             item
               Alignment = taCenter
-              MinSize = 44
-              MaxSize = 44
+              MinSize = 33
+              MaxSize = 33
               Title.Caption = 'Dty2'
-              Width = 44
+              Width = 33
             end          
             item
               Alignment = taCenter
-              MinSize = 44
-              MaxSize = 44
+              MinSize = 33
+              MaxSize = 33
               Title.Caption = 'Wav'
-              Width = 44
+              Width = 33
             end          
             item
               Alignment = taCenter
-              MinSize = 44
-              MaxSize = 44
+              MinSize = 33
+              MaxSize = 33
               Title.Caption = 'Nse'
-              Width = 44
+              Width = 33
             end>
-          DefaultColWidth = 23
-          DefaultRowHeight = 28
+          DefaultColWidth = 17
+          DefaultRowHeight = 21
           ExtendedSelect = False
           Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goRangeSelect, goRowMoving, goEditing, goTabs, goSmoothScroll, goFixedRowNumbering, goRowHighlight]
           ParentFont = False
@@ -344,30 +343,30 @@ object frmTracker: TfrmTracker
           OnMouseDown = OrderEditStringGridMouseDown
           OnValidateEntry = OrderEditStringGridValidateEntry
           ColWidths = (
-            85
-            44
-            44
-            44
-            44
+            64
+            33
+            33
+            33
+            33
           )
         end
         object Splitter2: TSplitter
-          Left = 299
-          Height = 762
+          Left = 224
+          Height = 563
           Top = 0
-          Width = 7
+          Width = 5
         end
       end
       object InstrumentTabSheet: TTabSheet
         Caption = 'Instruments'
-        ClientHeight = 762
-        ClientWidth = 1242
+        ClientHeight = 563
+        ClientWidth = 930
         ParentFont = False
         object FlowPanel1: TFlowPanel
           Left = 0
-          Height = 762
+          Height = 563
           Top = 0
-          Width = 1029
+          Width = 770
           Align = alClient
           AutoSize = True
           BevelOuter = bvNone
@@ -402,26 +401,26 @@ object frmTracker: TfrmTracker
           ParentFont = False
           TabOrder = 0
           object InstrumentGroupBox: TGroupBox
-            Left = 9
-            Height = 364
-            Top = 9
-            Width = 373
+            Left = 7
+            Height = 273
+            Top = 7
+            Width = 280
             Anchors = []
-            BorderSpacing.Left = 9
-            BorderSpacing.Top = 9
-            BorderSpacing.Right = 9
-            BorderSpacing.Bottom = 9
+            BorderSpacing.Left = 7
+            BorderSpacing.Top = 7
+            BorderSpacing.Right = 7
+            BorderSpacing.Bottom = 7
             Caption = 'Instrument'
-            ClientHeight = 339
-            ClientWidth = 369
+            ClientHeight = 254
+            ClientWidth = 276
             ParentFont = False
             TabOrder = 0
             object InstrumentNumberSpinner: TSpinEdit
-              Left = 107
-              Height = 33
+              Left = 80
+              Height = 27
               Hint = 'What instrument to edit'
-              Top = 51
-              Width = 249
+              Top = 38
+              Width = 187
               MaxValue = 15
               MinValue = 1
               OnChange = InstrumentNumberSpinnerChange
@@ -430,50 +429,50 @@ object frmTracker: TfrmTracker
               Value = 1
             end
             object Label1: TLabel
-              Left = 11
-              Height = 23
-              Top = 61
-              Width = 86
+              Left = 8
+              Height = 17
+              Top = 46
+              Width = 62
               Caption = 'Instrument'
               ParentColor = False
               ParentFont = False
             end
             object Label2: TLabel
-              Left = 11
-              Height = 23
-              Top = 104
-              Width = 45
+              Left = 8
+              Height = 17
+              Top = 78
+              Width = 34
               Caption = 'Name'
               ParentColor = False
               ParentFont = False
             end
             object InstrumentNameEdit: TEdit
-              Left = 107
-              Height = 33
+              Left = 80
+              Height = 27
               Hint = 'The name of the instrument'
-              Top = 93
-              Width = 249
+              Top = 70
+              Width = 187
               MaxLength = 255
               ParentFont = False
               TabOrder = 1
               OnChange = InstrumentNameEditChange
             end
             object Label3: TLabel
-              Left = 11
-              Height = 23
-              Top = 21
-              Width = 67
+              Left = 8
+              Height = 17
+              Top = 16
+              Width = 50
               Caption = 'Channel'
               Font.Style = [fsBold]
               ParentColor = False
               ParentFont = False
             end
             object InstrumentTypeCombobox: TComboBox
-              Left = 107
-              Height = 31
+              Left = 80
+              Height = 25
               Hint = 'What type of channel this instrument will be played on'
-              Top = 11
-              Width = 247
+              Top = 8
+              Width = 185
               ItemHeight = 0
               ItemIndex = 0
               Items.Strings = (
@@ -488,33 +487,33 @@ object frmTracker: TfrmTracker
               OnChange = InstrumentTypeComboboxChange
             end
             object LengthEnabledCheckbox: TCheckBox
-              Left = 16
-              Height = 25
+              Left = 12
+              Height = 21
               Hint = 'Cut the sound after a certain length of time'
-              Top = 157
-              Width = 76
+              Top = 118
+              Width = 61
               Caption = 'Length'
               ParentFont = False
               TabOrder = 3
               OnChange = LengthEnabledCheckboxChange
             end
             object InstrumentImportButton: TButton
-              Left = 16
-              Height = 33
+              Left = 12
+              Height = 25
               Hint = 'Import an instrument'
-              Top = 288
-              Width = 155
+              Top = 216
+              Width = 116
               Caption = 'Import'
               ParentFont = False
               TabOrder = 4
               OnClick = InstrumentImportButtonClick
             end
             object InstrumentExportButton: TButton
-              Left = 199
-              Height = 33
+              Left = 149
+              Height = 25
               Hint = 'Export an instrument'
-              Top = 288
-              Width = 155
+              Top = 216
+              Width = 116
               Caption = 'Export'
               ParentFont = False
               TabOrder = 5
@@ -522,21 +521,21 @@ object frmTracker: TfrmTracker
             end
             object TestOctave5Button: TButton
               Tag = 5
-              Left = 189
-              Height = 33
+              Left = 142
+              Height = 25
               Hint = 'Test out the instrument with a C-5 note'
-              Top = 195
-              Width = 36
+              Top = 146
+              Width = 27
               Caption = '5'
               ParentFont = False
               TabOrder = 6
               OnClick = TestOctaveButtonClick
             end
             object LengthTrackbar: TTrackBar
-              Left = 101
-              Height = 59
-              Top = 149
-              Width = 252
+              Left = 76
+              Height = 44
+              Top = 112
+              Width = 189
               Max = 63
               OnChange = LengthSpinnerChange
               Position = 0
@@ -545,21 +544,21 @@ object frmTracker: TfrmTracker
               TabOrder = 7
             end
             object Label14: TLabel
-              Left = 16
-              Height = 23
-              Top = 203
-              Width = 89
+              Left = 12
+              Height = 17
+              Top = 152
+              Width = 66
               Caption = 'Test octave:'
               ParentColor = False
               ParentFont = False
             end
             object TestOctave5Button1: TButton
               Tag = 4
-              Left = 147
-              Height = 33
+              Left = 110
+              Height = 25
               Hint = 'Test out the instrument with a C-4 note'
-              Top = 195
-              Width = 36
+              Top = 146
+              Width = 27
               Caption = '4'
               ParentFont = False
               TabOrder = 8
@@ -567,11 +566,11 @@ object frmTracker: TfrmTracker
             end
             object TestOctave5Button2: TButton
               Tag = 3
-              Left = 104
-              Height = 33
+              Left = 78
+              Height = 25
               Hint = 'Test out the instrument with a C-3 note'
-              Top = 195
-              Width = 36
+              Top = 146
+              Width = 27
               Caption = '3'
               ParentFont = False
               TabOrder = 9
@@ -579,11 +578,11 @@ object frmTracker: TfrmTracker
             end
             object TestOctave5Button3: TButton
               Tag = 6
-              Left = 232
-              Height = 33
+              Left = 174
+              Height = 25
               Hint = 'Test out the instrument with a C-6 note'
-              Top = 195
-              Width = 36
+              Top = 146
+              Width = 27
               Caption = '6'
               ParentFont = False
               TabOrder = 10
@@ -591,11 +590,11 @@ object frmTracker: TfrmTracker
             end
             object TestOctave5Button4: TButton
               Tag = 7
-              Left = 275
-              Height = 33
+              Left = 206
+              Height = 25
               Hint = 'Test out the instrument with a C-7 note'
-              Top = 195
-              Width = 36
+              Top = 146
+              Width = 27
               Caption = '7'
               ParentFont = False
               TabOrder = 11
@@ -603,65 +602,65 @@ object frmTracker: TfrmTracker
             end
             object TestOctave5Button5: TButton
               Tag = 8
-              Left = 317
-              Height = 33
+              Left = 238
+              Height = 25
               Hint = 'Test out the instrument with a C-8 note'
-              Top = 195
-              Width = 36
+              Top = 146
+              Width = 27
               Caption = '8'
               ParentFont = False
               TabOrder = 12
               OnClick = TestOctaveButtonClick
             end
             object EnableSubpatternCheckbox: TCheckBox
-              Left = 16
-              Height = 25
-              Top = 245
-              Width = 163
+              Left = 12
+              Height = 21
+              Top = 184
+              Width = 125
               Caption = 'Enable subpattern'
               TabOrder = 13
               OnChange = EnableSubpatternCheckboxChange
             end
           end
           object EnvelopeGroupBox: TGroupBox
-            Left = 9
-            Height = 181
-            Top = 391
-            Width = 776
+            Left = 7
+            Height = 136
+            Top = 294
+            Width = 582
             Anchors = []
-            BorderSpacing.Left = 9
-            BorderSpacing.Top = 9
-            BorderSpacing.Right = 9
-            BorderSpacing.Bottom = 9
+            BorderSpacing.Left = 7
+            BorderSpacing.Top = 7
+            BorderSpacing.Right = 7
+            BorderSpacing.Bottom = 7
             Caption = 'Envelope'
-            ClientHeight = 156
-            ClientWidth = 772
+            ClientHeight = 117
+            ClientWidth = 578
             ParentFont = False
             TabOrder = 1
             object Label4: TLabel
-              Left = 11
-              Height = 23
-              Top = 21
-              Width = 67
+              Left = 8
+              Height = 17
+              Top = 16
+              Width = 49
               Caption = 'Start vol.'
               ParentColor = False
               ParentFont = False
             end
             object Label5: TLabel
-              Left = 11
-              Height = 23
-              Top = 72
-              Width = 69
+              Left = 8
+              Height = 17
+              Top = 54
+              Width = 51
               Caption = 'Direction'
               ParentColor = False
               ParentFont = False
             end
             object DirectionComboBox: TComboBox
-              Left = 109
-              Height = 31
+              Left = 82
+              Height = 25
               Hint = 'Whether to fade the sound in or out'
-              Top = 61
-              Width = 264
+              Top = 46
+              Width = 198
               ItemHeight = 0
               ItemIndex = 1
               Items.Strings = (
@@ -675,40 +674,40 @@ object frmTracker: TfrmTracker
               OnChange = DirectionComboBoxChange
             end
             object Label6: TLabel
-              Left = 11
-              Height = 23
-              Top = 120
-              Width = 58
+              Left = 8
+              Height = 17
+              Top = 90
+              Width = 43
               Caption = 'Change'
               ParentColor = False
               ParentFont = False
             end
             object Panel5: TPanel
-              Left = 400
-              Height = 139
+              Left = 300
+              Height = 104
               Top = 0
-              Width = 360
+              Width = 270
               BevelOuter = bvLowered
-              ClientHeight = 139
-              ClientWidth = 360
+              ClientHeight = 104
+              ClientWidth = 270
               ParentFont = False
               TabOrder = 1
               object EnvelopePaintbox: TPaintBox
                 Left = 1
-                Height = 137
+                Height = 102
                 Hint = 'Preview of the volume envelope'
                 Top = 1
-                Width = 358
+                Width = 268
                 Align = alClient
                 ParentFont = False
                 OnPaint = EnvelopePaintboxPaint
               end
             end
             object StartVolTrackbar: TTrackBar
-              Left = 109
-              Height = 59
-              Top = 11
-              Width = 261
+              Left = 82
+              Height = 44
+              Top = 8
+              Width = 196
               Max = 15
               OnChange = StartVolSpinnerChange
               Position = 0
@@ -716,10 +715,10 @@ object frmTracker: TfrmTracker
               TabOrder = 2
             end
             object EnvChangeTrackbar: TTrackBar
-              Left = 109
-              Height = 59
-              Top = 109
-              Width = 261
+              Left = 82
+              Height = 44
+              Top = 82
+              Width = 196
               Max = 7
               OnChange = EnvChangeSpinnerChange
               Position = 0
@@ -728,35 +727,35 @@ object frmTracker: TfrmTracker
             end
           end
           object SquareGroupBox: TGroupBox
-            Left = 9
-            Height = 225
-            Top = 590
-            Width = 425
+            Left = 7
+            Height = 169
+            Top = 444
+            Width = 319
             Anchors = []
-            BorderSpacing.Left = 9
-            BorderSpacing.Top = 9
-            BorderSpacing.Right = 9
-            BorderSpacing.Bottom = 9
+            BorderSpacing.Left = 7
+            BorderSpacing.Top = 7
+            BorderSpacing.Right = 7
+            BorderSpacing.Bottom = 7
             Caption = 'Square'
-            ClientHeight = 200
-            ClientWidth = 421
+            ClientHeight = 150
+            ClientWidth = 315
             ParentFont = False
             TabOrder = 2
             object Label7: TLabel
-              Left = 11
-              Height = 23
-              Top = 21
-              Width = 88
+              Left = 8
+              Height = 17
+              Top = 16
+              Width = 65
               Caption = 'Sweep time'
               ParentColor = False
               ParentFont = False
             end
             object SweepTimeCombobox: TComboBox
-              Left = 139
-              Height = 31
+              Left = 104
+              Height = 25
               Hint = 'How long to sweep'
-              Top = 11
-              Width = 267
+              Top = 8
+              Width = 200
               ItemHeight = 0
               ItemIndex = 0
               Items.Strings = (
@@ -778,11 +777,11 @@ object frmTracker: TfrmTracker
               OnChange = SweepTimeComboboxChange
             end
             object SweepDirectionCombobox: TComboBox
-              Left = 139
-              Height = 31
+              Left = 104
+              Height = 25
               Hint = 'The direction of the sweep'
-              Top = 53
-              Width = 267
+              Top = 40
+              Width = 200
               ItemHeight = 0
               ItemIndex = 1
               Items.Strings = (
@@ -798,38 +797,38 @@ object frmTracker: TfrmTracker
               OnChange = SweepDirectionComboboxChange
             end
             object Label8: TLabel
-              Left = 11
-              Height = 23
-              Top = 64
-              Width = 121
+              Left = 8
+              Height = 17
+              Top = 48
+              Width = 89
               Caption = 'Sweep direction'
               ParentColor = False
               ParentFont = False
             end
             object Label9: TLabel
-              Left = 11
-              Height = 23
-              Top = 117
-              Width = 83
+              Left = 8
+              Height = 17
+              Top = 88
+              Width = 62
               Caption = 'Sweep size'
               ParentColor = False
               ParentFont = False
             end
             object Label10: TLabel
-              Left = 11
-              Height = 23
-              Top = 160
-              Width = 36
+              Left = 8
+              Height = 17
+              Top = 120
+              Width = 26
               Caption = 'Duty'
               ParentColor = False
               ParentFont = False
             end
             object DutyCombobox: TComboBox
-              Left = 139
-              Height = 31
+              Left = 104
+              Height = 25
               Hint = 'Which duty cycle to use (changes timbre of wave)'
-              Top = 149
-              Width = 267
+              Top = 112
+              Width = 200
               ItemHeight = 0
               ItemIndex = 2
               Items.Strings = (
@@ -847,10 +846,10 @@ object frmTracker: TfrmTracker
               OnChange = DutyComboboxChange
             end
             object SweepSizeTrackbar: TTrackBar
-              Left = 140
-              Height = 59
-              Top = 107
-              Width = 261
+              Left = 105
+              Height = 44
+              Top = 80
+              Width = 196
               Max = 7
               OnChange = SweepSizeSpinnerChange
               Position = 0
@@ -859,44 +858,44 @@ object frmTracker: TfrmTracker
             end
           end
           object WaveGroupBox: TGroupBox
-            Left = 452
-            Height = 225
-            Top = 590
-            Width = 396
+            Left = 340
+            Height = 169
+            Top = 444
+            Width = 297
             Anchors = []
-            BorderSpacing.Left = 9
-            BorderSpacing.Top = 9
-            BorderSpacing.Right = 9
-            BorderSpacing.Bottom = 9
+            BorderSpacing.Left = 7
+            BorderSpacing.Top = 7
+            BorderSpacing.Right = 7
+            BorderSpacing.Bottom = 7
             Caption = 'Wave'
-            ClientHeight = 200
-            ClientWidth = 392
+            ClientHeight = 150
+            ClientWidth = 293
             ParentFont = False
             TabOrder = 3
             object Label11: TLabel
-              Left = 11
-              Height = 23
-              Top = 21
-              Width = 57
+              Left = 8
+              Height = 17
+              Top = 16
+              Width = 42
               Caption = 'Volume'
               ParentColor = False
               ParentFont = False
             end
             object Label12: TLabel
-              Left = 11
-              Height = 23
-              Top = 64
-              Width = 79
+              Left = 8
+              Height = 17
+              Top = 48
+              Width = 58
               Caption = 'Waveform'
               ParentColor = False
               ParentFont = False
             end
             object WaveformCombobox: TComboBox
-              Left = 139
-              Height = 31
+              Left = 104
+              Height = 25
               Hint = 'Which waveform is associated with this instrument'
-              Top = 53
-              Width = 235
+              Top = 40
+              Width = 176
               ItemHeight = 0
               ItemIndex = 0
               Items.Strings = (
@@ -924,21 +923,21 @@ object frmTracker: TfrmTracker
               OnChange = WaveformComboboxChange
             end
             object Panel4: TPanel
-              Left = 11
-              Height = 79
-              Top = 107
-              Width = 363
+              Left = 8
+              Height = 59
+              Top = 80
+              Width = 272
               BevelOuter = bvLowered
-              ClientHeight = 79
-              ClientWidth = 363
+              ClientHeight = 59
+              ClientWidth = 272
               ParentFont = False
               TabOrder = 1
               object WavePaintbox: TPaintBox
                 Left = 1
-                Height = 77
+                Height = 57
                 Hint = 'Preview of the waveform associated with this instrument'
                 Top = 1
-                Width = 361
+                Width = 270
                 Align = alClient
                 Color = clBlack
                 ParentColor = False
@@ -947,11 +946,11 @@ object frmTracker: TfrmTracker
               end
             end
             object WaveVolumeCombobox: TComboBox
-              Left = 139
-              Height = 31
+              Left = 104
+              Height = 25
               Hint = 'The initial volume of the wave'
-              Top = 11
-              Width = 235
+              Top = 8
+              Width = 176
               ItemHeight = 0
               ItemIndex = 1
               Items.Strings = (
@@ -968,26 +967,26 @@ object frmTracker: TfrmTracker
             end
           end
           object NoiseGroupBox: TGroupBox
-            Left = 9
-            Height = 79
-            Top = 833
-            Width = 316
+            Left = 7
+            Height = 59
+            Top = 627
+            Width = 237
             Anchors = []
-            BorderSpacing.Left = 9
-            BorderSpacing.Top = 9
-            BorderSpacing.Right = 9
-            BorderSpacing.Bottom = 9
+            BorderSpacing.Left = 7
+            BorderSpacing.Top = 7
+            BorderSpacing.Right = 7
+            BorderSpacing.Bottom = 7
             Caption = 'Noise'
-            ClientHeight = 54
-            ClientWidth = 312
+            ClientHeight = 40
+            ClientWidth = 233
             ParentFont = False
             TabOrder = 4
             object SevenBitCounterCheckbox: TCheckBox
-              Left = 11
-              Height = 25
+              Left = 8
+              Height = 21
               Hint = 'Select LFSR width. When checked, output will sound like a tone rather than noise'
-              Top = 11
-              Width = 300
+              Top = 8
+              Width = 224
               Alignment = taLeftJustify
               Caption = '7 bit counter (more tone-like output)'
               ParentFont = False
@@ -997,46 +996,46 @@ object frmTracker: TfrmTracker
           end
         end
         object SubpatternGroupBox: TGroupBox
-          Left = 1029
-          Height = 753
-          Top = 9
-          Width = 213
+          Left = 770
+          Height = 556
+          Top = 7
+          Width = 160
           Align = alRight
           Anchors = []
-          BorderSpacing.Top = 9
+          BorderSpacing.Top = 7
           Caption = 'Subpattern'
-          ClientHeight = 728
-          ClientWidth = 209
+          ClientHeight = 537
+          ClientWidth = 156
           TabOrder = 1
           object ScrollBox2: TScrollBox
             Left = 0
-            Height = 728
+            Height = 537
             Top = 0
-            Width = 209
-            HorzScrollBar.Increment = 4
-            HorzScrollBar.Page = 43
+            Width = 156
+            HorzScrollBar.Increment = 3
+            HorzScrollBar.Page = 32
             HorzScrollBar.Smooth = True
             HorzScrollBar.Tracking = True
-            VertScrollBar.Increment = 6
-            VertScrollBar.Page = 67
+            VertScrollBar.Increment = 5
+            VertScrollBar.Page = 50
             VertScrollBar.Smooth = True
             VertScrollBar.Tracking = True
             Align = alClient
             BorderStyle = bsNone
-            ClientHeight = 728
-            ClientWidth = 209
+            ClientHeight = 537
+            ClientWidth = 156
             TabOrder = 0
             OnMouseWheelDown = ScrollBox1MouseWheelDown
             OnMouseWheelUp = ScrollBox1MouseWheelUp
             object RowNumberStringGrid1: TStringGrid
-              Left = 166
-              Height = 728
+              Left = 124
+              Height = 537
               Top = 0
-              Width = 43
+              Width = 32
               Align = alRight
               BorderStyle = bsNone
               ColCount = 1
-              DefaultColWidth = 43
+              DefaultColWidth = 32
               Enabled = False
               ParentFont = False
               RowCount = 32
@@ -1048,19 +1047,19 @@ object frmTracker: TfrmTracker
       end
       object WavesTabSheet: TTabSheet
         Caption = 'Waves'
-        ClientHeight = 762
-        ClientWidth = 1242
+        ClientHeight = 563
+        ClientWidth = 930
         ParentFont = False
         object WaveEditPaintBox: TPaintBox
           AnchorSideTop.Control = WaveEditGroupBox
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 549
-          Top = 213
-          Width = 1242
+          Height = 403
+          Top = 160
+          Width = 930
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
-          BorderSpacing.Top = 17
+          BorderSpacing.Top = 13
           ParentFont = False
           PopupMenu = WaveEditPopup
           OnMouseDown = WaveEditPaintBoxMouseDown
@@ -1069,61 +1068,61 @@ object frmTracker: TfrmTracker
           OnPaint = WaveEditPaintBoxPaint
         end
         object WaveEditGroupBox: TGroupBox
-          Left = 11
-          Height = 185
-          Top = 11
-          Width = 757
+          Left = 8
+          Height = 139
+          Top = 8
+          Width = 568
           Caption = 'Wave Editor'
-          ClientHeight = 181
-          ClientWidth = 753
+          ClientHeight = 135
+          ClientWidth = 564
           ParentFont = False
           TabOrder = 0
           object Label20: TLabel
-            Left = 21
-            Height = 23
-            Top = 21
-            Width = 41
+            Left = 16
+            Height = 17
+            Top = 16
+            Width = 31
             Caption = 'Wave'
             ParentColor = False
             ParentFont = False
           end
           object WaveEditNumberSpinner: TSpinEdit
-            Left = 85
-            Height = 33
-            Top = 11
-            Width = 107
+            Left = 64
+            Height = 27
+            Top = 8
+            Width = 80
             MaxValue = 15
             OnChange = WaveEditNumberSpinnerChange
             ParentFont = False
             TabOrder = 0
           end
           object ImportWaveButton: TButton
-            Left = 21
-            Height = 33
+            Left = 16
+            Height = 25
             Hint = 'Import a wave'
-            Top = 64
-            Width = 196
+            Top = 48
+            Width = 147
             Caption = 'Import'
             ParentFont = False
             TabOrder = 1
             OnClick = ImportWaveButtonClick
           end
           object ExportWaveButton: TButton
-            Left = 21
-            Height = 33
+            Left = 16
+            Height = 25
             Hint = 'Export a wave'
-            Top = 107
-            Width = 196
+            Top = 80
+            Width = 147
             Caption = 'Export'
             ParentFont = False
             TabOrder = 2
             OnClick = ExportWaveButtonClick
           end
           object HexWaveEdit: TEdit
-            Left = 384
-            Height = 33
-            Top = 11
-            Width = 352
+            Left = 288
+            Height = 27
+            Top = 8
+            Width = 264
             MaxLength = 32
             ParentFont = False
             TabOrder = 3
@@ -1131,19 +1130,19 @@ object frmTracker: TfrmTracker
             OnEditingDone = HexWaveEditEditingDone
           end
           object Label13: TLabel
-            Left = 235
-            Height = 23
-            Top = 21
-            Width = 145
+            Left = 176
+            Height = 17
+            Top = 16
+            Width = 108
             Caption = 'Hex representation'
             ParentColor = False
             ParentFont = False
           end
           object PlayWaveWhileDrawingCheckbox: TCheckBox
-            Left = 235
-            Height = 25
-            Top = 53
-            Width = 207
+            Left = 176
+            Height = 21
+            Top = 40
+            Width = 158
             Caption = 'Play wave while drawing'
             ParentFont = False
             TabOrder = 4
@@ -1152,30 +1151,30 @@ object frmTracker: TfrmTracker
       end
       object CommentsTabSheet: TTabSheet
         Caption = 'Comments'
-        ClientHeight = 762
-        ClientWidth = 1242
+        ClientHeight = 563
+        ClientWidth = 930
         ParentFont = False
         object CommentMemo: TMemo
           AnchorSideTop.Control = Label17
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 711
+          Height = 525
           Hint = 'The comments section for your song. Greetings/links/etc'
-          Top = 51
-          Width = 1242
+          Top = 38
+          Width = 930
           Align = alBottom
           Anchors = [akTop, akLeft, akRight, akBottom]
-          BorderSpacing.Top = 17
+          BorderSpacing.Top = 13
           MaxLength = 255
           ParentFont = False
           TabOrder = 0
           OnChange = CommentMemoChange
         end
         object Label17: TLabel
-          Left = 11
-          Height = 23
-          Top = 11
-          Width = 481
+          Left = 8
+          Height = 17
+          Top = 8
+          Width = 351
           Caption = 'This is an area to write comments for anyone editing your tune.'
           ParentColor = False
           ParentFont = False
@@ -1183,27 +1182,27 @@ object frmTracker: TfrmTracker
       end
       object RoutinesTabSheet: TTabSheet
         Caption = 'Routines'
-        ClientHeight = 762
-        ClientWidth = 1242
+        ClientHeight = 563
+        ClientWidth = 930
         ParentFont = False
         inline RoutineSynedit: TSynEdit
           AnchorSideTop.Control = Label19
           AnchorSideTop.Side = asrBottom
           Left = 0
-          Height = 600
-          Top = 162
-          Width = 1242
+          Height = 442
+          Top = 121
+          Width = 930
           Align = alBottom
-          BorderSpacing.Top = 17
+          BorderSpacing.Top = 13
           Anchors = [akTop, akLeft, akRight, akBottom]
-          Font.Height = -17
+          Font.Height = -13
           Font.Name = 'Courier New'
           Font.Pitch = fpFixed
           Font.Quality = fqNonAntialiased
           ParentColor = False
           ParentFont = False
           TabOrder = 0
-          Gutter.Width = 74
+          Gutter.Width = 57
           Gutter.MouseActions = <>
           RightGutter.Width = 0
           RightGutter.MouseActions = <>
@@ -1657,11 +1656,11 @@ object frmTracker: TfrmTracker
           OnChange = RoutineSyneditChange
           inline SynLeftGutterPartList1: TSynGutterPartList
             object SynGutterMarks1: TSynGutterMarks
-              Width = 32
+              Width = 24
               MouseActions = <>
             end
             object SynGutterLineNumber1: TSynGutterLineNumber
-              Width = 21
+              Width = 17
               MouseActions = <>
               MarkupInfo.Background = clBtnFace
               MarkupInfo.Foreground = clNone
@@ -1671,19 +1670,18 @@ object frmTracker: TfrmTracker
               LeadingZeros = False
             end
             object SynGutterChanges1: TSynGutterChanges
-              Width = 5
+              Width = 4
               MouseActions = <>
               ModifiedColor = 59900
               SavedColor = clGreen
             end
             object SynGutterSeparator1: TSynGutterSeparator
-              Width = 3
+              Width = 2
               MouseActions = <>
               MarkupInfo.Background = clWhite
               MarkupInfo.Foreground = clGray
             end
             object SynGutterCodeFolding1: TSynGutterCodeFolding
-              Width = 13
               MouseActions = <>
               MarkupInfo.Background = clNone
               MarkupInfo.Foreground = clGray
@@ -1693,19 +1691,19 @@ object frmTracker: TfrmTracker
           end
         end
         object Label18: TLabel
-          Left = 11
-          Height = 23
-          Top = 21
-          Width = 59
+          Left = 8
+          Height = 17
+          Top = 16
+          Width = 42
           Caption = 'Routine'
           ParentColor = False
           ParentFont = False
         end
         object RoutineNumberSpinner: TSpinEdit
-          Left = 85
-          Height = 33
-          Top = 11
-          Width = 235
+          Left = 64
+          Height = 27
+          Top = 8
+          Width = 176
           MaxValue = 15
           OnChange = RoutineNumberSpinnerChange
           ParentFont = False
@@ -1713,10 +1711,10 @@ object frmTracker: TfrmTracker
           Value = 1
         end
         object Label19: TLabel
-          Left = 11
-          Height = 92
-          Top = 53
-          Width = 725
+          Left = 8
+          Height = 68
+          Top = 40
+          Width = 531
           Caption = 'Routines are an advanced feature of hUGETracker, and you likely won''t need them at all'#13#10'if you are only interested in composing music. If you want to create a custom effect, or interface'#13#10'with game code that you''re writing a soundtrack for, then routines will come in handy.'#13#10#13#10'Refer to the user manual for more information!'
           ParentColor = False
           ParentFont = False
@@ -1726,21 +1724,21 @@ object frmTracker: TfrmTracker
   end
   object ScopesPanel: TPanel
     Left = 0
-    Height = 85
-    Top = 35
-    Width = 1512
+    Height = 64
+    Top = 29
+    Width = 1134
     Align = alTop
     BevelOuter = bvNone
-    ClientHeight = 85
-    ClientWidth = 1512
+    ClientHeight = 64
+    ClientWidth = 1134
     ParentFont = False
     TabOrder = 3
     object LEDMeter1: TLEDMeter
       AnchorSideRight.Control = Duty1Visualizer
       Left = 0
-      Height = 43
-      Top = 43
-      Width = 460
+      Height = 32
+      Top = 32
+      Width = 346
       Anchors = [akTop, akLeft, akRight]
       BevelStyle = bvLowered
       Colors.Border = 2168839
@@ -1761,9 +1759,9 @@ object frmTracker: TfrmTracker
     object LEDMeter2: TLEDMeter
       AnchorSideRight.Control = Duty1Visualizer
       Left = 0
-      Height = 43
+      Height = 32
       Top = 0
-      Width = 460
+      Width = 346
       Anchors = [akTop, akLeft, akRight]
       BevelStyle = bvLowered
       Colors.Border = 2168839
@@ -1782,40 +1780,40 @@ object frmTracker: TfrmTracker
       Section3Value = 48
     end
     object Duty1Visualizer: TPaintBox
-      Left = 460
-      Height = 85
+      Left = 346
+      Height = 64
       Top = 0
-      Width = 263
+      Width = 197
       Align = alRight
       ParentFont = False
       OnClick = Duty1VisualizerClick
       OnPaint = Duty1VisualizerPaint
     end
     object Duty2Visualizer: TPaintBox
-      Left = 723
-      Height = 85
+      Left = 543
+      Height = 64
       Top = 0
-      Width = 263
+      Width = 197
       Align = alRight
       ParentFont = False
       OnClick = Duty1VisualizerClick
       OnPaint = Duty2VisualizerPaint
     end
     object WaveVisualizer: TPaintBox
-      Left = 986
-      Height = 85
+      Left = 740
+      Height = 64
       Top = 0
-      Width = 263
+      Width = 197
       Align = alRight
       ParentFont = False
       OnClick = Duty1VisualizerClick
       OnPaint = WaveVisualizerPaint
     end
     object NoiseVisualizer: TPaintBox
-      Left = 1249
-      Height = 85
+      Left = 937
+      Height = 64
       Top = 0
-      Width = 263
+      Width = 197
       Align = alRight
       ParentFont = False
       OnClick = Duty1VisualizerClick
@@ -1824,19 +1822,19 @@ object frmTracker: TfrmTracker
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 27
-    Top = 923
-    Width = 1512
+    Height = 21
+    Top = 691
+    Width = 1134
     AutoHint = True
     Panels = <    
       item
-        Width = 623
+        Width = 467
       end    
       item
-        Width = 267
+        Width = 200
       end    
       item
-        Width = 267
+        Width = 200
       end>
     ParentFont = False
     ParentShowHint = False
@@ -1845,9 +1843,9 @@ object frmTracker: TfrmTracker
   end
   object ToolBar1: TToolBar
     Left = 0
-    Height = 35
+    Height = 29
     Top = 0
-    Width = 1512
+    Width = 1134
     AutoSize = True
     Caption = 'ToolBar1'
     EdgeBorders = [ebBottom]
@@ -1864,7 +1862,7 @@ object frmTracker: TfrmTracker
       ParentShowHint = False
     end
     object PanicToolButton: TToolButton
-      Left = 641
+      Left = 524
       Hint = 'Stops all sound output'
       Top = 0
       AutoSize = True
@@ -1875,17 +1873,17 @@ object frmTracker: TfrmTracker
       ShowHint = True
     end
     object ToolButton2: TToolButton
-      Left = 143
+      Left = 119
       Top = 0
       Action = PlayCursorAction
     end
     object ToolButton4: TToolButton
-      Left = 175
+      Left = 148
       Top = 0
       Action = StopAction
     end
     object ExportGBButton: TToolButton
-      Left = 281
+      Left = 243
       Hint = 'Export the song as a standalone ROM'
       Top = 0
       AutoSize = True
@@ -1894,49 +1892,49 @@ object frmTracker: TfrmTracker
       OnClick = ExportGBButtonClick
     end
     object ToolButton8: TToolButton
-      Left = 106
-      Height = 29
+      Left = 86
+      Height = 22
       Top = 0
       Caption = 'ToolButton8'
       Style = tbsDivider
     end
     object ToolButton6: TToolButton
-      Left = 239
-      Height = 29
+      Left = 206
+      Height = 22
       Top = 0
       Caption = 'ToolButton6'
       Style = tbsDivider
     end
     object ToolButton7: TToolButton
-      Left = 1358
-      Height = 29
+      Left = 1066
+      Height = 22
       Top = 0
       Caption = 'ToolButton7'
       Style = tbsSeparator
     end
     object OctaveSpinEdit: TSpinEdit
-      Left = 779
-      Height = 33
+      Left = 632
+      Height = 27
       Hint = 'The octave offset for entering new notes'
       Top = 0
-      Width = 87
+      Width = 65
       MaxValue = 5
       OnChange = OctaveSpinEditChange
       ParentFont = False
       TabOrder = 0
     end
     object ToolButton9: TToolButton
-      Left = 714
-      Height = 29
+      Left = 583
+      Height = 22
       Top = 0
       Caption = 'ToolButton9'
       Style = tbsSeparator
     end
     object Label22: TLabel
-      Left = 722
-      Height = 29
+      Left = 589
+      Height = 22
       Top = 0
-      Width = 57
+      Width = 43
       AutoSize = False
       Caption = 'Octave  '
       Layout = tlCenter
@@ -1944,10 +1942,10 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object Label23: TLabel
-      Left = 866
-      Height = 29
+      Left = 697
+      Height = 22
       Top = 0
-      Width = 93
+      Width = 70
       AutoSize = False
       Caption = '  Instrument  '
       Layout = tlCenter
@@ -1955,11 +1953,11 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object InstrumentComboBox: TComboBox
-      Left = 959
-      Height = 31
+      Left = 767
+      Height = 25
       Hint = 'The selected instrument for new notes'
       Top = 0
-      Width = 285
+      Width = 214
       DropDownCount = 999
       ItemHeight = 0
       ItemIndex = 0
@@ -1973,10 +1971,10 @@ object frmTracker: TfrmTracker
       OnChange = InstrumentComboBoxChange
     end
     object Label24: TLabel
-      Left = 1244
-      Height = 29
+      Left = 981
+      Height = 22
       Top = 0
-      Width = 47
+      Width = 35
       AutoSize = False
       Caption = '  Step  '
       Layout = tlCenter
@@ -1984,23 +1982,23 @@ object frmTracker: TfrmTracker
       ParentFont = False
     end
     object StepSpinEdit: TSpinEdit
-      Left = 1291
-      Height = 33
+      Left = 1016
+      Height = 27
       Hint = 'How many rows to step down after entering a new note'
       Top = 0
-      Width = 67
+      Width = 50
       MaxValue = 63
       OnChange = StepSpinEditChange
       ParentFont = False
       TabOrder = 2
     end
     object ToolButton3: TToolButton
-      Left = 111
+      Left = 90
       Top = 0
       Action = PlayStartAction
     end
     object ExportGBSButton: TToolButton
-      Left = 389
+      Left = 328
       Hint = 'Export the song as a GBS soundtrack'
       Top = 0
       Caption = 'Export GBS'
@@ -2008,14 +2006,14 @@ object frmTracker: TfrmTracker
       OnClick = ExportGBSButtonClick
     end
     object ToolButton5: TToolButton
-      Left = 636
-      Height = 29
+      Left = 520
+      Height = 22
       Top = 0
       Caption = 'ToolButton5'
       Style = tbsDivider
     end
     object ToolButton10: TToolButton
-      Left = 506
+      Left = 420
       Hint = 'Export the song as WAV or MP3'
       Top = 0
       Caption = 'Render Song'
@@ -2023,29 +2021,29 @@ object frmTracker: TfrmTracker
       OnClick = ToolButton10Click
     end
     object ToolButton11: TToolButton
-      Left = 276
-      Height = 29
+      Left = 239
+      Height = 22
       Top = 0
       Caption = 'ToolButton11'
       Style = tbsDivider
     end
     object LoopSongToolButton: TToolButton
-      Left = 244
+      Left = 210
       Top = 0
       ImageIndex = 87
       OnClick = LoopSongToolButtonClick
       Style = tbsCheck
     end
     object ToolButton12: TToolButton
-      Left = 207
+      Left = 177
       Top = 0
       Action = SingleStepAction
     end
   end
   object MainMenu1: TMainMenu
     Images = ImageList1
-    Left = 53
-    Top = 43
+    Left = 40
+    Top = 32
     object MenuItem1: TMenuItem
       Caption = 'File'
       object MenuItem33: TMenuItem
@@ -2092,6 +2090,7 @@ object frmTracker: TfrmTracker
       end
       object MenuItem60: TMenuItem
         Caption = 'Import Furnace FUR ...'
+        ImageIndex = 93
         OnClick = MenuItem60Click
       end
       object MenuItem35: TMenuItem
@@ -2215,8 +2214,8 @@ object frmTracker: TfrmTracker
   end
   object MenuBarActionList: TActionList
     Images = ImageList1
-    Left = 139
-    Top = 96
+    Left = 104
+    Top = 72
     object FileOpen1: TFileOpen
       Category = 'File'
       Caption = '&Open ...'
@@ -2326,361 +2325,380 @@ object frmTracker: TfrmTracker
     end
   end
   object ImageList1: TImageList
-    Left = 203
-    Top = 43
+    Left = 152
+    Top = 32
     Bitmap = {
-      4C7A5D0000001000000010000000D32900000000000078DAED5D077C1545FE9F
-      24584EB18288E5FE7AE7E9A9880D3C5114A222A0A7A2282A1A54505038A48888
-      20C8A240284A0D2574905E84D00CBD0A020B862A2D247408A1D710E0F79FDFE4
-      ED6376DFCCEEECEE2309E16D3EDFCCDB99F9CE6F7ADB2984E49B072C706DC63F
-      9C3D91BEC97CFEFCF9413EEF96957BD11CA47CAB1CD96F55F92277ADE10BA77C
-      991B263D1BF96AF1475CF93F34FC62BE352F48C22C94AF699A09BC3DAB19278F
-      D8B8AD8282FEF8092B38BCABF2C1251F22FC08DFE1B7F4E1EA0E939B017DE2D2
-      0D70CBCD47ED37B8E21AF53BA72ABAE1B7EE0D91ABA4F2F94A60E6E486B57F42
-      04EDA36BF98270BA96CFB5F179127E9BF65A59BE826A27DF75FA47DA7FA7F65E
-      35CCD6B875D20FA77C69FF5031DDA4FD5B89BEDF3ACCC495C976E8035F4A3EB8
-      E1FB3157885FBFE9439CE248857F05F6FF2FE7FACB6B7A49CBA887FE4C5EF3AF
-      B4F05FE9E3F5FC5AEE722B3DF2BBDC48F80B66F8238FDD7C08CE8170F0C357B1
-      E755BE1DDFCEDCC9CC8D1F2F57BE8A1BAAE64E69E826AF79CD7B7EF3EC955096
-      FDF0FDC8E755EBBC2BF7FD47D92D832BF9FEA8CC5785C8DFAA0F11CC4F07BF69
-      51732755C657E132B5A0CA7703E7EFDB913E4878FA6D2497E22F223F223F2FE5
-      17D4B2ABC4B75963E2990F2EBE3F8AD6BDB8E83F0ADB694DA02F714338BF2EE3
-      1BAAAA7C3E5C92B028CBB7BAEF463EB17C4FD01CCA970BF9D2BE99A27C5BBE1F
-      F9E11A8BE45199B67BBF1CF820F8EDC50F10867A315CE9E0769CE46B9CE665BC
-      67B56F1A23299419BB715E5EF0DD8E592FD3F982B0ACC171F388F8AAE32F19DF
-      AF7C7E8C6EF71E917F79C91775D6ECF82A1DC67C3406F03BE7E0D84FD15CF2DD
-      D62338370381391AA7FEB7488E913768ED1B803B7ECE7AF01C2E3F7EB0FA4BE4
-      4F99FC8B76B410186EB8956FD871235FC6B5CAB786CB89EBB02FC122C71C6EB7
-      F29DE25F96A714CDA5634245F997A24C5EEEF3005EFBF86ED6F9A9C4BB1BAE53
-      58DCAF89F69FD6E1E2FAF17B38E24ED50DD5F4F792F64E6EE4F678ADA0CE213A
-      CDA1862BAE5DCDB55CCA39184DBE562DD7C21F917FE5CA0FFA43E15BB31D178C
-      391336CE263950F90E7E714C467F07EC1B7C07378263BA603F368713D8A41B74
-      431616DEDF84E3F2AA9D1F827C2D1426771CF856FF5EF4B7892FFCF61CE4F2D0
-      CCB22DE137CD4D06F79B29ECC1B1698B5DEDB911BAA7BEE746FE1DC6662F9463
-      7878AE876FF83EB817E3C41B97109FE385D8D858CD097665D818D3C81E34BFF7
-      DE7BE7ABF2D3D3D38330F8766EA8C8B7F387619E9292C2641AAAF11BD1A85123
-      568E50CDA9B6D5F9866A844DC637C26BA8223D3BBE5FF911FFFBF33F9F6F4590
-      F1274D9AE4C8E5C363E507DEDD20F632F98EA0CE2D487B88ADDFC15DEE61D502
-      6E5A5537F24DE31C17F2799EE8FD52CB0F57F8FDC4FF15BA87D8EF77733F7C90
-      9C9B10AEF2AFFAAD1F6CF454FD2ED3733BEF955BFC5C7DFCCEBB680E7B10646A
-      B8E67FB430AD61BFA471ECEF0C12BBBCE4856BF593929F65732982B070DFA2AC
-      B5B4F87BAF6CEC271A7BBAE38B5B0B15BE117EEE7C2CE17961A2F0F3E114ED27
-      70A84FD5CE0DB3A96742D6C7C9F39FEBF5230AF59A5B3E09039FB86CFFF3EDA3
-      B05F0554E6FF1CE20FFCF0EDBED7BA902F74C3D5FE1B0F7C3FF28DB263CC9F68
-      92FD2B76DC406FD7744E1EB1D9FB648D77836BF0AD69E1C4E7E196CF871DFDE1
-      C6FF0EF1073ED2CFE406EFBE136CFA9A5ECF8EC9BFF58A9F3E12A6B38FB3D3FC
-      F4F182B20DB8F4836659FFEAC60F86EC9070B8D8D3E8B5AF6B95EDD60F32397C
-      7CBA951D921EA2FD9336E1D42EBFB5F7B935CE773326773DA6948C7DDDF48B3C
-      9F9F281947B89EC7E0DD512E7F018E437F5779FCE4C60F02D95EE711A4F169F7
-      1DD6E79C97F2D8D0EA079B70BB9D2751CE5792F4F5723ED19554E7E4E57AB8CB
-      A2CF140E7FBA280F618F674BDFDC8B1F3CE793309CDD9B2BEB742EF7BEBAAC8F
-      E5A77FACD23793D9F523DF21FCE2F6D0DB37094FFD0F17DF10447D17BBBE9812
-      D7851B7EBE7B29D757A2EF2C2EE3B920B6BF61D97F15D93FE65DBE0AC047DEE3
-      D6087A69CC418630C9F71BFEC8FE517FF2F363DF5E790E5375EE54368FEAB4D7
-      8BD8EFFDE2EEAF715EF961CF0F4D73D177C0DC926F454197EF27FD7DE43FBFF9
-      FF7219ABABF73F835F9C38A8F63F45EBD7D5DD90D9F3C3771F06EF5CA7B820AE
-      F97EE65AF2964F7C73C3117F7EE3E0CA983F503E3756137F57B39FFBB58CD705
-      DF93C06EACAE89E68CE57C0803DFCEAF4EFE07D5F8B09983768C0F97FD37DBB8
-      50F5BB029F10EFF3254AF3368A73457EF98484679E3A72CE603EF9E6E0652EDD
-      C3DC5D44B63FD991B33A736F0C4FBCCE6104F71783373EC715CEC178E086CCE1
-      3871656B708DB56021E7891B5C8DC8F6669BF8563708B7AE57854FB87B71AD7B
-      2B55F8FC5DB9D6B06836FB67AD7C911BA23B7ADDC27A7E90ABB13BE72722B81F
-      58653DAC680E4055BE680DA41B7F14C07A2DAFF74E45E447E447CEF02FF8E917
-      097F24FC91476D4EC815DFE64C7765F95A014CA348DC46E2EA4AAA43341F7BAA
-      6DEEC850E6ABDCCD70A9F879987F1CDBBB48FAE4EFF4C9AF75AE8AB95D9DAB62
-      AE29DC29995FEBE448FC45E22FF2E4F9DC83550DCF5E34E7B330E5E705197664
-      5C877325AC7685EF8AF26D55C5F013FBF34585F25D9C27EA673E21F2E4751DEE
-      F2FB896CFFA66A9E119DFFC0E751E9DDAFC6597292F323ECDCE0F565F2457645
-      EF2AF265AA9D7C27B976E1778A3BDE0DA7F03BA922BE976F706198838C3CF9A3
-      FDF6337F0C5E1EE270FFA59863BEA3C7AD7CBF7C3BFF8BEE19B542957F29E4BB
-      E1BB954F22DFEF72AB2C3AF2BD9E01A6C2573D43DECB195C6EF262845F70F997
-      5DDDC1DD57C8F503CDFD3AA73339837777F0F77868A6133455DCB0AACAE5D7C2
-      91ED1B13A55F88BD90933F6DCF7033651CEB1A35FBBE80E9EE0D228A33AFE708
-      DAE53BA7332D7DEE1F8DC8F7C92F20FD0F3F7E07A778749CF7F2779EABE98E77
-      EB7DF46ED2DE2B5FB339834F55BE4CF6A5E63BF95D35FC32D9B9C1BFA2CA7EFC
-      8A1C74D06B52B45144CD202F7EB9811F3B6C39019F2CD80F1FCFCB006DED0918
-      B0F33C0CDB03268CCCA0E1A77683BC767F186837E128C0B8C3172061C71968F0
-      C74178A9CF0CE8F2DB4C137ACE9E0577B59DD4BB5C9B2EE4F9D63F11D2F67703
-      F1630E9D87E1FBCF318C3D7C1EBE9CB8120E1EDC05274EECA5D809C78E6D8785
-      0B93A062EB76C92D5B56BDBF79F33709F961A1814E230F9C83A17BB219F077AD
-      D1CB60CB9675B071E39F70E0402AECDDBB01A64F1FC1D29072EB52DC4F5ACF23
-      01FCFCCBBE6C18B8338B017FBF3F78216CDDFA1773E3C8913DCC8DE1C37B06F1
-      CA2BF7B724AD669100BA0DDA9D057DD34E31E0EF7707CC836DDB3631374E9CC8
-      0CBA81FEC0B0346E5CB93EF92E990490D07FFB6948A06980C0DF551367435ADA
-      16E6C6C993874D6E1C3FBE13EAD7AFD0807C3B9504D0A7CFB653D06DE33106FC
-      5DA577326CDF9ECADC387DFAA8C98D53A7F6C1E79FC73622DF4C2201F4EFB1F9
-      04745E7784017FBFD6633AE5A73137CE9C396172E3CC994350ABD6735F91F77E
-      20A4C978C4A02E1B8E417CCA4106FC5DB9EB64D8B1633B73E3ECD9532637CE9E
-      3D06356A3CFD35CBC3EF7C4F48C351C33BAD3D023FAC3CC080BF2B769E083B77
-      EE606E64679F31B971F6EC0978FFFD27BFA1ECBF51DC4AEA244EEE9072185A2F
-      DFCF104F7F57E8381E76EDDAC5DC38772EDBE44676F649A852E59156947B0BC5
-      BF48C57A7D9FEA36E758DDE4D4B33FACC88476AB0EC10BED47C3EEDDBB2976C1
-      850BE729CEC1F9F367A95B59F47716942D7B578760397CF465426A27BE493EEB
-      9378778B31F3AB8E58997ECD3BCD76DC7FFF753D4B9428DCA964C91BE2ADB8EF
-      BEEBEB99F89FF521A4564F423EEAF23889FBA92579BF6D2F6A720FC59D12DC72
-      A9BEC92A7E73137F0B70DEBBA574C6975B3E7F86AC831F1CBFF53AF801EC649B
-      DC13FBC1716FA9831F200CFD3BAB0F400C377C917BEED2DF81ABD08ECAE53ADF
-      8961EB67911F1CB8F273D4E4B2BDC6BFEF527F39A4BF025F390DBD72897ABE73
-      1B7FB996FE8EE778E7D3FADF7E8DA343FDEF54FE15EB7F47D976F5BFACFCE772
-      FD1FF6FE8246FCDFA7A4B93F53292CF223F11789BF2B39FE7269CCE018FF7EE6
-      20C3213FAFD22F5CB2BDE6DF82127F7EC3E0770EDC6FFD93CFBF01B8FF66607F
-      17BD89AB05CE66E5D7A211EB5A56C33C74FD97996BE747B13DABBB5238CA5755
-      25F27955B3BFCBC759BE644E5BD4D6C9E4CBF8216BEA6DE46B36F7097B912FD8
-      07A42CDFEA0FBBFCEB42BE63BDA4158C7B888C312978E78217372E9EDF6C7643
-      8D6B3D1B5A5D7EB00E33CE8D219A37AE16E13AB71DDEB817F387BC7E7691BF7C
-      DD7B5D10D61582293EDCA6A3B19E487E06B0521E0AC2EA9EDD9CBCD56E603D8D
-      DDDD99767CE3DC2CCD45DF22E8E7E0DD9917DD71C3BF78E72504DD50F643003C
-      5FF12EF59073F205E77E29E51F2FF7C85AF97CFCBBC9BB1AD118ACE77C39710D
-      1E0213E2623FE222ECF28FC05ED03FBC9AAFCBBD1F3EF83DAFD9971B60FAF374
-      DEB32F3740F8E7EADC745F6E845F3EC70550A9BBE55C577C01D70A37F94F59BE
-      4D5C29F0F37FC30E4AF76DDAF26DDC10C6BFEBF4B3C9B34AF2C13E1F44CA7F2E
-      85DF4FFDEBA7FECF9BBB060AD65CBEFBBD9726AE9FBB8BECD6C0AB722FB16CE9
-      F75F15D9C6B9AF7C3CAA9E872BE082DBBBE72DDF9FBDECB935BDDBC9B79E012C
-      0BBBD4BF96B198E09E1FE2E51C61D9FCAB4AF86DF27F41DA77E86BFDBFCFBBCB
-      3C97FF5C922DFD86E172CFAA55757BE6BAB73B85BCC995DEDDE6549F0ACE7B90
-      C5813035B8791F2209B7E77DE3023FB98DBF825AFE55C2A5B44ECCB62D72288B
-      FC39F6C2F6C5260FF05C991B9A600FBA8C6B75C3E2FF10AECC2D49FC99EA1759
-      9FC1EBDE1592CBFBF63CD4DF97BD7C123977208FE736FCDD9D0AE636C6766C14
-      E18BF93ECEEE8994A1C8E37FCEC2E3DA0AD1DA6DA37DD614D6C9698AEBE965FE
-      52F1AB5DB83497EB5054C32FE2DADAF3705758E4C9D5317B38C6CEE087EFB60F
-      86F765299EE123BFB34B53DA432EE4F150E59BFCEC41BE95AFD88771E6684439
-      FC4E7E51E15BC3EE86EF27FE9DE2DE6BF8BDF05DF441AFE4F3CBF2DBF96D57FA
-      FD5391F05F26E5AF6B4C2DD22D80D6ADAB39A265CB6AA4448981CF44456D9B18
-      15B52436C0FF82A23335AFE384A64DABB57CF71F8D17E3E7AEA8A8A4055D636A
-      523FD4FCF9D8C84D819AED82140BF61D822953A6C0E9D3A7E1F95BAAAD246470
-      C59F633E21145D3387AC850B1772CE681061DEEEFDF0EAB4DFA1F99ED3D0B156
-      4B6878ED1BBF548CFE9EFC14F331A27BC6A0D5EC4C8753A78E8460D6F69DF0CA
-      94858CFBC2A00990D4632E2007B99D623E4224ECE9B712CE9C390C478FEE35E1
-      B76D5BA1D2E4F98C5BAEFF5848FE6B03A05DE420373E3A0ED167679FE554D67E
-      C8CC4C0B62F9D6BFA0E2A4B98CFB7CBFD130415FC6ECA05DE420B75DF407887E
-      E9094BE148EA363871625710DF25CD844D2700CA0F1803D3D7FFC9F4D00EDA45
-      0E727F8CAE8E18B8B5DB22581B3FD304CCA3956AB685A1DF8D36E9A35DE42057
-      8B7E0F3164D3CFF361D8BB1D6168B50E42A09981EDBDFE00E420F7FBE86A88E1
-      EB3BCE8611D57F823F962E85450B179A807A68B6A8D958181DD71552BB2F06E4
-      20F7BBE8B711A3D7B49F01636A7483F9B36641AF575A32FC36793203EAA119F2
-      277DD60736775900C8416EB3E8371113D6759805136A26C0CCA424A62292468F
-      6630F4909F5C7F306CFC691E2007B9774715216F479579A141D4AB33FB57D60E
-      CF18370E926AF76598366A1483A187FCF95F8F820D9DE600DA472E7DFE8FE2D1
-      A7C87D9FD6262F2D2954A8502711D08CC76BA4D4A000F7268ADB89FC8C0F196E
-      0F70F35B3B6EF76DC8E9EC451555A5CE26926F5576E36657F2B58B6319A76F6B
-      217E1470D5E739F23157664795AB09E24673115F9A649F919B306BE2F3DA5CC7
-      959687E9ECB5BF0392EFA48EF7109BD76D99DCB15B1B22E26B4EF28098F860D9
-      AFE5244FB3AC09070E84BB333B27EE21449EC8FF065FE3F8A2FBAF45F2793754
-      FC2FD90B608A6F5BF98448D7C48BEE0AB7CAB3DB8B109425891349F85DC957E1
-      DB85DF6E2F88ECAE72D95DE132BE637E97ED1F565BCB1479BC8DE5F2829FDBB2
-      C1A1FF71A9F9240C7915C2146F9127FC7320EA7D09D1FD3D2A67070B388AF746
-      29DD1F64E3863257307FEB8E2B5A0FE8962BBAC3C4F99E32D95A18DB7BCABCC8
-      570A93240E3D70C391FECA6E38E661EFF93F1CE5CFD7A3F9389B40B3F956AE29
-      7E23F7EA1FBF7C95B1603EE8A7A89C07687BF6A5C399A8F6FB5BEDD7EEC8E759
-      2C6315811F9CFC1FE428AC1F32B921EB53BBDC53ECB58F010EF360917E8A7D9D
-      4788F77388BCF6A323FC30F005E5157CE403C8A3FC17197F5FE68FB50D97D5FB
-      A2BE8B265B13287043B39CDDEAB6AFE2A69FE1C4F72B5FBB44EBFCECD619469E
-      30E47585BB769DB981FD26FCDA2BA7FCC49DB3235BBB65D72F657C6E6E19ACF3
-      F2013784E52EC0E5FDAC711C9E2FEB9B9AEC70C8C9EB9C7B367C991B861F8038
-      F365EE689A3D5F73E08343DD4704DF4188E5BB8A423B18B4273AF7887FE7F642
-      85B821D82765BB175A3887C38D5564FB9F6573083EE5139FE1F7DC0FF65AEE4D
-      65C0E8AF29967BBEECE7FC0ED8775B7718DF6BADE5C5A6DC7311659269F09CCA
-      BD892F29B3C4A6DCF17CC5722BDE37232A739A59B6DDFE59D1DDE9C4FDBE5D57
-      738D42F7DCCFD7C9E75EBDEC43E6B9D6B3EB9CCFB2F3C3BD1827DEB8848469BD
-      612EB5FFE0B3FD17DEDF296BFFC573D7E6F31FECDA7F42A4A71106CB965DFBAF
-      CA97B6FF8AFE57A947446369DBF69F08DB7F706CFFB5D075092A73931A97665C
-      1895F3F0C5B6591EDF2A63789F7CE2D5FF3EE64CDCCE3DBAAE07DCF0826B308C
-      FEAF461CDDB1D601B2B2AB39D41F9AE6BE2EE4FD4C2C6B722EB6A192BB1B382E
-      EF770839E746B8BE29F4DC1F72B1CF62B480C1FDFB417749C8F937D6734A79AE
-      D50DCD22DFA8B3CD7C3317F8F55512FEC5F4D642B876F2F93E1B70EB7DAC5C8D
-      3BD79B4F03BEAFC5D741D633872E264DE8DD392080B9EECB397F1A88B31B1A57
-      9769163D273734FBF3DA03F68D33AC5DF5072E45FDE2A6AE715CB7A450CF387D
-      3F52B933CAD59D4E1EC2EDF6BE2508479D1D86762037BE4F3A9DE9A3D4C6887E
-      AB86CB860F2A794EA14DB43D67C9A3FF219CE137F9BF7C420E627B2552E80A48
-      0C72187A1AD01B0CDD0D3513364083FE29F0E7D68390BE630FCC5FBE19EA262C
-      CFD1A7E6688FE310F27C77037AEDBE5BE1C5AF27C2BC151BA153A74E50B66C59
-      E8121F0FC3864C60FA688EF6380E2165BB18D03FEDBD199E6B301252D3B643E9
-      D2A521313111EAD4A9038BA727337D34477B1C8790673A1BD03FE9F917C4361E
-      0F93927F87F8D6ADE1A38F3E82217DFAC0E489B3993E9AA33D8E43C87F3A18D0
-      E3BAAE85979BFD06AF341804C3068F87DFA9DCA45F67C1EB8D87327D34477B1C
-      8790D26D0DE8EFB45B0A951A8F821EA316C2AAF5A9B07DC74E58A2AF83F87E53
-      A14283E180E6688FE310F2441B03FA6B4DC7C3BC651B60CC983150A3460D78FD
-      F5D7A17EFDFA3072F060A83F7E16DC31683E44D5199246CA7524413CDACA80DE
-      73E402183D7A34942953064A962C092FBDF4128BBFFF35FE0A5E183713FAEF3A
-      08853A4E39183579C5B51404414A3437A0AF5AB715DE7FFF7D78E49147A078F1
-      E24C8D8B8B834F120640DC3C1DC69D3C07E527AF3C1935E98FD7A3262E2508F2
-      6053033A86F7C5175F6440EEAC59B3A0FA871FC27323A642E71D07A05AB56AD0
-      726BC6B9E8094B06468D5B5C888290FB1B1BD0972C5F0B1FD334AB55AB167C48
-      791F7CF001546FDB09AACC5C062D771D65E5E88B8D7BE1BE64FD8FA8D1F35F8A
-      1A358F903BAB12F2CF2F117A7CC22418D4B72F4BF7F6EDDB4362BF7EF0E22F49
-      F0D99AAD5071ED5FD074EA34884D59036597AFCE8C1A3EBB6FD4B09951AC0CDD
-      F61A21777DAAC77ED20F860D1C0F831312A055F3E6F0F10FF1F0C4E8DFE0C54D
-      E9508AA627CA47B534C50DE3172C8D1A34FD59AA771DC1BD3837BDA33FF5D928
-      2857A30F7CFFC310983A3A09DE1A351D4AD1F2F3D096FDF0E0E6FDD0FCE049A6
-      22EE5EBA29232A316900E5E226A292E4AAFF8C245755D24D78B7550669DCF584
-      094DBB67921FFBA690F801CB49E76109D8258A8A8A32F00C456F8AF102F40E98
-      33BBFCC088E3F7F9FCF3CFF762DC75EEDC19BA75EB065DBA74818E1D3B42DDBA
-      75F7A2B9843FD100D64B98671F7DF4512856AC1853F11DF5797B167E291A072B
-      DF7CF34D68D5AA1554A85001AE2BDA1A628AAC622ABEA33E9AA33DB46FF53F7D
-      4A53754A8B162DA05CB97270E3431BE18612194CC577D447F3803D59F8A7376B
-      D60CDE7AEB2D78287610FCBDD23EA6E23BEAA3B924FCC9069A366DCAEC3FF6D8
-      6370CF3DF73015DF519FB767E13F4DFDB5F9E5975F86AFBEA265F58517A052A5
-      4A50BB766DA6E23BEAA339DA43FB82F097A1EADC060D1AB0F2876588A62553F1
-      1DF5D13C604F16FE05FFFBDFFF987FAB56AD0A1F7FFC3153F11DF5D15C12FEC5
-      06683E611CAC834A9428C1547C477DDE9E855F96FA2BE399679E61F555C58A15
-      5958B12E4215DF511FCDD11EDA1784BF2C55977FFAE9A72CBFBCFBEEBB50BD7A
-      75A6E23BEAA379C09EE46841B2A666CD9AF0DA6BAFB1787FE79D77988AEFA88F
-      E6A24986401D509C623195751AEBB937DE7883F91B557C477D34A7B883E27A0B
-      BF28C5E3145F50E814FB04D003E64F501493A45F8129FF952B5786860D1B32D5
-      4BF9FFF2CB2F599943D54BF9C77C83791ED548F9CFFDF27F4FA37BE0B6A1B731
-      D54BF92F915C024A2C2EC1542FE5BF7CD7F2F0CAFA57981A29FF91F29FDBE5FF
-      A6BA4D2066C824A67A29FF31BF2D01B2783D53BD94FFFFA37DFE42EB763135D2
-      FEE7EFF29F9720632E10321618A2DBA7914235E7DD5AA8D6FCCE0648ACA6F3E0
-      CDD02ECF47C4BC37EE8B8A5D362CED30EB10202A341B1B446C939160E8A31DB4
-      4BF989147A10DFAFD3C7A602186846FF19A893A8036F56E8E399DDC9F02CFDAD
-      0C80D776E780B448D107A69C815E7F1C67A8D6615610AF6B5382FA83D764414C
-      8DE9099F3F1535B67F8BF70111BB89F29BAED0FB2C3F0E5D171E82EE8B8F30DE
-      3BF1330156BC04D98BCAC2C9194FC09189FF86DECB8E41CC879313EB94891EB6
-      6A426718115F1BCAAEA3FC86BFEB5D166442BBE43DD07176060BF78B4D47C3C9
-      93BB4CE8387B0FC454FF7560EDE763FAAE9F950849FDBE85A756517EDDB97AFB
-      197BA0D5A4746833752775672F341CB6063233B7C0CC996360E5CAD9EC778B09
-      9B20E6DD31C33E7DA150D79533FB42DF4923E0B13F28BF56B2DE6A521A8DAF2D
-      D07C7C2A75673BD44C58023B76AC36A1FEE09510FDF6F051E4ABA5FA932B001E
-      5A98035263B2DE6CEC66683C7C037C3D6A1373A7EE805550FDA7B9F0C1CFF382
-      6832723D4457E93F8996C5712431159EA85883A1C86B1D53BF19B3897237C2B7
-      E3B630B498B00D5A4E4C87CFE27F85E75FAACE50B7731244BDDC7151A142853A
-      1372EB41AC9F11F83B2626A621456F8A448AFED1D1D183289A5BED51D963A93E
-      2D4EB7FE897A385F81BFA3A2AE26A86F20A7CEBB4A608FD53BFF478B731DFABE
-      3A07F89B3C2046883DDFE77FF82EC3B3AA89001445ACFAB18F150B9D9C94F3DB
-      E2EF0B49FF25E7C7BD1CC4DC36A5C9D755EE258D5EBD9BD4AD70BB1DFF3CC51B
-      563E62DFC0F2242DA10C5913FF28735F00D89DF0E826AA9EB8F06BE5A7ECF867
-      7B3D2602640F7CFAC65DEDEF5D427FEF3F13FF8F3B4F6B7712C4D16E254DFCD3
-      2D8B8900677EFC3BA1BC6B76B428BA8CBE0F33CC8E762961E267B6BF8F1CEE78
-      3FC9FAEE361EC054EA0655FF75E8BBDB8E1A66C8E5F9E909A5C8DEC4A7C9B1C4
-      A708747DD00030B5CF13047A94284C7F9FC0F7E3BD4A49F987069525C7079725
-      30FC7904C088720446BF98F3BB7FE97B33BA3D4EF6F47F9EEC1D502E91224EC4
-      676E0C2D47CE8D7E0928987A7258F97BD7777A82203675298D7275C4B69E4FC7
-      19FC5D7D9E8AA56E2CA7384701A866F47F86BAF71C4969573291DAD379C0EE3E
-      802A358B5BD1E65F8462EFBE512FC3D98535E060D21B40DFB7A0FEA2E6F72174
-      D8D903607D3D80D5352E62631340B392775F457EFDE2A663DBFB9581B4BE4FC3
-      F4C6B743DB2A37D447FD47EFBE86747CB348E2B47AC5751EF07B1940F5B7FA77
-      C4D12270EF1765A3E3FBBF177DACDF7BD1BB6B3E1DDD8EEA950AB4D3F705E6F7
-      0AB57BFD66F2EBA745C8A8B81B74C4988F6E8CA36E6011BA5952BEB19F706BA0
-      6F8195141958F56A32E0ADAB1329E2A81B24C0670FF633DD802FC3F8BE67F72E
-      D8B76F2F6464E0195607E0E0C14C484BDB06870F1F82EDDBD3E1C8912370F4E8
-      115AF76F672AEF06FE4EF973150CA07DA5C4F2E519366C580FBABE02FEFAEB2F
-      DAE6AC84FE2FC4E680F689366DDA14C25FBB760DF48B8DA5F637C0A0575FA176
-      3652BE0E5BB66C8655AB289FF66137AD5D0B7FFEF927A4A6A686F0376FDE44DD
-      7F819A6D856DDBB6417A7A1A0CA0B246D0BE17FA6110ED0332BCFA2AECDAB52B
-      848FF6D17CE7CE9D309CF677F7ECD9035BB76E85FDFBF733F73232326051AF5E
-      3080FAE3C08103217C8C9F516FBF0DBFBCF20AC399336718E7ECD9B3CCFE88FF
-      FE3707D4EDECECEC10FE8E1D3B60374D0394BB6FDF3EC64D4B4B63DCF4F4749A
-      2699344D0ED2B4D8CE542B1FEDA219FA7FF7EEDDCC9D2D5BB630B78C702030EE
-      50B5F2D1EE9A35694C16BA8358B76E1D736FC3860D2CCED08F6B691AA09995BF
-      6AD516F8E8A31C3F7FFB6D06B383F13E7BF63658B66C1D938BE9BE62C50A58BF
-      7E3DEB17F3FCF1E3CFC0934F9E8761C3B2E978ED1CCC99730E0E1D3A44FBF007
-      60E0C054E6AF949414EAC7D53060C000D627E7F9CF3E7B9A8E35B3A06CD92CEA
-      B7D374CC71146AD4C074DA0EE5CBA740EBD6BFB134494E4E86E6CD9B87E4FF19
-      333228FF14F5EF21CA390E4B9766B2F0D6AB970EFDFAAD6461993163061BCF5A
-      DB40E467649CA27E3FCDD276CE9C2C387FFE3CF37F66E6299A7F5261F0E0C16C
-      0C2AFBC8675756AB54A9C2C68FAADF58F7EEDD4BC3319B7D0B1A376E1C2C5AB4
-      8896E3C38E7C5CA781E3FEE1C387C382050B585A8D1D3B9686BF1FB46BD78E01
-      F384888BF3044949492CFCC683BF31EF21307F2D5FBE1CDAB4690343860C31B9
-      B17AF56AE64F8383C0F8CBCACAA2E9BD86E6AD55AC0E41D9980F5BB76E4DEBA0
-      A34137502ED615F8208F978F1CAC33106867F3E6CD909090C0D2D3E08F1A358A
-      E54D837FEEDCB9201FF33BE657F43FDAC1BA00F3DF92254B82FC112346B030B2
-      D30F2F5C08CAC7B28F6567DEBC79F0CB2FBF30A03F860E1D0A0B172E34C9C772
-      D6B3674F2852A408FBF685E143B750368EA371ECFBF0C30FB37C8FF2306D0C3E
-      E64B8CC3C99327B339873BEFBC93969981CC0FA88F79A854A952F0C0030FB039
-      14FCAE8AE5C9E063D9C47436C26CC40302CB33FA15CD115806E3E3E359D8F834
-      ECDEBD3BE361DC19F187E984F30E465D80718FE988F349D6FC83718A71CDFB01
-      F362CB962D991F30EF601CF7EFDF9F95612BFFC48913EC9BB3F19C3A758A61D9
-      B2656CFD11CAC638C37924BBFCDFB76F5FC6C7BA62EAD4A9D0A3470F1687988F
-      9A3469628A37991B183F4B972E65698A698F61FBF6DB6F59FE5129BFE8EFE9D3
-      A743EFDEBDA14F9F3EA6BCE273FDB070EDB4EAFD71963BD842F858AE9D20DA5F
-      A1CAE5DDE0DD712B5FC6F7180FDC7D75D39520E207CDD95A76EE77F08C34B3B9
-      90CFDBE3DFADAA1BBE40B623DF46AE92FFBDF265F1A7E07FBFE9E723FF782DBF
-      1029FFF9ACFC6F042508CBBFD51E9AF1BF0D706E48F93C977FF7C3B7E829F165
-      EAA5E6CBE2CFC6FF7ED32F8FCB7FD81EA3DF2403F68BB05F6AC737D6808980DF
-      16EDDC30F8470F1F0901EF069E218EFD532F7CDE0DAF7C04DA75C3B7BA5590F8
-      A2BCE2966F8D5B2F7CBFF279BE5D3E56F1BF0AECE22F2FCE108894FF48F977C3
-      F7022B1FC7C7F88EAAA81C19667CBDC0F3797BBC7D513996F1ADE5969767551B
-      7CD9C051BED5FFA2FAC52BC234FE87E0C667FA5C73CD3521F7CF5E77DD7570FB
-      EDB74BEF304273E3B9F6DA6B43F8850B17B6BD0309CD8B162D2ABCA7D670CF78
-      6EBAE92626CFC0F5D75FCFCC793F90D07B6E83EF685FE47FB473F3CD379BF471
-      0ECECA47FFA0BD1B6FBC31844F2C773F152A5448A82F938F400E3E28834F23BB
-      384433AB5D513AA33E1F770688E45C507C305DACF2651C11DF9A1E5EF876F1E5
-      C437D29B4F5B377C2C0F465A18F3996EF9869E039F88F8B2F22428BFBEE0F6FE
-      1F04DA450E72DDDCFF930300B48B1CE4AADEFF6300EDA05DE42057E5FE1F1E68
-      07EDAADEFF6305DA51BDFF470437F7FF88E0E6FE1F1922F7FF14BCFB7FC0E563
-      3DFCE4DEE2D7BA82E186C14D39930EEF7E519AC1FA1BD1687E0793BEE146849F
-      7FF8BC3DA7DF117E6819F0527EFC96DFFCB00678EF807285F70F8A6D42319342
-      7700DA69821C83BFBBDF734D0E4FAB917A6E43C72CD8D215EC706E4387ACC353
-      E3529163F0D37B959999BDB65D56E6B4CF8ECFFBFA36DD0E68E76CCA8F59C831
-      F89BBA94D2B3D7B487395F15D5E736B9AD140591A014DAC95AF50320C7E0E35A
-      B4D32B5AC3AC4645740A32E72B336F7ED3BBC9BCAF8B1334433B277F6FCED6AF
-      19FCE5AD1FD40F2D6806C95FDEAA5310049543D562644683BBC9C266FF640898
-      E919331A02720C3E35D3774D6F00D3EADDAC5390295F142149751039FC05DFFC
-      A33245E2CC46C509DAD936FE33408EC1A776F4ED49B520A9CE4DFAE4CF8B9442
-      DEC4CF8A327EF29777554673C4B47AB713B4B379E47B80EF069FDA9BB96B4A8D
-      AC949F1E3C4E7FEB936ADF96887CAA56C6F7434BBF01541168276DEC9B59C831
-      F8633FBEB9C9E2B68FA6EE9FF27AD6A1A9B140DF750AD4D74F2EAB0B07939E85
-      CCA46720735219D8FBEB8B598BB407529163F047C5DD50F897F7AF6F42319342
-      1F5EBD70E2880F0A13AA56C6F7ECDF2B01AA01A09D26C8E1D7FFBF55E2AA201E
-      2A16C3F450FDA6DC55950756BD5A47F076F8B2471F5C087C5560ADDE2D81B619
-      DBF6FB294A547D38FAD326CF468FA4BF9FA47830B0DE3FC6C28F09B8F1378AC2
-      81B61D3B18C5027B0B8C3581458D3581F9650FC0BE81E5C8FE41E51329740524
-      A27D9EBF2BB12C42A71D5BB840CBB8099BBB0401DB7A00DA43FB3C3FB5C77F10
-      FAB90D9DE0CCD2EFA4C85E1B0F680FEDF3FCF59D1E47E86768B93E36E3CB200E
-      4EFD02F64EA8093BC6D480F4511FC281D98D00EDA17D9EAFB77908A19FFAA325
-      CDABB561FB88EAB0AEEF6BB0B2FBCBA077AB10C466EA06DA43FB3C3F50BEF543
-      F3A8FB7D5F86949EE585D83CA22A2BB7689FE7CF68701742DF37F52D481D5052
-      8A9DA3CB03DA43FB3C1FCB2A857EECB767E1E0A8E252E0BE05B487F679FEC80F
-      6F40E8E766FD0BB2275E2DC7D45B01EDA17D9E3FF89D6B113ACCBD0F60461180
-      E45B007EBB89E20680E9741C3FFD3A80697FA3EA0D80F6BE2D7FB575FF4D4C93
-      B2314312DF88D19D40ED0DC5F5B8567EA0DCAAF4BB8B58F90505B82E9CB6CDB4
-      1CC7C6D1F615DB556C1BD93A6FDADE38F29143A10710E7968FF62974D89D08A8
-      A625948973C347BBAC2D5FD701E8209BB5D11B7F2E15A7CA477B465B7E747A3D
-      38BFB51B6BA757B72F19A7C2473BD82E9F5CD202F6D37A23ED97F7E0A8AEB1B6
-      7AD9F7FF8E73E21BF5C0EEA97560558F0AB4FE788961EFEC86A6F65A066CEBB1
-      5DDEF5EB9BB029B13443C6AC4F585B3DB3E1DF1DE5637B8F6DF4E129CF40C6F0
-      BFC3B139AFB2767BF2E7B7C7A1DB4E7CA3CDCE4EFE0764CF2BCDDAF1719FDC12
-      87EE76AE7A9B239FB6CB081DE6DD0F81763CAE75A5C2E4913BAE52EAEB5679B8
-      1031DA6ADA6EC719EDB86A5F993ED7D2767AD8A74F467F1DD88F876DF5BD81F6
-      F71A057EA1407B7D67805334B0BEBF7041AD336CFA0089323D11DFD407A06DBD
-      D1CE33BDB49E263D11DFE80364AFEF08A7177F1B6CE7991EEDDBF37A22BED107
-      30CABED1CEA39A39F72B48A76DBAA8EDB7F6018ED3BE3DB6FF463B8F6AEAB88F
-      73FA0082B6DF5AF6774EA9C9DA7AA39D4775EBE8774D7AE2B21FE8034C7E83B5
-      F5463B8FEAEE71154C7A227EB00F30FD69D6D61BED3CAA47921E31E989F8C13E
-      C0CC7FB2B6DE68E751CD9E56CCA427E207FB0073EE61ED3FFE0EEA25DFCCDA7F
-      51DBCF973D6CDBB9761EFBDB77A2CAE9FD42F5AEB629BB4515E6DCAEBE52DAFE
-      EDBD9F0DEE170B98E1F83D11DF55DBFE803E33C3721C30576EFB37772D1D343B
-      47CB36AAF82E6BFBB352DAC285EDBD4C6DBF617666651BA68FEFB2B6FFD4B256
-      7098F6FBCF716DFF9F6D1F6166C6B81DEDDAB5FD8726D761EDFF49EA17A3ED47
-      75EBD88FD8BBA82F6194F523F39AC0C6016F06C70EFBE77F6D947B7D13AD5764
-      7580D1F6EFF8F57D58D7EB59868C39F5826D3FAAA9235E87C0585EDAF6EF9F54
-      01760CFE371C9E5B3DD8F64FAD5B9C99ED1DFB8C318E97B6FD27A63F06A7E657
-      34B5FD86D9B149F705C7F6B2B6FFFCC252A6B6BFDAE3D75E349B768B318E0FE1
-      3F785BB4B4ED37CC70FC802ABE0BCAFFDDD8F67F562ABA09B777EFD6C038FC1E
-      6A36A2EFEBD13ADAA1EF7F17F06F0C8C0DEEE0F6EEE158FEDA401FA038377EBF
-      295CE5D678D07F18368C1F8C634C274C6BCC2F98E730DF62DEC7F2836510CB31
-      DF37C2B061FC601C633A615A637EC13C87F916F33E961F2C83588EB12EE0F918
-      2F7EE4FB7DFCCAC774473EE63FCCC3AC1CD0B284E511CB34D60B58B760FD14E0
-      C759FD80F90EE563FEC732846510CB32D60758A760BD14901F270B07E67BF43F
-      963FE4633D807509D647E87FAC179DE22250EE742CFF5887603D84E1C7FA5035
-      3E037D7E1DEB1F8C3FAC07DDA609D63B18FF58FF5DEA756B799DFF1B95899E90
-      17F9FFFF01E892C7E7
+      4C7A5E0000001000000010000000352C00000000000078DAED5D077C1445DB9F
+      24A07E8AA28288D81004C140E852420902A1BC74A91A44AAC24B15115190C517
+      0845012194D0417A11423334A982C08191262D24A10542A8064248E0F9E699DC
+      1EBB7B5B66778F2484DBFCFE99DB99F9CF33BDED1442B2CC030A9836933E127B
+      6AFA32F36DDBB6B9F852B794DC87E6A0C957CAD1FACD2B5FCD5D65F83C295FCB
+      0D999E8E7CBEF823A6FCEF1E7E75BE322F68845955BE20083248ED29CD24F288
+      8EDB3CC8EE8F9DB082C13B2F1F4CF2C1CBF7F20D7E6B3E92BA43E6A6539F9874
+      03CC72B350FB0DA6B862FD2E5139DDB05BF7BAC9E552A5F94AC5CCC80D65FF84
+      A8B48FA6E5AB84D3B47C491B9F29E1D769AFB9E573A87AF24DA7BFB7FD376AEF
+      79C3AC8C5B237D4FCAD7EC1F72A69B66FF5643DF6E1D26E36AC936E8033F4A3E
+      98E1DB31E7885FBBE9438CE28887FF04F6FF1FE7FACB6A7A6996510BFD99CCE6
+      3F69E17FD2C7EB59B5DC65547A6475B9DEF067CFF07B1FBDF9109C0391C00E9F
+      C79E55F97A7C3D732333337E7C5CF93C6EF09A1BA5A199BC6635EFD9CDB34F42
+      59B6C3B7235FAA2AE75D25DF7FB8DD12B91ADF1FB9F9BC50F337EF4354E6A75D
+      DFB4A8B991AAC5E7E13235BBCA3703E3EFDBDE3E8867FA6D2483E2CF2BDF2B3F
+      33E567D7B2CBC5D7596362990F26BE3FAAAD7B31D17F546DA705157D0D3754E7
+      D7B5F8A2CA2B5F1A2E8DB070CB57BA6F463E517C4F100CCA9709F99A7D334EF9
+      BA7C3BF23D3516C9A432ADF7FE38F041E5B7153F8007EA454FA583D97192AD71
+      9A95F19ED2BE6C8CC45166F4C67999C1373B667D4CE70B3CB206C7CCA3C6E71D
+      7F69F1EDCA978ED1F5DEBDF21F2FF96A9D353D3E4F87310B8D01ECCE3918F653
+      04937CB3F508CECD80738EC6A8FFAD2647CC1BB4F675C21C3F7D3D783A573A7E
+      50FA4BCD9F5AF21FDA11DC20BA6156BE68C78C7C2DAE52BE325C465C837D090A
+      39F2709B956F14FF5A798AD35C734CC829FF5194C9C77D1EC06A1FDFCC3A3F9E
+      7837C3350A8BF935D1F6D3DA535C3B7EF744DCF1BAC19BFE56D2DEC88D8C1EAF
+      65D73944A339544FC5B5A9B9964739072368AF55CBB0F07BE53FB9F25DFEE0F8
+      D6ACC70571CE848DB3493A78BE833F1C93D1DF4EFB22DFC00DD798CED58F4DE7
+      3837E9BADCD00A8BD4DF44C295AA7A7E70F10577C8DC31E02BFDFBD0DF32BEEA
+      B76717570A412E5B117ED9DCA46BBF19C71E1C9DB6D8D49E1B55F7F8F7DC687F
+      87D1D90B65181E29D7C2377C1BDC8771628D4B88CDF1425050906004BD322C8E
+      69B41E342F58B0E0365E7E6C6CAC0B225FCF0D1EF97AFE10CDA3A2A2984C5115
+      7F23FAF4E9C3CA11AAE9D5363F5F54C5B069F1C5F08AAA9A9E1EDFAE7CAFFFED
+      F95F9A6FD5A0C55FB56A9521571A1E25DFF96E06418FC977047E6E76DA43ACFC
+      0E6E720FABE07453A99A912F1BE798902FE5A9BD3F6AF99E0ABF9DF87F42F710
+      DBFD6E6E870F1AE72678AAFCF37EEB071D3D5EBF6BE9999DF7CA287E863E76E7
+      5D04833D085AAAA7E67F040FAD617FA4716CEF0C12BDBC6485ABF413979FB5E6
+      5254C222F916A5ACA5D5BFF76A8DFDD4C69EE6F8EAAD050F5F0CBFE47C2CD5F3
+      C2D4C22F0DA7DA7E0283FA94EFDC309D7AC66D7D9C76FE33BD7E84A35E33CB27
+      1EE01393ED7F967D38F6AB00CFFC9F41FC811DBEDEF75A13F255DD30B5FFC602
+      DF8E7CB1EC88F32782C6FE153DAEB3B72B3B278FE8EC7D52C6BBC815F9CAB430
+      E24B61962F0D3BFAC38CFF0DE20F6CA49FCC0DA9FB46D0E96B5A3D3B26EBD62B
+      76FA4898CE36CE4EB3D3C773C91661D20F8262FDAB193F88B2DDC261624FA3D5
+      BEAE52B6593F68C991C6A759D96EE9A1B67F52279CC2E3B7F63EA3C6F966C6E4
+      A6C7941A635F33FD22CBE7276A8C234CCF6348DDE12E7F4E8E417F977BFC64C6
+      0F2AB2ADCE2368C6A7DE77589B735EDC6343A51F74C26D769E843B5F69A4AF95
+      F3899EA43A2733D7C33D167D264FF8D34479F0783C2BFAE656FC60399F78E0EC
+      DE0C59A7F3B8F7D5B5FA5876FAC73C7D332DBB76E41B845FBD3DB4F64DC252FF
+      C3C43704B5BE8B5E5F8C8B6BC20D3BDFBDB8EB2BB5EF2C26E3393BB6BF1ED97F
+      E5DD3F665D3E0FC046DE93AC11B4D29883163C24DF6EF8BDFB47EDC9CF8A7D7B
+      EE394CDEB953AD7954A3BD5E447FEF97E4FE1AE3951FFA7CF73457FB0E9851F2
+      95C8EEF2EDA4BF8DFC6737FF3F2E6375FEFEA7EB8B9304BCFD4FB5F5EBFC6E68
+      D9B3C3371F06EB5CA3B820A6F976E65A32974F6C733D117F76E3E0C9983FE03E
+      375650FFAEA63FF7AB18AFAB7C4F02BDB1BAA03667ACCD070FF0F5FC6AE47FE0
+      8D0F9D3968C3F830D97FD38D0B5EBF73F009B13E5FC2356FC3395764974F8867
+      E6A9BDE70C66916F0E56E6D22DCCDD7965DB93ED3DAB33E3C6F0C4EA1C866B7F
+      3158E34BB8AA733016B86E7338465CAD35B8E25A30B7F3C445AE40B4F666CBF8
+      4A3788645D2F0F9F48EEC555EEADE4E14BEFCA558645D0D93FABE4ABB9A17647
+      AF5928CF0F32357697F889A8DC0FCCB31E566D0E8057BEDA1A4833FEC886F55A
+      66EF9DF2CAF7CAF79EE19FFDD3CF1B7E6FF8BD0FDF9C9029BECE99EEDCF2856C
+      9846DEB8F5C6D59354870836F654EBDC91C1CDE7B99BE151F13331FF18B677DE
+      F4C9DAE99355EB5C1E73BD3A97C75CE0B85332ABD6C9DEF8F3C69FF7C9F4B907
+      A5EA99BD68C667616A9F1724DAD1E21A9C2BA1B4ABFACE295F57E50C3FD13F5F
+      5455BE89F344EDCC27789FCCAEC34D7E3FD1DABFC99B67D4CE7F90E651CDBB5F
+      C5B3E434CE8FD07343AAAF255FCDAEDA3B8F7C2D554FBE915CBDF01BC59DD40D
+      A3F01BA96A7C2BDFE03C3007E97DB246FB6D67FE18AC3CC4E0FE4B758EFC8E1E
+      B3F2EDF2F5FCAF76CFA812BCFC4721DF0CDFAC7CE2FD7E975165D1906FF50C30
+      1E3EEF19F256CEE0329317BDFCECCB7FECEA0EC97D85927EA0BC5F677426A7EB
+      EE0EE93D1E82EC044D1E37942A77F95570B4F68DA9A59F9B3DB7933F75CF7093
+      651CE51A35FDBE80ECEE0DA2166756CF11D4CB7746675ADADC3FEA956F939F4D
+      FA1F76FC0E46F16838EF65EF3C57D91DEFCAFBE8CDA4BD55BEA073061FAF7C2D
+      D98F9A6FE477DEF06BC9CE08FE1355F643F7A763A4A303C5504E7470F142F789
+      F8DFC85349F0D9F6CBD07E6B0208879360C6B9FB30EF22C8B03081869FDA75F1
+      86FF2962F88A9B00CBAE3F80B0B377A1D79F57A1D6940D30F6B78D324CDCBC09
+      5E1FB66A72F5A16349B5213F1232EC0F11A14BAEDD87F997D318965EBF0F3D57
+      1E80AB57CF4352523CC539B8752B0E76EC8880E021C323070D6A5E64E0C0A684
+      FCB043C4E88557D260EEC55406FCDD71F15E3875EA081C3FFE175CB9120DF1F1
+      C760FDFA052C0D29B71B451132642B71E2A75F2EA5C2CC73290CF8BBCDEC1D70
+      FAF43FCC8D1B372E3237E6CF9FE842FDFA450691C19B8813E3675D4881A93177
+      18F077AB195BE1CC9913CC8DA4A444971BE80F0C4BDFBEF57A90EF22891361D3
+      E392218CA601027F370FDF0C3131A7981BB76F5F97B9F1EFBFE7A0478FDABDC8
+      376B891353A69CB903E38FDF62C0DF4D2647425C5C34732339F9A6CC8D3B772E
+      C1E79F07F5215FAF224E4C9F703209C61CB9C180BF1B4E584FF931CC8DBB7793
+      646EDCBD7B0D3A76ACFA2569FD0321FD9623668D3D760B42A3AE32E0EF7AE356
+      C3D9B371CC8D7BF7EEC8DCB877EF16B46B57F12B96875B7C4F48EF45F3471FBE
+      013F1CB8C280BF83C7AC8473E7CE32375253EFCADCB8772F09DAB429FB3565FF
+      1FC5CBA46BF8EA9151D761C8BECB0CA1F477ED51CBE1FCF9F3CC8DB4B454991B
+      A9A9B7A14993128329F7258A774970F7A915C66FB9D52D32FADE0FFB1361F8C1
+      6B5073C462B870E102C57978F0E03E451ADCBF7F8FBA95427FA74060E0EB235D
+      E530A00E215DC29B92CE53C2DFF876C9B6E60B0EC43EDD62C0D922459E9DE8EF
+      9F6B74C992CF872A51B8F073DD65FCCE5308E93891904FC79626213F0E226D86
+      4DA2266F5314D0C04B8FEA9B2CE73737F56F01C67BB7B8CEF832CB979E216BE0
+      07C36FBD067E003DD932F7D4FD60B8B7D4C00FE081FE9DD207A00E337C35F7CC
+      A5BF0197A31DD5966B7C2786AE9FD5FC60C0D53E474D5BB6D5F8B75DEA1F87F4
+      E7E073A7A1552EE1CF7766E32FC3D2DFF01CEF2C5AFFEBAF7134A8FF8DCA3F67
+      FD6F285BAFFED72AFF195CFF7BBCBF2010FBF72909E6CF54F2887C6FFC79E3EF
+      498EBF0C1A3318C6BF9D39484FC8CFACF4F3946CABF937BBC49FDD30D89D03B7
+      5BFF64F16F00E6BF19E8DF452FE30ACEB359A56BD188722DAB68EEBEFE4BCED5
+      F3A3BA3DA5BB9A3094CFAB6AC897AA82FE5D3EC6F235E6B4D5DA3A2DF95A7CB7
+      35F53AF2059DFB84ADC857D907C42D5FE90FBDFC6B42BE61BD24648F7B88C431
+      2958E78215371E9EDF2C77838FAB3C1B9A5FBEAB0E13CF8D218235AEE0E51AB7
+      1DD6B80FF38776FD6C227FD9BAF73A3BAC2B04597C984D47713D91F619C05C79
+      C805A57B7A73F24ABBCEF5347A7767EAF1C573B304137D0B979F5D77673E74C7
+      0CFFE19D97E07283DB0F4E48F99C77A9BB9D93AF72EE1757FEB1728FAC922F8D
+      7F337957200283F29C2F23AEC84360423CEC473C845EFE51B1E7F28F54CDD2E5
+      DE0E1FEC9ED76CCB0D90FD593AEFD9961BA0FA67EADC745B6E785EBE840BC053
+      776B734DF155B84A98C97FDCF275E28A839FF51B76E0BA6F5397AFE3866AFC9B
+      4E3F9D3CCB251FF4F381B7FC6750F8EDD4BF76EAFFCCB96B207BCDE59BDF7B29
+      E3DAB9BB486F0D3C2FF711CBD6FCFECB235B3CF7551A8FBCE7E1AA70C1ECDDF3
+      8AEFCF56F6DCCADEF5E42BCF00D60ABBA67F156331957B7E88957384B5E65F79
+      C2AF93FFB3D3BE435BEBFF6DDE5D66B9FC67906CCD6F1826F7AC2A55B367AE5B
+      BB53C89A5CCDBBDB8CEA5395F31EB4E240353524F33E4423DC96F78DABF8C96C
+      FC65D7F2CF132EAE7562BA6D914159949E63AFDABEE8E4012957CB0D41650FBA
+      1657E986C2FF6E5C2DB734E24F56BF68F519ACEE5D2119BC6FCF42FDFDD8CB27
+      DE730732796EC3DEDDA9206F6374C7465EBE3ADFC6D93DDE32E47DECCF59585C
+      5BA1B6765B6C9F058E757202E77A7A2D7FF1F8552F5C82C97528BCE157E3EADA
+      B3705798F7C9D031BB27C6CE60876FB60F86F765719EE1A37D6797C0B5875C95
+      27052F5FE6670BF2957CCE3E8C314720DCE137F20B0F5F1976337C3BF16F14F7
+      56C36F856FA20FFA249F5F96D5CE6F7BD2EF9FF286FF31297FE3FC3A92F14E0C
+      19D2D2108306B524FEFE332BFBF89C59E9E3B33BC8C9FF82620C35EF6A84FEFD
+      5B0E6AF54EDF5DF8B9CBC72762FB38BF0ED40F1D7EBAB5F084B3667BA089ED97
+      AEC19A356B20393919AABDD4F20021B3837FF2FB8C508C4B9C73181E3C483FA3
+      410D5B2F5C8606EBFE808117936154C741D0FB99C6BF04FB7E4F7EF46B8FF839
+      61D6DFEC4C873B776EB86153DC39A8BF6607E3D69CB5022226FC0EC841EE68BF
+      4F116117A71D80BB77AFC3CD9BF132FC76E634D45DBD8D71AB4F5F0A91FF1C03
+      B48B1CE486FA8620A69C9BB28FCABA0C8989312EEC3BFD0F04AFFA9D71AB4D5B
+      0C2B1C7B991DB48B1CE40EF7FD18312D366C0FDC883E034949E75DF82E62239C
+      4802A8316309AC3FFA17D3433B681739C8FD9F6F5BC4CCD3E377C2E1D08D3260
+      1EADDB6118CCFD6EB14C1FED2207B9826F6BC49C133F6D8379AD46C1DC962355
+      816622E226FD09C841EEF7BE2D11F38F8EDA0C0BDAFE087FEED9033B77EC9001
+      F5D06CE780A5B038641C44FFBC0B9083DCEF7C3F422C3E3462032C69371EB66D
+      DA0493EA0F62F86DF56A06D44333E4AFEA3C054E8EDD0EC841EE00DFA6881547
+      466E82151DC2606344045311118B1733887AC88FEC311B8EFFB8159083DC377C
+      F2908F7C2AD5ECE5D360E3F47AC2F50DCB96414497A90CEB162D6210F590BFED
+      AB45706CF41640FBC8A5CF5B14011548E14E5D48ADDD3972E418AD063493A221
+      2937CBC9CD4DF12AD13EE3430BAF3AB959AD1DD7FB366474F6228FCA5367138D
+      6F557AE36653F285876319A36F6B6E7E54E1F2CF736461AE961D5EAEA0123782
+      89F81234F6199909B3A07E5E9BE9B81232319DADF67740E33BA9E13DC4F2755B
+      3277F4D686A8F105237940647C50ECD732922728D6848304447267767ADC839B
+      3C35FF8B7C41C257BBFF5A4DBED40D1EFF6BEC0590C5B7AE7C4234D7C4ABDD15
+      AE94A7B717C1254B234E34C26F4A3E0F5F2FFC7A7B41B4EE2AD7BA2B5C8B6F98
+      DFB5F60FF3AD65F23ED6C67299C1CF68D960D0FF78D47CE281BC0A1E8A37EFE3
+      F93910FEBE84DAFD3D3C6707AB7038EF8DE2BA3F48C70D6EAECAFCAD39AEDA7A
+      40B35CB53B4C8CEF29D35A0BA37B4F9915F95C61D288430B5C4FA43FB71B8679
+      D87AFEF744F9B3F50836CE261074BE950B9CDFC8ADFAC72E9F672C9805FA293C
+      E701EA9E7D697026AAFEFE56FDB53BDAF32C8AB18A8A1F8CFCEFE270AC1F92B9
+      A1D5A736B9A7D86A1F030CE6C1BCFD14FD3A8F10EBE71059ED477BF91EE0AB94
+      57B0910F2093F29F77FCFD983FCA365CABDE57EBBB085A6B0255DC101467B79A
+      EDAB98E96718F1EDCA171ED13A3FBD7586DEC703799DE3AE5D63AE73BF8974ED
+      95517E929CB3A3B5764BAF5FCAF892B96550CECB3BDD502D774EAED4CF828423
+      E56BF54D65762448CFEB12F774F85A6E887E0062CCD7724710F4F982011F0CEA
+      3EA2F21D8428BEAB70B4832E7B6AE71E49DF257BA1DCDC50D927A5BB175A750E
+      473256D1DAFFAC358760533EB1197ECBFD60ABE55E5606C4FE1A67B99796FDF4
+      DF4EFB66EB0EF17BADB2BCE8947B4944C9648A3CA3722FE36B9459A253EEA47C
+      CE72ABBE6F46ADCC0972D97AFB67D5EE4E27E6F7ED9A9A6B5475CFFC7C9DF6DC
+      AB957DC852AEF2EC3AE3B3ECEC701FC689352E211E5A6F9841ED3FD86CFF55EF
+      EFD46AFFD5E7AEE5E73FE8B5FF84689E46E82A5B7AED3F2F5FB3FDE7F43F4F3D
+      A23696D66DFF896AFB0F86EDBFE0BE2E81676E5290A499248CDC79F861DBAC1D
+      DF3C63789B7C62D5FF36E64CCCCE3D9AAE07CCF05C6B30C4FEAF400CDD51D601
+      5A655730A83F04C17C5D28F53351ACC979D8866ADCDD20E14AFD0E6EE7DCA8AE
+      6F723FF7873CECB3882DA06BFFBECB5DE276FE8DF29C522957E986A0902FD6D9
+      72BE9C0BD2F5551AFC87E92DB871F5E44BFB6C2059EFA3E40A9273BDA56920ED
+      6B49EB20E599430F93C6FDEE1C5081BCEE4B3F7F1A88B11B82A42E13147A466E
+      08FAE7B53BED8B67589BEA0F3C8AFAC54C5D63B86E89A39E31FA7EC4736794A9
+      3B9D2C84DBEC7D4BE0893ADB03ED40467C9F343AD387AB8D51FBCD1B2E1D3EF0
+      E4398E3651F79C258BFE074F865FE6FF1A61E9089A144EE1E040B88BC3305184
+      A3D7DC0BD021EC18F49A1E057F9DBE0AB1672FC2B67D27A15BD8BE747D6A8EF6
+      241C42AAFD2CC2D165EA69F8F0AB95B075FF71183D7A34040606C2D8D0509837
+      6705D34773B427E11012385684A3D3E49350B5D742888E8983F2E5CB43787838
+      74EDDA1576AD8F64FA688EF6241C422A8F11E1F86CE23F10D47739AC8AFC0342
+      870C814F3FFD14E64C9902AB576E66FA688EF6241C423E1829C21132EE30D419
+      F01BD4EF350BE6CD5E0E7F50B911BF6E82467DE7327D34477B120E21E5878970
+      B418BE07EAF65D041316ED808347A321EEEC39D8ED3802A1D3D642ED5EF301CD
+      D19E84434899A1221C0DFB2F87AD7B8FC192254BA05DBB76D0A85123E8D1A307
+      2C9C3D1B7A2CDF04AFCDDA063E5DE7C490EAA3880B01834538262EDC0E8B172F
+      864A952A41C99225A156AD5A2CFEFEDBF74BA8B96C234C3F7F15728C5A73D567
+      F5FE67280882F80F14E13878E434B469D3064A942801F9F3E7676A4848087C16
+      360342B63A60D9ED34A8B1FAC06D9F557F36F259B9872048B1FE221C18DE0F3F
+      FC9001B99B366D82B69F7C025517AC853167AF40CB962D61D0E98434DF15BB67
+      FA2CDB95838290227D453876EF3B0CED699A75ECD8113EA1BC8F3FFE18DA0E1B
+      0D4D36EE8541E76FB272F4C5F178281CE9F8D367F1B65A3E8BB61252A0392185
+      7A221CA161AB60D6D4A92CDD478C1801E1D3A6C187BF4440E743A721F8F03FD0
+      7FED3A088A3A0481FBFE4EF499BF79AACFBC8D3EAC0CBDD29090D73B39823E9B
+      06F3662E87D961613078E04068FF43289459FC1B7C782216CAD1F444F9A896A7
+      787EF9F63D3EB3D657A17ACF12DC8B93BB85A342E74550BDDD14F8FE8739B076
+      7104345BB41ECAD1F253FCD4652876F2320CBC7A9BA98837F69C48F0098F9841
+      B9B889A824C9F9C14292B3AE438656831348DF714932F4FF3991FC6F6A14099D
+      B18F8C9917865D221F1F1F11952926532C57C164A739B32B1D1849F8533EFFFC
+      F3788CBB3163C6C0F8F1E361ECD8B1306AD428E8D6AD5B3C9A6BF0578AC07A09
+      F36C404000E4CB978FA9F88EFA527B0A7E391A07079A366D0A83070F86DAB56B
+      C3B37987805F9E834CC577D44773B487F695FEA74F79AAAEF9F6DB6FA17AF5EA
+      F042F1E3F0BC7F0253F11DF5D1DC694F2BFCEB070C1800CD9A3583E241B3E0CD
+      BA97988AEFA88FE61AE18F14D1BF7F7F66BF54A952F0F6DB6F3315DF515F6A4F
+      C1AF48FD75B24E9D3AF0E597B4ACD6AC0975EBD6852E5DBA3015DF511FCDD11E
+      DA57097F25AAFEDEAB572F56FEB00CD1B4642ABEA33E9A3BED69857FFB7FFFFB
+      5FE6DFE6CD9B43FBF6ED998AEFA88FE61AE1DF2582E613C6C13AC8DFDF9FA9F8
+      8EFA527B0A7E20F55742E5CA95597D151C1CCCC28A7511AAF88EFA688EF6D0BE
+      4AF803A9BAAF53A74E2CBFB46AD50ADAB66DCB547C477D3477DAD3385A901CEA
+      D0A103346CD890C57B8B162D988AEFA88FE66A930CCE3A203FC52E2A2B19EBB9
+      C68D1B337FA38AEFA88FE614AF513CA7E0E7A5284DF1058583E2920A1C4EF332
+      14F934D22FDB94FF7AF5EA41EFDEBD996AA5FCF7ECD993953954AD947FCC3798
+      E751F596FF8C2FFF6FF7791B5E99FB0A53AD947FFF487FF0DFE5CF542BE5BFC6
+      B81A50FF687DA67ACBBFB7FC6774F9CFDDAD1FF8CD59C5542BE5DFEFB7DD4076
+      1D65AA95F2FF16EDF3E738729EA9DEF63F6B97FFCC0459F28090A5C0E03B2286
+      E4E8B0F5E51C1DB78D1141820487145233B42BE523FC5A2FFB2278ECB13D2337
+      5D0344ED014B5D08EAB710447DB48376293F9CC2E1C2F7471C4BA301440CA0FF
+      44740D7780D42C47FB8D3F93F9298E6609000D2FA4837C1BE59819751726FDF9
+      2F43CB919B5C6824AC71E9CF3E94027EEDD6877D5EC167E9F46FDB0022E804E5
+      F7DFEF98B2EF5F18B7E31AFCBCEB06E3B508DD08B0BF16A4EE0C84DB1BCAC08D
+      95EFC1E4BDB7C0EF93D5E15D2BF9CE3BB8620C2C08ED02814728BFF71F8EB1DB
+      136178E44518B5398185FBC3FE8BE1F6EDF3328CDA7C11FCDAFE3AB34B35BFA9
+      47378543C4B46FA0C241CAEFF6BB63C4868B3078552C0C5D7B8EBA130FBDE71D
+      82C4C453B071E31238706033FBFDED8A13E0D76AC9BC4E35738C3BB0712A4C5D
+      B5004AFD49F91D231D8357C5D0F83A050397475377E2A043D86E387BF66F197A
+      CC3E00BE1FCD5F44BEDCE328BB1FA0F88E749076AB1D03969E84BEF38FC1578B
+      4E3077BACD38086D7FFC1D3EFE69AB0BFD161E05DF26D357D1B2B88C84474399
+      E0760C791A8E8AFE7AC909CA3D0EDF2C3BC5F0ED8A333068652C740EFD15AAD5
+      6ACBD06D4C04F8D419B533478E1C630879F92AD6CF08FCEDE7E7D79B62324538
+      C5745F5FDF59140395F6A8ECA5549F16A797FF423D9CAFC0DF3E3E4F11D41791
+      5EE7E554B1C7EA9DB76871EE4ADFFF4E07FE2645D5E166CFF6F91FB6CBF0A696
+      6A008A3C4AFDA052F9DC2727B5F9C3F0F78388FF90FBCBEAB8F0FBD0F2E4AB26
+      05499F066F906EB55FD5E3DFA768ACE4232ECDAC4162C22A9143A101CC7D15C0
+      85B08013544D7AF06BBD0A7AFC7B934AA9015267567CE1FC8882BBE9EFCB7743
+      DF29902C1420889BE34BCAF8C983F2A901EEFEEF4D42794F9FFD36EF5EFA3E4F
+      34BB39D65FC64F1C51985C1F5584A47CF78A14C054EA0655DFBDF6DD2B374533
+      E44AF9B161E5487C7845722BBC028171C5440053A7942130C13F17FD9D84EFFF
+      4E2AA7C9BF362B90FC3B3B90C0FC6A088005D5092CFE30FDF7F4F20513C69726
+      17A75723F133AA875384A8F1991B73AB93B4C5B58082A9B7E7D5287874741982
+      3831B63CCA7520CE4CAC1822F2CF4FA91044DDD847914601A8264CAF4CDDAB4A
+      A286970CA7F61C52C08529802A350BD93FF45D42117F69511DB8B7A31D5C8D68
+      0CF4FD14EAEF1C5818E1807313008E7607F8BBDD431CEF076856F28D9CE4D72F
+      72DF8A9B560962A65684F57D5F85614D9EEF81FA016F3C4D4635CD13BEAE7B7E
+      8714F0472540F5B71EAF85D02250F08B40DFD0E9AD7D6F4D6BED7BA14345DFE1
+      54AF9CB39D2EEC9CDFCB31BCD18BE4D74E79C8A290E71D88259FBE1042DDC022
+      F4A246F9C67EC2CBCEBE0556526466F3A7C88C664F85538450378893CF1EEC67
+      9A81B40CE3FBC50BE7E1D2A5784848C033ACAEC0D5AB8910137306AE5FBF0671
+      71B170E3C60DB879F306ADFBE3982A75037F47FD751066D0BE52788D1A0CC78E
+      1D0587633FFCF3CF3FB4CD3900D36B06A583F6894E9C38E1C63F7CF8104C0B0A
+      A2F68FC1AC06F5A99DE394EF8053A74EC2C183944FFBB0270E1F86BFFEFA0BA2
+      A3A3DDF8274F9EA0EED7A466A7E1CC9933101B1B0333A8AC05B4EF857E9845FB
+      800C0D1AC0F9F3E7DDF8681FCDCF9D3B07F3697FF7E2C58B70FAF469B87CF932
+      732F212101764E9A0433A83FAE5CB9E2C6C7F859F4D147F04BFDFA0C77EFDE65
+      9C7BF7EE31FB0BFEF39F7450B7535353DDF867CF9E850B340D50EEA54B971837
+      26268671636363699A24D234B94AD3228EA94A3EDA4533F4FF850B17983BA74E
+      9D626E89E14060DCA1AAE4A3DD438762982C740771E4C811E6DEB163C7589CA1
+      1F0FD334403325FFE0C153F0E9A7E97EFEE69B046607E37DF3E633B077EF1126
+      17D37DFFFEFD70F4E851D62F96F2972FBF0B65CBDE8779F352E9782D0DB66C49
+      836BD7AED13EFC159839339AF92B2A2A8AFAF16F98316306EB934BF955AA24D3
+      B1660A0406A650BF25D331C74D68D70ED3290E6AD4888221437E636912191909
+      03070E74CBFF1B362450FE1DEADF6B94F32FECD993C8C2DBBD7B2C4C9B768085
+      65C3860D6C3CAB6C03919F907087FA3D99A5ED962D2970FFFE7DE6FFC4C43B34
+      FF44C3ECD9B3D91854EB239F5E596DD2A4091B3FF27E638D8F8FA7E1D8CCBE05
+      2D5BB60C76EEDC49CBF175433EAED3C071FFFCF9F361FBF6ED2CAD962E5D4AC3
+      3F0D860F1FCE8079428D8BF3041111112CFCE283BF31EF21307FEDDBB70F860E
+      1D0A73E6CC91B9F1F7DF7F337F8A1C04C65F4A4A0A4DEF43346F1D647508CAC6
+      7C3864C8105A07DD74B98172B1AEC0077952F9C8C13A0381764E9E3C09616161
+      2C3D45FEA2458B58DE14F96969692E3EE677CCAFE87FB4837501E6BFDDBB77BB
+      F80B162C606164A71F3E78E0928F651FCBCED6AD5BE1975F7E61407FCC9D3B17
+      76ECD821938FE56CE2C48990274F1EF6ED0BC3876EA16C1C47E3D8F7FDF7DF67
+      F91EE561DA887CCC971887AB57AF66730E050A14A0656626F303EA631E2A57AE
+      1C142D5A94CDA1E077552C4F221FCB26A6B31866311E10589ED1AF688EC03218
+      1A1ACAC2264DC39F7FFE99F130EEC4F8C374C27907B12EC0B8C774C4F92465FE
+      C138C5B896FA01F3E2A04183981F30EF601C4F9F3E9D9561253F2929897D7316
+      9F3B77EE30ECDDBB97AD3F42D91867388FA497FFA74E9DCAF85857AC5DBB1626
+      4C98C0E210F351BF7EFD64F1A6E506C6CF9E3D7B589A62DA63D8BEF9E61B967F
+      78CA2FFA7BFDFAF53079F2649832658A2CAFD85C3FACBA769AF7FE38C51D6C6E
+      7C2CD74650DB5FC1CB95BA2175C7AC7C2DBEC57890DC57B79E0B6A7C97395BCB
+      2EF9ED3A234D6EAECA97DA93BE2B55337C15D9867C1DB95CFEB7CAD78A3F0EFF
+      DB4D3F1BF9C76AF9056FF9CF62E5FF387041B5FC2BEDA199F4B708891B9A7C29
+      57FA6E87AFD0E3E26BA98F9AAF157F3AFEB79B7E995CFE3DF688FD262D60BF08
+      FBA57A7C710D981AF0DBA29E1B22FFE6F51B6E90BA81678863FFD40A5FEA8655
+      3E02ED9AE12BDDCA4E7CB5BC6296AF8C5B2B7CBBF2A57CBD7CCCE37F1EE8C55F
+      669C21E02DFFDEF26F866F054A3E8E8FF11D55B572249A49EB05295F6A4F6A5F
+      AD1C6BF195E5562A4FA9F6EAD9CB50BED2FF6AF58B557868FC0FAE8DCFF479FA
+      E9A7DDEE9F7DF6D967E1D5575FD5BCC308CDC5E799679E71E3E7CA954BF70E24
+      34CF9B37AFEA3DB5A27BE2933B776E264FC473CF3DC7CCA57E20EEF7DCBADED1
+      BE9AFFD1CE8B2FBE28D3C73938251FFD83F65E78E105373E51DCFD9423470E55
+      7D2DF908E4E08332A469A4178768A6B4AB96CEA82F8D3B1144E35C507C305D94
+      F2B5386A7C657A58E1EBC597115F4C6F69DA9AE1637910D3429CCF34CB17F50C
+      F8448DAF559E54CAAF2D98BDFF07817691835C33F7FFA40300ED2207B9BCF7FF
+      88403B681739C8E5B9FF470AB4837679EFFF5102EDF0DEFFA30633F7FFA8C1CC
+      FD3F5AF0DEFF93FDEEFF01938FF2F09382F99F3105D10D911B7537165A7D519E
+      41F91BD167DB4899BEE886979F75F8527B46BFBD7CF73260A5FCD82DBF59610D
+      70FC8CEAB92ECF0AEA47B191C26100B4D30F3922FFC2B4AAFDAEAF6B179D766C
+      540A9C1A077A483B3632E5FADA9068E488FCD8499536A61E1E9E92B8AEF3BF5B
+      BF7AC5A107B4732FEA7F29C811F927C69673A41E1A015BBECCEBF8BDDF2BE528
+      8806CAA19D94833F0072443EAE454BDE3F0436F5C9E3A0205BBE94F3B6F57F83
+      6CFD2A3F4133B473FB8F816CFD9AC8DF37A498E3DAF60110D9F3650705415039
+      54CD4736F47A83EC185088C169E648D8D01B9023F2A999E3FCFA5EB0AEFB8B0E
+      0AB2E68B3C24A22B229DBFFDEB77EA51846FEC939FA09D33CB3B0372443EB5E3
+      888BE808115D733B567F9EA71CF25676CECBF8913D5FAF87E68875DD5F2568E7
+      E4C2D680EF229FDADB787E4DBB94A81F8BFD4B7F3B567579251CF954AD87EFD7
+      F67C0DA822D04ECCD2A629C811F94BDBBFD86FD7B080E8CB6B1AA55C5B1B04F4
+      DD4181FA8EDB7BBBC1D5882A9018511912575582F85F3F4CD929148D468EC85F
+      14F27CAE5FDA3CD78F622385637EDB5CE10B3ECE45A85A0FDF53FFA80BA83A81
+      76FA2147BAFEBF997F4E178AE7F3637AA87E5D3D67BD99CD9F7220A476A4658F
+      3EB81038A773ADDE4BCEB619DBF62214FECDDFF7EDD4AF8AEF42FABB2C4531E7
+      7A7F3F05DFCFE9C6FF51E472B6EDD8C1C8E7DC5B20AE09CC2BAE09CC2A7B002E
+      CDAC4E2ECFAA114EE1E04038DA97F2CF8707221CB4630B0F681997E1E45817E0
+      CC04407B685FCA8F9EF001C291766C34DCDDF39D26520F8702DA43FB52FED1D1
+      A5118EBBB45CDFDAD0D385AB6BBF80F8151DE0EC927610BBE813B8B2B90FA03D
+      B42FE53B86164738EEFC3988E6D52E10B7A02D1C99DA100EFC5C071CE36BBB70
+      92BA81F6D0BE94EF2CDF8E6B5BA9FB53EB40D4C41AAA38B9A0392BB7685FCADF
+      D0EB7584E3D2DA66103DA3A426CE2DAE01680FED4BF95856291CB77EAB025717
+      E5D704EE5B407B685FCA5FF8C9F30847DAA6772175E553DA58FB32A03DB42FE5
+      CF6EF10CC201BF1706D8900720F22580DF72533C0FB09E8EE3D73F0BB0EEFFA8
+      FA3CA0BD6F6A3CA5DC7FE3D72FD06F4E78633F8711A8BDB9B81E57C977965B9E
+      7E771E253FBB00D785D3B69996E3A010DABE62BB8A6D235BE74DDB1B433E7228
+      1C4E8498E5A37D0A075C08075463C22A8598E1A35DD6961F19097490CDDAE8E3
+      3F950BE1E5A33DB12DBFB9BE3BDC3F3D9EB5D37F8F2819C2C3473BD82EDFDEFD
+      2D5CA6F546CC2FADE1A643606DF5DEEFDF0B31E28BF5C085B55DE1E084DAB4FE
+      A8C510BFB9B7ACBDD602B6F5D82E9FFFB5299C082FCF90B0E933D6566FECFDA6
+      A17C6CEFB18DBEBEA63224CC7F136E6D69C0DAEDD59FBF1A826E1BF1C5363B35
+      F21D48DD5A9EB5E3CB3E7B2904DD1DD3FC15433E6D97110ED85A049CED78C890
+      BAB94889D77272F5759BBC9F83886D356DB743C4769CB7AF4C9F67683B3DAF53
+      59DFAF9CFBF1B0AD2EE86C7F9FE6E0E770B6D7059C9CBCCEF5FDB9B26B9DA1D3
+      0708D7D253E3CBFA00B4AD17DB79A6173351A6A7C617FB00A9474741F2AE6F5C
+      ED3CD3A37D7BA99E1A5FEC0388655F6CE7514DFCFD4B88A56DBA5ADBAFEC03FC
+      4BFBF6D8FE8BED3CAAD1CBDAA7F70154DA7E65D93FB7A6036BEBC5761ED5D38B
+      5BC9F4D4CBBEB30FB0BA316BEBC5761ED50BCB6ACBF4D4F8AE3EC0FA8AACAD17
+      DB79546F449490E9A9F15D7D808D85585B2FB6F3A8A6AECB27D353E3BBFA005B
+      DE66ED3FFE76E945BEC8DA7FB5B65F5AF6B06D97B4F3D8DF2E80AA44EF17AAF7
+      944ED9CDCB31E7F6D493D2F6C74DAEE2DA2FE634C3F17B38BEF3B6FD4E7D6686
+      E5D869CEDDF69F1C57DE659646CB36AAF8AED5F6A7440D83077193646DBF6876
+      F7C050A68FEF5A6DFF9DBD83E13AEDF7A749DAFEBF86956066E2B81DEDEAB5FD
+      D7567765EDFF6DEA17B1ED47F5F4D24FD9BB5A5F422CEB37B6F683E3339ABAC6
+      0E97B77D25967BC7095AAF68D50162DB7FF6D7367064521586842DDD5D6D3FAA
+      D10B1A81732CAFD9F65F5E551BCECE7E0FAEFFDED6D5F6AFED969F99C52FAD2C
+      8EE335DBFEA4F5A5E0CEB66059DB2F9ADD5A55D835B6D76AFBEFEF28276BFB5B
+      967EE6A1D9BA97C471BC1BBFD82BBE9A6DBF6886E30754F15DA5FCBF816D7FE7
+      72BEFD247BF75E768EC3DFA6660BA636F275A01DFAFEA60AFF05E7D8E035C9DE
+      3D1CCB3FE3EC03E4978CDF737BAADC8A0FFA0FC386F183718CE984698DF905F3
+      1CE65BCCFB587EB00C623996F68D306C183F18C7984E98D6985F30CF61BEC5BC
+      8FE507CB209663AC0BA47C8C173BF2ED3E76E563BA231FF31FE661560E6859C2
+      F288651AEB05AC5BB07E72F243947EC07C87F231FF6319C232886519EB03AC53
+      B05E72CA0FD10A07E67BF43F963FE4633D807509D647E87FAC178DE2C259EE1C
+      58FEB10EC17A08C38FF5216F7C3AFBFC0EAC7F30FEB01E349B2658EF60FC63FD
+      F7A8D7AD6576FEEF53C9774566E6FFACF6E4C9F312A95FBBBA7F83E01AFE79F3
+      BCC4CDCB993327A95BABDA6B2D1AD7991650EC9DA480E2EF24B56A5A775ADD5A
+      D55F4333BDA74C29FFA73F69D9B077855245E34B152F945CDAFFDDE4D2EF174E
+      2D59F41D281F502CF193568DFA942D55E26925AFC06BAFFA7CDCE23F75BA7C54
+      F560FD2AEFDD29E35F38B95C89C229954A167950AF6A59A858B20894295E18CA
+      F8177DD0A67EA5831FB768580739C80DFEB0DA9B9FB5A8B3E4F326A5EF04572E
+      968CDCF225DE4D0B2CFD1EB4AA570D1A077DC0F8F56A0741AF1EDDEE572F5F34
+      B953C352773AB40C5E82DC766D9ACE6950D59FFAB5507240F14277CBBCFFEE83
+      0F4A16856A65DF873A954B4395D2C5A073FB8FE18BAE1DD3CA942C42C35388D9
+      FD4FB512C9343C73DAB66E1650B15CC9B8B2258B269728F64E72A1B7DF7850D6
+      BF28540C2806D53F280523BEEFFFA075F386F7CA96284CFD96CE2D1FF05E72E5
+      0A01719FB4F928C0D7C787B46DD5CCBF62F992D1A54B38DD28F8E6FD46C14130
+      2EF4FB073DDBD4BCDBAB45791AA642C96529B702E5067E502A9A72FD7D7DD38F
+      CFC473305A7DD4B868A50A01274B9528921C40FDD828B87A4ADFD6959327F4AE
+      99FC43C72AC981A5DF4DAE50EABDE4AA154B9F6CD3B26951E7D919B2E7A3A60D
+      0A55AF54FA58D5B2EF2537A9563CF9BB908A8CDBB359D9E416B54A25D7AD51FE
+      588B660D0BE9E581E68DEBBDD5B67EA543AD6B0524776F5226B947D3B2C99D1B
+      974BEED2BCEAA1164D1BBCC593079B37AA5380DA3FD020F07D2A3720B96B8BEA
+      079A350A2E6026FFD37C9FAF47FB2673BBB56B32B77E70503E2B652877EE1748
+      EE175ED0B5F3FFABC092D5
     }
   end
   object OpenDialog1: TOpenDialog
     Filter = 'hUGETracker Instruments|*.ugi'
-    Left = 107
-    Top = 75
+    Left = 80
+    Top = 56
   end
   object InstrumentSaveDialog: TSaveDialog
     DefaultExt = '.ugi'
     Filter = 'hUGETracker Instruments|*.ugi'
-    Left = 107
-    Top = 75
+    Left = 80
+    Top = 56
   end
   object OrderEditPopup: TPopupMenu
-    Left = 171
-    Top = 53
+    Left = 128
+    Top = 40
     object MenuItem17: TMenuItem
       Caption = 'Insert new row'
       Hint = 'Insert a new row filled with brand new patterns'
@@ -2711,8 +2729,8 @@ object frmTracker: TfrmTracker
   object ImageList2: TImageList
     Height = 32
     Width = 32
-    Left = 64
-    Top = 115
+    Left = 48
+    Top = 86
     Bitmap = {
       4C7A020000002000000020000000400200000000000078DAED98818EC3200886
       7DF4BED9F666DE6CA54504048BBDE572246659B7F503A4C8BF94662CE77EAD34
@@ -2739,36 +2757,36 @@ object frmTracker: TfrmTracker
     Enabled = False
     Interval = 200
     OnTimer = OscilloscopeUpdateTimerTimer
-    Left = 117
-    Top = 64
+    Left = 88
+    Top = 48
   end
   object GBSSaveDialog: TSaveDialog
     DefaultExt = '.gbs'
     Filter = 'Gameboy Soundtrack|*.gbs'
-    Left = 384
-    Top = 32
+    Left = 288
+    Top = 24
   end
   object WaveSaveDialog: TSaveDialog
     DefaultExt = '.ugw'
     Filter = 'hUGETracker Waves|*.ugw'
-    Left = 491
-    Top = 32
+    Left = 368
+    Top = 24
   end
   object GBSaveDialog: TSaveDialog
     DefaultExt = '.gb'
     Filter = 'Gameboy ROM|*.gb'
-    Left = 437
-    Top = 32
+    Left = 328
+    Top = 24
   end
   object NoteHaltTimer: TTimer
     Enabled = False
     OnTimer = NoteHaltTimerTimer
-    Left = 107
-    Top = 115
+    Left = 80
+    Top = 86
   end
   object TrackerGridPopup: TPopupMenu
-    Left = 128
-    Top = 32
+    Left = 96
+    Top = 24
     object TrackerPopupEditEffect: TMenuItem
       Caption = 'Edit effect ...'
       OnClick = TrackerPopupEditEffectClick
@@ -3044,18 +3062,18 @@ object frmTracker: TfrmTracker
     Entity = False
     DollarVariables = False
     ActiveDot = False
-    Left = 11
-    Top = 115
+    Left = 8
+    Top = 86
   end
   object MODOpenDialog: TOpenDialog
     DefaultExt = '.mod'
     Filter = 'GBT Player MOD files|*.mod'
-    Left = 629
-    Top = 32
+    Left = 472
+    Top = 24
   end
   object WaveEditPopup: TPopupMenu
-    Left = 11
-    Top = 43
+    Left = 8
+    Top = 32
     object MenuItem37: TMenuItem
       Caption = 'Copy'
       OnClick = MenuItem37Click
@@ -3067,8 +3085,8 @@ object frmTracker: TfrmTracker
   end
   object ShortcutsActionList: TActionList
     Images = ImageList1
-    Left = 277
-    Top = 43
+    Left = 208
+    Top = 32
     object PlayStartAction: TAction
       DisableIfNoHandler = False
       Hint = 'Play song from start'
@@ -3199,31 +3217,31 @@ object frmTracker: TfrmTracker
   object GBDKCSaveDialog: TSaveDialog
     DefaultExt = '.c'
     Filter = 'GBDK C File|*.c'
-    Left = 331
-    Top = 32
+    Left = 248
+    Top = 24
   end
   object RGBDSAsmSaveDialog: TSaveDialog
     DefaultExt = '.asm'
     Filter = 'RGBDS Assembly|*.asm'
-    Left = 363
-    Top = 64
+    Left = 272
+    Top = 48
   end
   object VGMSaveDialog: TSaveDialog
     DefaultExt = '.vgm'
     Filter = 'VGM Rip|*.vgm'
-    Left = 475
-    Top = 69
+    Left = 356
+    Top = 52
   end
   object TBMOpenDialog: TOpenDialog
     DefaultExt = '.tbm'
     Filter = 'TrackerBoy TBM files|*.tbm'
-    Left = 629
-    Top = 85
+    Left = 472
+    Top = 64
   end
   object FUROpenDialog: TOpenDialog
     DefaultExt = '.fur'
     Filter = 'Furnace Tracker modules|*.fur'
-    Left = 629
-    Top = 138
+    Left = 472
+    Top = 104
   end
 end
