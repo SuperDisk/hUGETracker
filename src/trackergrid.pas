@@ -1543,7 +1543,10 @@ begin
       cpNote: Note := NO_NOTE;
       cpInstrument: Instrument := 0;
       cpVolume: Volume := 0;
-      cpEffectCode: EffectCode := 0;
+      cpEffectCode: begin
+        EffectCode := 0;
+        EffectParams.Value := 0;
+      end;
       cpEffectParams: EffectParams.Value := 0;
     end;
 end;
