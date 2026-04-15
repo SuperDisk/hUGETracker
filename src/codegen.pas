@@ -572,9 +572,6 @@ begin
   OutSL.Add('SECTION "'+DescriptorName+' Song Data", ROMX');
   OutSL.Add('');
 
-  OutSL.Add('db "HUGE"');
-  OutSL.Add('');
-
   // Render song descriptor
   OutSL.Add(DescriptorName+'::');
   OutSL.Add('db '+IntToStr(Song.TicksPerRow[0])+', '
