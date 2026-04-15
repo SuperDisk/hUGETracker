@@ -203,7 +203,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="29">
+    <Units Count="31">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -356,6 +356,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="FurImport"/>
       </Unit28>
+      <Unit29>
+        <Filename Value="portmidi.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="portmidi"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="midiinput.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="MidiInput"/>
+      </Unit30>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

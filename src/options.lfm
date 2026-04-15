@@ -177,6 +177,56 @@ object frmOptions: TfrmOptions
         OnChange = KeymapCheckboxChange
       end
     end
+    object MIDITabSheet: TTabSheet
+      Caption = 'MIDI'
+      ClientHeight = 840
+      ClientWidth = 701
+      object MIDIEnabledCheckbox: TCheckBox
+        Left = 21
+        Height = 25
+        Top = 21
+        Width = 269
+        Caption = 'Enable MIDI keyboard input'
+        TabOrder = 0
+        OnChange = MIDIEnabledCheckboxChange
+      end
+      object MIDIDeviceLabel: TLabel
+        Left = 21
+        Height = 23
+        Top = 64
+        Width = 119
+        Caption = 'Input device:'
+        ParentColor = False
+      end
+      object MIDIDeviceComboBox: TComboBox
+        Left = 21
+        Height = 33
+        Top = 93
+        Width = 512
+        ItemHeight = 0
+        Style = csDropDownList
+        TabOrder = 1
+        OnChange = MIDIDeviceComboBoxChange
+      end
+      object MIDIRefreshButton: TButton
+        Left = 543
+        Height = 33
+        Top = 93
+        Width = 120
+        Caption = 'Refresh'
+        TabOrder = 2
+        OnClick = MIDIRefreshButtonClick
+      end
+      object MIDIStatusLabel: TLabel
+        Left = 21
+        Height = 23
+        Top = 140
+        Width = 600
+        Caption = ''
+        ParentColor = False
+        WordWrap = True
+      end
+    end
     object CustomiztaionTabSheet: TTabSheet
       Caption = 'Appearance'
       ClientHeight = 840

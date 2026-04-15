@@ -139,6 +139,8 @@ type
     procedure DeleteRowInPatternAtCursor(Pattern: Integer);
     procedure DeleteRowInAllAtCursor;
 
+    procedure InputNoteValue(Note: Integer);
+
     procedure SelectAll;
     procedure SelectColumn;
     procedure EraseSelection;
@@ -1027,25 +1029,32 @@ begin
   EndUndoAction;
 end;
 
+procedure TTrackerGrid.InputNoteValue(Note: Integer);
+var
+  Cell: PCell;
+begin
+  if (Note < LOWEST_NOTE) or (Note > HIGHEST_NOTE) then Exit;
+  if Cursor.SelectedPart <> cpNote then Exit;
+
+  BeginUndoAction;
+  Cell := @Patterns[Cursor.X]^[Cursor.Y];
+  Cell^.Note := Note;
+  if SelectedInstrument <> 0 then
+    Cell^.Instrument := SelectedInstrument;
+
+  Inc(Cursor.Y, Step);
+  ClampCursors;
+
+  Invalidate;
+  EndUndoAction;
+end;
+
 procedure TTrackerGrid.InputNote(Key: Word);
 var
   Temp: Integer;
 begin
-  BeginUndoAction;
-  Temp := -1;
-
-  with Patterns[Cursor.X]^[Cursor.Y] do
-    if Keybindings.TryGetData(Key, Temp) then begin
-      Note := Min(HIGHEST_NOTE, Temp+(SelectedOctave*12));
-      if SelectedInstrument <> 0 then
-        Instrument := SelectedInstrument;
-
-      Inc(Cursor.Y, Step);
-      ClampCursors;
-    end;
-
-  Invalidate;
-  EndUndoAction;
+  if Keybindings.TryGetData(Key, Temp) then
+    InputNoteValue(Min(HIGHEST_NOTE, Temp + (SelectedOctave * 12)));
 end;
 
 procedure TTrackerGrid.InputInstrument(Key: Word);

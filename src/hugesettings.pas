@@ -24,6 +24,9 @@ type
     FPatternEditorFontSize: Integer;
     FUseScopes, FUseCustomKeymap: Boolean;
 
+    FMIDIInputEnabled: Boolean;
+    FMIDIInputDevice: String;
+
     procedure SetDisplayOrderRowNumbersAsHex(AValue: Boolean);
     procedure SetDisplayRowNumbersAsHex(AValue: Boolean);
     procedure SetDrawWaveformGrid(AValue: Boolean);
@@ -33,6 +36,8 @@ type
     procedure SetPreviewWhenPlacing(AValue: Boolean);
     procedure SetUseCustomKeymap(AValue: Boolean);
     procedure SetUseScopes(AValue: Boolean);
+    procedure SetMIDIInputEnabled(AValue: Boolean);
+    procedure SetMIDIInputDevice(const AValue: String);
   public
     property PatternEditorFontSize: Integer read FPatternEditorFontSize write SetPatternEditorFontSize;
     property UseScopes: Boolean read FUseScopes write SetUseScopes;
@@ -43,6 +48,8 @@ type
     property DisplayOrderRowNumbersAsHex: Boolean read FDisplayOrderRowNumbersAsHex write SetDisplayOrderRowNumbersAsHex;
     property DrawWaveformGrid: Boolean read FDrawWaveformGrid write SetDrawWaveformGrid;
     property VerticalTabs: Boolean read FVerticalTabs write SetVerticalTabs;
+    property MIDIInputEnabled: Boolean read FMIDIInputEnabled write SetMIDIInputEnabled;
+    property MIDIInputDevice: String read FMIDIInputDevice write SetMIDIInputDevice;
 
     constructor Create;
   end;
@@ -172,6 +179,18 @@ begin
   SettingsFile.WriteBool('hUGETracker', 'ScopesOn', AValue);
 end;
 
+procedure TTrackerSettings.SetMIDIInputEnabled(AValue: Boolean);
+begin
+  FMIDIInputEnabled := AValue;
+  SettingsFile.WriteBool('hUGETracker', 'MIDIInputEnabled', AValue);
+end;
+
+procedure TTrackerSettings.SetMIDIInputDevice(const AValue: String);
+begin
+  FMIDIInputDevice := AValue;
+  SettingsFile.WriteString('hUGETracker', 'MIDIInputDevice', AValue);
+end;
+
 constructor TTrackerSettings.Create;
 begin
   SettingsFile := TINIFile.Create(ConcatPaths([ConfDir, 'options.ini']));
@@ -185,6 +204,8 @@ begin
   FDisplayOrderRowNumbersAsHex := SettingsFile.ReadBool('hUGETracker', 'DisplayOrderRowNumbersAsHex', False);
   FDrawWaveformGrid := SettingsFile.ReadBool('hUGETracker', 'DrawWaveformGrid', False);
   FVerticalTabs := SettingsFile.ReadBool('hUGETracker', 'VerticalTabs', False);
+  FMIDIInputEnabled := SettingsFile.ReadBool('hUGETracker', 'MIDIInputEnabled', False);
+  FMIDIInputDevice := SettingsFile.ReadString('hUGETracker', 'MIDIInputDevice', '');
 end;
 
 finalization
