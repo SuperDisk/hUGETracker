@@ -203,7 +203,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="28">
+    <Units Count="29">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -351,6 +351,11 @@
         <Filename Value="vars.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit27>
+      <Unit28>
+        <Filename Value="furimport.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="FurImport"/>
+      </Unit28>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

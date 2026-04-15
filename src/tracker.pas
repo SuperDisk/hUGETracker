@@ -10,7 +10,7 @@ uses
   about_hugetracker, TrackerGrid, lclintf, lmessages, Buttons, Grids, DBCtrls,
   HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
   bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils,
-  Types, Keymap, hUGESettings, vgm, TBMImport, InstrumentPreview, findreplace;
+  Types, Keymap, hUGESettings, vgm, TBMImport, FurImport, InstrumentPreview, findreplace;
 
 // TODO: Move to config file?
 const
@@ -51,6 +51,7 @@ type
     RevertMenuItem: TMenuItem;
     Splitter2: TSplitter;
     TBMOpenDialog: TOpenDialog;
+    FUROpenDialog: TOpenDialog;
     ToolButton11: TToolButton;
     LoopSongToolButton: TToolButton;
     ToolButton12: TToolButton;
@@ -305,6 +306,7 @@ type
     procedure MenuItem15Click(Sender: TObject);
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
+    procedure MenuItem60Click(Sender: TObject);
     procedure MenuItem56Click(Sender: TObject);
     procedure OrderEditStringGridMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -2100,6 +2102,33 @@ procedure TfrmTracker.MenuItem56Click(Sender: TObject);
 begin
   if not (ActiveControl is TTrackerGrid) then Exit;
   (ActiveControl as TTrackerGrid).ChangeSelectionInstrument;
+end;
+
+procedure TfrmTracker.MenuItem60Click(Sender: TObject);
+var
+  Stream: TStream;
+  NewSong: TSong;
+begin
+  if not CheckUnsavedChanges then Exit;
+
+  if FUROpenDialog.Execute then begin
+    Stream := nil;
+    try
+      try
+        Stream := TFileStream.Create(FUROpenDialog.FileName, fmOpenRead);
+        NewSong := LoadSongFromFurStream(Stream);
+        DestroySong(Song);
+        Song := NewSong;
+        UpdateUIAfterLoad(FUROpenDialog.FileName);
+      finally
+        if Assigned(Stream) then Stream.Free;
+      end;
+    except
+      on E: EFurException do
+        MessageDlg('There was an error loading the file. ' + E.Message,
+          mtError, [mbOK], 0);
+    end;
+  end;
 end;
 
 procedure TfrmTracker.OrderEditStringGridMouseDown(Sender: TObject;

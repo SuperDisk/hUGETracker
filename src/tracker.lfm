@@ -2090,6 +2090,10 @@ object frmTracker: TfrmTracker
         ImageIndex = 86
         OnClick = MenuItem55Click
       end
+      object MenuItem60: TMenuItem
+        Caption = 'Import Furnace FUR ...'
+        OnClick = MenuItem60Click
+      end
       object MenuItem35: TMenuItem
         Caption = '-'
       end
@@ -3215,5 +3219,11 @@ object frmTracker: TfrmTracker
     Filter = 'TrackerBoy TBM files|*.tbm'
     Left = 629
     Top = 85
+  end
+  object FUROpenDialog: TOpenDialog
+    DefaultExt = '.fur'
+    Filter = 'Furnace Tracker modules|*.fur'
+    Left = 629
+    Top = 138
   end
 end
