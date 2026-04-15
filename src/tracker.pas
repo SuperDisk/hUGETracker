@@ -2882,6 +2882,10 @@ var
 begin
   X := EnsureRange(X, 0, WaveEditPaintBox.Width);
   Y := EnsureRange(Y, 0, WaveEditPaintBox.Height);
+  if DrawingWave and not (ssLeft in Shift) then begin
+    DrawingWave := False;
+    Panic;
+  end;
   if DrawingWave then begin
     Idx := EnsureRange(Round((X / WaveEditPaintBox.Width)*32), Low(TWave), High(TWave));
     CurrentWave^[Idx] := EnsureRange(Round($F-((Y / WaveEditPaintBox.Height)*$F)), 0, $F);
