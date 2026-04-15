@@ -182,6 +182,7 @@ uses mainloop, vars;
 const
   SampleSize = SizeOf(Single)*2;
   SampleCycles: LongInt = (8192 * 1024) div PlaybackFrequency;
+  StreamFlushBytes = 32768;
 
 var
   PlayStream: TSDL_AudioDeviceID;
@@ -195,6 +196,8 @@ var
 
   WritingSoundToStream: Boolean;
   SoundStreams: array[0..4] of TStream;
+  StreamBuffers: array[0..4] of array[0..StreamFlushBytes-1] of Byte;
+  StreamBufferUsed: array[0..4] of Integer;
 
 procedure ResetSound;
 var
@@ -215,22 +218,33 @@ begin
   end;
 end;
 
+procedure FlushStreamBuffer(Idx: Integer);
+begin
+  if (SoundStreams[Idx] <> nil) and (StreamBufferUsed[Idx] > 0) then
+    SoundStreams[Idx].Write(StreamBuffers[Idx], StreamBufferUsed[Idx]);
+  StreamBufferUsed[Idx] := 0;
+end;
+
 procedure BeginWritingSoundToStream(Stream: TStream);
 var
   I: Integer;
 begin
   SoundStreams[0] := Stream;
   for I := 1 to 4 do SoundStreams[I] := nil;
+  for I := 0 to 4 do StreamBufferUsed[I] := 0;
   WritingSoundToStream := True;
 end;
 
 procedure BeginWritingChannelsToStreams(MixStream, Ch1Stream, Ch2Stream, Ch3Stream, Ch4Stream: TStream);
+var
+  I: Integer;
 begin
   SoundStreams[0] := MixStream;
   SoundStreams[1] := Ch1Stream;
   SoundStreams[2] := Ch2Stream;
   SoundStreams[3] := Ch3Stream;
   SoundStreams[4] := Ch4Stream;
+  for I := 0 to 4 do StreamBufferUsed[I] := 0;
   WritingSoundToStream := True;
 end;
 
@@ -238,6 +252,7 @@ procedure EndWritingSoundToStream;
 var
   I: Integer;
 begin
+  for I := 0 to 4 do FlushStreamBuffer(I);
   WritingSoundToStream := False;
   for I := 0 to 4 do SoundStreams[I] := nil;
 end;
@@ -327,7 +342,10 @@ begin
         if SoundStreams[I] <> nil then begin
           buf[0] := ((bufRVals[I] div sampleCycles) / 512.0);
           buf[1] := ((bufLVals[I] div sampleCycles) / 512.0);
-          SoundStreams[I].Write(buf, SizeOf(Single)*2);
+          Move(buf, StreamBuffers[I][StreamBufferUsed[I]], SampleSize);
+          Inc(StreamBufferUsed[I], SampleSize);
+          if StreamBufferUsed[I] >= StreamFlushBytes then
+            FlushStreamBuffer(I);
         end;
       end;
     end
