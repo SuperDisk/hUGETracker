@@ -422,6 +422,7 @@ var
   ls: array[1..4] of Integer = (0, 0, 0, 0);
   rs: array[1..4] of Integer = (0, 0, 0, 0);
   chanLs, chanRs: array[0..4] of Integer;
+  masterL, masterR: Double;
   l, r: Integer;
   I: Integer;
 begin
@@ -746,8 +747,11 @@ begin
     SampleBuffers[I].Cursor := (SampleBuffers[I].Cursor + 1) mod SAMPLE_BUFFER_SIZE;
   end;
 
-  l := Trunc((ls[1] + ls[2] + ls[3] + ls[4]) * (((m_iram[$FF24] and 7)+1) / 8));
-  r := Trunc((rs[1] + rs[2] + rs[3] + rs[4]) * ((((m_iram[$FF24] shr 4) and 7)+1) / 8));
+  masterL := ((m_iram[$FF24] and 7) + 1) / 8;
+  masterR := (((m_iram[$FF24] shr 4) and 7) + 1) / 8;
+
+  l := Trunc((ls[1] + ls[2] + ls[3] + ls[4]) * masterL);
+  r := Trunc((rs[1] + rs[2] + rs[3] + rs[4]) * masterR);
 
   SampleBuffers[0].BufferL[SampleBuffers[0].Cursor] := l;
   SampleBuffers[0].BufferR[SampleBuffers[0].Cursor] := r;
@@ -756,8 +760,8 @@ begin
   chanLs[0] := l;
   chanRs[0] := r;
   for I := 1 to 4 do begin
-    chanLs[I] := ls[I];
-    chanRs[I] := rs[I];
+    chanLs[I] := Trunc(ls[I] * masterL);
+    chanRs[I] := Trunc(rs[I] * masterR);
   end;
   SoundOutBits(chanLs, chanRs, cycles);
 end;
