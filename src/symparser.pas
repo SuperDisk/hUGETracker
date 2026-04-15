@@ -41,10 +41,75 @@ begin
   WriteBufferToAddress(SymbolAddress(Symbol), Buffer, Count);
 end;
 
+procedure ParseSymLine(const Line: String);
+var
+  S, Location, Name, AddrPart: String;
+  SemiPos, I: Integer;
+  Tokens: TStringList;
+  Addr: Integer;
+begin
+  S := Line;
+
+  // Strip comment starting at ';'
+  SemiPos := Pos(';', S);
+  if SemiPos > 0 then
+    S := Copy(S, 1, SemiPos - 1);
+
+  S := Trim(S);
+  if S = '' then Exit;
+
+  // Split on runs of whitespace (spaces/tabs)
+  Tokens := TStringList.Create;
+  try
+    I := 1;
+    while I <= Length(S) do begin
+      while (I <= Length(S)) and ((S[I] = ' ') or (S[I] = #9)) do Inc(I);
+      if I > Length(S) then Break;
+      AddrPart := '';
+      while (I <= Length(S)) and (S[I] <> ' ') and (S[I] <> #9) do begin
+        AddrPart := AddrPart + S[I];
+        Inc(I);
+      end;
+      if AddrPart <> '' then Tokens.Add(AddrPart);
+    end;
+
+    // Single-token lines are reserved for future extensions; ignore silently.
+    if Tokens.Count < 2 then Exit;
+
+    Location := Tokens[0];
+    Name := Tokens[1];
+
+    // Location forms: "bank:address", "BOOT:address", or bare "address".
+    SemiPos := Pos(':', Location);
+    if SemiPos > 0 then
+      AddrPart := Copy(Location, SemiPos + 1, Length(Location))
+    else
+      AddrPart := Location;
+
+    if AddrPart = '' then begin
+      DebugLn(['[WARNING] Skipping malformed sym line: ', Line]);
+      Exit;
+    end;
+
+    try
+      Addr := StrToInt('x' + AddrPart);
+    except
+      on E: EConvertError do begin
+        DebugLn(['[WARNING] Skipping sym line with bad address: ', Line]);
+        Exit;
+      end;
+    end;
+
+    if SymbolTable.IndexOf(Name) = -1 then
+      SymbolTable.Add(Name, Addr);
+  finally
+    Tokens.Free;
+  end;
+end;
+
 procedure ParseSymFile(F: String);
 var
   SL: TStringList;
-  SA: TStringArray;
   S: String;
 begin
   SymbolTable.Clear;
@@ -52,15 +117,8 @@ begin
   SL := TStringList.Create;
   try
     SL.LoadFromFile(F);
-
-    // Drop the first two lines
-    SL.Delete(0);
-    SL.Delete(0);
-
-    for S in SL do begin
-      SA := S.Split(' ');
-      SymbolTable.Add(SA[1], StrToInt('x'+SA[0].Substring(3)));
-    end;
+    for S in SL do
+      ParseSymLine(S);
   finally
     SL.Free;
   end;
