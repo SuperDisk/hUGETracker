@@ -364,6 +364,7 @@ type
     procedure ScrollBox1MouseWheelUp(Sender: TObject; Shift: TShiftState;
       MousePos: TPoint; var Handled: Boolean);
     procedure InstrumentComboBoxChange(Sender: TObject);
+    procedure InstrumentComboBoxCloseUp(Sender: TObject);
     procedure CopyActionExecute(Sender: TObject);
     procedure CutActionExecute(Sender: TObject);
     procedure Duty1VisualizerPaint(Sender: TObject);
@@ -1880,6 +1881,11 @@ end;
 procedure TfrmTracker.InstrumentComboBoxChange(Sender: TObject);
 begin
   TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
+end;
+
+procedure TfrmTracker.InstrumentComboBoxCloseUp(Sender: TObject);
+begin
+  TrackerGrid.SetFocus;
 end;
 
 procedure TfrmTracker.FileSaveAs1BeforeExecute(Sender: TObject);

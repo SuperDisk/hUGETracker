@@ -1969,6 +1969,7 @@ object frmTracker: TfrmTracker
       TabOrder = 1
       Text = '(no instrument)'
       OnChange = InstrumentComboBoxChange
+      OnCloseUp = InstrumentComboBoxCloseUp
     end
     object Label24: TLabel
       Left = 981
