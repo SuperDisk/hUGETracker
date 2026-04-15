@@ -154,6 +154,7 @@ procedure ResetSound;
 procedure SoundUpdate(cycles: integer);
 
 procedure BeginWritingSoundToStream(Stream: TStream);
+procedure BeginWritingChannelsToStreams(MixStream, Ch1Stream, Ch2Stream, Ch3Stream, Ch4Stream: TStream);
 procedure EndWritingSoundToStream;
 
 var
@@ -184,7 +185,8 @@ const
 
 var
   PlayStream: TSDL_AudioDeviceID;
-  bufCycles, bufLVal, bufRVal: integer;
+  bufCycles: integer;
+  bufLVals, bufRVals: array[0..4] of Integer;
 
   sndBuffer: ^Single;
   sndBytesWritten: Integer;
@@ -192,7 +194,7 @@ var
   lfsr: Cardinal = 0;
 
   WritingSoundToStream: Boolean;
-  SoundStream: TStream;
+  SoundStreams: array[0..4] of TStream;
 
 procedure ResetSound;
 var
@@ -214,14 +216,30 @@ begin
 end;
 
 procedure BeginWritingSoundToStream(Stream: TStream);
+var
+  I: Integer;
 begin
+  SoundStreams[0] := Stream;
+  for I := 1 to 4 do SoundStreams[I] := nil;
   WritingSoundToStream := True;
-  SoundStream := Stream;
+end;
+
+procedure BeginWritingChannelsToStreams(MixStream, Ch1Stream, Ch2Stream, Ch3Stream, Ch4Stream: TStream);
+begin
+  SoundStreams[0] := MixStream;
+  SoundStreams[1] := Ch1Stream;
+  SoundStreams[2] := Ch2Stream;
+  SoundStreams[3] := Ch3Stream;
+  SoundStreams[4] := Ch4Stream;
+  WritingSoundToStream := True;
 end;
 
 procedure EndWritingSoundToStream;
+var
+  I: Integer;
 begin
   WritingSoundToStream := False;
+  for I := 0 to 4 do SoundStreams[I] := nil;
 end;
 
 procedure StartPlayback;
@@ -277,8 +295,8 @@ begin
 
   soundEnable := True;
   bufCycles := 0;
-  bufLVal := 0;
-  bufRVal := 0;
+  FillChar(bufLVals, SizeOf(bufLVals), 0);
+  FillChar(bufRVals, SizeOf(bufRVals), 0);
 end;
 
 procedure DisableSound;
@@ -292,35 +310,46 @@ begin
   soundEnable := False;
 end;
 
-procedure SoundDoOut(l, r: Integer; cycles: integer);
+procedure SoundDoOut(const ls, rs: array of Integer; cycles: integer);
 var
+  I: Integer;
   buf: array[0..1] of Single;
 begin
-  Inc(bufLVal, l * cycles);
-  Inc(bufRVal, r * cycles);
+  for I := 0 to 4 do begin
+    Inc(bufLVals[I], ls[I] * cycles);
+    Inc(bufRVals[I], rs[I] * cycles);
+  end;
   Inc(bufCycles, cycles);
   if bufCycles >= sampleCycles then
   begin
-    buf[0] := ((bufRVal div sampleCycles) / 512.0);
-    buf[1] := ((bufLVal div sampleCycles) / 512.0);
-    bufCycles := 0;
-    bufLVal := 0;
-    bufRVal := 0;
-
     if WritingSoundToStream then begin
-      SoundStream.Write(buf, SizeOf(Single)*2);
+      for I := 0 to 4 do begin
+        if SoundStreams[I] <> nil then begin
+          buf[0] := ((bufRVals[I] div sampleCycles) / 512.0);
+          buf[1] := ((bufLVals[I] div sampleCycles) / 512.0);
+          SoundStreams[I].Write(buf, SizeOf(Single)*2);
+        end;
+      end;
     end
     else begin
+      buf[0] := ((bufRVals[0] div sampleCycles) / 512.0);
+      buf[1] := ((bufLVals[0] div sampleCycles) / 512.0);
       sndBuffer^ := buf[0];
       Inc(sndBuffer);
       sndBuffer^ := buf[1];
       Inc(sndBuffer);
       Inc(sndBytesWritten, SampleSize);
     end;
+
+    bufCycles := 0;
+    for I := 0 to 4 do begin
+      bufLVals[I] := 0;
+      bufRVals[I] := 0;
+    end;
   end;
 end;
 
-procedure SoundOutBits(l, r: Integer; cycles: integer);
+procedure SoundOutBits(const ls, rs: array of Integer; cycles: integer);
 var
   left: integer;
 begin
@@ -329,10 +358,10 @@ begin
   while bufCycles + cycles > sampleCycles do
   begin
     left := sampleCycles - bufCycles;
-    SoundDoOut(l, r, left);
+    SoundDoOut(ls, rs, left);
     Dec(cycles, left);
   end;
-  SoundDoOut(l, r, cycles);
+  SoundDoOut(ls, rs, cycles);
 end;
 
 const
@@ -374,6 +403,7 @@ var
   n, stage: integer;
   ls: array[1..4] of Integer = (0, 0, 0, 0);
   rs: array[1..4] of Integer = (0, 0, 0, 0);
+  chanLs, chanRs: array[0..4] of Integer;
   l, r: Integer;
   I: Integer;
 begin
@@ -705,7 +735,13 @@ begin
   SampleBuffers[0].BufferR[SampleBuffers[0].Cursor] := r;
   SampleBuffers[0].Cursor := (SampleBuffers[0].Cursor + 1) mod SAMPLE_BUFFER_SIZE;
 
-  SoundOutBits(l, r, cycles);
+  chanLs[0] := l;
+  chanRs[0] := r;
+  for I := 1 to 4 do begin
+    chanLs[I] := ls[I];
+    chanRs[I] := rs[I];
+  end;
+  SoundOutBits(chanLs, chanRs, cycles);
 end;
 
 begin

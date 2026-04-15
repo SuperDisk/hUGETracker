@@ -17,6 +17,7 @@ type
 
   TfrmRenderToWave = class(TForm)
     ComboBox1: TComboBox;
+    ExportChannelsCheckBox: TCheckBox;
     Label2: TLabel;
     Label3: TLabel;
     Panel1: TPanel;
@@ -42,6 +43,7 @@ type
 
     function FilenameToFormatIndex: Integer;
     function GetFFMPEGFormat: String;
+    function CreateFFMPEGProcess(const DestFilename: String): TProcess;
     procedure UpdateUI;
 
     procedure ExportWaveToFile(Filename: String);
@@ -130,20 +132,11 @@ begin
   CancelButton.Enabled := Rendering and not CancelRequested;
 end;
 
-procedure TfrmRenderToWave.ExportWaveToFile(Filename: String);
-var
-  Proc: TProcess;
+function TfrmRenderToWave.CreateFFMPEGProcess(const DestFilename: String): TProcess;
 begin
-  z80_reset;
-  ResetSound;
-  enablesound;
-
-  FCCallback := nil;
-  load(ConcatPaths([CacheDir, 'render', 'preview.gb']));
-
-  Proc := TProcess.Create(nil);
-  Proc.Executable := 'ffmpeg';
-  with Proc.Parameters do begin
+  Result := TProcess.Create(nil);
+  Result.Executable := 'ffmpeg';
+  with Result.Parameters do begin
     // HACK: to prevent ffmpeg from writing to stderr, we disable all output
     // This is needed because ffmpeg blocks unless you read what it writes
     Add('-nostats');
@@ -161,13 +154,54 @@ begin
     Add('-');
     Add('-f');
     Add(GetFFMPEGFormat);
-    Add(Filename);
+    Add(DestFilename);
   end;
-  Proc.Options := [poUsePipes, poNoConsole];
-  Proc.Execute;
+  Result.Options := [poUsePipes, poNoConsole];
+end;
+
+procedure TfrmRenderToWave.ExportWaveToFile(Filename: String);
+const
+  ChannelSuffixes: array[1..4] of String = ('_pulse1', '_pulse2', '_wave', '_noise');
+var
+  MixProc: TProcess;
+  ChanProcs: array[1..4] of TProcess;
+  ChanStreams: array[1..4] of TStream;
+  ExportChannels: Boolean;
+  Dir, Base, Ext: String;
+  I: Integer;
+begin
+  z80_reset;
+  ResetSound;
+  enablesound;
+
+  FCCallback := nil;
+  load(ConcatPaths([CacheDir, 'render', 'preview.gb']));
+
+  ExportChannels := ExportChannelsCheckBox.Checked;
+  for I := 1 to 4 do begin
+    ChanProcs[I] := nil;
+    ChanStreams[I] := nil;
+  end;
+
+  MixProc := CreateFFMPEGProcess(Filename);
+  MixProc.Execute;
+
+  if ExportChannels then begin
+    Dir := ExtractFilePath(Filename);
+    Ext := ExtractFileExt(Filename);
+    Base := ChangeFileExt(ExtractFileName(Filename), '');
+    for I := 1 to 4 do begin
+      ChanProcs[I] := CreateFFMPEGProcess(Dir + Base + ChannelSuffixes[I] + Ext);
+      ChanProcs[I].Execute;
+      ChanStreams[I] := ChanProcs[I].Input;
+    end;
+  end;
 
   try
-    BeginWritingSoundToStream(Proc.Input);
+    if ExportChannels then
+      BeginWritingChannelsToStreams(MixProc.Input, ChanStreams[1], ChanStreams[2], ChanStreams[3], ChanStreams[4])
+    else
+      BeginWritingSoundToStream(MixProc.Input);
 
     if PlayEntireSongRadioButton.Checked then
       RenderEntireSong(PlayEntireSongSpinEdit.Value)
@@ -178,9 +212,16 @@ begin
 
   finally
     EndWritingSoundToStream;
-    Proc.CloseInput;
-    Proc.WaitOnExit;
-    Proc.Free;
+    MixProc.CloseInput;
+    MixProc.WaitOnExit;
+    MixProc.Free;
+
+    for I := 1 to 4 do
+      if ChanProcs[I] <> nil then begin
+        ChanProcs[I].CloseInput;
+        ChanProcs[I].WaitOnExit;
+        ChanProcs[I].Free;
+      end;
 
     Panel1.Caption := 'Ready';
   end;
