@@ -944,19 +944,19 @@ begin
   if LoadingFile or Playing then Exit;
   if (Note < LOWEST_NOTE) or (Note > HIGHEST_NOTE) then Exit;
 
-  // MIDI input mirrors computer-keyboard behaviour: re-aim the instrument
-  // combo box at the current channel's bank and preview through that
-  // instrument, then commit the note into the active cell. PreviewingInstrument
-  // is tracked so the matching Note Off can silence the preview, the same
-  // way FormKeyUp handles a released computer key.
-  if TrackerSettings.PreviewWhenPlacing
-     and (ActiveControl = TrackerGrid)
-     and PreviewForNoteEntry(Note) then
+  // Unlike the computer keyboard, MIDI doesn't care about Lazarus focus -
+  // the notes come from a physical device. Preview always goes through
+  // PreviewForNoteEntry so the currently selected instrument (re-aimed to
+  // the cursor's channel bank) is what plays; if that can't be done (e.g.
+  // no instrument selected) fall back to the generic PreviewNote.
+  if PreviewForNoteEntry(Note) then
     PreviewingInstrument := Note
   else
     PreviewNote(Note);
 
-  if (ActiveControl = TrackerGrid) and (TrackerGrid.Cursor.SelectedPart = cpNote) then
+  // Commit the note whenever the user is looking at the pattern editor,
+  // regardless of which sub-control (combo box, spinner, etc.) has focus.
+  if PageControl1.ActivePage = PatternTabSheet then
     TrackerGrid.InputNoteValue(Note);
 end;
 
