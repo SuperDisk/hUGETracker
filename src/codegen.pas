@@ -64,7 +64,7 @@ begin
     for Cell in Instr.Subpattern do
       if Cell.EffectCode = $9 then begin
         Waveform := Cell.EffectParams.Value;
-        if Waveform > Result.HighestWaveform then
+        if InRange(Waveform, 0, 15) and (Waveform > Result.HighestWaveform) then
           Result.HighestWaveform := Waveform;
       end;
   end;
@@ -85,7 +85,7 @@ begin
       for Cell in Pat^ do begin
         if (Cell.EffectCode = $9) and (I = 2) then begin // waveforms on wave channel
           Waveform := Cell.EffectParams.Value;
-          if Waveform > Result.HighestWaveform then
+          if InRange(Waveform, 0, 15) and (Waveform > Result.HighestWaveform) then
             Result.HighestWaveform := Waveform;
         end;
 
