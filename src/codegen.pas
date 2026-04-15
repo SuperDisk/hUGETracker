@@ -581,7 +581,7 @@ begin
                  +IntToStr(Song.TicksPerRow[1])+', '
                  +IntToStr(Song.TicksPerRow[2])+', '
                  +IntToStr(Song.TicksPerRow[3]));
-  OutSL.Add('dw '+IntToStr(OrderCount(Song)*2));
+  OutSL.Add('db '+IntToStr(OrderCount(Song)*2));
   OutSL.Add('dw order1, order2, order3, order4');
   OutSL.Add('dw duty_instruments, wave_instruments, noise_instruments');
   OutSL.Add('dw routines');
