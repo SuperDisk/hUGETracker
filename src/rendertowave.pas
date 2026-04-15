@@ -132,6 +132,44 @@ begin
   CancelButton.Enabled := Rendering and not CancelRequested;
 end;
 
+procedure DrainAndWaitForProcesses(const Procs: array of TProcess);
+var
+  AllDone: Boolean;
+  I, Avail: Integer;
+  Discard: array[0..4095] of Byte;
+begin
+  repeat
+    AllDone := True;
+    for I := Low(Procs) to High(Procs) do begin
+      if Procs[I] = nil then Continue;
+
+      if Procs[I].Output <> nil then begin
+        Avail := Procs[I].Output.NumBytesAvailable;
+        while Avail > 0 do begin
+          if Avail > SizeOf(Discard) then Avail := SizeOf(Discard);
+          Procs[I].Output.Read(Discard, Avail);
+          Avail := Procs[I].Output.NumBytesAvailable;
+        end;
+      end;
+
+      if Procs[I].Stderr <> nil then begin
+        Avail := Procs[I].Stderr.NumBytesAvailable;
+        while Avail > 0 do begin
+          if Avail > SizeOf(Discard) then Avail := SizeOf(Discard);
+          Procs[I].Stderr.Read(Discard, Avail);
+          Avail := Procs[I].Stderr.NumBytesAvailable;
+        end;
+      end;
+
+      if Procs[I].Running then AllDone := False;
+    end;
+    if not AllDone then begin
+      Application.ProcessMessages;
+      Sleep(100);
+    end;
+  until AllDone;
+end;
+
 function TfrmRenderToWave.CreateFFMPEGProcess(const DestFilename: String): TProcess;
 begin
   Result := TProcess.Create(nil);
@@ -212,16 +250,16 @@ begin
 
   finally
     EndWritingSoundToStream;
-    MixProc.CloseInput;
-    MixProc.WaitOnExit;
-    MixProc.Free;
 
+    MixProc.CloseInput;
     for I := 1 to 4 do
-      if ChanProcs[I] <> nil then begin
-        ChanProcs[I].CloseInput;
-        ChanProcs[I].WaitOnExit;
-        ChanProcs[I].Free;
-      end;
+      if ChanProcs[I] <> nil then ChanProcs[I].CloseInput;
+
+    DrainAndWaitForProcesses([MixProc, ChanProcs[1], ChanProcs[2], ChanProcs[3], ChanProcs[4]]);
+
+    MixProc.Free;
+    for I := 1 to 4 do
+      if ChanProcs[I] <> nil then ChanProcs[I].Free;
 
     Panel1.Caption := 'Ready';
   end;
