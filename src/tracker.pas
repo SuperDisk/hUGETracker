@@ -2487,6 +2487,7 @@ begin
 
   RecreateRowNumbers;
   TrackerGrid.Invalidate;
+  TableGrid.Invalidate;
 
   CreateKeymap
 end;

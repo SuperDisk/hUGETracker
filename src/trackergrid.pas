@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, LCLIntf,
   LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor,
-  Keymap, LazLoggerBase;
+  Keymap, LazLoggerBase, hUGESettings;
 
 const
   UNDO_STACK_SIZE = 100;
@@ -218,7 +218,10 @@ begin
 
     if Cell.Volume <> 0 then begin
       Font.Color := clTblJump;
-      TextOut(PenPos.X, PenPos.Y, 'J'+FormatFloat('00', Cell.Volume));
+      if TrackerSettings.DisplayRowNumbersAsHex then
+        TextOut(PenPos.X, PenPos.Y, 'J'+IntToHex(Cell.Volume, 2))
+      else
+        TextOut(PenPos.X, PenPos.Y, 'J'+FormatFloat('00', Cell.Volume));
     end
     else begin
       Font.Color := clDots;
@@ -251,8 +254,14 @@ begin
   BeginUndoAction;
   with Patterns[Cursor.X]^[Cursor.Y] do begin
     if Key = VK_DELETE then Volume := 0
-    else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
-      Volume := ((Volume mod 10) * 10) + Temp;
+    else if KeycodeToHexNumber(Key, Temp) then begin
+      if TrackerSettings.DisplayRowNumbersAsHex then begin
+        Volume := ((Volume mod 16) * 16) + Temp;
+        if Volume > 99 then Volume := Temp;
+      end
+      else if InRange(Temp, 0, 9) then
+        Volume := ((Volume mod 10) * 10) + Temp;
+    end;
   end;
 
   Invalidate;
