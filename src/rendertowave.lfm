@@ -1,11 +1,11 @@
 object frmRenderToWave: TfrmRenderToWave
   Left = 638
-  Height = 279
+  Height = 320
   Top = 453
   Width = 601
   BorderStyle = bsSingle
   Caption = 'Render song'
-  ClientHeight = 279
+  ClientHeight = 320
   ClientWidth = 601
   DesignTimePPI = 128
   OnShow = FormShow
@@ -14,7 +14,7 @@ object frmRenderToWave: TfrmRenderToWave
   object RenderButton: TButton
     Left = 19
     Height = 33
-    Top = 220
+    Top = 261
     Width = 352
     Caption = 'Render'
     Enabled = False
@@ -50,7 +50,7 @@ object frmRenderToWave: TfrmRenderToWave
   object CancelButton: TButton
     Left = 380
     Height = 33
-    Top = 220
+    Top = 261
     Width = 195
     Caption = 'Cancel'
     Enabled = False
@@ -144,9 +144,18 @@ object frmRenderToWave: TfrmRenderToWave
   object Panel1: TPanel
     Left = 21
     Height = 45
-    Top = 160
+    Top = 201
     Width = 556
     Caption = 'Ready'
     TabOrder = 9
+  end
+  object ExportChannelsCheckBox: TCheckBox
+    Left = 19
+    Height = 27
+    Top = 160
+    Width = 450
+    Caption = 'Export each channel as a separate file'
+    ParentFont = False
+    TabOrder = 10
   end
 end
