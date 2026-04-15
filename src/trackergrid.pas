@@ -69,6 +69,7 @@ type
 
     procedure RenderSelectedArea;
     procedure ClampCursors;
+    procedure EnsureCursorVisible;
     procedure NormalizeCursors;
 
     procedure InputNote(Key: Word);
@@ -589,6 +590,7 @@ begin
     Other := Cursor;
 
   ClampCursors;
+  EnsureCursorVisible;
   Invalidate;
 end;
 
@@ -872,6 +874,67 @@ begin
   Cursor.X := EnsureRange(Cursor.X, Low(TPatternGrid), (NumColumns-1));
   Other.Y := EnsureRange(Other.Y, 0, NumRows-1);
   Other.X := EnsureRange(Other.X, Low(TPatternGrid), (NumColumns-1));
+end;
+
+procedure TTrackerGrid.EnsureCursorVisible;
+var
+  SB: TScrollBox;
+  CursorRect, SelRect: TRect;
+  VLeft, VRight, VTop, VBottom: Integer;
+  CLeft, CRight, CTop, CBottom: Integer;
+  PadLeft, PadRight, PadTop, PadBottom, I: Integer;
+  P, ClientW, ClientH: Integer;
+  Ctrl: TControl;
+begin
+  if not (Parent is TScrollBox) then Exit;
+  SB := TScrollBox(Parent);
+
+  PadLeft := 0; PadRight := 0; PadTop := 0; PadBottom := 0;
+  for I := 0 to SB.ControlCount - 1 do begin
+    Ctrl := SB.Controls[I];
+    if Ctrl = Self then Continue;
+    case Ctrl.Align of
+      alLeft:   Inc(PadLeft, Ctrl.Width);
+      alRight:  Inc(PadRight, Ctrl.Width);
+      alTop:    Inc(PadTop, Ctrl.Height);
+      alBottom: Inc(PadBottom, Ctrl.Height);
+    end;
+  end;
+
+  CursorRect := SelectionToRect(Cursor);
+  SelRect := SelectionsToRect(Cursor, Other);
+
+  // Convert grid-local coords to scrollbox virtual coords by adding Self.Left/Top.
+  VLeft := SelRect.Left + Self.Left;
+  VRight := SelRect.Right + Self.Left;
+  VTop := SelRect.Top + Self.Top;
+  VBottom := SelRect.Bottom + Self.Top;
+  CLeft := CursorRect.Left + Self.Left;
+  CRight := CursorRect.Right + Self.Left;
+  CTop := CursorRect.Top + Self.Top;
+  CBottom := CursorRect.Bottom + Self.Top;
+
+  ClientH := SB.ClientHeight;
+  if VBottom - VTop > ClientH - PadTop - PadBottom then begin
+    VTop := CTop;
+    VBottom := CBottom;
+  end;
+  P := SB.VertScrollBar.Position;
+  if VTop < P + PadTop then
+    SB.VertScrollBar.Position := VTop - PadTop
+  else if VBottom > P + ClientH - PadBottom then
+    SB.VertScrollBar.Position := VBottom - ClientH + PadBottom;
+
+  ClientW := SB.ClientWidth;
+  if VRight - VLeft > ClientW - PadLeft - PadRight then begin
+    VLeft := CLeft;
+    VRight := CRight;
+  end;
+  P := SB.HorzScrollBar.Position;
+  if VLeft < P + PadLeft then
+    SB.HorzScrollBar.Position := VLeft - PadLeft
+  else if VRight > P + ClientW - PadRight then
+    SB.HorzScrollBar.Position := VRight - ClientW + PadRight;
 end;
 
 procedure TTrackerGrid.NormalizeCursors;
