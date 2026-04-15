@@ -1356,7 +1356,11 @@ begin
       Reader.VirtualTempoNum, Reader.VirtualTempoDen,
       Reader.TicksPerSecond, Reader.HighlightA,
       TicksPerRow, TimerDivider);
-    Result.TicksPerRow := TicksPerRow;
+
+    Result.TicksPerRow[0] := TicksPerRow;
+    Result.TicksPerRow[1] := TicksPerRow;
+    Result.TicksPerRow[2] := TicksPerRow;
+    Result.TicksPerRow[3] := TicksPerRow;
     Result.TimerDivider := TimerDivider;
     Result.TimerEnabled := True;
 
