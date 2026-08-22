@@ -28,14 +28,35 @@ procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: st
 
 implementation
 
-uses AvgLvlTree;
+uses AvgLvlTree, fgl;
 
 type
+  TNoteFrequencyMap = specialize TFPGMap<Integer, Integer>;
+  TNoteCatalog = array of Integer;
+  TNoteCatalogs = array[TChannel] of TNoteCatalog;
+  TEncodedPattern = array of Byte;
+
+  TNoteCatalogCandidate = record
+    NoteRecord: Integer;
+    Frequency: Integer;
+  end;
+
   TUsedStuff = record
     HighestDutyInst, HighestWaveInst, HighestNoiseInst: Integer;
     HighestWaveform: Integer;
-    UsedPatterns: TAvgLvlTree;
+    UsedPatterns: array[TChannel] of TAvgLvlTree;
   end;
+
+const
+  // Pattern bytecode:
+  //   0..127   catalog index
+  //   128..200 literal note byte, followed by the other two DN bytes
+  //   201      unused
+  //   202..255 repeat the last catalog note 1..54 additional times
+  NOTE_CATALOG_SIZE = 128;
+  PATTERN_LITERAL_FLAG = $80;
+  PATTERN_RLE_BASE = 201;
+  PATTERN_RLE_MAX_REPETITIONS = 255 - PATTERN_RLE_BASE;
 
 function CompareIntPointers(Data1, Data2: Pointer): integer;
 begin
@@ -46,6 +67,7 @@ function FindUsedStuff(const Song: TSong;
   const OrderMatrix: TOrderMatrix): TUsedStuff;
 var
   I, J: Integer;
+  Channel: TChannel;
   Pat: PPattern;
   Cell: TCell;
   Instr: TInstrument;
@@ -53,7 +75,8 @@ var
   Highest: ^Integer;
   Waveform: Integer;
 begin
-  Result.UsedPatterns := TAvgLvlTree.Create(@CompareIntPointers);
+  for Channel := Low(TChannel) to High(TChannel) do
+    Result.UsedPatterns[Channel] := TAvgLvlTree.Create(@CompareIntPointers);
   Result.HighestDutyInst := -1;
   Result.HighestWaveInst := -1;
   Result.HighestNoiseInst := -1;
@@ -78,9 +101,11 @@ begin
     end;
 
     for J := Low(OrderMatrix[I]) to High(OrderMatrix[I])-1 do begin
-      if Result.UsedPatterns.Find(@OrderMatrix[I, J]) <> nil then Continue;
+      Channel := TChannel(I);
+      if Result.UsedPatterns[Channel].Find(@OrderMatrix[I, J]) <> nil then
+        Continue;
 
-      Result.UsedPatterns.Add(@OrderMatrix[I, J]);
+      Result.UsedPatterns[Channel].Add(@OrderMatrix[I, J]);
 
       Pat := Song.Patterns.KeyData[OrderMatrix[I, J]];
       for Cell in Pat^ do begin
@@ -111,13 +136,17 @@ begin
 end;
 
 procedure FreeUsedStuff(const UsedStuff: TUsedStuff);
+var
+  Channel: TChannel;
 begin
-  UsedStuff.UsedPatterns.Free;
+  for Channel := Low(TChannel) to High(TChannel) do
+    UsedStuff.UsedPatterns[Channel].Free;
 end;
 
-function PatternIsUsed(Pattern: Integer; const UsedStuff: TUsedStuff): Boolean;
+function PatternIsUsedInChannel(Pattern: Integer; Channel: TChannel;
+  const UsedStuff: TUsedStuff): Boolean;
 begin
-  Result := UsedStuff.UsedPatterns.Find(@Pattern) <> nil;
+  Result := UsedStuff.UsedPatterns[Channel].Find(@Pattern) <> nil;
 end;
 
 function InstrumentIsUsed(Instrument: Integer; Type_: TInstrumentType; const UsedStuff: TUsedStuff): Boolean;
@@ -129,30 +158,294 @@ begin
   end;
 end;
 
-procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
-  function RenderGBDKCell(Cell: TCell): string;
-  var
-    SL: TStringList;
-  begin
-    SL := TStringList.Create;
-    SL.Delimiter := ',';
+function CellToNoteRecord(const Cell: TCell): Integer;
+var
+  Note, Instrument, Effect: Integer;
+  B1, B2, B3: Byte;
+begin
+  if InRange(Cell.Note, 0, HIGHEST_NOTE) then
+    Note := Cell.Note
+  else
+    Note := LAST_NOTE;
 
-    if (Cell.Note = NO_NOTE) or (NoteToCMap.IndexOf(Cell.Note) = -1) then
-      SL.Add('___')
-    else
-      SL.Add(NoteToCMap.KeyData[Cell.Note]);
+  if InRange(Cell.Instrument, 0, 15) then
+    Instrument := Cell.Instrument
+  else
+    Instrument := 0;
 
-    if InRange(Cell.Instrument, 0, 15) then
-      SL.Add(IntToStr(Cell.Instrument))
-    else
-      SL.Add('0');
+  Effect := (Cell.EffectCode shl 8) or Cell.EffectParams.Value;
+  DN(Note, Instrument, Effect, B1, B2, B3);
+  Result := B1 or (B2 shl 8) or (B3 shl 16);
+end;
 
-    SL.Add('0x' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
+function NoteRecordByte(NoteRecord, Index: Integer): Byte;
+begin
+  Result := Byte(NoteRecord shr (Index * 8));
+end;
 
-    Result := SL.DelimitedText;
-    SL.Free;
+function CatalogIndexOf(const Catalog: TNoteCatalog;
+  NoteRecord: Integer): Integer;
+var
+  I: Integer;
+begin
+  for I := 0 to Length(Catalog) - 1 do
+    if Catalog[I] = NoteRecord then Exit(I);
+  Result := -1;
+end;
+
+function CandidateComesBefore(const A, B: TNoteCatalogCandidate): Boolean;
+begin
+  if A.Frequency <> B.Frequency then
+    Exit(A.Frequency > B.Frequency);
+  Result := A.NoteRecord < B.NoteRecord;
+end;
+
+procedure SortCatalogCandidates(var Candidates: array of TNoteCatalogCandidate;
+  Left, Right: Integer);
+var
+  I, J: Integer;
+  Pivot, Temp: TNoteCatalogCandidate;
+begin
+  I := Left;
+  J := Right;
+  Pivot := Candidates[(Left + Right) div 2];
+  repeat
+    while CandidateComesBefore(Candidates[I], Pivot) do Inc(I);
+    while CandidateComesBefore(Pivot, Candidates[J]) do Dec(J);
+    if I <= J then begin
+      Temp := Candidates[I];
+      Candidates[I] := Candidates[J];
+      Candidates[J] := Temp;
+      Inc(I);
+      Dec(J);
+    end;
+  until I > J;
+
+  if Left < J then SortCatalogCandidates(Candidates, Left, J);
+  if I < Right then SortCatalogCandidates(Candidates, I, Right);
+end;
+
+function BuildNoteCatalog(const Song: TSong; Channel: TChannel;
+  const UsedStuff: TUsedStuff): TNoteCatalog;
+var
+  Frequencies: TNoteFrequencyMap;
+  Candidates: array of TNoteCatalogCandidate;
+  PatternIndex, CellIndex, FrequencyIndex, I, CatalogLength: Integer;
+  NoteRecord: Integer;
+  Pattern: PPattern;
+begin
+  Result := nil;
+  Frequencies := TNoteFrequencyMap.Create;
+  try
+    Frequencies.Sorted := True;
+    for PatternIndex := 0 to Song.Patterns.Count - 1 do begin
+      if not PatternIsUsedInChannel(Song.Patterns.Keys[PatternIndex], Channel,
+        UsedStuff) then Continue;
+
+      Pattern := Song.Patterns.Data[PatternIndex];
+      for CellIndex := Low(TPattern) to High(TPattern) do begin
+        NoteRecord := CellToNoteRecord(Pattern^[CellIndex]);
+        FrequencyIndex := Frequencies.IndexOf(NoteRecord);
+        if FrequencyIndex = -1 then
+          Frequencies.Add(NoteRecord, 1)
+        else
+          Frequencies.Data[FrequencyIndex] :=
+            Frequencies.Data[FrequencyIndex] + 1;
+      end;
+    end;
+
+    SetLength(Candidates, Frequencies.Count);
+    for I := 0 to Frequencies.Count - 1 do begin
+      Candidates[I].NoteRecord := Frequencies.Keys[I];
+      Candidates[I].Frequency := Frequencies.Data[I];
+    end;
+  finally
+    Frequencies.Free;
   end;
 
+  if Length(Candidates) > 1 then
+    SortCatalogCandidates(Candidates, 0, High(Candidates));
+
+  CatalogLength := Min(Length(Candidates), NOTE_CATALOG_SIZE);
+  SetLength(Result, CatalogLength);
+  for I := 0 to CatalogLength - 1 do
+    Result[I] := Candidates[I].NoteRecord;
+end;
+
+function BuildNoteCatalogs(const Song: TSong;
+  const UsedStuff: TUsedStuff): TNoteCatalogs;
+var
+  Channel: TChannel;
+begin
+  for Channel := Low(TChannel) to High(TChannel) do
+    Result[Channel] := BuildNoteCatalog(Song, Channel, UsedStuff);
+end;
+
+function EncodePattern(const Pattern: TPattern;
+  const Catalog: TNoteCatalog): TEncodedPattern;
+var
+  Row, RunEnd, Remaining, Repetitions, OutputIndex, CatalogIndex: Integer;
+  NoteRecord: Integer;
+
+  procedure Emit(Value: Byte);
+  begin
+    Result[OutputIndex] := Value;
+    Inc(OutputIndex);
+  end;
+
+begin
+  Result := nil;
+  SetLength(Result, Length(Pattern) * 3);
+  OutputIndex := 0;
+  Row := Low(TPattern);
+  while Row <= High(TPattern) do begin
+    NoteRecord := CellToNoteRecord(Pattern[Row]);
+    CatalogIndex := CatalogIndexOf(Catalog, NoteRecord);
+    if CatalogIndex = -1 then begin
+      Emit(NoteRecordByte(NoteRecord, 0) or PATTERN_LITERAL_FLAG);
+      Emit(NoteRecordByte(NoteRecord, 1));
+      Emit(NoteRecordByte(NoteRecord, 2));
+      Inc(Row);
+      Continue;
+    end;
+
+    Emit(CatalogIndex);
+    RunEnd := Row + 1;
+    while (RunEnd <= High(TPattern)) and
+      (CellToNoteRecord(Pattern[RunEnd]) = NoteRecord) do
+      Inc(RunEnd);
+
+    Remaining := RunEnd - Row - 1;
+    while Remaining > 0 do begin
+      Repetitions := Min(Remaining, PATTERN_RLE_MAX_REPETITIONS);
+      Emit(PATTERN_RLE_BASE + Repetitions);
+      Dec(Remaining, Repetitions);
+    end;
+    Row := RunEnd;
+  end;
+  SetLength(Result, OutputIndex);
+end;
+
+function ChannelPatternName(Channel: TChannel; PatternKey: Integer): String;
+begin
+  Result := Format('P%d_%d', [Ord(Channel) + 1, PatternKey]);
+end;
+
+function NoteRecordDNArgs(NoteRecord: Integer; HexPrefix: String): String;
+var
+  B1, B2, B3: Byte;
+  Note, Instrument, Effect: Integer;
+begin
+  B1 := NoteRecordByte(NoteRecord, 0);
+  B2 := NoteRecordByte(NoteRecord, 1);
+  B3 := NoteRecordByte(NoteRecord, 2);
+  Note := B1 and $7F;
+  Instrument := (B2 shr 4) or ((B1 and $80) shr 3);
+  Effect := ((B2 and $0F) shl 8) or B3;
+  Result := Format('%d,%d,%s%s',
+    [Note, Instrument, HexPrefix, HexStr(Effect, 3)]);
+end;
+
+function EncodedByteRange(const Encoded: TEncodedPattern; Start,
+  ByteCount: Integer): String;
+var
+  I, Last: Integer;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  try
+    SL.StrictDelimiter := True;
+    SL.Delimiter := ',';
+    Last := Min(Start + ByteCount, Length(Encoded)) - 1;
+    for I := Start to Last do
+      SL.Add(IntToStr(Encoded[I]));
+    Result := SL.DelimitedText;
+  finally
+    SL.Free;
+  end;
+end;
+
+function RenderGBDKNoteCatalog(Name: String;
+  const Catalog: TNoteCatalog): String;
+var
+  I: Integer;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  try
+    SL.Add('static const unsigned char ' + Name + '[] = {');
+    for I := 0 to Length(Catalog) - 1 do
+      SL.Add('    DN(' + NoteRecordDNArgs(Catalog[I], '0x') + '),');
+    SL.Add('};');
+    Result := SL.Text;
+  finally
+    SL.Free;
+  end;
+end;
+
+function RenderRGBDSNoteCatalog(Name: String;
+  const Catalog: TNoteCatalog): String;
+var
+  I: Integer;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  try
+    SL.Add(Name + ':');
+    for I := 0 to Length(Catalog) - 1 do
+      SL.Add(' dn ' + NoteRecordDNArgs(Catalog[I], '$'));
+    Result := SL.Text;
+  finally
+    SL.Free;
+  end;
+end;
+
+function RenderGBDKCompressedPattern(Name: String;
+  const Encoded: TEncodedPattern): String;
+const
+  BYTES_PER_LINE = 16;
+var
+  I: Integer;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  try
+    SL.Add('static const unsigned char ' + Name + '[] = {');
+    I := 0;
+    while I < Length(Encoded) do begin
+      SL.Add('    ' + EncodedByteRange(Encoded, I, BYTES_PER_LINE) + ',');
+      Inc(I, BYTES_PER_LINE);
+    end;
+    SL.Add('};');
+    Result := SL.Text;
+  finally
+    SL.Free;
+  end;
+end;
+
+function RenderRGBDSCompressedPattern(Name: String;
+  const Encoded: TEncodedPattern): String;
+const
+  BYTES_PER_LINE = 16;
+var
+  I: Integer;
+  SL: TStringList;
+begin
+  SL := TStringList.Create;
+  try
+    SL.Add(Name + ':');
+    I := 0;
+    while I < Length(Encoded) do begin
+      SL.Add(' db ' + EncodedByteRange(Encoded, I, BYTES_PER_LINE));
+      Inc(I, BYTES_PER_LINE);
+    end;
+    Result := SL.Text;
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
   function RenderGBDKSubpatternCell(Cell: TCell; Last: Boolean): string;
   var
     SL: TStringList;
@@ -176,16 +469,6 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     SL.Free;
   end;
 
-  function RenderGBDKPattern(Name: string; Pat: TPattern): string;
-  var
-    Cell: TCell;
-  begin
-    Result := 'static const unsigned char ' + Name + '[] = {' + LineEnding;
-    for Cell in Pat do
-      Result += '    DN(' + RenderGBDKCell(Cell) + '),' + LineEnding;
-    Result += '};';
-  end;
-
   function RenderGBDKSubpattern(Name: string; Pat: TPattern): string;
   var
     I: Integer;
@@ -196,7 +479,8 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     Result += '};';
   end;
 
-  function RenderGBDKOrder(Number: integer; Order: array of integer): string;
+  function RenderGBDKOrder(Channel: TChannel;
+    Order: array of integer): string;
   var
     SL: TStringList;
     I: integer;
@@ -206,9 +490,10 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     SL.Delimiter := ',';
 
     for I := Low(Order) to High(Order)-1 do // HACK: account for off-by-one error
-      SL.Add('P' + IntToStr(Order[I]));
+      SL.Add(ChannelPatternName(Channel, Order[I]));
 
-    Result := 'static const unsigned char* const order' + IntToStr(Number) + '[] = {';
+    Result := 'static const unsigned char* const order' +
+      IntToStr(Ord(Channel) + 1) + '[] = {';
     Result += SL.DelimitedText;
     Result += '};';
     SL.Free;
@@ -302,14 +587,18 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
 
 var
   OrderMatrix: TOrderMatrix;
+  NoteCatalogs: TNoteCatalogs;
+  EncodedPattern: TEncodedPattern;
   OutSL: TStringList;
   I: integer;
+  Channel: TChannel;
   F: Text;
   TypePrefix: String;
   UsedStuff: TUsedStuff;
 begin
-  OrderMatrix := BuildOrderMatrix(Song, True);
+  OrderMatrix := BuildOrderMatrix(Song, False);
   UsedStuff := FindUsedStuff(Song, OrderMatrix);
+  NoteCatalogs := BuildNoteCatalogs(Song, UsedStuff);
 
   OutSL := TStringList.Create;
 
@@ -322,10 +611,22 @@ begin
   OutSL.Add('#include <stddef.h>');
   OutSL.Add('');
 
-  for I := 0 to Song.Patterns.Count - 1 do
-    if PatternIsUsed(Song.Patterns.Keys[I], UsedStuff) then
-      OutSL.Add(RenderGBDKPattern('P' + IntToStr(Song.Patterns.Keys[I]),
-        Song.Patterns.Data[I]^));
+  for Channel := Low(TChannel) to High(TChannel) do begin
+    OutSL.Add(RenderGBDKNoteCatalog('note_catalog' +
+      IntToStr(Ord(Channel) + 1), NoteCatalogs[Channel]));
+    OutSL.Add('');
+  end;
+
+  for Channel := Low(TChannel) to High(TChannel) do
+    for I := 0 to Song.Patterns.Count - 1 do
+      if PatternIsUsedInChannel(Song.Patterns.Keys[I], Channel,
+        UsedStuff) then begin
+        EncodedPattern := EncodePattern(Song.Patterns.Data[I]^,
+          NoteCatalogs[Channel]);
+        OutSL.Add(RenderGBDKCompressedPattern(
+          ChannelPatternName(Channel, Song.Patterns.Keys[I]),
+          EncodedPattern));
+      end;
   OutSL.Add('');
 
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
@@ -337,10 +638,8 @@ begin
         end;
       end;
 
-  OutSL.Add(RenderGBDKOrder(1, OrderMatrix[0]));
-  OutSL.Add(RenderGBDKOrder(2, OrderMatrix[1]));
-  OutSL.Add(RenderGBDKOrder(3, OrderMatrix[2]));
-  OutSL.Add(RenderGBDKOrder(4, OrderMatrix[3]));
+  for Channel := Low(TChannel) to High(TChannel) do
+    OutSL.Add(RenderGBDKOrder(Channel, OrderMatrix[Ord(Channel)]));
   OutSL.Add('');
 
   OutSL.Add(RenderGBDKInstrumentBank('duty_instruments', Song.Instruments.Duty, UsedStuff.HighestDutyInst));
@@ -356,7 +655,8 @@ begin
 
   OutSL.Add(Format(
     'const hUGESong_t %s = {%d, %d, %d, %d, %d, order1, order2, order3,'+
-    'order4, duty_instruments, wave_instruments, noise_instruments, NULL, waves};',
+    'order4, duty_instruments, wave_instruments, noise_instruments, NULL, waves,'+
+    ' note_catalog1, note_catalog2, note_catalog3, note_catalog4};',
     [DescriptorName,
      Song.TicksPerRow[0], Song.TicksPerRow[1], Song.TicksPerRow[2], Song.TicksPerRow[3],
      OrderCount(Song)*2
@@ -371,8 +671,9 @@ begin
   FreeUsedStuff(UsedStuff);
 end;
 
-function RenderOrderTable(OrderMatrix: TOrderMatrix): string;
-  function ArrayHelper(Ints: array of integer): string;
+function RenderOrderTable(OrderMatrix: TOrderMatrix;
+  IncludeCatalogPointers: Boolean = False): string;
+  function ArrayHelper(Channel: TChannel; Ints: array of integer): string;
   var
     I: integer;
     SL: TStringList;
@@ -380,8 +681,8 @@ function RenderOrderTable(OrderMatrix: TOrderMatrix): string;
     SL := TStringList.Create;
     SL.StrictDelimiter := True;
     SL.Delimiter := ',';
-    for I := Low(Ints) to High(Ints)-1 do // HACK: account for the off-by-one error
-      SL.Add('P' + IntToStr(Ints[I]));
+    for I := Low(Ints) to High(Ints)-1 do // HACK: account for off-by-one error
+      SL.Add(ChannelPatternName(Channel, Ints[I]));
     Result := SL.DelimitedText;
     SL.Free;
   end;
@@ -391,10 +692,12 @@ var
 begin
   Res := TStringList.Create;
 
-  Res.Add('order1: dw ' + ArrayHelper(OrderMatrix[0]));
-  Res.Add('order2: dw ' + ArrayHelper(OrderMatrix[1]));
-  Res.Add('order3: dw ' + ArrayHelper(OrderMatrix[2]));
-  Res.Add('order4: dw ' + ArrayHelper(OrderMatrix[3]));
+  if IncludeCatalogPointers then
+    Res.Add('dw note_catalog1, note_catalog2, note_catalog3, note_catalog4');
+  Res.Add('order1: dw ' + ArrayHelper(chDuty1, OrderMatrix[0]));
+  Res.Add('order2: dw ' + ArrayHelper(chDuty2, OrderMatrix[1]));
+  Res.Add('order3: dw ' + ArrayHelper(chWave, OrderMatrix[2]));
+  Res.Add('order4: dw ' + ArrayHelper(chNoise, OrderMatrix[3]));
 
   Result := Res.Text;
   Res.Free;
@@ -448,31 +751,6 @@ begin
   ResultSL.Free;
 end;
 
-function RenderCell(Cell: TCell): string;
-var
-  SL: TStringList;
-begin
-  SL := TStringList.Create;
-  SL.Delimiter := ',';
-  SL.StrictDelimiter := True;
-
-  if (Cell.Note = NO_NOTE) or (NoteToDriverMap.IndexOf(Cell.Note) = -1) then
-    SL.Add('___')
-  else
-    SL.Add(NoteToDriverMap.KeyData[Cell.Note]);
-
-  if InRange(Cell.Instrument, 0, 15) then
-    SL.Add(IntToStr(Cell.Instrument))
-  else
-    SL.Add('0');
-
-  SL.Add('$' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
-
-  // RGBDS thinks you're defining a new macro if you don't have a space first.
-  Result := ' dn ' + SL.DelimitedText;
-  SL.Free;
-end;
-
 function RenderSubpatternCell(Cell: TCell; Last: Boolean): string;
 var
   SL: TStringList;
@@ -495,21 +773,6 @@ begin
 
   // RGBDS thinks you're defining a new macro if you don't have a space first.
   Result := ' dn ' + SL.DelimitedText;
-  SL.Free;
-end;
-
-function RenderPattern(Name: string; Pattern: TPattern): string;
-var
-  SL: TStringList;
-  I: integer;
-begin
-  SL := TStringList.Create;
-  SL.Add(Name + ':');
-
-  for I := Low(TPattern) to High(TPattern) do
-    SL.Add(RenderCell(Pattern[I]));
-
-  Result := SL.Text;
   SL.Free;
 end;
 
@@ -558,14 +821,18 @@ end;
 procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: string);
 var
   OrderMatrix: TOrderMatrix;
+  NoteCatalogs: TNoteCatalogs;
+  EncodedPattern: TEncodedPattern;
   OutSL: TStringList;
   F: Text;
   I: Integer;
+  Channel: TChannel;
   TypePrefix: String;
   UsedStuff: TUsedStuff;
 begin
-  OrderMatrix := BuildOrderMatrix(Song, True);
+  OrderMatrix := BuildOrderMatrix(Song, False);
   UsedStuff := FindUsedStuff(Song, OrderMatrix);
+  NoteCatalogs := BuildNoteCatalogs(Song, UsedStuff);
 
   OutSL := TStringList.Create;
 
@@ -585,10 +852,18 @@ begin
   OutSL.Add('dw duty_instruments, wave_instruments, noise_instruments');
   OutSL.Add('dw routines');
   OutSL.Add('dw waves');
+  OutSL.Add('dw note_catalog1, note_catalog2, note_catalog3, note_catalog4');
   OutSL.Add('');
 
   // Render order matrix
   OutSL.Add(RenderOrderTable(OrderMatrix));
+
+  // Render channel note catalogs
+  for Channel := Low(TChannel) to High(TChannel) do begin
+    OutSL.Add(RenderRGBDSNoteCatalog('note_catalog' +
+      IntToStr(Ord(Channel) + 1), NoteCatalogs[Channel]));
+    OutSL.Add('');
+  end;
 
   // Render instruments
   OutSL.Add('duty_instruments:');
@@ -617,10 +892,17 @@ begin
   OutSL.Add('waves:');
   OutSL.Add(RenderWaveforms(Song.Waves, UsedStuff.HighestWaveform));
 
-  // Render patterns
-  for I := 0 to Song.Patterns.Count - 1 do
-    if PatternIsUsed(Song.Patterns.Keys[I], UsedStuff) then
-      OutSL.Add(RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]), Song.Patterns.Data[I]^));
+  // Render channel-specific compressed patterns
+  for Channel := Low(TChannel) to High(TChannel) do
+    for I := 0 to Song.Patterns.Count - 1 do
+      if PatternIsUsedInChannel(Song.Patterns.Keys[I], Channel,
+        UsedStuff) then begin
+        EncodedPattern := EncodePattern(Song.Patterns.Data[I]^,
+          NoteCatalogs[Channel]);
+        OutSL.Add(RenderRGBDSCompressedPattern(
+          ChannelPatternName(Channel, Song.Patterns.Keys[I]),
+          EncodedPattern));
+      end;
 
   // Render subpatterns
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
@@ -664,8 +946,11 @@ end;
 procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode);
 var
   OrderMatrix: TOrderMatrix;
+  NoteCatalogs: TNoteCatalogs;
+  EncodedPattern: TEncodedPattern;
   OutFile: Text;
   I: integer;
+  Channel: TChannel;
   TypePrefix: String;
   Proc: TProcess;
   FilePath: string;
@@ -745,8 +1030,9 @@ var
     Result := Proc.ExitStatus;
   end;
 begin
-  OrderMatrix := BuildOrderMatrix(Song, True);
+  OrderMatrix := BuildOrderMatrix(Song, False);
   UsedStuff := FindUsedStuff(Song, OrderMatrix);
+  NoteCatalogs := BuildNoteCatalogs(Song, UsedStuff);
 
   if not DirectoryExists(ConcatPaths([CacheDir, 'render'])) then
     CreateDir(ConcatPaths([CacheDir, 'render']));
@@ -755,7 +1041,8 @@ begin
   Filename := ConcatPaths([CacheDir, 'render', ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename))]);
 
   WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']), RenderWaveforms(Song.Waves, UsedStuff.HighestWaveform));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'order.htt']), RenderOrderTable(OrderMatrix));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'order.htt']),
+    RenderOrderTable(OrderMatrix, True));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),  RenderInstruments(Song.Instruments.Duty, UsedStuff.HighestDutyInst));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),  RenderInstruments(Song.Instruments.Wave, UsedStuff.HighestWaveInst));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']), RenderInstruments(Song.Instruments.Noise, UsedStuff.HighestNoiseInst));
@@ -765,10 +1052,22 @@ begin
   AssignFile(OutFile, ConcatPaths([CacheDir, 'render', 'pattern.htt']));
   Rewrite(OutFile);
 
-  for I := 0 to Song.Patterns.Count - 1 do
-    if PatternIsUsed(Song.Patterns.Keys[I], UsedStuff) then
-      Write(OutFile, RenderPattern('P' + IntToStr(Song.Patterns.Keys[I]),
-        Song.Patterns.Data[I]^));
+  for Channel := Low(TChannel) to High(TChannel) do begin
+    Write(OutFile, RenderRGBDSNoteCatalog('note_catalog' +
+      IntToStr(Ord(Channel) + 1), NoteCatalogs[Channel]));
+    WriteLn(OutFile);
+  end;
+
+  for Channel := Low(TChannel) to High(TChannel) do
+    for I := 0 to Song.Patterns.Count - 1 do
+      if PatternIsUsedInChannel(Song.Patterns.Keys[I], Channel,
+        UsedStuff) then begin
+        EncodedPattern := EncodePattern(Song.Patterns.Data[I]^,
+          NoteCatalogs[Channel]);
+        Write(OutFile, RenderRGBDSCompressedPattern(
+          ChannelPatternName(Channel, Song.Patterns.Keys[I]),
+          EncodedPattern));
+      end;
 
   CloseFile(OutFile);
 
