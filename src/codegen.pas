@@ -42,7 +42,8 @@ begin
   Result := Integer(Data1^) - Integer(Data2^);
 end;
 
-function FindUsedStuff(const Song: TSong): TUsedStuff;
+function FindUsedStuff(const Song: TSong;
+  const OrderMatrix: TOrderMatrix): TUsedStuff;
 var
   I, J: Integer;
   Pat: PPattern;
@@ -69,19 +70,19 @@ begin
       end;
   end;
 
-  for I := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do begin
+  for I := Low(OrderMatrix) to High(OrderMatrix) do begin
     case I of
       0, 1: Highest := @Result.HighestDutyInst;
       2: Highest := @Result.HighestWaveInst;
       3: Highest := @Result.HighestNoiseInst;
     end;
 
-    for J := Low(Song.OrderMatrix[I]) to High(Song.OrderMatrix[I])-1 do begin
-      if Result.UsedPatterns.Find(@Song.OrderMatrix[I, J]) <> nil then Continue;
+    for J := Low(OrderMatrix[I]) to High(OrderMatrix[I])-1 do begin
+      if Result.UsedPatterns.Find(@OrderMatrix[I, J]) <> nil then Continue;
 
-      Result.UsedPatterns.Add(@Song.OrderMatrix[I, J]);
+      Result.UsedPatterns.Add(@OrderMatrix[I, J]);
 
-      Pat := Song.Patterns.KeyData[Song.OrderMatrix[I, J]];
+      Pat := Song.Patterns.KeyData[OrderMatrix[I, J]];
       for Cell in Pat^ do begin
         if (Cell.EffectCode = $9) and (I = 2) then begin // waveforms on wave channel
           Waveform := Cell.EffectParams.Value;
@@ -307,8 +308,8 @@ var
   TypePrefix: String;
   UsedStuff: TUsedStuff;
 begin
-  Song := OptimizeSong(Song);
-  UsedStuff := FindUsedStuff(Song);
+  OrderMatrix := BuildOrderMatrix(Song, True);
+  UsedStuff := FindUsedStuff(Song, OrderMatrix);
 
   OutSL := TStringList.Create;
 
@@ -336,10 +337,10 @@ begin
         end;
       end;
 
-  OutSL.Add(RenderGBDKOrder(1, Song.OrderMatrix[0]));
-  OutSL.Add(RenderGBDKOrder(2, Song.OrderMatrix[1]));
-  OutSL.Add(RenderGBDKOrder(3, Song.OrderMatrix[2]));
-  OutSL.Add(RenderGBDKOrder(4, Song.OrderMatrix[3]));
+  OutSL.Add(RenderGBDKOrder(1, OrderMatrix[0]));
+  OutSL.Add(RenderGBDKOrder(2, OrderMatrix[1]));
+  OutSL.Add(RenderGBDKOrder(3, OrderMatrix[2]));
+  OutSL.Add(RenderGBDKOrder(4, OrderMatrix[3]));
   OutSL.Add('');
 
   OutSL.Add(RenderGBDKInstrumentBank('duty_instruments', Song.Instruments.Duty, UsedStuff.HighestDutyInst));
@@ -556,14 +557,15 @@ end;
 
 procedure RenderSongToRGBDSAsm(Song: TSong; DescriptorName: String; Filename: string);
 var
+  OrderMatrix: TOrderMatrix;
   OutSL: TStringList;
   F: Text;
   I: Integer;
   TypePrefix: String;
   UsedStuff: TUsedStuff;
 begin
-  Song := OptimizeSong(Song);
-  UsedStuff := FindUsedStuff(Song);
+  OrderMatrix := BuildOrderMatrix(Song, True);
+  UsedStuff := FindUsedStuff(Song, OrderMatrix);
 
   OutSL := TStringList.Create;
 
@@ -586,7 +588,7 @@ begin
   OutSL.Add('');
 
   // Render order matrix
-  OutSL.Add(RenderOrderTable(Song.OrderMatrix));
+  OutSL.Add(RenderOrderTable(OrderMatrix));
 
   // Render instruments
   OutSL.Add('duty_instruments:');
@@ -661,6 +663,7 @@ end;
 
 procedure AssembleSong(Song: TSong; Filename: string; Mode: TExportMode);
 var
+  OrderMatrix: TOrderMatrix;
   OutFile: Text;
   I: integer;
   TypePrefix: String;
@@ -742,8 +745,8 @@ var
     Result := Proc.ExitStatus;
   end;
 begin
-  Song := OptimizeSong(Song);
-  UsedStuff := FindUsedStuff(Song);
+  OrderMatrix := BuildOrderMatrix(Song, True);
+  UsedStuff := FindUsedStuff(Song, OrderMatrix);
 
   if not DirectoryExists(ConcatPaths([CacheDir, 'render'])) then
     CreateDir(ConcatPaths([CacheDir, 'render']));
@@ -752,7 +755,7 @@ begin
   Filename := ConcatPaths([CacheDir, 'render', ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename))]);
 
   WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']), RenderWaveforms(Song.Waves, UsedStuff.HighestWaveform));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'order.htt']), RenderOrderTable(Song.OrderMatrix));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'order.htt']), RenderOrderTable(OrderMatrix));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),  RenderInstruments(Song.Instruments.Duty, UsedStuff.HighestDutyInst));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),  RenderInstruments(Song.Instruments.Wave, UsedStuff.HighestWaveInst));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']), RenderInstruments(Song.Instruments.Noise, UsedStuff.HighestNoiseInst));

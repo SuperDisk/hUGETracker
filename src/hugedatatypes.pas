@@ -53,6 +53,18 @@ type
     destructor Destroy; override;
   end;
 
+  TChannel = (chDuty1, chDuty2, chWave, chNoise);
+
+  TPatternSet = packed record
+    PatternKeys: packed array[TChannel] of Integer;
+  end;
+
+  TPatternSetMap = class(specialize TFPGMap<Integer, TPatternSet>)
+    function MaxKey: Integer;
+  end;
+
+  TOrder = array of Integer;
+
   TWaveV1 = packed array[0..32] of Byte;
   TWaveV2 = packed array[0..31] of Byte;
   TWave = TWaveV2;
@@ -427,7 +439,7 @@ function TPatternMap.MaxKey: Integer;
 var
   X: Integer;
 begin
-  Result := 0;
+  Result := -1;
   for X := 0 to Self.Count-1 do
     if Self.Keys[X] > Result then Result := Self.Keys[X];
   Inc(Result);
@@ -449,5 +461,16 @@ begin
   inherited;
 end;
 
-end.
+{ TPatternSetMap }
 
+function TPatternSetMap.MaxKey: Integer;
+var
+  X: Integer;
+begin
+  Result := -1;
+  for X := 0 to Self.Count-1 do
+    if Self.Keys[X] > Result then Result := Self.Keys[X];
+  Inc(Result);
+end;
+
+end.

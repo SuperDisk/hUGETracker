@@ -2,9 +2,9 @@
 
 ![Screenshot of the tracker grid](../img/tracker_grid.png)
 
-The **tracker grid** displays four patterns together.
+The **tracker grid** displays the four channel columns of one pattern.
 This represents one row in the **order table**, and is the component used to compose a song.
-When a different order is selected in the **order table**, the patterns in the **tracker grid** are updated to reflect their contents.
+When a different order is selected in the **order table**, the pattern in the **tracker grid** is updated to reflect its contents.
 
 <style>
 .note {

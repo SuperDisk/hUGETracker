@@ -251,6 +251,7 @@ var
   I, J, K: Integer;
   MaxOrder: Integer;
   RawRow: TMODRawRow;
+  PatternSet: TPatternSet;
 begin
   Stream.Read(ModFile, SizeOf(ModFile) - SizeOf(ModFile.Patterns));
   for I := Low(ModFile.Samples) to High(ModFile.Samples) do
@@ -298,20 +299,20 @@ begin
 
   // Convert all patterns
   for I := Low(ModFile.Patterns) to High(ModFile.Patterns) do begin
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 0), 1);
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 1), 2);
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 2), 3);
-    TranscribeColumn(ModFile.Patterns[I], Result.Patterns.GetOrCreateNew(I*10 + 3), 4);
+    PatternSet := EnsurePatternSet(Result, I);
+    TranscribeColumn(ModFile.Patterns[I],
+      Result.Patterns.KeyData[PatternSet.PatternKeys[chDuty1]], 1);
+    TranscribeColumn(ModFile.Patterns[I],
+      Result.Patterns.KeyData[PatternSet.PatternKeys[chDuty2]], 2);
+    TranscribeColumn(ModFile.Patterns[I],
+      Result.Patterns.KeyData[PatternSet.PatternKeys[chWave]], 3);
+    TranscribeColumn(ModFile.Patterns[I],
+      Result.Patterns.KeyData[PatternSet.PatternKeys[chNoise]], 4);
   end;
 
-  // Import the order table. Uses a weird numbering scheme because hUGE has
-  // 4 separate patterns like AHX and unlike MOD.
-  for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do begin
-    SetLength(Result.OrderMatrix[I], ModFile.SongLen+1);
-
-    for J := 0 to ModFile.SongLen do
-      Result.OrderMatrix[I, J] := (ModFile.Positions[J]*10) + I;
-  end;
+  SetLength(Result.Order, ModFile.SongLen);
+  for J := 0 to ModFile.SongLen - 1 do
+    Result.Order[J] := ModFile.Positions[J];
 
   Result.Name := ModFile.Name;
 end;
@@ -392,4 +393,3 @@ begin
   PeriodToCodeMap.add(30, 70);
   PeriodToCodeMap.add(28, 71);
 end.
-

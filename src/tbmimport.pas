@@ -353,6 +353,7 @@ var
   SeenSquare, SeenWave, SeenNoise: Integer;
   NewInstId: Integer;
   TracksForCleanup: array of TTBMTrackFormat;
+  OrderMatrix: TOrderMatrix;
 begin
   try
     InitializeSong(Result);
@@ -377,14 +378,14 @@ begin
 
     Result.TicksPerRow[0] := SongFormat.RowsPerBeat;
 
-    for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
-      SetLength(Result.OrderMatrix[I], SongFormat.PatternCount+2); // off-by-one error on my part
+    for I := Low(OrderMatrix) to High(OrderMatrix) do
+      SetLength(OrderMatrix[I], SongFormat.PatternCount+2);
 
     for I := 0 to SongFormat.PatternCount do begin
-      Result.OrderMatrix[0, I] := 100 + Stream.ReadByte;
-      Result.OrderMatrix[1, I] := 200 + Stream.ReadByte;
-      Result.OrderMatrix[2, I] := 300 + Stream.ReadByte;
-      Result.OrderMatrix[3, I] := 400 + Stream.ReadByte;
+      OrderMatrix[0, I] := 100 + Stream.ReadByte;
+      OrderMatrix[1, I] := 200 + Stream.ReadByte;
+      OrderMatrix[2, I] := 300 + Stream.ReadByte;
+      OrderMatrix[3, I] := 400 + Stream.ReadByte;
     end;
 
     SetLength(TracksForCleanup, SongFormat.NumberOfTracks);
@@ -547,6 +548,8 @@ begin
         3: CleanupPattern(Pat, NoiseMap);
       end;
     end;
+
+    SetOrderFromOrderMatrix(Result, OrderMatrix, True);
   finally
     if Assigned(SquareMap) then SquareMap.Free;
     if Assigned(WaveMap) then WaveMap.Free;
@@ -555,4 +558,3 @@ begin
 end;
 
 end.
-

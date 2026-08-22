@@ -1,4 +1,4 @@
-# hUGETracker .UGE v5/v6 format spec
+# hUGETracker .UGE v5/v6/v7 format spec
 ## Data types
 
 | Name          | Byte length | Description                                                                                                                    |
@@ -126,10 +126,14 @@ All types are little endian unless noted otherwise.
          - `uint8` Off by one filler
 
 ## Song Patterns
- - `uint32` Initial ticks per row
+ - If `Version number` < 7:
+     - `uint32` Initial ticks per row
+ - Else:
+     - Repeat 4 times (Duty 1, Duty 2, Wave, Noise):
+         - `uint32` Initial ticks per row
  - If `Version number` >= 6:
      - `bool` Timer based tempo enabled
-     - `uint32` Timer based tempo devider
+     - `uint32` Timer based tempo divider
  - `uint32` Number of song patterns
  - Repeat `Number of song patterns` times:
      - `uint32` Pattern index
@@ -141,12 +145,26 @@ All types are little endian unless noted otherwise.
          - `uint32` Effect code
          - `uint8` Effect parameter
 
-## Song Orders
+## Pattern Sets and Song Order
+
+For version 7 and later:
+
+ - `uint32` Number of pattern sets
+ - Repeat `Number of pattern sets` times:
+     - `uint32` User-visible pattern index
+     - Repeat 4 times (Duty 1, Duty 2, Wave, Noise):
+         - `uint32` Song pattern index
+ - `uint32` Order length
+ - Repeat `Order length` times:
+     - `uint32` User-visible pattern index
+
+For version 6 and earlier:
+
  - Repeat 4 times (Duty 1, Duty 2, Wave, Noise):
-     - `uint32` Order length + 1 (Off by one bug)
+     - `uint32` Order length + 1 (off-by-one bug)
      - Repeat `Order length` times:
-         - `uint32` Order index
-     - `uint32` Off by one bug filler (0)
+         - `uint32` Song pattern index
+     - `uint32` Off-by-one filler
 
 ## Routines
  - Repeat 16 times:

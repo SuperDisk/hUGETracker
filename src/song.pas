@@ -11,6 +11,7 @@ uses Classes, HugeDatatypes, instruments, Constants, math, sysutils, LazLoggerBa
 
 type
   ESongVersionException = class(Exception);
+  EPatternSetException = class(Exception);
 
   TSongV1 = packed record
     Version: Integer;
@@ -121,7 +122,8 @@ type
     TimerDivider: Integer;
 
     Patterns: TPatternMap;
-    OrderMatrix: TOrderMatrix;
+    PatternSets: TPatternSetMap;
+    Order: TOrder;
 
     Routines: TRoutineBank;
   end;
@@ -142,7 +144,14 @@ function UpgradeSong(S: TSongV3): TSong; overload;
 function UpgradeSong(S: TSongV4): TSong; overload;
 function UpgradeSong(S: TSongV6): TSong; overload;
 
-function OptimizeSong(const S: TSong): TSong;
+function PatternSetExists(const S: TSong; PatternSetID: Integer): Boolean;
+function GetPatternSet(const S: TSong; PatternSetID: Integer): TPatternSet;
+function EnsurePatternSet(var S: TSong; PatternSetID: Integer): TPatternSet;
+function CreatePatternSet(var S: TSong): Integer;
+function ClonePatternSet(var S: TSong; SourcePatternSetID: Integer): Integer;
+procedure SetOrderFromOrderMatrix(var S: TSong; const OrderMatrix: TOrderMatrix;
+  DetachSharedPatterns: Boolean = True);
+function BuildOrderMatrix(const S: TSong; OptimizePatterns: Boolean = False): TOrderMatrix;
 function OrderCount(const Song: TSong): Integer;
 
 implementation
@@ -397,42 +406,39 @@ end;
 
 procedure ReadSongFromStreamV7(S: TStream; out ASong: TSongV7);
 var
-  i, n, PatKey: Integer;
-  pat: PPattern;
+  I, N, Key: Integer;
+  Pat: PPattern;
+  PatternSet: TPatternSet;
 begin
-  // Read the fixed elements first
-  n := SizeOf(TSongV7)
+  N := SizeOf(TSongV7)
      - SizeOf(TPatternMap)
-     - SizeOf(TOrderMatrix)
+     - SizeOf(TPatternSetMap)
+     - SizeOf(TOrder)
      - SizeOf(TRoutineBank);
 
-  S.Read(ASong, n);
+  S.Read(ASong, N);
 
-  // Create the patterns
   ASong.Patterns := TPatternMap.Create;
-  // Read the pattern count
-  S.Read(n, SizeOf(Integer));
-  for i:=0 to n - 1 do begin
-    // Read pattern key
-    S.Read(PatKey, SizeOf(Integer));
-    // Allocate memory for each pattern ...
-    New(pat);
-    // and read the pattern content
-    S.Read(pat^, SizeOf(TPattern));
-    // Add the pattern to the list
-    ASong.Patterns.Add(PatKey, pat);
+  S.Read(N, SizeOf(Integer));
+  for I := 0 to N - 1 do begin
+    S.Read(Key, SizeOf(Integer));
+    New(Pat);
+    S.Read(Pat^, SizeOf(TPattern));
+    ASong.Patterns.Add(Key, Pat);
   end;
 
-  // Read the OrderMatrix
-  for i := 0 to 3 do
-  begin
-    // Read length of each OrderMatrix array
-    S.Read(n, SizeOf(Integer));
-    // Allocate memory for it
-    SetLength(ASong.OrderMatrix[i], n);
-    // Read content of OrderMatrix array
-    S.Read(ASong.OrderMatrix[i, 0], n*SizeOf(Integer));
+  ASong.PatternSets := TPatternSetMap.Create;
+  S.Read(N, SizeOf(Integer));
+  for I := 0 to N - 1 do begin
+    S.Read(Key, SizeOf(Integer));
+    S.Read(PatternSet, SizeOf(TPatternSet));
+    ASong.PatternSets.Add(Key, PatternSet);
   end;
+
+  S.Read(N, SizeOf(Integer));
+  SetLength(ASong.Order, N);
+  if N > 0 then
+    S.Read(ASong.Order[0], N * SizeOf(Integer));
 
   for I := Low(TRoutineBank) to High(TRoutineBank) do
     ASong.Routines[I] := S.ReadAnsiString;
@@ -440,35 +446,43 @@ end;
 
 procedure WriteSongToStream(S: TStream; const ASong: TSong);
 var
-  i, n: Integer;
+  I, N, Key: Integer;
+  PatternSet: TPatternSet;
 begin
   // Write the fixed record elements first
-  n := SizeOf(TSong)
+  N := SizeOf(TSong)
      - SizeOf(TPatternMap)
-     - SizeOf(TOrderMatrix)
+     - SizeOf(TPatternSetMap)
+     - SizeOf(TOrder)
      - SizeOf(TRoutineBank);
-  S.Write(ASong, n);
+  S.Write(ASong, N);
 
   // Write the pattern count
   S.Write(ASong.Patterns.Count, SizeOf(Integer));
   // Write the patterns
-  for i := 0 to ASong.Patterns.Count-1 do
+  for I := 0 to ASong.Patterns.Count-1 do
   begin
-    S.Write(ASong.Patterns.Keys[i], SizeOf(Integer));
-    S.Write(ASong.Patterns.Data[i]^, SizeOf(TPattern));
+    Key := ASong.Patterns.Keys[I];
+    S.Write(Key, SizeOf(Integer));
+    S.Write(ASong.Patterns.Data[I]^, SizeOf(TPattern));
   end;
 
-  // Write the OrderMatrix arrays
-  for i := 0 to 3 do
-  begin
-    n := Length(ASong.OrderMatrix[i]);
-    S.Write(n, SizeOf(Integer));
-    S.Write(ASong.OrderMatrix[i][0], n*SizeOf(Integer));
+  S.Write(ASong.PatternSets.Count, SizeOf(Integer));
+  for I := 0 to ASong.PatternSets.Count - 1 do begin
+    Key := ASong.PatternSets.Keys[I];
+    PatternSet := ASong.PatternSets.Data[I];
+    S.Write(Key, SizeOf(Integer));
+    S.Write(PatternSet, SizeOf(TPatternSet));
   end;
+
+  N := Length(ASong.Order);
+  S.Write(N, SizeOf(Integer));
+  if N > 0 then
+    S.Write(ASong.Order[0], N * SizeOf(Integer));
 
   // Write the routines
-  for i := Low(TRoutineBank) to High(TRoutineBank) do
-    S.WriteAnsiString(ASong.Routines[i]);
+  for I := Low(TRoutineBank) to High(TRoutineBank) do
+    S.WriteAnsiString(ASong.Routines[I]);
 end;
 
 procedure ReadSongFromStream(S: TStream; out ASong: TSong);
@@ -577,11 +591,6 @@ begin
       S.Waves[I][J] := random($F);
   end;
 
-  for I := Low(TOrderMatrix) to High(TOrderMatrix) do begin
-    SetLength(S.OrderMatrix[I], 2);
-    S.OrderMatrix[I, 0] := I;
-  end;
-
   for I := Low(TRoutineBank) to High(TRoutineBank) do
     S.Routines[I] := '';
 
@@ -592,6 +601,9 @@ begin
   S.TimerDivider := 0;
   S.TimerEnabled := False;
   S.Patterns := TPatternMap.Create;
+  S.PatternSets := TPatternSetMap.Create;
+  SetLength(S.Order, 1);
+  S.Order[0] := CreatePatternSet(S);
 end;
 
 procedure LoadDefaultInstruments(var S: TSong);
@@ -646,6 +658,7 @@ end;
 
 procedure DestroySong(var S: TSong);
 begin
+  S.PatternSets.Free;
   S.Patterns.Free;
 end;
 
@@ -907,48 +920,227 @@ begin
   SV7.TimerDivider := S.TimerDivider;
 
   SV7.Patterns := S.Patterns;
-  SV7.OrderMatrix := S.OrderMatrix;
+  SV7.PatternSets := TPatternSetMap.Create;
 
   SV7.Routines := S.Routines;
 
+  SetOrderFromOrderMatrix(SV7, S.OrderMatrix, True);
   Result := SV7;
 end;
 
-function OptimizeSong(const S: TSong): TSong;
-var
-  I, J: Integer;
+function PatternSetExists(const S: TSong; PatternSetID: Integer): Boolean;
+begin
+  Result := Assigned(S.PatternSets) and
+    (S.PatternSets.IndexOf(PatternSetID) <> -1);
+end;
 
-  function FindMatchingPattern(const P: TPattern): Integer;
+function GetPatternSet(const S: TSong; PatternSetID: Integer): TPatternSet;
+var
+  Index: Integer;
+begin
+  if not Assigned(S.PatternSets) then
+    raise EPatternSetException.Create('The song has no pattern-set map.');
+
+  Index := S.PatternSets.IndexOf(PatternSetID);
+  if Index = -1 then
+    raise EPatternSetException.CreateFmt('Pattern %d does not exist.',
+      [PatternSetID]);
+
+  Result := S.PatternSets.Data[Index];
+end;
+
+function EnsurePatternSet(var S: TSong; PatternSetID: Integer): TPatternSet;
+var
+  Channel: TChannel;
+  PatternKey: Integer;
+begin
+  if PatternSetID < 0 then
+    raise EPatternSetException.Create('Pattern numbers cannot be negative.');
+
+  if PatternSetExists(S, PatternSetID) then
+    Exit(GetPatternSet(S, PatternSetID));
+
+  Result := Default(TPatternSet);
+  for Channel := Low(TChannel) to High(TChannel) do begin
+    PatternKey := S.Patterns.MaxKey;
+    S.Patterns.GetOrCreateNew(PatternKey);
+    Result.PatternKeys[Channel] := PatternKey;
+  end;
+  S.PatternSets.Add(PatternSetID, Result);
+end;
+
+function CreatePatternSet(var S: TSong): Integer;
+begin
+  Result := S.PatternSets.MaxKey;
+  EnsurePatternSet(S, Result);
+end;
+
+function ClonePatternSet(var S: TSong; SourcePatternSetID: Integer): Integer;
+var
+  Channel: TChannel;
+  SourceSet, DestSet: TPatternSet;
+begin
+  SourceSet := GetPatternSet(S, SourcePatternSetID);
+  Result := CreatePatternSet(S);
+  DestSet := GetPatternSet(S, Result);
+
+  for Channel := Low(TChannel) to High(TChannel) do
+    S.Patterns.KeyData[DestSet.PatternKeys[Channel]]^ :=
+      S.Patterns.KeyData[SourceSet.PatternKeys[Channel]]^;
+end;
+
+procedure SetOrderFromOrderMatrix(var S: TSong; const OrderMatrix: TOrderMatrix;
+  DetachSharedPatterns: Boolean);
+type
+  TLegacyPatternSet = record
+    PatternSet: TPatternSet;
+    PatternSetID: Integer;
+  end;
+var
+  LegacyPatternSets: array of TLegacyPatternSet;
+  UsedPatternKeys: array of Integer;
+  Channel: TChannel;
+  PatternSet, OwnedPatternSet: TPatternSet;
+  OrderLength, OrderRow, I, PatternSetID, PatternKey, NewPatternKey: Integer;
+  SourcePattern, DestPattern: PPattern;
+
+  function PatternSetsEqual(const A, B: TPatternSet): Boolean;
   var
-    K: Integer;
+    C: TChannel;
   begin
-    for K := 0 to S.Patterns.Count-1 do
-      if CompareByte(S.Patterns.KeyData[S.Patterns.Keys[K]]^, P, SizeOf(TPattern)) = 0 then
+    for C := Low(TChannel) to High(TChannel) do
+      if A.PatternKeys[C] <> B.PatternKeys[C] then Exit(False);
+    Result := True;
+  end;
+
+  function FindLegacyPatternSet(const APatternSet: TPatternSet): Integer;
+  var
+    J: Integer;
+  begin
+    for J := 0 to Length(LegacyPatternSets) - 1 do
+      if PatternSetsEqual(LegacyPatternSets[J].PatternSet, APatternSet) then
+        Exit(LegacyPatternSets[J].PatternSetID);
+    Result := -1;
+  end;
+
+  function PatternKeyIsUsed(AKey: Integer): Boolean;
+  var
+    J: Integer;
+  begin
+    for J := 0 to Length(UsedPatternKeys) - 1 do
+      if UsedPatternKeys[J] = AKey then Exit(True);
+    Result := False;
+  end;
+
+  procedure MarkPatternKeyUsed(AKey: Integer);
+  begin
+    SetLength(UsedPatternKeys, Length(UsedPatternKeys) + 1);
+    UsedPatternKeys[High(UsedPatternKeys)] := AKey;
+  end;
+
+begin
+  LegacyPatternSets := nil;
+  UsedPatternKeys := nil;
+  S.PatternSets.Clear;
+  SetLength(S.Order, 0);
+
+  OrderLength := 0;
+  for Channel := Low(TChannel) to High(TChannel) do
+    OrderLength := Max(OrderLength,
+      Max(Length(OrderMatrix[Ord(Channel)]) - 1, 0));
+
+  SetLength(S.Order, OrderLength);
+  for OrderRow := 0 to OrderLength - 1 do begin
+    for Channel := Low(TChannel) to High(TChannel) do begin
+      I := Ord(Channel);
+      if OrderRow < Length(OrderMatrix[I]) - 1 then
+        PatternSet.PatternKeys[Channel] := OrderMatrix[I, OrderRow]
+      else
+        PatternSet.PatternKeys[Channel] := 0;
+    end;
+
+    PatternSetID := FindLegacyPatternSet(PatternSet);
+    if PatternSetID = -1 then begin
+      PatternSetID := S.PatternSets.MaxKey;
+      OwnedPatternSet := PatternSet;
+
+      for Channel := Low(TChannel) to High(TChannel) do begin
+        PatternKey := PatternSet.PatternKeys[Channel];
+        SourcePattern := S.Patterns.GetOrCreateNew(PatternKey);
+
+        if DetachSharedPatterns and PatternKeyIsUsed(PatternKey) then begin
+          NewPatternKey := S.Patterns.MaxKey;
+          DestPattern := S.Patterns.GetOrCreateNew(NewPatternKey);
+          DestPattern^ := SourcePattern^;
+          OwnedPatternSet.PatternKeys[Channel] := NewPatternKey;
+        end;
+
+        MarkPatternKeyUsed(OwnedPatternSet.PatternKeys[Channel]);
+      end;
+
+      S.PatternSets.Add(PatternSetID, OwnedPatternSet);
+      SetLength(LegacyPatternSets, Length(LegacyPatternSets) + 1);
+      LegacyPatternSets[High(LegacyPatternSets)].PatternSet := PatternSet;
+      LegacyPatternSets[High(LegacyPatternSets)].PatternSetID := PatternSetID;
+    end;
+
+    S.Order[OrderRow] := PatternSetID;
+  end;
+
+  if Length(S.Order) = 0 then begin
+    SetLength(S.Order, 1);
+    S.Order[0] := CreatePatternSet(S);
+  end;
+end;
+
+function BuildOrderMatrix(const S: TSong; OptimizePatterns: Boolean): TOrderMatrix;
+var
+  Channel: TChannel;
+  OrderRow, PatternKey: Integer;
+  PatternSet: TPatternSet;
+
+  function FindMatchingPattern(AKey: Integer): Integer;
+  var
+    K, PatternIndex: Integer;
+    Pattern: PPattern;
+  begin
+    PatternIndex := S.Patterns.IndexOf(AKey);
+    if PatternIndex = -1 then
+      raise EPatternSetException.CreateFmt(
+        'Pattern set refers to nonexistent channel pattern %d.', [AKey]);
+
+    Pattern := S.Patterns.Data[PatternIndex];
+    for K := 0 to S.Patterns.Count - 1 do
+      if CompareByte(S.Patterns.Data[K]^, Pattern^, SizeOf(TPattern)) = 0 then
         Exit(S.Patterns.Keys[K]);
+    Result := AKey;
   end;
 begin
-  Result := S;
+  for Channel := Low(TChannel) to High(TChannel) do
+    SetLength(Result[Ord(Channel)], Length(S.Order) + 1);
 
-  // Uniquify the order matrix (so modifying the original doesn't affect this one)
-  for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
-    SetLength(Result.OrderMatrix[I], Length(Result.OrderMatrix[I]));
-
-  // De-duplicate order matrix such that only unique numbers remain
-  for I := Low(Result.OrderMatrix) to High(Result.OrderMatrix) do
-    for J := Low(Result.OrderMatrix[I]) to High(Result.OrderMatrix[I])-1 do begin
-      if Result.Patterns.IndexOf(Result.OrderMatrix[I, J]) = -1 then
-        DebugLn(['[ERROR] Nonexistent pattern number in order table: ', Result.OrderMatrix[I, J], '!!!']);
-      Result.OrderMatrix[I, J] := FindMatchingPattern(Result.Patterns.GetOrCreateNew(Result.OrderMatrix[I, J])^);
+  for OrderRow := 0 to Length(S.Order) - 1 do begin
+    PatternSet := GetPatternSet(S, S.Order[OrderRow]);
+    for Channel := Low(TChannel) to High(TChannel) do begin
+      PatternKey := PatternSet.PatternKeys[Channel];
+      if OptimizePatterns then PatternKey := FindMatchingPattern(PatternKey);
+      Result[Ord(Channel), OrderRow] := PatternKey;
     end;
+  end;
+
+  // hUGEDriver's existing order-table renderer expects one unused terminal
+  // entry. Keep that compatibility detail out of the editor's order model.
+  for Channel := Low(TChannel) to High(TChannel) do
+    if Length(S.Order) > 0 then
+      Result[Ord(Channel), Length(S.Order)] :=
+        Result[Ord(Channel), Length(S.Order) - 1]
+    else
+      Result[Ord(Channel), 0] := 0;
 end;
 
 function OrderCount(const Song: TSong): Integer;
-var
-  OrderMatrix: TOrderMatrix;
 begin
-  OrderMatrix := Song.OrderMatrix;
-  Result := MaxIntValue([High(OrderMatrix[0]), High(OrderMatrix[1]),
-    High(OrderMatrix[2]), High(OrderMatrix[3])]);
+  Result := Length(Song.Order);
 end;
 
 end.

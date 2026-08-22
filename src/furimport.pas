@@ -1287,6 +1287,7 @@ var
   PanLeft, PanRight: array[0..3] of Boolean;
   FinalPan: Integer;
   UseEffect: Boolean;
+  OrderMatrix: TOrderMatrix;
 
   function CopyContinueEffect(Cmd: Integer): Boolean;
   begin
@@ -1367,9 +1368,8 @@ begin
     // Build unique (channel, fur-pattern) → uge-pattern-id mapping
     OrdersLen := Reader.OrdersLen;
     NextUgeId := 0;
-    for I := 0 to 3 do begin
-      SetLength(Result.OrderMatrix[I], OrdersLen + 1);
-    end;
+    for I := 0 to 3 do
+      SetLength(OrderMatrix[I], OrdersLen + 1);
     for ChanID := 0 to 3 do begin
       for OrderRow := 0 to OrdersLen - 1 do begin
         FurPatId := Reader.OrderAt(ChanID, OrderRow);
@@ -1381,11 +1381,11 @@ begin
           // Seed a blank pattern in the map so channels w/ no data still exist
           Result.Patterns.GetOrCreateNew(UgePatId);
         end;
-        Result.OrderMatrix[ChanID, OrderRow] := UgePatId;
+        OrderMatrix[ChanID, OrderRow] := UgePatId;
       end;
       // Off-by-one slot at the end: point at the last valid pattern
       if OrdersLen > 0 then
-        Result.OrderMatrix[ChanID, OrdersLen] := Result.OrderMatrix[ChanID, OrdersLen - 1];
+        OrderMatrix[ChanID, OrdersLen] := OrderMatrix[ChanID, OrdersLen - 1];
     end;
 
     // Initial pan state — every channel unpanned (both sides on)
@@ -1401,7 +1401,7 @@ begin
 
     for ChanID := 0 to 3 do begin
       for OrderRow := 0 to OrdersLen - 1 do begin
-        UgePatId := Result.OrderMatrix[ChanID, OrderRow];
+        UgePatId := OrderMatrix[ChanID, OrderRow];
         Pat := Result.Patterns.GetOrCreateNew(UgePatId);
 
         FurPatId := Reader.OrderAt(ChanID, OrderRow);
@@ -1588,6 +1588,8 @@ begin
         end;
       end;
     end;
+
+    SetOrderFromOrderMatrix(Result, OrderMatrix, True);
 
     // Instruments — create hUGETracker instruments from the deduped fur lists
     for I := 0 to System.Length(PulseInsts) - 1 do begin

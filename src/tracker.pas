@@ -47,6 +47,7 @@ type
     MenuItem57: TMenuItem;
     MenuItem58: TMenuItem;
     MenuItem59: TMenuItem;
+    MenuItem60: TMenuItem;
     SingleStepAction: TAction;
     FileSave1: TAction;
     MenuItem26: TMenuItem;
@@ -54,7 +55,6 @@ type
     MenuItem55: TMenuItem;
     MenuItem56: TMenuItem;
     RevertMenuItem: TMenuItem;
-    Splitter2: TSplitter;
     TBMOpenDialog: TOpenDialog;
     FUROpenDialog: TOpenDialog;
     TicksPerRowSpinEdit1: TSpinEdit;
@@ -501,6 +501,7 @@ type
     DrawingWave, DrawingMacro: Boolean;
     Playing: Boolean;
     LoadingFile: Boolean;
+    UpdatingOrderGrid: Boolean;
     SaveSucceeded: Boolean;
 
     WaveInstrumentsNode,
@@ -522,8 +523,8 @@ type
     procedure LoadWave(Wave: Integer);
     procedure LoadSong(Filename: String);
     procedure ReloadPatterns;
-    procedure CopyOrderGridToOrderMatrix;
-    procedure CopyOrderMatrixToOrderGrid;
+    procedure CopyOrderGridToOrder;
+    procedure CopyOrderToOrderGrid;
     procedure CopyWaveIntoWaveRam(Wave: Integer);
     function ConvertWaveToHexString(Wave: Integer): String;
 
@@ -638,7 +639,7 @@ begin
   UpdateWindowTitle;
 
   RecreateTrackerGrid;
-  CopyOrderMatrixToOrderGrid;
+  CopyOrderToOrderGrid;
 
   while InstrumentComboBox.Items.Count > 1 do
     InstrumentComboBox.Items.Delete(1);
@@ -663,7 +664,7 @@ begin
 
   LoadingFile := False; // HACK!!!!
 
-  OrderEditStringGrid.Row := 1;
+  OrderEditStringGrid.Row := 0;
   ReloadPatterns;
 
   PageControl1.ActivePageIndex := 0;
@@ -1024,7 +1025,7 @@ begin
   end;
 
   if  (TrackerGrid.Cursor.Y < Low(TPattern))
-  and (OrderEditStringGrid.Row > 1) then begin
+  and (OrderEditStringGrid.Row > 0) then begin
     OrderEditStringGrid.Row := OrderEditStringGrid.Row-1;
     TrackerGrid.Cursor.Y := High(TPattern);
   end;
@@ -1074,71 +1075,59 @@ end;
 
 procedure TfrmTracker.ReloadPatterns;
 var
-  I: Integer;
-  OrderNum: Integer;
+  Channel: TChannel;
+  PatternSetID: Integer;
+  PatternSet: TPatternSet;
 begin
-  if LoadingFile then Exit;
+  if LoadingFile or UpdatingOrderGrid then Exit;
+  if not InRange(OrderEditStringGrid.Row, 0,
+    OrderEditStringGrid.RowCount - 1) then Exit;
 
-  for I := 0 to 3 do begin
-    OrderNum := 0;
-    TryStrToInt(
-      OrderEditStringGrid.Cells[I+1, OrderEditStringGrid.Row],
-      OrderNum
-    );
-    TrackerGrid.LoadPattern(I, OrderNum);
-  end;
+  PatternSetID := 0;
+  TryStrToInt(OrderEditStringGrid.Cells[0, OrderEditStringGrid.Row],
+    PatternSetID);
+  PatternSet := EnsurePatternSet(Song, PatternSetID);
 
-  CopyOrderGridToOrderMatrix;
+  for Channel := Low(TChannel) to High(TChannel) do
+    TrackerGrid.LoadPattern(Ord(Channel), PatternSet.PatternKeys[Channel]);
 end;
 
-procedure TfrmTracker.CopyOrderGridToOrderMatrix;
+procedure TfrmTracker.CopyOrderGridToOrder;
 var
-  C, R, OrderNum: Integer;
+  R, PatternSetID: Integer;
 begin
-  // Copy the data in the grid to the song's order matrix. Not super efficient
-  // but it's fast enough
+  if LoadingFile or UpdatingOrderGrid then Exit;
+
   with OrderEditStringGrid do begin
-    for C := 0 to 3 do begin
-      SetLength(Song.OrderMatrix[C], RowCount);
-      for R := 0 to RowCount-2 do begin
-        OrderNum := 0;
-        TryStrToInt(Cells[C+1, R+1], OrderNum);
-        Song.OrderMatrix[C, R] := OrderNum;
-      end;
+    SetLength(Song.Order, RowCount);
+    for R := 0 to RowCount - 1 do begin
+      PatternSetID := 0;
+      TryStrToInt(Cells[0, R], PatternSetID);
+      EnsurePatternSet(Song, PatternSetID);
+      Song.Order[R] := PatternSetID;
     end;
   end;
 end;
 
-procedure TfrmTracker.CopyOrderMatrixToOrderGrid;
-
-function IntToStr_(X: Integer): String;
-begin
-  if X = 0 then Result := '' else Result := IntToStr(X);
-end;
-
+procedure TfrmTracker.CopyOrderToOrderGrid;
 var
-  MaxRows, C, R: Integer;
+  R: Integer;
 begin
-  MaxRows := -1;
-  OrderEditStringGrid.Clean([gzNormal]);
-
-  for C := Low(TOrderMatrix) to High(TOrderMatrix) do
-    if Length(Song.OrderMatrix[C]) > MaxRows then
-      MaxRows := Length(Song.OrderMatrix[C]);
-
-  OrderEditStringGrid.RowCount := MaxRows;
-
-  for C := Low(Song.OrderMatrix) to High(Song.OrderMatrix) do begin
-    for R := 0 to High(Song.OrderMatrix[C])-1 do
-      OrderEditStringGrid.Cells[C+1, R+1] := IntToStr_(Song.OrderMatrix[C, R]);
+  if Length(Song.Order) = 0 then begin
+    EnsurePatternSet(Song, 0);
+    SetLength(Song.Order, 1);
+    Song.Order[0] := 0;
   end;
 
-  // Show zeroes where they belong
-  for R := 1 to OrderEditStringGrid.RowCount-1 do
-    if Trim(OrderEditStringGrid.Rows[R].Text) <> '' then
-      for C := 1 to OrderEditStringGrid.ColCount-1 do
-        if OrderEditStringGrid.Cells[C, R] = '' then
-          OrderEditStringGrid.Cells[C, R] := '0';
+  UpdatingOrderGrid := True;
+  try
+    OrderEditStringGrid.Clean([gzNormal]);
+    OrderEditStringGrid.RowCount := Length(Song.Order);
+    for R := 0 to Length(Song.Order) - 1 do
+      OrderEditStringGrid.Cells[0, R] := IntToStr(Song.Order[R]);
+  finally
+    UpdatingOrderGrid := False;
+  end;
 end;
 
 procedure TfrmTracker.CopyWaveIntoWaveRam(Wave: Integer);
@@ -1253,7 +1242,7 @@ procedure TfrmTracker.OnFD(var Msg: TLMessage);
 begin
   InFDCallback := True; // HACK!!!!!!!!!
   TrackerGrid.HighlightedRow := PeekSymbol(SYM_ROW);
-  OrderEditStringGrid.Row := (PeekSymbol(SYM_CURRENT_ORDER) div 2) + 1;
+  OrderEditStringGrid.Row := PeekSymbol(SYM_CURRENT_ORDER) div 2;
   InFDCallback := False; // HACK!!!!!!!!
 end;
 
@@ -1605,9 +1594,9 @@ begin
   Song.TicksPerRow[3] := TicksPerRowSpinEdit3.Value;
 
   // Initialize order table (InitializeSong creates the default order table)
-  CopyOrderMatrixToOrderGrid;
+  CopyOrderToOrderGrid;
 
-  // Manually resize the fixed column in the order editor, set hex option
+  // Size the order editor's pattern column and apply display options.
   OrderEditStringGrid.ColWidths[0]:=50;
   OrderEditStringGrid.DrawHexAutonumbering := TrackerSettings.DisplayOrderRowNumbersAsHex;
 
@@ -2095,7 +2084,7 @@ begin
   if GetPreviewReady then begin
     Playing := True;
 
-    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_CURRENT_ORDER, 2*OrderEditStringGrid.Row);
     PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
     PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
 
@@ -2108,7 +2097,7 @@ begin
   if GetPreviewReady then begin
     Playing := True;
 
-    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_CURRENT_ORDER, 2*OrderEditStringGrid.Row);
     PokeSymbol(SYM_ROW, 0);
     PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
 
@@ -2279,28 +2268,31 @@ end;
 
 procedure TfrmTracker.MenuItem59Click(Sender: TObject);
 var
-  I: Integer;
-  T: Integer;
+  I, PatternKey: Integer;
+  PatternSet: TPatternSet;
 begin
-    for I := Low(Song.OrderMatrix[0]) to High(Song.OrderMatrix[0]) do begin
-      writeln('swappin', I);
-      T :=Song.OrderMatrix[0][I];
-      Song.OrderMatrix[0][I] := Song.OrderMatrix[1][I];
-
-    Song.OrderMatrix[1][I] := T;
+  for I := 0 to Song.PatternSets.Count - 1 do begin
+    PatternSet := Song.PatternSets.Data[I];
+    PatternKey := PatternSet.PatternKeys[chDuty1];
+    PatternSet.PatternKeys[chDuty1] := PatternSet.PatternKeys[chDuty2];
+    PatternSet.PatternKeys[chDuty2] := PatternKey;
+    Song.PatternSets.Data[I] := PatternSet;
   end;
-    CopyOrderMatrixToOrderGrid;
   ReloadPatterns;
 end;
 
 procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
 begin
-  if OrderEditStringGrid.Row > -1 then
+  if UpdatingOrderGrid then Exit;
+
+  if OrderEditStringGrid.Row > -1 then begin
+    CopyOrderGridToOrder;
     ReloadPatterns;
+  end;
 
   if (not InFDCallback) and Playing then begin // Hacky solution, but probably the best there is.
     LockPlayback;
-    PokeSymbol(SYM_NEXT_ORDER, OrderEditStringGrid.Row);
+    PokeSymbol(SYM_NEXT_ORDER, OrderEditStringGrid.Row + 1);
     PokeSymbol(SYM_ROW_BREAK, 1);
     UnlockPlayback;
   end
@@ -2333,7 +2325,7 @@ begin
   else if GetPreviewReady then begin
     Playing := True;
 
-    PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
+    PokeSymbol(SYM_CURRENT_ORDER, 2*OrderEditStringGrid.Row);
     PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
     PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
     PokeSymbol(SYM_SINGLE_STEPPING, 1);
@@ -2383,15 +2375,8 @@ begin
 end;
 
 procedure TfrmTracker.DebugButtonClick(Sender: TObject);
-var
-  I: Integer;
 begin
-  for I := Low(Song.OrderMatrix[0]) to High(Song.OrderMatrix[1]) do begin
-    Song.OrderMatrix[0][I] := Song.OrderMatrix[0][I] xor Song.OrderMatrix[1][I];
-    Song.OrderMatrix[1][I] := Song.OrderMatrix[0][I] xor Song.OrderMatrix[1][I];
-    Song.OrderMatrix[0][I] := Song.OrderMatrix[0][I] xor Song.OrderMatrix[1][I];
-  end;
-  ReloadPatterns;
+  MenuItem59Click(Sender);
 end;
 
 procedure TfrmTracker.DecreaseOctaveActionExecute(Sender: TObject);
@@ -2569,79 +2554,64 @@ end;
 
 procedure TfrmTracker.MenuItem17Click(Sender: TObject);
 var
-  X, Highest: Integer;
+  PatternSetID: Integer;
 begin
-  Highest := Song.Patterns.MaxKey;
+  PatternSetID := CreatePatternSet(Song);
 
   with OrderEditStringGrid do
-    InsertRowWithValues(
-      Row+1,
-      ['',
-      IntToStr(Highest),
-      IntToStr(Highest+1),
-      IntToStr(Highest+2),
-      IntToStr(Highest+3)]
-    );
+    InsertRowWithValues(Row + 1, [IntToStr(PatternSetID)]);
 
-  for X := 0 to 3 do
-    Song.Patterns.GetOrCreateNew(Highest+X);
+  OrderEditStringGrid.Row := OrderEditStringGrid.Row + 1;
 
-  OrderEditStringGrid.Row := OrderEditStringGrid.Row+1;
-
+  CopyOrderGridToOrder;
   ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem18Click(Sender: TObject);
 begin
   with OrderEditStringGrid do
-    InsertRowWithValues(Row+1, ['', '0', '0', '0', '0']);
+    InsertRowWithValues(Row + 1, ['0']);
 
-  OrderEditStringGrid.Row := OrderEditStringGrid.Row+1;
+  OrderEditStringGrid.Row := OrderEditStringGrid.Row + 1;
 
+  CopyOrderGridToOrder;
   ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem19Click(Sender: TObject);
 begin
-  if OrderEditStringGrid.RowCount > 2 then
+  if OrderEditStringGrid.RowCount > 1 then
     OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
 
+  CopyOrderGridToOrder;
   ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem21Click(Sender: TObject);
+var
+  PatternSetID: Integer;
 begin
-  with OrderEditStringGrid do begin
-    InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
-    Rows[Row-1] := Rows[Row];
-  end;
+  PatternSetID := Song.Order[OrderEditStringGrid.Row];
+  with OrderEditStringGrid do
+    InsertRowWithValues(Row + 1, [IntToStr(PatternSetID)]);
 
+  OrderEditStringGrid.Row := OrderEditStringGrid.Row + 1;
+  CopyOrderGridToOrder;
   ReloadPatterns;
 end;
 
 procedure TfrmTracker.MenuItem22Click(Sender: TObject);
 var
-  X, Highest: Integer;
+  PatternSetID: Integer;
 begin
-  Highest := Song.Patterns.MaxKey;
+  PatternSetID := ClonePatternSet(Song,
+    Song.Order[OrderEditStringGrid.Row]);
 
-  with OrderEditStringGrid do begin
-    InsertRowWithValues(
-      Row+1,
-      ['',
-      IntToStr(Highest),
-      IntToStr(Highest+1),
-      IntToStr(Highest+2),
-      IntToStr(Highest+3)]
-    );
+  with OrderEditStringGrid do
+    InsertRowWithValues(Row + 1, [IntToStr(PatternSetID)]);
 
-    for X := 0 to 3 do
-      Song.Patterns.GetOrCreateNew(Highest+X)^ :=
-        Song.Patterns.KeyData[StrToInt(Rows[Row][X+1])]^;
-
-    Row := Row+1;
-  end;
-
+  OrderEditStringGrid.Row := OrderEditStringGrid.Row + 1;
+  CopyOrderGridToOrder;
   ReloadPatterns;
 end;
 
@@ -2759,12 +2729,14 @@ end;
 procedure TfrmTracker.OrderEditStringGridAfterSelection(Sender: TObject; aCol,
   aRow: Integer);
 begin
+  if UpdatingOrderGrid then Exit;
+
   if OrderEditStringGrid.Row > -1 then
     ReloadPatterns;
 
   if (not InFDCallback) and Playing then begin // Hacky solution, but probably the best there is.
     LockPlayback;
-    PokeSymbol(SYM_NEXT_ORDER, OrderEditStringGrid.Row);
+    PokeSymbol(SYM_NEXT_ORDER, OrderEditStringGrid.Row + 1);
     PokeSymbol(SYM_ROW_BREAK, 1);
     UnlockPlayback;
   end
@@ -2773,35 +2745,47 @@ end;
 procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
-  if OrderEditStringGrid.RowCount = 1 then
-    with OrderEditStringGrid do
-      InsertRowWithValues(Row, ['', '0', '0', '0', '0']);
+  if UpdatingOrderGrid then Exit;
 
-  OrderEditStringGrid.Row := OrderEditStringGrid.Row-1;
+  if OrderEditStringGrid.RowCount < 1 then begin
+    OrderEditStringGrid.RowCount := 1;
+    OrderEditStringGrid.Cells[0, 0] := '0';
+  end;
+
+  OrderEditStringGrid.Row := EnsureRange(OrderEditStringGrid.Row,
+    0, OrderEditStringGrid.RowCount - 1);
+  CopyOrderGridToOrder;
   ReloadPatterns;
 end;
 
 procedure TfrmTracker.OrderEditStringGridColRowExchanged(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
+  if UpdatingOrderGrid then Exit;
+
+  CopyOrderGridToOrder;
   ReloadPatterns;
 end;
 
 procedure TfrmTracker.OrderEditStringGridColRowInserted(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
+  if UpdatingOrderGrid then Exit;
+
+  CopyOrderGridToOrder;
   ReloadPatterns;
 end;
 
 procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
 var
-  Highest: Integer;
+  PatternSetID: Integer;
 begin
-  Highest := Song.Patterns.MaxKey;
+  PatternSetID := CreatePatternSet(Song);
 
   with OrderEditStringGrid do begin
-    Cells[Col, Row] := IntToStr(Highest);
-    TrackerGrid.LoadPattern(Col - 1, Highest);
+    Cells[0, Row] := IntToStr(PatternSetID);
+    CopyOrderGridToOrder;
+    ReloadPatterns;
   end;
 end;
 
@@ -2809,9 +2793,8 @@ procedure TfrmTracker.OrderEditStringGridKeyDown(Sender: TObject;
   var Key: Word; Shift: TShiftState);
 begin
   if Key = VK_DELETE then begin
-    // TODO: Make this stop the editor from showing
-    OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
-    ReloadPatterns;
+    MenuItem19Click(Sender);
+    Key := 0;
   end;
 end;
 
