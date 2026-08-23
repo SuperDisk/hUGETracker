@@ -546,6 +546,7 @@ type
     procedure UpdateWindowTitle;
     procedure UpdateHexWaveTextbox;
     procedure UpdateBPMLabel;
+    procedure UpdateSongSizeStatus;
 
     function CheckUnsavedChanges: Boolean;
 
@@ -605,6 +606,7 @@ var
   I: Integer;
 begin
   HaltPlayback;
+  StatusBar1.Panels[3].Text := 'Song size: not generated';
 
   SubpatternMap.Clear;
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
@@ -1154,6 +1156,17 @@ begin
   Result := RenderSongToFile(ConcatPaths([CacheDir, 'preview.gb']), emPreview);
 end;
 
+procedure TfrmTracker.UpdateSongSizeStatus;
+var
+  SongSize: Integer;
+begin
+  SongSize := GetLastGeneratedSongSize;
+  if SongSize >= 0 then
+    StatusBar1.Panels[3].Text := Format('Song size: %d bytes', [SongSize])
+  else
+    StatusBar1.Panels[3].Text := 'Song size: unavailable';
+end;
+
 function TfrmTracker.RenderSongToFile(Filename: String; Mode: TExportMode = emNormal): Boolean;
 begin
   Result := False;
@@ -1186,6 +1199,7 @@ begin
       {$endif}
     end;
   end;
+  UpdateSongSizeStatus;
 end;
 
 function TfrmTracker.GetPreviewReady: Boolean;

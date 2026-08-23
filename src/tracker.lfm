@@ -1845,6 +1845,10 @@ object frmTracker: TfrmTracker
       end    
       item
         Width = 200
+      end
+      item
+        Text = 'Song size: not generated'
+        Width = 200
       end>
     ParentFont = False
     ParentShowHint = False
