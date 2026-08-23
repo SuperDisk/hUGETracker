@@ -81,9 +81,15 @@ type
     Frequency: Integer;
   end;
 
+  TInstrumentIndexMap = array[TInstrumentType, 0..15] of Integer;
+  TInstrumentCounts = array[TInstrumentType] of Integer;
+  TWaveformIndexMap = array[0..15] of Integer;
+
   TUsedStuff = record
-    HighestDutyInst, HighestWaveInst, HighestNoiseInst: Integer;
-    HighestWaveform: Integer;
+    InstrumentMap: TInstrumentIndexMap;
+    InstrumentCount: TInstrumentCounts;
+    WaveformMap: TWaveformIndexMap;
+    WaveformCount: Integer;
     UsedPatterns: array[TChannel] of TAvgLvlTree;
   end;
 
@@ -114,45 +120,44 @@ begin
   Result := Integer(Data1^) - Integer(Data2^);
 end;
 
+function ChannelInstrumentType(Channel: TChannel): TInstrumentType;
+begin
+  case Channel of
+    chDuty1, chDuty2: Result := itSquare;
+    chWave: Result := itWave;
+    chNoise: Result := itNoise;
+  end;
+end;
+
 function FindUsedStuff(const Song: TSong;
   const OrderMatrix: TOrderMatrix): TUsedStuff;
 var
   I, J: Integer;
   Channel: TChannel;
+  InstrumentType: TInstrumentType;
   Pat: PPattern;
   Cell: TCell;
   Instr: TInstrument;
-  InstValue: Integer;
-  Highest: ^Integer;
   Waveform: Integer;
+  UsedInstruments: array[TInstrumentType, 1..15] of Boolean;
+  UsedWaveforms: array[0..15] of Boolean;
 begin
+  FillChar(UsedInstruments, SizeOf(UsedInstruments), 0);
+  FillChar(UsedWaveforms, SizeOf(UsedWaveforms), 0);
   for Channel := Low(TChannel) to High(TChannel) do
     Result.UsedPatterns[Channel] := TAvgLvlTree.Create(@CompareIntPointers);
-  Result.HighestDutyInst := -1;
-  Result.HighestWaveInst := -1;
-  Result.HighestNoiseInst := -1;
-  Result.HighestWaveform := -1;
-
-  for Instr in Song.Instruments.Wave do begin
-    if not Instr.SubpatternEnabled then Continue;
-
-    for Cell in Instr.Subpattern do
-      if Cell.EffectCode = $9 then begin
-        Waveform := Cell.EffectParams.Value;
-        if InRange(Waveform, 0, 15) and (Waveform > Result.HighestWaveform) then
-          Result.HighestWaveform := Waveform;
-      end;
+  for InstrumentType := Low(TInstrumentType) to High(TInstrumentType) do begin
+    Result.InstrumentCount[InstrumentType] := 0;
+    for I := 0 to 15 do Result.InstrumentMap[InstrumentType, I] := -1;
+    Result.InstrumentMap[InstrumentType, 0] := 0;
   end;
+  Result.WaveformCount := 0;
+  for I := 0 to 15 do Result.WaveformMap[I] := -1;
 
   for I := Low(OrderMatrix) to High(OrderMatrix) do begin
-    case I of
-      0, 1: Highest := @Result.HighestDutyInst;
-      2: Highest := @Result.HighestWaveInst;
-      3: Highest := @Result.HighestNoiseInst;
-    end;
-
+    Channel := TChannel(I);
+    InstrumentType := ChannelInstrumentType(Channel);
     for J := Low(OrderMatrix[I]) to High(OrderMatrix[I])-1 do begin
-      Channel := TChannel(I);
       if Result.UsedPatterns[Channel].Find(@OrderMatrix[I, J]) <> nil then
         Continue;
 
@@ -160,30 +165,46 @@ begin
 
       Pat := Song.Patterns.KeyData[OrderMatrix[I, J]];
       for Cell in Pat^ do begin
-        if (Cell.EffectCode = $9) and (I = 2) then begin // waveforms on wave channel
+        if (Cell.EffectCode = $9) and (Channel = chWave) then begin
           Waveform := Cell.EffectParams.Value;
-          if InRange(Waveform, 0, 15) and (Waveform > Result.HighestWaveform) then
-            Result.HighestWaveform := Waveform;
+          if InRange(Waveform, 0, 15) then
+            UsedWaveforms[Waveform] := True;
         end;
 
-        if Cell.Instrument = 0 then Continue;
-
-        if InRange(Cell.Instrument, 0, 15) then
-          InstValue := Cell.Instrument
-        else
-          InstValue := 0;
-
-        if InstValue > Highest^ then
-          Highest^ := InstValue;
-
-        if (I = 2) then begin // Wave channel
-          Waveform := Song.Instruments.Wave[Cell.Instrument].Waveform;
-          if Waveform > Result.HighestWaveform then
-            Result.HighestWaveform := Waveform;
-        end;
+        if InRange(Cell.Instrument, 1, 15) then
+          UsedInstruments[InstrumentType, Cell.Instrument] := True;
       end;
     end;
   end;
+
+  // A used wave instrument can select waveforms both initially and from its
+  // subpattern. Ignore subpatterns belonging to instruments that will not be
+  // exported.
+  for I := 1 to 15 do begin
+    if not UsedInstruments[itWave, I] then Continue;
+    Instr := Song.Instruments.Wave[I];
+    if InRange(Instr.Waveform, 0, 15) then
+      UsedWaveforms[Instr.Waveform] := True;
+    if Instr.SubpatternEnabled then
+      for Cell in Instr.Subpattern do
+        if (Cell.EffectCode = $9) and
+          InRange(Cell.EffectParams.Value, 0, 15) then
+          UsedWaveforms[Cell.EffectParams.Value] := True;
+  end;
+
+  // Keep source ordering stable while packing out holes.
+  for InstrumentType := Low(TInstrumentType) to High(TInstrumentType) do
+    for I := 1 to 15 do
+      if UsedInstruments[InstrumentType, I] then begin
+        Inc(Result.InstrumentCount[InstrumentType]);
+        Result.InstrumentMap[InstrumentType, I] :=
+          Result.InstrumentCount[InstrumentType];
+      end;
+  for I := 0 to 15 do
+    if UsedWaveforms[I] then begin
+      Result.WaveformMap[I] := Result.WaveformCount;
+      Inc(Result.WaveformCount);
+    end;
 end;
 
 procedure FreeUsedStuff(const UsedStuff: TUsedStuff);
@@ -200,18 +221,37 @@ begin
   Result := UsedStuff.UsedPatterns[Channel].Find(@Pattern) <> nil;
 end;
 
-function InstrumentIsUsed(Instrument: Integer; Type_: TInstrumentType; const UsedStuff: TUsedStuff): Boolean;
+function InstrumentIsUsed(Instrument: Integer; Type_: TInstrumentType;
+  const UsedStuff: TUsedStuff): Boolean;
 begin
-  case Type_ of
-    itSquare: Result := Instrument <= UsedStuff.HighestDutyInst;
-    itWave: Result := Instrument <= UsedStuff.HighestWaveInst;
-    itNoise: Result := Instrument <= UsedStuff.HighestNoiseInst;
-  end;
+  Result := InRange(Instrument, 1, 15) and
+    (UsedStuff.InstrumentMap[Type_, Instrument] > 0);
 end;
 
-function CellToNoteRecord(const Cell: TCell): Integer;
+function RemapInstrument(Instrument: Integer; Type_: TInstrumentType;
+  const UsedStuff: TUsedStuff): Integer;
+begin
+  if InRange(Instrument, 1, 15) and
+    (UsedStuff.InstrumentMap[Type_, Instrument] > 0) then
+    Result := UsedStuff.InstrumentMap[Type_, Instrument]
+  else
+    Result := 0;
+end;
+
+function RemapWaveform(Waveform: Integer;
+  const UsedStuff: TUsedStuff): Integer;
+begin
+  if InRange(Waveform, 0, 15) and
+    (UsedStuff.WaveformMap[Waveform] >= 0) then
+    Result := UsedStuff.WaveformMap[Waveform]
+  else
+    Result := Waveform;
+end;
+
+function CellToNoteRecord(const Cell: TCell; Channel: TChannel;
+  const UsedStuff: TUsedStuff): Integer;
 var
-  Note, Instrument, Effect: Integer;
+  Note, Instrument, Effect, EffectParams: Integer;
   B1, B2, B3: Byte;
 begin
   if InRange(Cell.Note, 0, HIGHEST_NOTE) then
@@ -219,12 +259,13 @@ begin
   else
     Note := LAST_NOTE;
 
-  if InRange(Cell.Instrument, 0, 15) then
-    Instrument := Cell.Instrument
-  else
-    Instrument := 0;
+  Instrument := RemapInstrument(Cell.Instrument,
+    ChannelInstrumentType(Channel), UsedStuff);
 
-  Effect := (Cell.EffectCode shl 8) or Cell.EffectParams.Value;
+  EffectParams := Cell.EffectParams.Value;
+  if (Channel = chWave) and (Cell.EffectCode = $9) then
+    EffectParams := RemapWaveform(EffectParams, UsedStuff);
+  Effect := (Cell.EffectCode shl 8) or EffectParams;
   DN(Note, Instrument, Effect, B1, B2, B3);
   Result := B1 or (B2 shl 8) or (B3 shl 16);
 end;
@@ -295,7 +336,8 @@ begin
 
       Pattern := Song.Patterns.Data[PatternIndex];
       for CellIndex := Low(TPattern) to High(TPattern) do begin
-        NoteRecord := CellToNoteRecord(Pattern^[CellIndex]);
+        NoteRecord := CellToNoteRecord(Pattern^[CellIndex], Channel,
+          UsedStuff);
         FrequencyIndex := Frequencies.IndexOf(NoteRecord);
         if FrequencyIndex = -1 then
           Frequencies.Add(NoteRecord, 1)
@@ -336,8 +378,9 @@ begin
     Result[Channel] := BuildNoteCatalog(Song, Channel, UsedStuff);
 end;
 
-function EncodePattern(const Pattern: TPattern;
-  const Catalog: TNoteCatalog): TEncodedPattern;
+function EncodePattern(const Pattern: TPattern; Channel: TChannel;
+  const Catalog: TNoteCatalog;
+  const UsedStuff: TUsedStuff): TEncodedPattern;
 var
   Row, CatalogIndex: Integer;
   NoteRecord: Integer;
@@ -345,7 +388,7 @@ begin
   Result := nil;
   SetLength(Result, Length(Pattern));
   for Row := Low(TPattern) to High(TPattern) do begin
-    NoteRecord := CellToNoteRecord(Pattern[Row]);
+    NoteRecord := CellToNoteRecord(Pattern[Row], Channel, UsedStuff);
     CatalogIndex := CatalogIndexOf(Catalog, NoteRecord);
     if CatalogIndex >= 0 then
       Result[Row] := CatalogIndex
@@ -517,7 +560,8 @@ begin
       Result.Patterns[EntryIndex].Channel := Channel;
       Result.Patterns[EntryIndex].PatternKey := Song.Patterns.Keys[PatternIndex];
       Result.Patterns[EntryIndex].Pattern := EncodePattern(
-        Song.Patterns.Data[PatternIndex]^, Catalogs[Channel]);
+        Song.Patterns.Data[PatternIndex]^, Channel, Catalogs[Channel],
+        UsedStuff);
     end;
   end;
 
@@ -688,7 +732,7 @@ end;
 
 procedure ValidateChannelEncoding(const Song: TSong; Channel: TChannel;
   const Catalog: TNoteCatalog; const Encoding: TChannelEncoding;
-  const Dictionary: TPatternDictionary);
+  const Dictionary: TPatternDictionary; const UsedStuff: TUsedStuff);
 var
   EntryIndex, PatternIndex, Row: Integer;
   OriginalPattern: PPattern;
@@ -700,7 +744,8 @@ var
       raise Exception.CreateFmt(
         'Pattern routine encoding overran channel %d pattern %d',
         [Ord(Channel) + 1, Encoding.Patterns[EntryIndex].PatternKey]);
-    if Value <> CellToNoteRecord(OriginalPattern^[Row]) then
+    if Value <> CellToNoteRecord(OriginalPattern^[Row], Channel,
+      UsedStuff) then
       raise Exception.CreateFmt(
         'Pattern routine encoding mismatch in channel %d pattern %d row %d',
         [Ord(Channel) + 1, Encoding.Patterns[EntryIndex].PatternKey, Row]);
@@ -828,7 +873,8 @@ begin
       raise Exception.CreateFmt('Missing pattern dictionary for channel %d',
         [Ord(Channel) + 1]);
     ValidateChannelEncoding(Song, Channel, Catalogs[Channel],
-      Result.Channels[Channel], Result.Dictionaries[DictionaryIndex]);
+      Result.Channels[Channel], Result.Dictionaries[DictionaryIndex],
+      UsedStuff);
   end;
 end;
 
@@ -1097,9 +1143,12 @@ begin
 end;
 
 procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: string; Bank: Integer = -1);
-  function RenderGBDKSubpatternCell(Cell: TCell; Last: Boolean): string;
+  function RenderGBDKSubpatternCell(Cell: TCell; Last: Boolean;
+    InstrumentType: TInstrumentType;
+    const AUsedStuff: TUsedStuff): string;
   var
     SL: TStringList;
+    EffectParams: TEffectParams;
   begin
     SL := TStringList.Create;
     SL.Delimiter := ',';
@@ -1114,19 +1163,25 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     else
       SL.Add(IntToStr(EnsureRange(Cell.Volume, 0, 32)));
 
-    SL.Add('0x' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
+    EffectParams := Cell.EffectParams;
+    if (InstrumentType = itWave) and (Cell.EffectCode = $9) then
+      EffectParams.Value := RemapWaveform(EffectParams.Value, AUsedStuff);
+    SL.Add('0x' + EffectCodeToStr(Cell.EffectCode, EffectParams));
 
     Result := SL.DelimitedText;
     SL.Free;
   end;
 
-  function RenderGBDKSubpattern(Name: string; Pat: TPattern): string;
+  function RenderGBDKSubpattern(Name: string; Pat: TPattern;
+    InstrumentType: TInstrumentType;
+    const AUsedStuff: TUsedStuff): string;
   var
     I: Integer;
   begin
     Result := 'static const unsigned char ' + Name + '[] = {' + LineEnding;
     for I := 0 to 31 do
-      Result += '    DN(' + RenderGBDKSubpatternCell(Pat[I], I = 31) + '),' + LineEnding;
+      Result += '    DN(' + RenderGBDKSubpatternCell(Pat[I], I = 31,
+        InstrumentType, AUsedStuff) + '),' + LineEnding;
     Result += '};';
   end;
 
@@ -1150,7 +1205,8 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     SL.Free;
   end;
 
-  function RenderGBDKInstrument(Instrument: TInstrument; Num: Integer): string;
+  function RenderGBDKInstrument(Instrument: TInstrument; Num: Integer;
+    const AUsedStuff: TUsedStuff): string;
   var
     SL: TStringList;
     AsmInstrument: TAsmInstrument;
@@ -1158,6 +1214,8 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     HighMask: byte;
     TypePrefix: String;
   begin
+    if Instrument.Type_ = itWave then
+      Instrument.Waveform := RemapWaveform(Instrument.Waveform, AUsedStuff);
     AsmInstrument := InstrumentToBytes(Instrument);
     SL := TStringList.Create;
     SL.StrictDelimiter := True;
@@ -1193,37 +1251,45 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     Result := '{'+SL.DelimitedText+'}';
   end;
 
-  function RenderGBDKInstrumentBank(Name: string; Bank: TInstrumentBank; Limit: Integer): string;
+  function RenderGBDKInstrumentBank(Name: string;
+    InstrumentBank: TInstrumentBank;
+    const AUsedStuff: TUsedStuff): string;
   var
-    I: integer;
+    I, NewIndex: integer;
     InstrType: String;
+    InstrumentType: TInstrumentType;
   begin
-    case Bank[1].Type_ of
+    InstrumentType := InstrumentBank[1].Type_;
+    case InstrumentType of
       itSquare: InstrType := 'hUGEDutyInstr_t';
       itWave: InstrType := 'hUGEWaveInstr_t';
       itNoise: InstrType := 'hUGENoiseInstr_t';
     end;
 
-    if Limit = -1 then
+    if AUsedStuff.InstrumentCount[InstrumentType] = 0 then
       Exit('static const ' + InstrType + '* ' + Name + ' = NULL;'+LineEnding);
 
     Result := 'static const ' + InstrType + ' ' + Name + '[] = {'+LineEnding;
-    for I := Low(Bank) to Limit do begin
-      Result += '    '+RenderGBDKInstrument(Bank[I], I) + ','+LineEnding;
-    end;
+    for I := Low(InstrumentBank) to High(InstrumentBank) do
+      if InstrumentIsUsed(I, InstrumentType, AUsedStuff) then begin
+        NewIndex := AUsedStuff.InstrumentMap[InstrumentType, I];
+        Result += '    '+RenderGBDKInstrument(InstrumentBank[I], NewIndex,
+          AUsedStuff) + ','+LineEnding;
+      end;
     Result += '};';
   end;
 
-  function RenderGBDKWaves(Waves: TWaveBank; Limit: Integer): string;
+  function RenderGBDKWaves(Waves: TWaveBank;
+    const AUsedStuff: TUsedStuff): string;
   var
     I, J: integer;
   begin
-    if Limit = -1 then
+    if AUsedStuff.WaveformCount = 0 then
       Exit('static const unsigned char* waves = NULL;'+LineEnding);
 
     Result := 'static const unsigned char waves[] = {'+LineEnding;
-    for I := Low(Waves) to Limit do
-    begin
+    for I := Low(Waves) to High(Waves) do begin
+      if AUsedStuff.WaveformMap[I] < 0 then Continue;
       Result += '    ';
       J := Low(Waves[I]);
       while J < High(Waves[I]) do
@@ -1290,7 +1356,9 @@ begin
       with Song.Instruments.All[I] do begin
         if SubpatternEnabled then begin
           WriteStr(TypePrefix, Type_);
-          OutSL.Add(RenderGBDKSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+          OutSL.Add(RenderGBDKSubpattern(TypePrefix+'SP' +
+            IntToStr(UsedStuff.InstrumentMap[Type_, ModInst(I)]),
+            Subpattern, Type_, UsedStuff));
         end;
       end;
 
@@ -1298,12 +1366,15 @@ begin
     OutSL.Add(RenderGBDKOrder(Channel, OrderMatrix[Ord(Channel)]));
   OutSL.Add('');
 
-  OutSL.Add(RenderGBDKInstrumentBank('duty_instruments', Song.Instruments.Duty, UsedStuff.HighestDutyInst));
-  OutSL.Add(RenderGBDKInstrumentBank('wave_instruments', Song.Instruments.Wave, UsedStuff.HighestWaveInst));
-  OutSL.Add(RenderGBDKInstrumentBank('noise_instruments', Song.Instruments.Noise, UsedStuff.HighestNoiseInst));
+  OutSL.Add(RenderGBDKInstrumentBank('duty_instruments',
+    Song.Instruments.Duty, UsedStuff));
+  OutSL.Add(RenderGBDKInstrumentBank('wave_instruments',
+    Song.Instruments.Wave, UsedStuff));
+  OutSL.Add(RenderGBDKInstrumentBank('noise_instruments',
+    Song.Instruments.Noise, UsedStuff));
   OutSL.Add('');
 
-  OutSL.Add(RenderGBDKWaves(Song.Waves, UsedStuff.HighestWaveform));
+  OutSL.Add(RenderGBDKWaves(Song.Waves, UsedStuff));
   OutSL.Add('');
 
   if Bank <> -1 then
@@ -1361,31 +1432,43 @@ begin
   Res.Free;
 end;
 
-function RenderInstruments(Instruments: TInstrumentBank; Limit: Integer): string;
+function RenderInstruments(Instruments: TInstrumentBank;
+  const UsedStuff: TUsedStuff): string;
 var
   ResultSL: TStringList;
   AsmInstrument: TAsmInstrument;
-  I, J: integer;
+  I, J, NewIndex: integer;
+  Instrument, ExportInstrument: TInstrument;
+  InstrumentType: TInstrumentType;
   TypePrefix: string;
   HighMask: byte;
 begin
   ResultSL := TStringList.Create;
+  InstrumentType := Instruments[1].Type_;
 
-  for I := Low(Instruments) to Limit do
+  for I := Low(Instruments) to High(Instruments) do
   begin
-    WriteStr(TypePrefix, Instruments[I].Type_);
-    ResultSL.Add(Format('%s%s:', [TypePrefix, 'inst' + IntToStr(I)]));
+    if not InstrumentIsUsed(I, InstrumentType, UsedStuff) then Continue;
+    Instrument := Instruments[I];
+    ExportInstrument := Instrument;
+    if InstrumentType = itWave then
+      ExportInstrument.Waveform := RemapWaveform(Instrument.Waveform,
+        UsedStuff);
+    NewIndex := UsedStuff.InstrumentMap[InstrumentType, I];
+    WriteStr(TypePrefix, InstrumentType);
+    ResultSL.Add(Format('%s%s:',
+      [TypePrefix, 'inst' + IntToStr(NewIndex)]));
 
-    AsmInstrument := InstrumentToBytes(Instruments[I]);
+    AsmInstrument := InstrumentToBytes(ExportInstrument);
 
-    if Instruments[I].Type_ = itNoise then
+    if InstrumentType = itNoise then
     begin
       ResultSL.Add('db '+IntToStr(AsmInstrument[1])); // envelope
 
       HighMask := AsmInstrument[0];
-      if Instruments[I].LengthEnabled then
+      if Instrument.LengthEnabled then
         HighMask := HighMask or %01000000;
-      if Instruments[I].CounterStep = swSeven then
+      if Instrument.CounterStep = swSeven then
         HighMask := HighMask or %10000000;
       ResultSL.Add('db '+IntToStr(HighMask));
     end
@@ -1394,12 +1477,13 @@ begin
         ResultSL.Add('db '+IntToStr(AsmInstrument[J]));
     end;
 
-    if Instruments[I].SubpatternEnabled then
-      ResultSL.Insert(ResultSL.Count-1, Format('dw %sSP%d', [TypePrefix, I]))
+    if Instrument.SubpatternEnabled then
+      ResultSL.Insert(ResultSL.Count-1,
+        Format('dw %sSP%d', [TypePrefix, NewIndex]))
     else
       ResultSL.Insert(ResultSL.Count-1, 'dw 0');
 
-    if Instruments[I].Type_ = itNoise then
+    if InstrumentType = itNoise then
       ResultSL.Add('ds 2');
 
     ResultSL.Add('');
@@ -1409,9 +1493,11 @@ begin
   ResultSL.Free;
 end;
 
-function RenderSubpatternCell(Cell: TCell; Last: Boolean): string;
+function RenderSubpatternCell(Cell: TCell; Last: Boolean;
+  InstrumentType: TInstrumentType; const UsedStuff: TUsedStuff): string;
 var
   SL: TStringList;
+  EffectParams: TEffectParams;
 begin
   SL := TStringList.Create;
   SL.Delimiter := ',';
@@ -1427,14 +1513,18 @@ begin
   else
     SL.Add(IntToStr(EnsureRange(Cell.Volume, 0, 32)));
 
-  SL.Add('$' + EffectCodeToStr(Cell.EffectCode, Cell.EffectParams));
+  EffectParams := Cell.EffectParams;
+  if (InstrumentType = itWave) and (Cell.EffectCode = $9) then
+    EffectParams.Value := RemapWaveform(EffectParams.Value, UsedStuff);
+  SL.Add('$' + EffectCodeToStr(Cell.EffectCode, EffectParams));
 
   // RGBDS thinks you're defining a new macro if you don't have a space first.
   Result := ' dn ' + SL.DelimitedText;
   SL.Free;
 end;
 
-function RenderSubpattern(Name: string; Pattern: TPattern): string;
+function RenderSubpattern(Name: string; Pattern: TPattern;
+  InstrumentType: TInstrumentType; const UsedStuff: TUsedStuff): string;
 var
   SL: TStringList;
   I: integer;
@@ -1443,21 +1533,25 @@ begin
   SL.Add(Name + ':');
 
   for I := 0 to 31 do
-    SL.Add(RenderSubpatternCell(Pattern[I], I = 31)); // TODO: hardcoded value
+    SL.Add(RenderSubpatternCell(Pattern[I], I = 31, InstrumentType,
+      UsedStuff)); // TODO: hardcoded value
 
   Result := SL.Text;
   SL.Free;
 end;
 
-function RenderWaveforms(Waves: TWaveBank; Limit: Integer): string;
+function RenderWaveforms(Waves: TWaveBank;
+  const UsedStuff: TUsedStuff): string;
 var
   SL, ResultSL: TStringList;
-  I, J: integer;
+  I, J, NewIndex: integer;
 begin
   ResultSL := TStringList.Create;
 
-  for I := Low(Waves) to Limit do
+  for I := Low(Waves) to High(Waves) do
   begin
+    NewIndex := UsedStuff.WaveformMap[I];
+    if NewIndex < 0 then Continue;
     SL := TStringList.Create;
     SL.StrictDelimiter := True;
     SL.Delimiter := ',';
@@ -1468,7 +1562,7 @@ begin
       SL.Add(IntToStr((Waves[I, J] shl 4) or Waves[I, J + 1]));
       Inc(J, 2);
     end;
-    ResultSL.Add(Format('wave%d: db %s', [I, SL.DelimitedText]));
+    ResultSL.Add(Format('wave%d: db %s', [NewIndex, SL.DelimitedText]));
     SL.Free;
   end;
 
@@ -1539,15 +1633,15 @@ begin
 
   // Render instruments
   OutSL.Add('duty_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Duty, UsedStuff.HighestDutyInst));
+  OutSL.Add(RenderInstruments(Song.Instruments.Duty, UsedStuff));
   OutSL.Add('');
 
   OutSL.Add('wave_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Wave, UsedStuff.HighestWaveInst));
+  OutSL.Add(RenderInstruments(Song.Instruments.Wave, UsedStuff));
   OutSL.Add('');
 
   OutSL.Add('noise_instruments:');
-  OutSL.Add(RenderInstruments(Song.Instruments.Noise, UsedStuff.HighestNoiseInst));
+  OutSL.Add(RenderInstruments(Song.Instruments.Noise, UsedStuff));
   OutSL.Add('');
 
   // Render routines
@@ -1562,7 +1656,7 @@ begin
 
   // Render waves
   OutSL.Add('waves:');
-  OutSL.Add(RenderWaveforms(Song.Waves, UsedStuff.HighestWaveform));
+  OutSL.Add(RenderWaveforms(Song.Waves, UsedStuff));
 
   // Render channel-specific compressed patterns
   for Channel := Low(TChannel) to High(TChannel) do
@@ -1578,7 +1672,9 @@ begin
       with Song.Instruments.All[I] do begin
         if SubpatternEnabled then begin
           WriteStr(TypePrefix, Type_);
-          OutSL.Add(RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+          OutSL.Add(RenderSubpattern(TypePrefix+'SP' +
+            IntToStr(UsedStuff.InstrumentMap[Type_, ModInst(I)]),
+            Subpattern, Type_, UsedStuff));
         end;
       end;
 
@@ -1741,12 +1837,16 @@ begin
   FilePath := Filename;
   Filename := ConcatPaths([CacheDir, 'render', ExtractFileNameWithoutExt(ExtractFileNameOnly(Filename))]);
 
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']), RenderWaveforms(Song.Waves, UsedStuff.HighestWaveform));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave.htt']),
+    RenderWaveforms(Song.Waves, UsedStuff));
   WriteHTT(ConcatPaths([CacheDir, 'render', 'order.htt']),
     RenderOrderTable(OrderMatrix));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),  RenderInstruments(Song.Instruments.Duty, UsedStuff.HighestDutyInst));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),  RenderInstruments(Song.Instruments.Wave, UsedStuff.HighestWaveInst));
-  WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']), RenderInstruments(Song.Instruments.Noise, UsedStuff.HighestNoiseInst));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'duty_instrument.htt']),
+    RenderInstruments(Song.Instruments.Duty, UsedStuff));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'wave_instrument.htt']),
+    RenderInstruments(Song.Instruments.Wave, UsedStuff));
+  WriteHTT(ConcatPaths([CacheDir, 'render', 'noise_instrument.htt']),
+    RenderInstruments(Song.Instruments.Noise, UsedStuff));
   for I := Low(TRoutineBank) to High(TRoutineBank) do
     WriteHTT(ConcatPaths([CacheDir, 'render', 'routine'+IntToStr(I)+'.htt']), Song.Routines[I]);
 
@@ -1786,7 +1886,9 @@ begin
       with Song.Instruments.All[I] do begin
         if SubpatternEnabled then begin
           WriteStr(TypePrefix, Type_);
-          Write(OutFile, RenderSubpattern(TypePrefix+'SP' + IntToStr(ModInst(I)), Subpattern));
+          Write(OutFile, RenderSubpattern(TypePrefix+'SP' +
+            IntToStr(UsedStuff.InstrumentMap[Type_, ModInst(I)]),
+            Subpattern, Type_, UsedStuff));
         end;
       end;
 
