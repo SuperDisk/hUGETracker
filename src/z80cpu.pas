@@ -308,9 +308,11 @@ end;
 
 function ld_xxxx_sp: byte;
 begin
-	sp_.W:=wordpeek(wordpeek(pc.W));
-	inc(pc.W,2);
-	Result := 20;
+  w1 := wordpeek(pc.W);
+  wordpoke(w1, sp_.W);
+  Inc(pc.W, 2);
+
+  Result := 20;
 end;
 
 function add_hl_bc: byte;

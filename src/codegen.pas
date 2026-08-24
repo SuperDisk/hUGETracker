@@ -69,12 +69,19 @@ type
 
   TRoutineCandidateStats = record
     Occurrences: Integer;
-    BodyOccurrences: Integer;
     LastStream: Integer;
     NextOffset: Integer;
   end;
-  TRoutineCandidateMap = specialize TFPGMap<RawByteString,
-    TRoutineCandidateStats>;
+
+  TRoutineCandidate = record
+    Hash: LongWord;
+    StreamIndex: Integer;
+    StartOffset: Integer;
+    Length: Integer;
+    EncodedBytes: Integer;
+    Stats: TRoutineCandidateStats;
+  end;
+  TRoutineCandidates = array of TRoutineCandidate;
 
   TNoteCatalogCandidate = record
     NoteRecord: Integer;
@@ -95,17 +102,24 @@ type
 
 const
   // Pattern bytecode:
-  //   0..127   catalog index
-  //   128..200 literal note byte, followed by the other two DN bytes
-  //   201..254 call routine 0..53
+  //   0..180   catalog index
+  //   181..253 literal note (opcode - 181), followed by the other two DN bytes
+  //   254      call, followed by a little-endian routine address
   //   255      return from a routine
-  NOTE_CATALOG_SIZE = 128;
-  PATTERN_CALL_BASE = 201;
-  PATTERN_CALL_COUNT = 54;
+  NOTE_CATALOG_SIZE = 181;
+  NOTE_LITERAL_BASE = NOTE_CATALOG_SIZE;
+  PATTERN_CALL = 254;
   PATTERN_RETURN = 255;
+  PATTERN_CALL_SIZE = 3;
+  PATTERN_RETURN_SIZE = 1;
+
+  // Calls use these compact internal tokens while the compressor is working.
+  // They are rendered as PATTERN_CALL plus a two-byte absolute address.
+  INTERNAL_CALL_BASE = 201;
+  // hUGEDriver sizes each channel's return stack from this upper bound.
+  // Keep MAX_PATTERN_ROUTINES in hUGEDriver.asm in sync with this value.
+  MAX_PATTERN_ROUTINES = 54;
   MAX_ROUTINE_LENGTH = 64;
-  MAX_PATTERN_DICTIONARY_BYTES = 256;
-  PATTERN_DICTIONARY_POINTER_BYTES = 4 * 2;
 
 var
   LastGeneratedSongSize: Integer = -1;
@@ -397,26 +411,22 @@ begin
   end;
 end;
 
-procedure AppendEncodedToken(var Pattern: TEncodedPattern; Token: Integer);
-var
-  I: Integer;
-begin
-  I := Length(Pattern);
-  SetLength(Pattern, I + 1);
-  Pattern[I] := Token;
-end;
-
 function RoutineTokenEligible(Token: Integer): Boolean;
 begin
   Result := InRange(Token, 0, NOTE_CATALOG_SIZE - 1) or
-    InRange(Token, PATTERN_CALL_BASE,
-      PATTERN_CALL_BASE + PATTERN_CALL_COUNT - 1);
+    InRange(Token, INTERNAL_CALL_BASE,
+      INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1);
 end;
 
 function EncodedTokenSize(Token: Integer): Integer;
 begin
-  if Token < 0 then Result := 3
-  else Result := 1;
+  if Token < 0 then
+    Result := 3
+  else if InRange(Token, INTERNAL_CALL_BASE,
+    INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1) then
+    Result := PATTERN_CALL_SIZE
+  else
+    Result := 1;
 end;
 
 function EncodedStreamSize(const Stream: TEncodedPattern): Integer;
@@ -428,34 +438,38 @@ begin
 end;
 
 function CandidateMatches(const Stream: TEncodedPattern; Offset: Integer;
-  const Candidate: RawByteString): Boolean;
+  const Candidate: TEncodedPattern): Boolean;
 var
   I: Integer;
 begin
   if Offset + Length(Candidate) > Length(Stream) then Exit(False);
-  for I := 1 to Length(Candidate) do
-    if Stream[Offset + I - 1] <> Ord(Candidate[I]) then Exit(False);
+  for I := 0 to Length(Candidate) - 1 do
+    if Stream[Offset + I] <> Candidate[I] then Exit(False);
   Result := True;
 end;
 
 procedure ReplaceCandidate(var Stream: TEncodedPattern;
-  const Candidate: RawByteString; Replacement: Integer);
+  const Candidate: TEncodedPattern; Replacement: Integer);
 var
   NewStream: TEncodedPattern;
-  Offset: Integer;
+  Offset, NewLength: Integer;
 begin
-  NewStream := nil;
+  SetLength(NewStream, Length(Stream));
   Offset := 0;
+  NewLength := 0;
   while Offset < Length(Stream) do begin
     if CandidateMatches(Stream, Offset, Candidate) then begin
-      AppendEncodedToken(NewStream, Replacement);
+      NewStream[NewLength] := Replacement;
+      Inc(NewLength);
       Inc(Offset, Length(Candidate));
     end
     else begin
-      AppendEncodedToken(NewStream, Stream[Offset]);
+      NewStream[NewLength] := Stream[Offset];
+      Inc(NewLength);
       Inc(Offset);
     end;
   end;
+  SetLength(NewStream, NewLength);
   Stream := NewStream;
 end;
 
@@ -463,73 +477,180 @@ procedure InlineRoutine(var Stream: TEncodedPattern; RoutineIndex: Integer;
   const Body: TEncodedPattern);
 var
   NewStream: TEncodedPattern;
-  Token, BodyToken: Integer;
+  Token, BodyToken, CallToken, CallCount, NewLength: Integer;
 begin
-  NewStream := nil;
+  CallToken := INTERNAL_CALL_BASE + RoutineIndex;
+  CallCount := 0;
+  for Token in Stream do
+    if Token = CallToken then Inc(CallCount);
+  if CallCount = 0 then Exit;
+
+  SetLength(NewStream, Length(Stream) +
+    CallCount * (Length(Body) - 1));
+  NewLength := 0;
   for Token in Stream do begin
-    if Token = PATTERN_CALL_BASE + RoutineIndex then
-      for BodyToken in Body do AppendEncodedToken(NewStream, BodyToken)
-    else
-      AppendEncodedToken(NewStream, Token);
+    if Token = CallToken then begin
+      for BodyToken in Body do begin
+        NewStream[NewLength] := BodyToken;
+        Inc(NewLength);
+      end;
+    end
+    else begin
+      NewStream[NewLength] := Token;
+      Inc(NewLength);
+    end;
   end;
   Stream := NewStream;
 end;
 
 function BuildGroupEncoding(const Song: TSong; ChannelMask: Byte;
   const UsedStuff: TUsedStuff;
-  const Catalogs: TNoteCatalogs): TGroupEncoding;
+  const Catalogs: TNoteCatalogs; Optimize: Boolean): TGroupEncoding;
 var
-  Candidates: TRoutineCandidateMap;
-  Stats, BestStats: TRoutineCandidateStats;
-  Candidate, BestCandidate: RawByteString;
+  Candidates: TRoutineCandidates;
+  CandidateBuckets: array of Integer;
+  CandidateCount: Integer;
+  Stats: TRoutineCandidateStats;
+  BestCandidate: TEncodedPattern;
   PatternIndex, EntryIndex, RoutineIndex, CandidateLength: Integer;
-  StreamIndex, CandidateIndex, I, Gain, BestGain, BestScore: Integer;
-  Score, DictionaryBytes, NewDictionaryBytes, Replacement: Integer;
+  CandidateBytes, RoutineBytes: Integer;
+  StreamIndex, CandidateIndex, BestCandidateIndex: Integer;
+  I, Gain, BestGain, BestScore: Integer;
+  Score, DictionaryBytes, Replacement: Integer;
   ReferenceCounts, RoutineMap: array of Integer;
   Active: array of Boolean;
   BestRoutine, Saving, BestSaving, NewRoutineIndex: Integer;
   Channel: TChannel;
   CompactedRoutines: TRoutineDictionary;
+  Group: ^TGroupEncoding;
+
+  function StreamToken(AStreamIndex, Offset: Integer): Integer;
+  begin
+    if AStreamIndex < Length(Group^.Patterns) then
+      Result := Group^.Patterns[AStreamIndex].Pattern[Offset]
+    else
+      Result := Group^.Routines[
+        AStreamIndex - Length(Group^.Patterns)][Offset];
+  end;
+
+  function CandidateSpanMatches(const ACandidate: TRoutineCandidate;
+    const Stream: TEncodedPattern; StartOffset: Integer): Boolean;
+  var
+    Offset: Integer;
+  begin
+    for Offset := 0 to ACandidate.Length - 1 do
+      if StreamToken(ACandidate.StreamIndex,
+        ACandidate.StartOffset + Offset) <> Stream[StartOffset + Offset] then
+        Exit(False);
+    Result := True;
+  end;
+
+  procedure GrowCandidateHash;
+  var
+    NewBuckets: array of Integer;
+    NewSize, Index, Slot: Integer;
+  begin
+    if Length(CandidateBuckets) = 0 then
+      NewSize := 1024
+    else
+      NewSize := Length(CandidateBuckets) * 2;
+    SetLength(NewBuckets, NewSize);
+    for Index := 0 to CandidateCount - 1 do begin
+      Slot := Candidates[Index].Hash and LongWord(NewSize - 1);
+      while NewBuckets[Slot] <> 0 do
+        Slot := (Slot + 1) and (NewSize - 1);
+      NewBuckets[Slot] := Index + 1;
+    end;
+    CandidateBuckets := NewBuckets;
+  end;
+
+  procedure InitializeCandidates;
+  begin
+    Candidates := nil;
+    CandidateBuckets := nil;
+    CandidateCount := 0;
+    GrowCandidateHash;
+  end;
+
+  procedure RecordCandidateOccurrence(const Stream: TEncodedPattern;
+    AStreamIndex, AStart, ALength, AEncodedBytes: Integer; AHash: LongWord);
+  var
+    Index, Slot: Integer;
+  begin
+    if (CandidateCount + 1) * 10 >= Length(CandidateBuckets) * 7 then
+      GrowCandidateHash;
+
+    Slot := AHash and LongWord(Length(CandidateBuckets) - 1);
+    while CandidateBuckets[Slot] <> 0 do begin
+      Index := CandidateBuckets[Slot] - 1;
+      if (Candidates[Index].Hash = AHash) and
+        (Candidates[Index].Length = ALength) and
+        CandidateSpanMatches(Candidates[Index], Stream, AStart) then begin
+        if (Candidates[Index].Stats.LastStream <> AStreamIndex) or
+          (AStart >= Candidates[Index].Stats.NextOffset) then begin
+          Inc(Candidates[Index].Stats.Occurrences);
+          Candidates[Index].Stats.LastStream := AStreamIndex;
+          Candidates[Index].Stats.NextOffset := AStart + ALength;
+        end;
+        Exit;
+      end;
+      Slot := (Slot + 1) and (Length(CandidateBuckets) - 1);
+    end;
+
+    if CandidateCount = Length(Candidates) then begin
+      if CandidateCount = 0 then
+        SetLength(Candidates, 1024)
+      else
+        SetLength(Candidates, CandidateCount * 2);
+    end;
+    Candidates[CandidateCount].Hash := AHash;
+    Candidates[CandidateCount].StreamIndex := AStreamIndex;
+    Candidates[CandidateCount].StartOffset := AStart;
+    Candidates[CandidateCount].Length := ALength;
+    Candidates[CandidateCount].EncodedBytes := AEncodedBytes;
+    Candidates[CandidateCount].Stats.Occurrences := 1;
+    Candidates[CandidateCount].Stats.LastStream := AStreamIndex;
+    Candidates[CandidateCount].Stats.NextOffset := AStart + ALength;
+    CandidateBuckets[Slot] := CandidateCount + 1;
+    Inc(CandidateCount);
+  end;
 
   procedure RecordCandidate(const Stream: TEncodedPattern;
-    AStreamIndex: Integer; IsBody: Boolean);
+    AStreamIndex: Integer);
   var
-    AStart, ALength, Token, Index: Integer;
-    AStats: TRoutineCandidateStats;
-    AKey: RawByteString;
+    AStart, ALength, Token, Index, AEncodedBytes: Integer;
+    AHash: LongWord;
   begin
     for AStart := 0 to Length(Stream) - 1 do begin
       if not RoutineTokenEligible(Stream[AStart]) then Continue;
-      AKey := '';
+      AHash := $811C9DC5;
+      AEncodedBytes := 0;
       for ALength := 1 to MAX_ROUTINE_LENGTH do begin
         Index := AStart + ALength - 1;
         if Index >= Length(Stream) then Break;
         Token := Stream[Index];
         if not RoutineTokenEligible(Token) then Break;
-        AKey += AnsiChar(Token);
+        AHash := ((AHash shl 5) or (AHash shr 27)) xor LongWord(Token + 1);
+        Inc(AEncodedBytes, EncodedTokenSize(Token));
         if ALength < 2 then Continue;
-
-        Index := Candidates.IndexOf(AKey);
-        if Index = -1 then begin
-          AStats.Occurrences := 1;
-          AStats.BodyOccurrences := Ord(IsBody);
-          AStats.LastStream := AStreamIndex;
-          AStats.NextOffset := AStart + ALength;
-          Candidates.Add(AKey, AStats);
-        end
-        else begin
-          AStats := Candidates.Data[Index];
-          if (AStats.LastStream <> AStreamIndex) or
-            (AStart >= AStats.NextOffset) then begin
-            Inc(AStats.Occurrences);
-            if IsBody then Inc(AStats.BodyOccurrences);
-            AStats.LastStream := AStreamIndex;
-            AStats.NextOffset := AStart + ALength;
-            Candidates.Data[Index] := AStats;
-          end;
-        end;
+        RecordCandidateOccurrence(Stream, AStreamIndex, AStart, ALength,
+          AEncodedBytes, AHash);
       end;
     end;
+  end;
+
+  function CandidateLexicallyBefore(LeftIndex, RightIndex: Integer): Boolean;
+  var
+    Offset, LeftToken, RightToken: Integer;
+  begin
+    for Offset := 0 to Candidates[LeftIndex].Length - 1 do begin
+      LeftToken := StreamToken(Candidates[LeftIndex].StreamIndex,
+        Candidates[LeftIndex].StartOffset + Offset);
+      RightToken := StreamToken(Candidates[RightIndex].StreamIndex,
+        Candidates[RightIndex].StartOffset + Offset);
+      if LeftToken <> RightToken then Exit(LeftToken < RightToken);
+    end;
+    Result := False;
   end;
 
   procedure CountRoutineReferences(const Stream: TEncodedPattern);
@@ -537,9 +658,9 @@ var
     Token, CalledRoutine: Integer;
   begin
     for Token in Stream do begin
-      if not InRange(Token, PATTERN_CALL_BASE,
-        PATTERN_CALL_BASE + PATTERN_CALL_COUNT - 1) then Continue;
-      CalledRoutine := Token - PATTERN_CALL_BASE;
+      if not InRange(Token, INTERNAL_CALL_BASE,
+        INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1) then Continue;
+      CalledRoutine := Token - INTERNAL_CALL_BASE;
       if InRange(CalledRoutine, 0, Length(Active) - 1) and
         Active[CalledRoutine] then
         Inc(ReferenceCounts[CalledRoutine]);
@@ -547,6 +668,7 @@ var
   end;
 
 begin
+  Group := @Result;
   Result.Patterns := nil;
   Result.Routines := nil;
 
@@ -565,56 +687,65 @@ begin
     end;
   end;
 
-  DictionaryBytes := 0;
-  while Length(Result.Routines) < PATTERN_CALL_COUNT do begin
-    Candidates := TRoutineCandidateMap.Create;
-    try
-      Candidates.Sorted := True;
-      StreamIndex := 0;
-      for EntryIndex := 0 to Length(Result.Patterns) - 1 do begin
-        RecordCandidate(Result.Patterns[EntryIndex].Pattern,
-          StreamIndex, False);
-        Inc(StreamIndex);
-      end;
-      for RoutineIndex := 0 to Length(Result.Routines) - 1 do begin
-        RecordCandidate(Result.Routines[RoutineIndex], StreamIndex, True);
-        Inc(StreamIndex);
-      end;
+  if not Optimize then begin
+    Result.EncodedSize := 0;
+    for EntryIndex := 0 to Length(Result.Patterns) - 1 do
+      Inc(Result.EncodedSize,
+        EncodedStreamSize(Result.Patterns[EntryIndex].Pattern));
+    Exit;
+  end;
 
-      BestCandidate := '';
-      BestGain := 0;
-      BestScore := 0;
-      FillChar(BestStats, SizeOf(BestStats), 0);
-      for CandidateIndex := 0 to Candidates.Count - 1 do begin
-        Candidate := Candidates.Keys[CandidateIndex];
-        Stats := Candidates.Data[CandidateIndex];
-        CandidateLength := Length(Candidate);
-        NewDictionaryBytes := DictionaryBytes -
-          Stats.BodyOccurrences * (CandidateLength - 1) +
-          CandidateLength + 2; // Offset-table entry, body, RETURN.
-        if NewDictionaryBytes > MAX_PATTERN_DICTIONARY_BYTES then Continue;
+  while Length(Result.Routines) < MAX_PATTERN_ROUTINES do begin
+    InitializeCandidates;
+    StreamIndex := 0;
+    for EntryIndex := 0 to Length(Result.Patterns) - 1 do begin
+      RecordCandidate(Result.Patterns[EntryIndex].Pattern, StreamIndex);
+      Inc(StreamIndex);
+    end;
+    for RoutineIndex := 0 to Length(Result.Routines) - 1 do begin
+      RecordCandidate(Result.Routines[RoutineIndex], StreamIndex);
+      Inc(StreamIndex);
+    end;
 
-        Gain := Stats.Occurrences * (CandidateLength - 1) -
-          (CandidateLength + 2);
-        if Gain <= 0 then Continue;
-        // The small use-count bias consistently improves the corpus result.
-        Score := Gain * 2 + Stats.Occurrences;
-        if (Score > BestScore) or
-          ((Score = BestScore) and (Length(BestCandidate) > 0) and
-           (CandidateLength > Length(BestCandidate))) then begin
-          BestCandidate := Candidate;
-          BestStats := Stats;
-          BestGain := Gain;
-          BestScore := Score;
-        end;
+    BestCandidateIndex := -1;
+    BestGain := 0;
+    BestScore := 0;
+    for CandidateIndex := 0 to CandidateCount - 1 do begin
+      Stats := Candidates[CandidateIndex].Stats;
+      CandidateLength := Candidates[CandidateIndex].Length;
+      CandidateBytes := Candidates[CandidateIndex].EncodedBytes;
+
+      Gain := Stats.Occurrences *
+        (CandidateBytes - PATTERN_CALL_SIZE) -
+        (CandidateBytes + PATTERN_RETURN_SIZE);
+      if Gain <= 0 then Continue;
+      // The small use-count bias consistently improves the corpus result.
+      Score := Gain * 2 + Stats.Occurrences;
+      if (Score > BestScore) or
+        ((Score = BestScore) and
+         ((BestCandidateIndex < 0) or
+          (CandidateLength > Candidates[BestCandidateIndex].Length) or
+          ((CandidateLength = Candidates[BestCandidateIndex].Length) and
+           CandidateLexicallyBefore(CandidateIndex,
+             BestCandidateIndex)))) then begin
+        BestCandidateIndex := CandidateIndex;
+        BestGain := Gain;
+        BestScore := Score;
       end;
-    finally
-      Candidates.Free;
+    end;
+
+    BestCandidate := nil;
+    if BestCandidateIndex >= 0 then begin
+      SetLength(BestCandidate, Candidates[BestCandidateIndex].Length);
+      for I := 0 to Length(BestCandidate) - 1 do
+        BestCandidate[I] := StreamToken(
+          Candidates[BestCandidateIndex].StreamIndex,
+          Candidates[BestCandidateIndex].StartOffset + I);
     end;
 
     if (BestGain <= 0) or (Length(BestCandidate) = 0) then Break;
 
-    Replacement := PATTERN_CALL_BASE + Length(Result.Routines);
+    Replacement := INTERNAL_CALL_BASE + Length(Result.Routines);
     for EntryIndex := 0 to Length(Result.Patterns) - 1 do
       ReplaceCandidate(Result.Patterns[EntryIndex].Pattern,
         BestCandidate, Replacement);
@@ -625,11 +756,8 @@ begin
     RoutineIndex := Length(Result.Routines);
     SetLength(Result.Routines, RoutineIndex + 1);
     SetLength(Result.Routines[RoutineIndex], Length(BestCandidate));
-    for I := 1 to Length(BestCandidate) do
-      Result.Routines[RoutineIndex][I - 1] := Ord(BestCandidate[I]);
-    DictionaryBytes := DictionaryBytes -
-      BestStats.BodyOccurrences * (Length(BestCandidate) - 1) +
-      Length(BestCandidate) + 2;
+    for I := 0 to Length(BestCandidate) - 1 do
+      Result.Routines[RoutineIndex][I] := BestCandidate[I];
   end;
 
   // Later routines can make an older routine unprofitable. Inline any such
@@ -649,9 +777,10 @@ begin
     BestSaving := 0;
     for RoutineIndex := 0 to Length(Result.Routines) - 1 do begin
       if not Active[RoutineIndex] then Continue;
-      Saving := Length(Result.Routines[RoutineIndex]) + 2 -
+      RoutineBytes := EncodedStreamSize(Result.Routines[RoutineIndex]);
+      Saving := RoutineBytes + PATTERN_RETURN_SIZE -
         ReferenceCounts[RoutineIndex] *
-          (Length(Result.Routines[RoutineIndex]) - 1);
+          (RoutineBytes - PATTERN_CALL_SIZE);
       if Saving > BestSaving then begin
         BestSaving := Saving;
         BestRoutine := RoutineIndex;
@@ -689,34 +818,28 @@ begin
 
   for EntryIndex := 0 to Length(Result.Patterns) - 1 do
     for I := 0 to Length(Result.Patterns[EntryIndex].Pattern) - 1 do
-      if InRange(Result.Patterns[EntryIndex].Pattern[I], PATTERN_CALL_BASE,
-        PATTERN_CALL_BASE + PATTERN_CALL_COUNT - 1) then
-        Result.Patterns[EntryIndex].Pattern[I] := PATTERN_CALL_BASE +
+      if InRange(Result.Patterns[EntryIndex].Pattern[I], INTERNAL_CALL_BASE,
+        INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1) then
+        Result.Patterns[EntryIndex].Pattern[I] := INTERNAL_CALL_BASE +
           RoutineMap[Result.Patterns[EntryIndex].Pattern[I] -
-            PATTERN_CALL_BASE];
+            INTERNAL_CALL_BASE];
   for RoutineIndex := 0 to Length(CompactedRoutines) - 1 do
     for I := 0 to Length(CompactedRoutines[RoutineIndex]) - 1 do
-      if InRange(CompactedRoutines[RoutineIndex][I], PATTERN_CALL_BASE,
-        PATTERN_CALL_BASE + PATTERN_CALL_COUNT - 1) then
-        CompactedRoutines[RoutineIndex][I] := PATTERN_CALL_BASE +
-          RoutineMap[CompactedRoutines[RoutineIndex][I] - PATTERN_CALL_BASE];
+      if InRange(CompactedRoutines[RoutineIndex][I], INTERNAL_CALL_BASE,
+        INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1) then
+        CompactedRoutines[RoutineIndex][I] := INTERNAL_CALL_BASE +
+          RoutineMap[CompactedRoutines[RoutineIndex][I] -
+            INTERNAL_CALL_BASE];
   Result.Routines := CompactedRoutines;
 
   Result.EncodedSize := 0;
   for EntryIndex := 0 to Length(Result.Patterns) - 1 do
     Inc(Result.EncodedSize,
       EncodedStreamSize(Result.Patterns[EntryIndex].Pattern));
-  if Length(Result.Routines) = 0 then
-    DictionaryBytes := 1 // Keep an addressable dummy dictionary byte.
-  else begin
-    DictionaryBytes := Length(Result.Routines); // Offset table.
-    for RoutineIndex := 0 to Length(Result.Routines) - 1 do
-      Inc(DictionaryBytes,
-        EncodedStreamSize(Result.Routines[RoutineIndex]) + 1); // RETURN.
-  end;
-  if DictionaryBytes > MAX_PATTERN_DICTIONARY_BYTES then
-    raise Exception.CreateFmt('Pattern dictionary is %d bytes; maximum is %d',
-      [DictionaryBytes, MAX_PATTERN_DICTIONARY_BYTES]);
+  DictionaryBytes := 0;
+  for RoutineIndex := 0 to Length(Result.Routines) - 1 do
+    Inc(DictionaryBytes, EncodedStreamSize(Result.Routines[RoutineIndex]) +
+      PATTERN_RETURN_SIZE);
   Inc(Result.EncodedSize, DictionaryBytes);
 end;
 
@@ -768,9 +891,9 @@ var
             [Ord(Channel) + 1, Encoding.Patterns[EntryIndex].PatternKey]);
         CheckNoteRecord(Catalog[Token]);
       end
-      else if InRange(Token, PATTERN_CALL_BASE,
-        PATTERN_CALL_BASE + PATTERN_CALL_COUNT - 1) then begin
-        RoutineIndex := Token - PATTERN_CALL_BASE;
+      else if InRange(Token, INTERNAL_CALL_BASE,
+        INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1) then begin
+        RoutineIndex := Token - INTERNAL_CALL_BASE;
         if not InRange(RoutineIndex, 0, Length(Dictionary.Routines) - 1) then
           raise Exception.CreateFmt(
             'Invalid routine index in channel %d pattern %d',
@@ -810,7 +933,7 @@ begin
 end;
 
 function BuildSongEncoding(const Song: TSong; const UsedStuff: TUsedStuff;
-  const Catalogs: TNoteCatalogs): TSongEncoding;
+  const Catalogs: TNoteCatalogs; Optimize: Boolean): TSongEncoding;
 const
   ALL_CHANNELS_MASK = (1 shl 4) - 1;
 var
@@ -826,8 +949,28 @@ begin
     Result.Channels[Channel].DictionaryIndex := -1;
   end;
 
+  if not Optimize then begin
+    Groups[ALL_CHANNELS_MASK] := BuildGroupEncoding(Song,
+      ALL_CHANNELS_MASK, UsedStuff, Catalogs, False);
+    SetLength(Result.Dictionaries, 1);
+    Result.Dictionaries[0].Routines := nil;
+    Result.Dictionaries[0].ChannelMask := ALL_CHANNELS_MASK;
+    for Channel := Low(TChannel) to High(TChannel) do
+      Result.Channels[Channel].DictionaryIndex := 0;
+    for EntryIndex := 0 to
+      Length(Groups[ALL_CHANNELS_MASK].Patterns) - 1 do
+      AppendPatternEntry(
+        Result.Channels[
+          Groups[ALL_CHANNELS_MASK].Patterns[EntryIndex].Channel].Patterns,
+        Groups[ALL_CHANNELS_MASK].Patterns[EntryIndex]);
+    for Channel := Low(TChannel) to High(TChannel) do
+      ValidateChannelEncoding(Song, Channel, Catalogs[Channel],
+        Result.Channels[Channel], Result.Dictionaries[0], UsedStuff);
+    Exit;
+  end;
+
   for Mask := 1 to ALL_CHANNELS_MASK do
-    Groups[Mask] := BuildGroupEncoding(Song, Mask, UsedStuff, Catalogs);
+    Groups[Mask] := BuildGroupEncoding(Song, Mask, UsedStuff, Catalogs, True);
 
   BestCost[0] := 0;
   BestGroup[0] := 0;
@@ -888,6 +1031,23 @@ begin
   Result := Format('pattern_dictionary%d', [DictionaryIndex + 1]);
 end;
 
+function PatternRoutineName(const DictionaryName: String;
+  RoutineIndex: Integer): String;
+begin
+  Result := Format('%s_routine_%d', [DictionaryName, RoutineIndex]);
+end;
+
+function IsCallToken(Token: Integer): Boolean;
+begin
+  Result := InRange(Token, INTERNAL_CALL_BASE,
+    INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1);
+end;
+
+function CalledRoutineIndex(Token: Integer): Integer;
+begin
+  Result := Token - INTERNAL_CALL_BASE;
+end;
+
 function ChannelPatternDictionaryName(const Encoding: TSongEncoding;
   Channel: TChannel): String;
 begin
@@ -932,25 +1092,34 @@ function RenderGBDKPatternMacros: String;
 begin
   Result := Format(
     '#define dn_literal(NOTE, INSTRUMENT, EFFECT) '+
-      'DN((NOTE) | 0x80, INSTRUMENT, EFFECT)' + LineEnding +
-    '#define pattern_call(INDEX) (unsigned char)(%d + (INDEX))' +
+      '(unsigned char)(%d + (NOTE)), '+
+      '(unsigned char)((((INSTRUMENT) << 4) & 0xFF) | ((EFFECT) >> 8)), '+
+      '(unsigned char)((EFFECT) & 0xFF)' + LineEnding +
+    'typedef struct {' + LineEnding +
+    '    unsigned char opcode;' + LineEnding +
+    '    const unsigned char *target;' + LineEnding +
+    '} hUGEPatternCallCommand_t;' + LineEnding +
+    '#define pattern_call(TARGET) {%d, (const unsigned char *)(TARGET)}' +
       LineEnding +
     '#define pattern_return (unsigned char)%d',
-    [PATTERN_CALL_BASE, PATTERN_RETURN]);
+    [NOTE_LITERAL_BASE, PATTERN_CALL, PATTERN_RETURN]);
 end;
 
 function RenderRGBDSPatternMacros: String;
 begin
   Result := Format(
     'MACRO dn_literal' + LineEnding +
-    ' dn (\1 | $80), \2, \3' + LineEnding +
+    ' db %d + \1' + LineEnding +
+    ' db (((\2 << 4) & $FF) | (\3 >> 8))' + LineEnding +
+    ' db LOW(\3)' + LineEnding +
     'ENDM' + LineEnding + LineEnding +
     'MACRO pattern_call' + LineEnding +
-    ' db %d + \1' + LineEnding +
+    ' db %d' + LineEnding +
+    ' dw \1' + LineEnding +
     'ENDM' + LineEnding + LineEnding +
     'MACRO pattern_return' + LineEnding +
     ' db %d' + LineEnding +
-    'ENDM', [PATTERN_CALL_BASE, PATTERN_RETURN]);
+    'ENDM', [NOTE_LITERAL_BASE, PATTERN_CALL, PATTERN_RETURN]);
 end;
 
 function RenderGBDKNoteCatalog(Name: String;
@@ -991,44 +1160,101 @@ begin
   end;
 end;
 
+procedure AddGBDKStreamType(SL: TStringList; const Name: String;
+  const Encoded: TEncodedPattern; Terminated: Boolean);
+var
+  I, J, FieldIndex: Integer;
+begin
+  SL.Add('struct ' + Name + '_type {');
+  FieldIndex := 0;
+  for I := 0 to Length(Encoded) - 1 do begin
+    if IsCallToken(Encoded[I]) then
+      SL.Add(Format('    hUGEPatternCallCommand_t call_%d;', [FieldIndex]))
+    else if Encoded[I] < 0 then
+      for J := 0 to 2 do begin
+        SL.Add(Format('    unsigned char byte_%d;', [FieldIndex]));
+        Inc(FieldIndex);
+      end
+    else
+      SL.Add(Format('    unsigned char byte_%d;', [FieldIndex]));
+    Inc(FieldIndex);
+  end;
+  if Terminated then
+    SL.Add(Format('    unsigned char byte_%d;', [FieldIndex]));
+  SL.Add('};');
+end;
+
+procedure AddGBDKStreamDefinition(SL: TStringList; const Name: String;
+  const Encoded: TEncodedPattern; const DictionaryName: String;
+  Terminated: Boolean);
+var
+  I, NoteRecord: Integer;
+begin
+  SL.Add('static const struct ' + Name + '_type ' + Name + ' = {');
+  for I := 0 to Length(Encoded) - 1 do begin
+    if Encoded[I] < 0 then begin
+      NoteRecord := -Encoded[I] - 1;
+      SL.Add('    dn_literal(' +
+        NoteRecordDNArgs(NoteRecord, '0x', True) + '),');
+    end
+    else if Encoded[I] < NOTE_CATALOG_SIZE then
+      SL.Add('    ' + IntToStr(Encoded[I]) + ',')
+    else
+      SL.Add(Format('    pattern_call(&%s),',
+        [PatternRoutineName(DictionaryName,
+          CalledRoutineIndex(Encoded[I]))]));
+  end;
+  if Terminated then SL.Add('    pattern_return,');
+  SL.Add('};');
+end;
+
 function RenderGBDKPatternDictionary(Name: String;
   const Routines: TRoutineDictionary): String;
 var
-  I, J, Offset, Token, NoteRecord: Integer;
+  I: Integer;
   SL: TStringList;
+  RoutineName: String;
+  VisitState: array of Byte;
+  RenderOrder: array of Integer;
+
+  procedure VisitRoutine(RoutineIndex: Integer);
+  var
+    Token, CalledIndex, OrderIndex: Integer;
+  begin
+    if VisitState[RoutineIndex] = 2 then Exit;
+    if VisitState[RoutineIndex] = 1 then
+      raise Exception.CreateFmt('Recursive pattern phrase cycle at %s',
+        [PatternRoutineName(Name, RoutineIndex)]);
+    VisitState[RoutineIndex] := 1;
+    for Token in Routines[RoutineIndex] do
+      if IsCallToken(Token) then begin
+        CalledIndex := CalledRoutineIndex(Token);
+        if not InRange(CalledIndex, 0, Length(Routines) - 1) then
+          raise Exception.CreateFmt('Invalid phrase call %d in %s',
+            [CalledIndex, PatternRoutineName(Name, RoutineIndex)]);
+        VisitRoutine(CalledIndex);
+      end;
+    VisitState[RoutineIndex] := 2;
+    OrderIndex := Length(RenderOrder);
+    SetLength(RenderOrder, OrderIndex + 1);
+    RenderOrder[OrderIndex] := RoutineIndex;
+  end;
 begin
   SL := TStringList.Create;
   try
-    SL.Add('/* Direct routine-offset table followed by RETURN-terminated ' +
-      'routine bytecode. */');
-    SL.Add('static const unsigned char ' + Name + '[] = {');
-    if Length(Routines) = 0 then
-      SL.Add('    0,')
-    else begin
-      Offset := Length(Routines);
-      for I := 0 to Length(Routines) - 1 do begin
-        SL.Add(Format('    %d, /* routine %d offset */', [Offset, I]));
-        Inc(Offset, EncodedStreamSize(Routines[I]) + 1);
-      end;
-      for I := 0 to Length(Routines) - 1 do begin
-        SL.Add(Format('    /* routine %d */', [I]));
-        for J := 0 to Length(Routines[I]) - 1 do begin
-          Token := Routines[I][J];
-          if Token < 0 then begin
-            NoteRecord := -Token - 1;
-            SL.Add('    dn_literal(' +
-              NoteRecordDNArgs(NoteRecord, '0x', True) + '),');
-          end
-          else if Token < NOTE_CATALOG_SIZE then
-            SL.Add('    ' + IntToStr(Token) + ',')
-          else
-            SL.Add(Format('    pattern_call(%d),',
-              [Token - PATTERN_CALL_BASE]));
-        end;
-        SL.Add('    pattern_return,');
-      end;
+    SL.Add('/* Direct-address, RETURN-terminated pattern phrases. */');
+    for I := 0 to Length(Routines) - 1 do begin
+      RoutineName := PatternRoutineName(Name, I);
+      AddGBDKStreamType(SL, RoutineName, Routines[I], True);
     end;
-    SL.Add('};');
+    SetLength(VisitState, Length(Routines));
+    RenderOrder := nil;
+    for I := 0 to Length(Routines) - 1 do VisitRoutine(I);
+    for I := 0 to Length(RenderOrder) - 1 do begin
+      RoutineName := PatternRoutineName(Name, RenderOrder[I]);
+      AddGBDKStreamDefinition(SL, RoutineName,
+        Routines[RenderOrder[I]], Name, True);
+    end;
     Result := SL.Text;
   finally
     SL.Free;
@@ -1044,36 +1270,24 @@ var
 begin
   SL := TStringList.Create;
   try
-    SL.Add('; Direct routine-offset table followed by RETURN-terminated ' +
-      'routine bytecode.');
-    SL.Add(Name + ':');
-    if Length(Routines) = 0 then
-      SL.Add(' db 0')
-    else begin
-      for I := 0 to Length(Routines) - 1 do begin
-        RoutineName := Format('%s_routine_%d', [Name, I]);
-        SL.Add(Format(' db %s - %s ; routine %d offset',
-          [RoutineName, Name, I]));
+    SL.Add('; Direct-address, RETURN-terminated pattern phrases.');
+    for I := 0 to Length(Routines) - 1 do begin
+      RoutineName := PatternRoutineName(Name, I);
+      SL.Add(RoutineName + ':');
+      for J := 0 to Length(Routines[I]) - 1 do begin
+        Token := Routines[I][J];
+        if Token < 0 then begin
+          NoteRecord := -Token - 1;
+          SL.Add(' dn_literal ' +
+            NoteRecordDNArgs(NoteRecord, '$', False));
+        end
+        else if Token < NOTE_CATALOG_SIZE then
+          SL.Add(' db ' + IntToStr(Token))
+        else
+          SL.Add(' pattern_call ' + PatternRoutineName(Name,
+            CalledRoutineIndex(Token)));
       end;
-      for I := 0 to Length(Routines) - 1 do begin
-        SL.Add(Format('%s_routine_%d:', [Name, I]));
-        for J := 0 to Length(Routines[I]) - 1 do begin
-          Token := Routines[I][J];
-          if Token < 0 then begin
-            NoteRecord := -Token - 1;
-            SL.Add(' dn_literal ' +
-              NoteRecordDNArgs(NoteRecord, '$', False));
-          end
-          else if Token < NOTE_CATALOG_SIZE then
-            SL.Add(' db ' + IntToStr(Token))
-          else
-            SL.Add(Format(' pattern_call %d',
-              [Token - PATTERN_CALL_BASE]));
-        end;
-        SL.Add(' pattern_return');
-      end;
-      SL.Add(Format('ASSERT @ - %s <= %d',
-        [Name, MAX_PATTERN_DICTIONARY_BYTES]));
+      SL.Add(' pattern_return');
     end;
     Result := SL.Text;
   finally
@@ -1082,30 +1296,14 @@ begin
 end;
 
 function RenderGBDKCompressedPattern(Name: String;
-  const Encoded: TEncodedPattern): String;
+  const Encoded: TEncodedPattern; const DictionaryName: String): String;
 var
-  I, NoteRecord: Integer;
   SL: TStringList;
 begin
   SL := TStringList.Create;
   try
-    SL.Add('static const unsigned char ' + Name + '[] = {');
-    for I := 0 to Length(Encoded) - 1 do begin
-      if Encoded[I] <= 127 then begin
-        if Encoded[I] >= 0 then
-          SL.Add('    ' + IntToStr(Encoded[I]) + ',')
-        else begin
-          NoteRecord := -Encoded[I] - 1;
-          SL.Add('    dn_literal(' +
-            NoteRecordDNArgs(NoteRecord, '0x', True) + '),');
-        end;
-      end
-      else begin
-        SL.Add(Format('    pattern_call(%d),',
-          [Encoded[I] - PATTERN_CALL_BASE]));
-      end;
-    end;
-    SL.Add('};');
+    AddGBDKStreamType(SL, Name, Encoded, False);
+    AddGBDKStreamDefinition(SL, Name, Encoded, DictionaryName, False);
     Result := SL.Text;
   finally
     SL.Free;
@@ -1113,7 +1311,7 @@ begin
 end;
 
 function RenderRGBDSCompressedPattern(Name: String;
-  const Encoded: TEncodedPattern): String;
+  const Encoded: TEncodedPattern; const DictionaryName: String): String;
 var
   I, NoteRecord: Integer;
   SL: TStringList;
@@ -1122,19 +1320,16 @@ begin
   try
     SL.Add(Name + ':');
     for I := 0 to Length(Encoded) - 1 do begin
-      if Encoded[I] <= 127 then begin
-        if Encoded[I] >= 0 then
-          SL.Add(' db ' + IntToStr(Encoded[I]))
-        else begin
-          NoteRecord := -Encoded[I] - 1;
-          SL.Add(' dn_literal ' +
-            NoteRecordDNArgs(NoteRecord, '$', False));
-        end;
+      if Encoded[I] < 0 then begin
+        NoteRecord := -Encoded[I] - 1;
+        SL.Add(' dn_literal ' +
+          NoteRecordDNArgs(NoteRecord, '$', False));
       end
-      else begin
-        SL.Add(Format(' pattern_call %d',
-          [Encoded[I] - PATTERN_CALL_BASE]));
-      end;
+      else if Encoded[I] < NOTE_CATALOG_SIZE then
+        SL.Add(' db ' + IntToStr(Encoded[I]))
+      else
+        SL.Add(' pattern_call ' + PatternRoutineName(DictionaryName,
+          CalledRoutineIndex(Encoded[I])));
     end;
     Result := SL.Text;
   finally
@@ -1196,7 +1391,8 @@ procedure RenderSongToGBDKC(Song: TSong; DescriptorName: String; Filename: strin
     SL.Delimiter := ',';
 
     for I := Low(Order) to High(Order)-1 do // HACK: account for off-by-one error
-      SL.Add(ChannelPatternName(Channel, Order[I]));
+      SL.Add('(const unsigned char *)&' +
+        ChannelPatternName(Channel, Order[I]));
 
     Result := 'static const unsigned char* const order' +
       IntToStr(Ord(Channel) + 1) + '[] = {';
@@ -1316,7 +1512,7 @@ begin
   OrderMatrix := BuildOrderMatrix(Song, True);
   UsedStuff := FindUsedStuff(Song, OrderMatrix);
   NoteCatalogs := BuildNoteCatalogs(Song, UsedStuff);
-  Encoding := BuildSongEncoding(Song, UsedStuff, NoteCatalogs);
+  Encoding := BuildSongEncoding(Song, UsedStuff, NoteCatalogs, True);
 
   OutSL := TStringList.Create;
 
@@ -1348,7 +1544,8 @@ begin
       OutSL.Add(RenderGBDKCompressedPattern(
         ChannelPatternName(Channel,
           Encoding.Channels[Channel].Patterns[EntryIndex].PatternKey),
-        Encoding.Channels[Channel].Patterns[EntryIndex].Pattern));
+        Encoding.Channels[Channel].Patterns[EntryIndex].Pattern,
+        ChannelPatternDictionaryName(Encoding, Channel)));
   OutSL.Add('');
 
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
@@ -1383,15 +1580,10 @@ begin
   OutSL.Add(Format(
     'const hUGESong_t %s = {%d, %d, %d, %d, %d, order1, order2, order3,'+
     'order4, note_catalog1, note_catalog2, note_catalog3, note_catalog4,'+
-    ' %s, %s, %s, %s,'+
     ' duty_instruments, wave_instruments, noise_instruments, NULL, waves};',
     [DescriptorName,
      Song.TicksPerRow[0], Song.TicksPerRow[1], Song.TicksPerRow[2], Song.TicksPerRow[3],
-     OrderCount(Song)*2,
-     ChannelPatternDictionaryName(Encoding, chDuty1),
-     ChannelPatternDictionaryName(Encoding, chDuty2),
-     ChannelPatternDictionaryName(Encoding, chWave),
-     ChannelPatternDictionaryName(Encoding, chNoise)
+     OrderCount(Song)*2
     ]));
 
   AssignFile(F, Filename);
@@ -1585,7 +1777,7 @@ begin
   OrderMatrix := BuildOrderMatrix(Song, True);
   UsedStuff := FindUsedStuff(Song, OrderMatrix);
   NoteCatalogs := BuildNoteCatalogs(Song, UsedStuff);
-  Encoding := BuildSongEncoding(Song, UsedStuff, NoteCatalogs);
+  Encoding := BuildSongEncoding(Song, UsedStuff, NoteCatalogs, True);
 
   OutSL := TStringList.Create;
 
@@ -1605,11 +1797,6 @@ begin
   OutSL.Add('db '+IntToStr(OrderCount(Song)*2));
   OutSL.Add('dw order1, order2, order3, order4');
   OutSL.Add('dw note_catalog1, note_catalog2, note_catalog3, note_catalog4');
-  OutSL.Add(Format('dw %s, %s, %s, %s',
-    [ChannelPatternDictionaryName(Encoding, chDuty1),
-     ChannelPatternDictionaryName(Encoding, chDuty2),
-     ChannelPatternDictionaryName(Encoding, chWave),
-     ChannelPatternDictionaryName(Encoding, chNoise)]));
   OutSL.Add('dw duty_instruments, wave_instruments, noise_instruments');
   OutSL.Add('dw routines');
   OutSL.Add('dw waves');
@@ -1664,7 +1851,8 @@ begin
       OutSL.Add(RenderRGBDSCompressedPattern(
         ChannelPatternName(Channel,
           Encoding.Channels[Channel].Patterns[EntryIndex].PatternKey),
-        Encoding.Channels[Channel].Patterns[EntryIndex].Pattern));
+        Encoding.Channels[Channel].Patterns[EntryIndex].Pattern,
+        ChannelPatternDictionaryName(Encoding, Channel)));
 
   // Render subpatterns
   for I := Low(Song.Instruments.All) to High(Song.Instruments.All) do
@@ -1829,7 +2017,8 @@ begin
   OrderMatrix := BuildOrderMatrix(Song, True);
   UsedStuff := FindUsedStuff(Song, OrderMatrix);
   NoteCatalogs := BuildNoteCatalogs(Song, UsedStuff);
-  Encoding := BuildSongEncoding(Song, UsedStuff, NoteCatalogs);
+  Encoding := BuildSongEncoding(Song, UsedStuff, NoteCatalogs,
+    Mode <> emPreview);
 
   if not DirectoryExists(ConcatPaths([CacheDir, 'render'])) then
     CreateDir(ConcatPaths([CacheDir, 'render']));
@@ -1874,7 +2063,8 @@ begin
       Write(OutFile, RenderRGBDSCompressedPattern(
         ChannelPatternName(Channel,
           Encoding.Channels[Channel].Patterns[EntryIndex].PatternKey),
-        Encoding.Channels[Channel].Patterns[EntryIndex].Pattern));
+        Encoding.Channels[Channel].Patterns[EntryIndex].Pattern,
+        ChannelPatternDictionaryName(Encoding, Channel)));
 
   CloseFile(OutFile);
 
@@ -1955,10 +2145,6 @@ begin
     end;
 
     LastGeneratedSongSize := ReadSongSizeFromMap(Filename + '.map');
-    // The bundled driver descriptor does not consume the four new dictionary
-    // pointers yet, but they are part of the exported format's true size.
-    if LastGeneratedSongSize >= 0 then
-      Inc(LastGeneratedSongSize, PATTERN_DICTIONARY_POINTER_BYTES);
 
     // Fix
     if Mode = emGBS then
