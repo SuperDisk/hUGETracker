@@ -206,7 +206,7 @@
         <PackageName Value="LCL"/>
       </Item5>
     </RequiredPackages>
-    <Units Count="31">
+    <Units Count="33">
       <Unit0>
         <Filename Value="hUGETracker.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -368,6 +368,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="MidiInput"/>
       </Unit30>
+      <Unit31>
+        <Filename Value="undomanager.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UndoManager"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="documentundo.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="DocumentUndo"/>
+      </Unit32>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

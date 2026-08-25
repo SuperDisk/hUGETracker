@@ -11,7 +11,7 @@ uses
   HugeDatatypes, LCLType, Clipbrd, RackCtls, Codegen, SymParser, options,
   bgrabitmap, effecteditor, RenderToWave, modimport, mainloop, strutils,
   Types, Keymap, hUGESettings, vgm, TBMImport, FurImport, InstrumentPreview, findreplace,
-  MidiInput;
+  MidiInput, UndoManager, DocumentUndo;
 
 // TODO: Move to config file?
 const
@@ -439,8 +439,6 @@ type
       IsColumn: Boolean; sIndex, tIndex: Integer);
     procedure OrderEditStringGridColRowExchanged(Sender: TObject;
       IsColumn: Boolean; sIndex, tIndex: Integer);
-    procedure OrderEditStringGridColRowInserted(Sender: TObject;
-      IsColumn: Boolean; sIndex, tIndex: Integer);
     procedure OrderEditStringGridDblClick(Sender: TObject);
     procedure OrderEditStringGridKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -506,8 +504,9 @@ type
     DrawingWave, DrawingMacro: Boolean;
     Playing: Boolean;
     LoadingFile: Boolean;
-    UpdatingOrderGrid: Boolean;
     SaveSucceeded: Boolean;
+
+    FUndoSession: TDocumentUndoSession;
 
     WaveInstrumentsNode,
     NoiseInstrumentsNode,
@@ -531,8 +530,6 @@ type
     function OrderIndexToGridRow(OrderIndex: Integer): Integer; inline;
     function CurrentOrderIndex: Integer; inline;
     procedure ReloadPatterns;
-    procedure CopyOrderGridToOrder;
-    procedure CopyOrderToOrderGrid;
     procedure CopyWaveIntoWaveRam(Wave: Integer);
     function ConvertWaveToHexString(Wave: Integer): String;
 
@@ -582,6 +579,7 @@ type
     procedure OnTrackerGridCursorOutOfBounds;
     procedure ApplyMidiSettings;
     procedure OnTrackerGridDoubleClickedInstrument;
+    destructor Destroy; override;
   end;
 
 var
@@ -652,7 +650,7 @@ begin
 
   RecreateRowNumbers;
   RecreateTrackerGrid;
-  CopyOrderToOrderGrid;
+  FUndoSession.LoadOrderGrid;
 
   while InstrumentComboBox.Items.Count > 1 do
     InstrumentComboBox.Items.Delete(1);
@@ -681,6 +679,7 @@ begin
   ReloadPatterns;
 
   PageControl1.ActivePageIndex := 0;
+  FUndoSession.Reset;
 end;
 
 procedure TfrmTracker.UpdateWindowTitle;
@@ -1102,62 +1101,9 @@ begin
 end;
 
 procedure TfrmTracker.ReloadPatterns;
-var
-  Channel: TChannel;
-  PatternSetID: Integer;
-  PatternSet: TPatternSet;
 begin
-  if LoadingFile or UpdatingOrderGrid then Exit;
-  if not InRange(OrderEditStringGrid.Row, OrderEditStringGrid.FixedRows,
-    OrderEditStringGrid.RowCount - 1) then Exit;
-
-  PatternSetID := 0;
-  TryStrToInt(OrderEditStringGrid.Cells[0, OrderEditStringGrid.Row],
-    PatternSetID);
-  PatternSet := EnsurePatternSet(Song, PatternSetID);
-
-  for Channel := Low(TChannel) to High(TChannel) do
-    TrackerGrid.LoadPattern(Ord(Channel), PatternSet.PatternKeys[Channel]);
-end;
-
-procedure TfrmTracker.CopyOrderGridToOrder;
-var
-  R, PatternSetID: Integer;
-begin
-  if LoadingFile or UpdatingOrderGrid then Exit;
-
-  with OrderEditStringGrid do begin
-    SetLength(Song.Order, RowCount - FixedRows);
-    for R := 0 to Length(Song.Order) - 1 do begin
-      PatternSetID := 0;
-      TryStrToInt(Cells[0, OrderIndexToGridRow(R)], PatternSetID);
-      EnsurePatternSet(Song, PatternSetID);
-      Song.Order[R] := PatternSetID;
-    end;
-  end;
-end;
-
-procedure TfrmTracker.CopyOrderToOrderGrid;
-var
-  R: Integer;
-begin
-  if Length(Song.Order) = 0 then begin
-    EnsurePatternSet(Song, 0);
-    SetLength(Song.Order, 1);
-    Song.Order[0] := 0;
-  end;
-
-  UpdatingOrderGrid := True;
-  try
-    OrderEditStringGrid.Clean([gzNormal]);
-    OrderEditStringGrid.RowCount :=
-      Length(Song.Order) + OrderEditStringGrid.FixedRows;
-    for R := 0 to Length(Song.Order) - 1 do
-      OrderEditStringGrid.Cells[0, OrderIndexToGridRow(R)] :=
-        IntToStr(Song.Order[R]);
-  finally
-    UpdatingOrderGrid := False;
-  end;
+  if LoadingFile or not Assigned(FUndoSession) then Exit;
+  FUndoSession.LoadCurrentPatterns;
 end;
 
 procedure TfrmTracker.CopyWaveIntoWaveRam(Wave: Integer);
@@ -1323,6 +1269,7 @@ begin
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.OnDoubleClickedInstrument:=@OnTrackerGridDoubleClickedInstrument;
+  FUndoSession.AttachPatternGrid(TrackerGrid);
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.PopupMenu := TrackerGridPopup;
@@ -1333,6 +1280,7 @@ begin
   if Assigned(TableGrid) then TableGrid.Free;
   TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1, 32);
 
+  TableGrid.EnableLocalUndo;
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
   TableGrid.PopupMenu := TrackerGridPopup;
@@ -1370,6 +1318,7 @@ end;
 procedure TfrmTracker.LoadInstrument(Bank: TInstrumentType; Instr: Integer);
 var
   CI: ^TInstrument;
+  TargetID: Integer;
 begin
   CurrentInstrumentBank := Bank;
   case Bank of
@@ -1379,7 +1328,8 @@ begin
   end;
   CI := CurrentInstrument;
 
-  TableGrid.LoadPattern(0, UnmodInst(Bank, Instr));
+  TargetID := UnmodInst(Bank, Instr);
+  TableGrid.LoadPattern(0, TargetID);
 
   InstrumentTypeComboBox.ItemIndex := Integer(CurrentInstrumentBank);
   InstrumentNumberSpinner.Value := Instr;
@@ -1596,6 +1546,8 @@ begin
 
   VisualizerBuffer := TBGRABitmap.Create(Duty1Visualizer.Width, Duty1Visualizer.Height);
   SubpatternMap := TPatternMap.Create;
+  FUndoSession := TDocumentUndoSession.Create(@Song, OrderEditStringGrid,
+    PageControl1, PatternTabSheet);
 
   PreviewingInstrument := -1;
 
@@ -1639,7 +1591,8 @@ begin
   Song.TicksPerRow[3] := TicksPerRowSpinEdit3.Value;
 
   // Initialize order table (InitializeSong creates the default order table)
-  CopyOrderToOrderGrid;
+  FUndoSession.LoadOrderGrid;
+  FUndoSession.Reset;
 
   // Size the order editor's pattern column and apply display options.
   OrderEditStringGrid.ColWidths[0]:=50;
@@ -1687,6 +1640,12 @@ begin
     UpdateUIAfterLoad;
 
   ApplyMidiSettings;
+end;
+
+destructor TfrmTracker.Destroy;
+begin
+  FUndoSession.Free;
+  inherited;
 end;
 
 function TfrmTracker.PreviewForNoteEntry(Note: Integer): Boolean;
@@ -2328,11 +2287,11 @@ end;
 
 procedure TfrmTracker.OrderEditStringGridEditingDone(Sender: TObject);
 begin
-  if UpdatingOrderGrid then Exit;
+  if FUndoSession.UpdatingOrderGrid then Exit;
 
   if OrderEditStringGrid.Row >= OrderEditStringGrid.FixedRows then begin
-    CopyOrderGridToOrder;
-    ReloadPatterns;
+    FUndoSession.SyncOrderFromGrid;
+    FUndoSession.LoadCurrentPatterns;
   end;
 
   if (not InFDCallback) and Playing then begin // Hacky solution, but probably the best there is.
@@ -2615,7 +2574,10 @@ end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
 begin
-  TrackerGrid.DoUndo;
+  if ActiveControl is TTrackerGrid then
+    (ActiveControl as TTrackerGrid).DoUndo
+  else if ActiveControl = OrderEditStringGrid then
+    FUndoSession.Manager.Undo;
 end;
 
 procedure TfrmTracker.MenuItem12Click(Sender: TObject);
@@ -2631,67 +2593,28 @@ begin
 end;
 
 procedure TfrmTracker.MenuItem17Click(Sender: TObject);
-var
-  PatternSetID: Integer;
 begin
-  PatternSetID := CreatePatternSet(Song);
-
-  with OrderEditStringGrid do
-    InsertRowWithValues(Row + 1, [IntToStr(PatternSetID)]);
-
-  OrderEditStringGrid.Row := OrderEditStringGrid.Row + 1;
-
-  CopyOrderGridToOrder;
-  ReloadPatterns;
+  FUndoSession.InsertNewPatternSet;
 end;
 
 procedure TfrmTracker.MenuItem18Click(Sender: TObject);
 begin
-  with OrderEditStringGrid do
-    InsertRowWithValues(Row + 1, ['0']);
-
-  OrderEditStringGrid.Row := OrderEditStringGrid.Row + 1;
-
-  CopyOrderGridToOrder;
-  ReloadPatterns;
+  FUndoSession.InsertDefaultPatternSet;
 end;
 
 procedure TfrmTracker.MenuItem19Click(Sender: TObject);
 begin
-  if (OrderEditStringGrid.Row >= OrderEditStringGrid.FixedRows)
-  and (OrderEditStringGrid.RowCount > OrderEditStringGrid.FixedRows + 1) then
-    OrderEditStringGrid.DeleteRow(OrderEditStringGrid.Row);
-
-  CopyOrderGridToOrder;
-  ReloadPatterns;
+  FUndoSession.DeleteCurrentOrder;
 end;
 
 procedure TfrmTracker.MenuItem21Click(Sender: TObject);
-var
-  PatternSetID: Integer;
 begin
-  PatternSetID := Song.Order[CurrentOrderIndex];
-  with OrderEditStringGrid do
-    InsertRowWithValues(Row + 1, [IntToStr(PatternSetID)]);
-
-  OrderEditStringGrid.Row := OrderEditStringGrid.Row + 1;
-  CopyOrderGridToOrder;
-  ReloadPatterns;
+  FUndoSession.InsertCurrentPatternSet;
 end;
 
 procedure TfrmTracker.MenuItem22Click(Sender: TObject);
-var
-  PatternSetID: Integer;
 begin
-  PatternSetID := ClonePatternSet(Song,
-    Song.Order[CurrentOrderIndex]);
-
-  with OrderEditStringGrid do
-    InsertRowWithValues(Row + 1, [IntToStr(PatternSetID)]);
-
-  OrderEditStringGrid.Row := OrderEditStringGrid.Row + 1;
-  CopyOrderGridToOrder;
-  ReloadPatterns;
+  FUndoSession.InsertCloneOfCurrentPatternSet;
 end;
 
 procedure TfrmTracker.OptionsMenuItemClick(Sender: TObject);
@@ -2814,7 +2737,10 @@ end;
 
 procedure TfrmTracker.MenuItem8Click(Sender: TObject);
 begin
-  TrackerGrid.DoRedo;
+  if ActiveControl is TTrackerGrid then
+    (ActiveControl as TTrackerGrid).DoRedo
+  else if ActiveControl = OrderEditStringGrid then
+    FUndoSession.Manager.Redo;
 end;
 
 procedure TfrmTracker.NoiseVisualizerPaint(Sender: TObject);
@@ -2831,10 +2757,10 @@ end;
 procedure TfrmTracker.OrderEditStringGridAfterSelection(Sender: TObject; aCol,
   aRow: Integer);
 begin
-  if UpdatingOrderGrid then Exit;
+  if FUndoSession.UpdatingOrderGrid then Exit;
   if OrderEditStringGrid.Row < OrderEditStringGrid.FixedRows then Exit;
 
-  ReloadPatterns;
+  FUndoSession.OrderGridSelectionChanged;
 
   if (not InFDCallback) and Playing then begin // Hacky solution, but probably the best there is.
     LockPlayback;
@@ -2847,50 +2773,20 @@ end;
 procedure TfrmTracker.OrderEditStringGridColRowDeleted(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
-  if UpdatingOrderGrid then Exit;
-
-  if OrderEditStringGrid.RowCount <= OrderEditStringGrid.FixedRows then begin
-    OrderEditStringGrid.RowCount := OrderEditStringGrid.FixedRows + 1;
-    OrderEditStringGrid.Cells[0, OrderEditStringGrid.FixedRows] := '0';
-  end;
-
-  OrderEditStringGrid.Row := EnsureRange(OrderEditStringGrid.Row,
-    OrderEditStringGrid.FixedRows, OrderEditStringGrid.RowCount - 1);
-  CopyOrderGridToOrder;
-  ReloadPatterns;
+  FUndoSession.OrderGridRowsDeleted;
 end;
 
 procedure TfrmTracker.OrderEditStringGridColRowExchanged(Sender: TObject;
   IsColumn: Boolean; sIndex, tIndex: Integer);
 begin
-  if UpdatingOrderGrid then Exit;
-
-  CopyOrderGridToOrder;
-  ReloadPatterns;
-end;
-
-procedure TfrmTracker.OrderEditStringGridColRowInserted(Sender: TObject;
-  IsColumn: Boolean; sIndex, tIndex: Integer);
-begin
-  if UpdatingOrderGrid then Exit;
-
-  CopyOrderGridToOrder;
-  ReloadPatterns;
+  if FUndoSession.UpdatingOrderGrid then Exit;
+  FUndoSession.SyncOrderFromGrid;
+  FUndoSession.LoadCurrentPatterns;
 end;
 
 procedure TfrmTracker.OrderEditStringGridDblClick(Sender: TObject);
-var
-  PatternSetID: Integer;
 begin
-  if OrderEditStringGrid.Row < OrderEditStringGrid.FixedRows then Exit;
-
-  PatternSetID := CreatePatternSet(Song);
-
-  with OrderEditStringGrid do begin
-    Cells[0, Row] := IntToStr(PatternSetID);
-    CopyOrderGridToOrder;
-    ReloadPatterns;
-  end;
+  FUndoSession.ReplaceCurrentWithNewPatternSet;
 end;
 
 procedure TfrmTracker.OrderEditStringGridKeyDown(Sender: TObject;
@@ -3034,7 +2930,7 @@ end;
 procedure TfrmTracker.TrackerPopupRedoClick(Sender: TObject);
 begin
   if not (ActiveControl is TTrackerGrid) then Exit;
-  (ActiveControl as TTrackerGrid).DoRedo
+  (ActiveControl as TTrackerGrid).DoRedo;
 end;
 
 procedure TfrmTracker.TrackerPopupSelectAllClick(Sender: TObject);
@@ -3084,7 +2980,7 @@ end;
 procedure TfrmTracker.TrackerPopupUndoClick(Sender: TObject);
 begin
   if not (ActiveControl is TTrackerGrid) then Exit;
-  (ActiveControl as TTrackerGrid).DoUndo
+  (ActiveControl as TTrackerGrid).DoUndo;
 end;
 
 procedure TfrmTracker.TreeView1DblClick(Sender: TObject);

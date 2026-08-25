@@ -251,13 +251,13 @@ object frmTracker: TfrmTracker
         ClientWidth = 1212
         ParentFont = False
         object Panel3: TPanel
-          Left = 56
+          Left = 48
           Height = 649
           Top = 0
-          Width = 1156
+          Width = 1164
           Align = alClient
           ClientHeight = 649
-          ClientWidth = 1156
+          ClientWidth = 1164
           ParentFont = False
           TabOrder = 0
           object HeaderControl1: THeaderControl
@@ -265,7 +265,7 @@ object frmTracker: TfrmTracker
             Height = 30
             Hint = 'Left click to mute, right click to solo'
             Top = 1
-            Width = 1154
+            Width = 1162
             DragReorder = False
             Images = ImageList2
             Sections = <            
@@ -312,7 +312,7 @@ object frmTracker: TfrmTracker
             Left = 1
             Height = 617
             Top = 31
-            Width = 1154
+            Width = 1162
             HorzScrollBar.Increment = 3
             HorzScrollBar.Page = 32
             HorzScrollBar.Smooth = True
@@ -324,7 +324,7 @@ object frmTracker: TfrmTracker
             Align = alClient
             BorderStyle = bsNone
             ClientHeight = 617
-            ClientWidth = 1154
+            ClientWidth = 1162
             ParentFont = False
             TabOrder = 1
             OnMouseWheelDown = ScrollBox1MouseWheelDown
@@ -350,7 +350,7 @@ object frmTracker: TfrmTracker
           Left = 0
           Height = 649
           Top = 0
-          Width = 56
+          Width = 48
           Align = alLeft
           AutoEdit = False
           AutoFillColumns = True
@@ -359,8 +359,9 @@ object frmTracker: TfrmTracker
             item
               Alignment = taCenter
               Title.Caption = 'Order'
-              Width = 39
+              Width = 46
             end>
+          Constraints.MaxWidth = 70
           DefaultColWidth = 17
           DefaultRowHeight = 21
           ExtendedSelect = False
@@ -370,21 +371,20 @@ object frmTracker: TfrmTracker
           PopupMenu = OrderEditPopup
           RangeSelectMode = rsmMulti
           RowCount = 2
-          ScrollBars = ssVertical
+          ScrollBars = ssAutoVertical
           TabOrder = 1
           UseXORFeatures = True
           OnAfterSelection = OrderEditStringGridAfterSelection
           OnCellProcess = OrderEditStringGridCellProcess
           OnColRowDeleted = OrderEditStringGridColRowDeleted
           OnColRowExchanged = OrderEditStringGridColRowExchanged
-          OnColRowInserted = OrderEditStringGridColRowInserted
           OnDblClick = OrderEditStringGridDblClick
           OnEditingDone = OrderEditStringGridEditingDone
           OnKeyDown = OrderEditStringGridKeyDown
           OnMouseDown = OrderEditStringGridMouseDown
           OnValidateEntry = OrderEditStringGridValidateEntry
           ColWidths = (
-            39
+            46
           )
         end
       end
@@ -1867,7 +1867,7 @@ object frmTracker: TfrmTracker
       end    
       item
         Width = 200
-      end
+      end    
       item
         Text = 'Song size: not generated'
         Width = 200

@@ -6,16 +6,11 @@ interface
 
 uses
   Classes, SysUtils, Controls, Graphics, Constants, LCLType, math, LCLIntf,
-  LMessages, HugeDatatypes, ClipboardUtils, gdeque, gstack, utils, effecteditor,
-  Keymap, LazLoggerBase, hUGESettings;
-
-const
-  UNDO_STACK_SIZE = 100;
+  LMessages, HugeDatatypes, ClipboardUtils, utils, effecteditor,
+  Keymap, LazLoggerBase, hUGESettings, UndoManager;
 
 type
   TPatternGrid = array of PPattern;
-
-  { TSavedPattern }
 
   TSavedPattern = record
     PatternNumber: Integer;
@@ -23,11 +18,30 @@ type
   end;
 
   TSavedPatternSet = array of TSavedPattern;
-  TUndoRedoAction = record
-    Before, After: TSavedPatternSet;
+
+  TPatternUndoState = record
+    Patterns: TSavedPatternSet;
+    Cursor, Other: TSelectionPos;
   end;
-  TUndoDeque = TDeque<TUndoRedoAction>;
-  TRedoStack = TStack<TUndoRedoAction>;
+
+  TPatternUndoBookmark = class
+  end;
+
+  TTrackerGrid = class;
+
+  { TPatternUndoTarget
+
+    Provides the model/view-specific half of pattern undo. The grid captures
+    edits; a target decides where those edits are restored and how that target
+    is presented to the user. }
+
+  TPatternUndoTarget = class
+  public
+    function CaptureBookmark(const PatternNumbers: array of Integer):
+      TPatternUndoBookmark; virtual;
+    procedure Apply(const State: TPatternUndoState;
+      Bookmark: TPatternUndoBookmark); virtual; abstract;
+  end;
 
   { TSelectionEnumerator }
 
@@ -68,7 +82,6 @@ type
     function ForwardMouseWheelToParent(var Msg: TLMMouseEvent): Boolean;
     procedure BeginUndoAction;
     procedure EndUndoAction;
-    procedure RevertUndoAction;
 
     procedure RenderSelectedArea;
     procedure ClampCursors;
@@ -112,9 +125,12 @@ type
     DragOffsetY: Integer;
 
     NestedUndoCount: Integer;
-    CurrentUndoAction: TUndoRedoAction;
-    Performed: TUndoDeque;
-    Recall: TRedoStack;
+    CurrentUndoBefore: TPatternUndoState;
+    FUndoManager: TUndoManager;
+    FUndoTarget: TPatternUndoTarget;
+    FOwnedUndoManager: TUndoManager;
+    FOwnedUndoTarget: TPatternUndoTarget;
+    FResetUndoOnPatternChange: Boolean;
 
     LastFxParam: array [0..15] of Byte;
 
@@ -134,7 +150,12 @@ type
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
     property FontSize: Integer read FFontSize write SetFontSize;
+    property UndoManager: TUndoManager read FUndoManager write FUndoManager;
+    property UndoTarget: TPatternUndoTarget read FUndoTarget write FUndoTarget;
     procedure LoadPattern(Idx: Integer; PatternNumber: Integer);
+    procedure RestoreSelection(ACursor, AOther: TSelectionPos);
+    procedure EnableLocalUndo;
+    procedure ResetUndo;
 
     function GetAt(SelectionPos: TSelectionPos): Integer;
     procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
@@ -204,6 +225,102 @@ implementation
 
 uses Forms;
 
+type
+  { TPatternEditUndoAction }
+
+  TPatternEditUndoAction = class(TUndoAction)
+  private
+    FTarget: TPatternUndoTarget;
+    FBookmark: TPatternUndoBookmark;
+    FBefore, FAfter: TPatternUndoState;
+  public
+    constructor Create(Target: TPatternUndoTarget;
+      Bookmark: TPatternUndoBookmark; const BeforeState,
+      AfterState: TPatternUndoState);
+    destructor Destroy; override;
+    procedure Undo; override;
+    procedure Redo; override;
+  end;
+
+  { TLocalPatternUndoTarget }
+
+  TLocalPatternUndoTarget = class(TPatternUndoTarget)
+  private
+    FGrid: TTrackerGrid;
+  public
+    constructor Create(Grid: TTrackerGrid);
+    procedure Apply(const State: TPatternUndoState;
+      Bookmark: TPatternUndoBookmark); override;
+  end;
+
+function TPatternUndoTarget.CaptureBookmark(
+  const PatternNumbers: array of Integer): TPatternUndoBookmark;
+begin
+  Result := nil;
+end;
+
+constructor TPatternEditUndoAction.Create(Target: TPatternUndoTarget;
+  Bookmark: TPatternUndoBookmark; const BeforeState,
+  AfterState: TPatternUndoState);
+begin
+  inherited Create;
+  FTarget := Target;
+  FBookmark := Bookmark;
+  FBefore := BeforeState;
+  FAfter := AfterState;
+end;
+
+destructor TPatternEditUndoAction.Destroy;
+begin
+  FBookmark.Free;
+  inherited;
+end;
+
+procedure TPatternEditUndoAction.Undo;
+begin
+  FTarget.Apply(FBefore, FBookmark);
+end;
+
+procedure TPatternEditUndoAction.Redo;
+begin
+  FTarget.Apply(FAfter, FBookmark);
+end;
+
+constructor TLocalPatternUndoTarget.Create(Grid: TTrackerGrid);
+begin
+  inherited Create;
+  FGrid := Grid;
+end;
+
+procedure TLocalPatternUndoTarget.Apply(const State: TPatternUndoState;
+  Bookmark: TPatternUndoBookmark);
+var
+  I: Integer;
+begin
+  for I := Low(State.Patterns) to High(State.Patterns) do begin
+    FGrid.PatternMap.GetOrCreateNew(State.Patterns[I].PatternNumber)^ :=
+      State.Patterns[I].Pattern;
+    FGrid.PatternNumbers[I] := State.Patterns[I].PatternNumber;
+    FGrid.Patterns[I] :=
+      FGrid.PatternMap.GetOrCreateNew(State.Patterns[I].PatternNumber);
+  end;
+  FGrid.RestoreSelection(State.Cursor, State.Other);
+end;
+
+function SavedPatternSetsEqual(const A, B: TSavedPatternSet): Boolean;
+var
+  I: Integer;
+begin
+  if Length(A) <> Length(B) then Exit(False);
+
+  for I := Low(A) to High(A) do
+    if (A[I].PatternNumber <> B[I].PatternNumber)
+    or not CompareMem(@A[I].Pattern, @B[I].Pattern, SizeOf(TPattern)) then
+      Exit(False);
+
+  Result := True;
+end;
+
 { TTableGrid }
 
 procedure TTableGrid.RenderCell(const Cell: TCell);
@@ -261,21 +378,29 @@ procedure TTableGrid.InputVolume(Key: Word);
 var
   Temp: Nibble;
 begin
-  BeginUndoAction;
-  with Patterns[Cursor.X]^[Cursor.Y] do begin
-    if Key = VK_DELETE then Volume := 0
-    else if KeycodeToHexNumber(Key, Temp) then begin
-      if TrackerSettings.DisplayRowNumbersAsHex then begin
-        Volume := ((Volume mod 16) * 16) + Temp;
-        if Volume > 99 then Volume := Temp;
-      end
-      else if InRange(Temp, 0, 9) then
-        Volume := ((Volume mod 10) * 10) + Temp;
-    end;
-  end;
+  Temp := 0;
+  if (Key <> VK_DELETE) and not KeycodeToHexNumber(Key, Temp) then Exit;
+  if (Key <> VK_DELETE) and not TrackerSettings.DisplayRowNumbersAsHex
+  and not InRange(Temp, 0, 9) then Exit;
 
-  Invalidate;
-  EndUndoAction;
+  BeginUndoAction;
+  try
+    with Patterns[Cursor.X]^[Cursor.Y] do begin
+      if Key = VK_DELETE then Volume := 0
+      else begin
+        if TrackerSettings.DisplayRowNumbersAsHex then begin
+          Volume := ((Volume mod 16) * 16) + Temp;
+          if Volume > 99 then Volume := Temp;
+        end
+        else
+          Volume := ((Volume mod 10) * 10) + Temp;
+      end
+    end;
+
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTableGrid.IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
@@ -364,8 +489,6 @@ begin
   SetLength(PatternNumbers, NumColumns);
 
   NestedUndoCount := 0;
-  Performed := TUndoDeque.Create;
-  Recall := TRedoStack.Create;
 
   for I := Low(LastFxParam) to High(LastFxParam) do
     LastFxParam[I] := Byte(0);
@@ -382,21 +505,28 @@ begin
 end;
 
 destructor TTrackerGrid.Destroy;
-var
-  Q: TUndoRedoAction;
 begin
-  // There's an FPC version which includes a bugged destructor for TDeque, in
-  // which it will segfault when freeing an empty TDeque. To avoid this, we put
-  // an element in it first. TODO: Remove this ridiculous hack once the fix gets
-  // released to the stable channel.
-  Q.After := nil;
-  Q.Before := nil;
-  Performed.PushFront(Q);
-
-  Performed.Free;
-  Recall.Free;
-
+  // Local history actions refer to the local target, so discard them first.
+  FOwnedUndoManager.Free;
+  FOwnedUndoTarget.Free;
   inherited;
+end;
+
+procedure TTrackerGrid.EnableLocalUndo;
+begin
+  if not Assigned(FOwnedUndoManager) then begin
+    FOwnedUndoManager := TUndoManager.Create;
+    FOwnedUndoTarget := TLocalPatternUndoTarget.Create(Self);
+  end;
+  FUndoManager := FOwnedUndoManager;
+  FUndoTarget := FOwnedUndoTarget;
+  FResetUndoOnPatternChange := True;
+end;
+
+procedure TTrackerGrid.ResetUndo;
+begin
+  if Assigned(FUndoManager) then
+    FUndoManager.Reset;
 end;
 
 procedure TTrackerGrid.Paint;
@@ -538,16 +668,17 @@ begin
 
   if DraggingSelection then begin
     BeginUndoAction;
+    try
+      Selection := GetSelection;
+      EraseSelection;
+      PerformPaste(Selection, DragSelCursor);
+      Cursor := DragSelCursor;
+      Other := DragSelOther;
 
-    Selection := GetSelection;
-    EraseSelection;
-    PerformPaste(Selection, DragSelCursor);
-    Cursor := DragSelCursor;
-    Other := DragSelOther;
-
-    DraggingSelection := False;
-
-    EndUndoAction;
+      DraggingSelection := False;
+    finally
+      EndUndoAction;
+    end;
   end;
 
   NormalizeCursors;
@@ -669,23 +800,20 @@ procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos; Mix
 var
   X, Y: Integer;
 begin
-  try
-    for Y := 0 to High(Paste) do begin
-      if not InRange(Where.Y+Y, 0, NumRows-1) then Continue;
-      for X := 0 to High(Paste[Y]) do begin
-        if not InRange(Where.X+X, Low(Patterns), High(Patterns)) then Continue;
-        OverlayCell(Patterns[Where.X + X]^[Where.Y + Y], Paste[Y, X]);
-      end;
+  X := 0;
+  Y := 0;
+  for Y := 0 to High(Paste) do begin
+    if not InRange(Where.Y+Y, 0, NumRows-1) then Continue;
+    for X := 0 to High(Paste[Y]) do begin
+      if not InRange(Where.X+X, Low(Patterns), High(Patterns)) then Continue;
+      OverlayCell(Patterns[Where.X + X]^[Where.Y + Y], Paste[Y, X]);
     end;
-    Other := Where;
-    Cursor.X := Other.X + X;
-    Cursor.Y := Other.Y + Y;
-    Other.SelectedPart := Low(TCellPart);
-    Cursor.SelectedPart := High(TCellPart);
-  except
-    on E: Exception do
-      DebugLn('[DEBUG] Clipboard did not contain valid note data!');
   end;
+  Other := Where;
+  Cursor.X := Other.X + X;
+  Cursor.Y := Other.Y + Y;
+  Other.SelectedPart := Low(TCellPart);
+  Cursor.SelectedPart := High(TCellPart);
 end;
 
 procedure TTrackerGrid.PerformPaste(Paste: TSelection; Mix: Boolean = False);
@@ -704,61 +832,64 @@ var
   I: Integer;
 begin
   BeginUndoAction;
-
   try
-    Selection := GetPastedCells;
-    I := Cursor.Y;
-    while I < NumRows do begin
-      Cursor.Y := I;
-      PerformPaste(Selection);
-      Inc(I, High(Selection)+1);
+    try
+      Selection := GetPastedCells;
+      I := Cursor.Y;
+      while I < NumRows do begin
+        Cursor.Y := I;
+        PerformPaste(Selection);
+        Inc(I, High(Selection)+1);
+      end;
+    except
+      on E: EClipboardFormatException do begin
+        DebugLn('[WARNING] ', E.Message);
+        Exit
+      end;
     end;
-  except
-    on E: EClipboardFormatException do begin
-      DebugLn('[WARNING] ', E.Message);
-      RevertUndoAction;
-      Exit
-    end;
-  end;
 
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.DoMixPaste;
 begin
   BeginUndoAction;
-
   try
-    PerformPaste(GetPastedCells, True);
-  except
-    on E: EClipboardFormatException do begin
-      DebugLn('[WARNING] ', E.Message);
-      RevertUndoAction;
-      Exit
+    try
+      PerformPaste(GetPastedCells, True);
+    except
+      on E: EClipboardFormatException do begin
+        DebugLn('[WARNING] ', E.Message);
+        Exit
+      end;
     end;
-  end;
 
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.DoPaste(var Msg: TLMessage);
 begin
   BeginUndoAction;
-
   try
-    PerformPaste(GetPastedCells);
-  except
-    on E: EClipboardFormatException do begin
-      DebugLn('[WARNING] ', E.Message);
-      RevertUndoAction;
-      Exit
+    try
+      PerformPaste(GetPastedCells);
+    except
+      on E: EClipboardFormatException do begin
+        DebugLn('[WARNING] ', E.Message);
+        Exit
+      end;
     end;
-  end;
 
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.DoCopy(var Msg: TLMessage);
@@ -842,12 +973,13 @@ var
 begin
   if NestedUndoCount = 0 then begin
     // Save the "before" to our current undo action, so that EndUndoAction
-    // can save the "after" and commit it to the Performed stack.
-    CurrentUndoAction := Default(TUndoRedoAction);
+    // can save the "after" and submit it to the assigned undo manager.
+    CurrentUndoBefore := Default(TPatternUndoState);
+    CurrentUndoBefore.Cursor := Cursor;
+    CurrentUndoBefore.Other := Other;
+    SetLength(CurrentUndoBefore.Patterns, NumColumns);
     for I := Low(Patterns) to High(Patterns) do begin
-      SetLength(CurrentUndoAction.Before, NumColumns);
-      SetLength(CurrentUndoAction.After, NumColumns);
-      with CurrentUndoAction.Before[I] do begin
+      with CurrentUndoBefore.Patterns[I] do begin
         Pattern := Patterns[I]^;
         PatternNumber := PatternNumbers[I];
       end;
@@ -860,74 +992,47 @@ end;
 procedure TTrackerGrid.EndUndoAction;
 var
   I: Integer;
+  AfterState: TPatternUndoState;
+  Bookmark: TPatternUndoBookmark;
 begin
-  if NestedUndoCount = 1 then begin
-    // First, clear out the recall stack
-    while not Recall.IsEmpty do
-      Recall.Pop;
+  if NestedUndoCount <= 0 then
+    raise Exception.Create('Unbalanced tracker undo transaction');
 
-    // Save the "after" to our current undo action
+  if NestedUndoCount = 1 then begin
+    AfterState := Default(TPatternUndoState);
+    AfterState.Cursor := Cursor;
+    AfterState.Other := Other;
+    SetLength(AfterState.Patterns, NumColumns);
     for I := Low(Patterns) to High(Patterns) do
-      with CurrentUndoAction.After[I] do begin
+      with AfterState.Patterns[I] do begin
         Pattern := Patterns[I]^;
         PatternNumber := PatternNumbers[I];
       end;
 
-    // Commit the action to the Performed stack
-    Performed.PushFront(CurrentUndoAction);
-
-    // Keep the stack size, at maximum, UNDO_STACK_SIZE
-    while Performed.Size > UNDO_STACK_SIZE do
-      Performed.PopBack;
+    if not SavedPatternSetsEqual(CurrentUndoBefore.Patterns,
+      AfterState.Patterns) then begin
+      if Assigned(UndoManager) <> Assigned(UndoTarget) then
+        raise Exception.Create('Incomplete tracker undo configuration');
+      if Assigned(UndoManager) then begin
+        Bookmark := UndoTarget.CaptureBookmark(PatternNumbers);
+        UndoManager.Commit(TPatternEditUndoAction.Create(UndoTarget, Bookmark,
+          CurrentUndoBefore, AfterState));
+      end;
+    end;
   end;
-
-  Dec(NestedUndoCount);
-end;
-
-procedure TTrackerGrid.RevertUndoAction;
-begin
-  // Don't save the undo action, just decrement the nested undo count.
   Dec(NestedUndoCount);
 end;
 
 procedure TTrackerGrid.DoUndo;
-var
-  State: TUndoRedoAction;
-  I: Integer;
 begin
-  if Performed.IsEmpty then Exit;
-
-  State := Performed.Front;
-  Performed.PopFront;
-
-  Recall.Push(State);
-
-  for I := Low(State.Before) to High(State.Before) do begin
-    LoadPattern(I, State.Before[I].PatternNumber);
-    Patterns[I]^ := State.Before[I].Pattern;
-  end;
-
-  Invalidate;
+  if (NestedUndoCount = 0) and Assigned(UndoManager) then
+    UndoManager.Undo;
 end;
 
 procedure TTrackerGrid.DoRedo;
-var
-  State: TUndoRedoAction;
-  I: Integer;
 begin
-  if Recall.IsEmpty then Exit;
-
-  State := Recall.Top;
-  Recall.Pop;
-
-  Performed.PushFront(State);
-
-  for I := Low(State.After) to High(State.After) do begin
-    LoadPattern(I, State.After[I].PatternNumber);
-    Patterns[I]^ := State.After[I].Pattern;
-  end;
-
-  Invalidate;
+  if (NestedUndoCount = 0) and Assigned(UndoManager) then
+    UndoManager.Redo;
 end;
 
 procedure TTrackerGrid.RenderSelectedArea;
@@ -1060,29 +1165,31 @@ var
   Pos: TSelectionPos;
 begin
   BeginUndoAction;
+  try
+    NormalizeCursors;
 
-  NormalizeCursors;
+    Pos := Cursor;
 
-  Pos := Cursor;
-
-  while Pos.Y <= Other.Y do begin
-    while Pos <= Other do begin
-      case Pos.SelectedPart of
-        cpNote: IncrementAt(Pos, Note);
-        cpInstrument: IncrementAt(Pos, Instrument);
-        cpVolume: IncrementAt(Pos, Volume);
-        cpEffectCode: IncrementAt(Pos, EffectCode);
-        cpEffectParams: IncrementAt(Pos, EffectParam);
+    while Pos.Y <= Other.Y do begin
+      while Pos <= Other do begin
+        case Pos.SelectedPart of
+          cpNote: IncrementAt(Pos, Note);
+          cpInstrument: IncrementAt(Pos, Instrument);
+          cpVolume: IncrementAt(Pos, Volume);
+          cpEffectCode: IncrementAt(Pos, EffectCode);
+          cpEffectParams: IncrementAt(Pos, EffectParam);
+        end;
+        IncSelectionPos(Pos);
       end;
-      IncSelectionPos(Pos);
+      Inc(Pos.Y);
+      Pos.X := Cursor.X;
+      Pos.SelectedPart := Cursor.SelectedPart;
     end;
-    Inc(Pos.Y);
-    Pos.X := Cursor.X;
-    Pos.SelectedPart := Cursor.SelectedPart;
-  end;
 
-  Invalidate;
-  EndUndoAction
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.InterpolateSelection;
@@ -1091,35 +1198,36 @@ var
   Pos: TSelectionPos;
   StartCell: TCell;
 begin
-  BeginUndoAction;
-
   NormalizeCursors;
-
   if Cursor.Y = Other.Y then Exit;
 
-  if Cursor.SelectedPart = cpEffectCode then begin
-    Cursor.SelectedPart := cpEffectParams;
-    Other.SelectedPart := cpEffectParams;
+  BeginUndoAction;
+  try
+    if Cursor.SelectedPart = cpEffectCode then begin
+      Cursor.SelectedPart := cpEffectParams;
+      Other.SelectedPart := cpEffectParams;
+    end;
+
+    StartCell := Patterns[Cursor.x]^[Cursor.Y];
+
+    S := GetAt(Cursor);
+    E := GetAt(Other);
+    Len := Other.Y - Cursor.Y;
+
+    Pos := Cursor;
+    while Pos.Y <= Other.Y do begin
+      SetAt(Pos, Trunc(Lerp(S, E, ((Pos.Y - Cursor.Y) / Len))));
+
+      if Pos.SelectedPart = cpEffectParams then
+        Patterns[Pos.X]^[Pos.Y].EffectCode := StartCell.EffectCode;
+
+      Inc(Pos.Y)
+    end;
+
+    Invalidate;
+  finally
+    EndUndoAction;
   end;
-
-  StartCell := Patterns[Cursor.x]^[Cursor.Y];
-
-  S := GetAt(Cursor);
-  E := GetAt(Other);
-  Len := Other.Y - Cursor.Y;
-
-  Pos := Cursor;
-  while Pos.Y <= Other.Y do begin
-    SetAt(Pos, Trunc(Lerp(S, E, ((Pos.Y - Cursor.Y) / Len))));
-
-    if Pos.SelectedPart = cpEffectParams then
-      Patterns[Pos.X]^[Pos.Y].EffectCode := StartCell.EffectCode;
-
-    Inc(Pos.Y)
-  end;
-
-  Invalidate;
-  EndUndoAction
 end;
 
 procedure TTrackerGrid.ChangeSelectionInstrument;
@@ -1128,34 +1236,38 @@ var
   R: Integer;
 begin
   BeginUndoAction;
+  try
+    NormalizeCursors;
 
-  NormalizeCursors;
+    for R := Cursor.Y to Other.Y do begin
+      Pos := Cursor;
+      Pos.Y := R;
+      while Pos <= Other do begin
+        with Patterns[Pos.X]^[Pos.Y] do
+          if Note <> NO_NOTE then
+            Instrument := SelectedInstrument;
 
-  for R := Cursor.Y to Other.Y do begin
-    Pos := Cursor;
-    Pos.Y := R;
-    while Pos <= Other do begin
-      with Patterns[Pos.X]^[Pos.Y] do
-        if Note <> NO_NOTE then
-          Instrument := SelectedInstrument;
-
-      IncSelectionPos(Pos);
+        IncSelectionPos(Pos);
+      end;
     end;
-  end;
 
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.OpenEffectEditor;
 begin
   BeginUndoAction;
+  try
+    frmEffectEditor.Cell := @Patterns[Cursor.X]^[Cursor.Y];
+    frmEffectEditor.ShowModal;
 
-  frmEffectEditor.Cell := @Patterns[Cursor.X]^[Cursor.Y];
-  frmEffectEditor.ShowModal;
-
-  Invalidate;
-  EndUndoAction
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.EraseSelection;
@@ -1164,20 +1276,22 @@ var
   R: Integer;
 begin
   BeginUndoAction;
+  try
+    NormalizeCursors;
 
-  NormalizeCursors;
-
-  for R := Cursor.Y to Other.Y do begin
-    X := Cursor;
-    X.Y := R;
-    while X <= Other do begin
-      ClearAt(X);
-      IncSelectionPos(X);
+    for R := Cursor.Y to Other.Y do begin
+      X := Cursor;
+      X.Y := R;
+      while X <= Other do begin
+        ClearAt(X);
+        IncSelectionPos(X);
+      end;
     end;
-  end;
 
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.InputNoteValue(Note: Integer);
@@ -1188,16 +1302,19 @@ begin
   if Cursor.SelectedPart <> cpNote then Exit;
 
   BeginUndoAction;
-  Cell := @Patterns[Cursor.X]^[Cursor.Y];
-  Cell^.Note := Note;
-  if SelectedInstrument <> 0 then
-    Cell^.Instrument := SelectedInstrument;
+  try
+    Cell := @Patterns[Cursor.X]^[Cursor.Y];
+    Cell^.Note := Note;
+    if SelectedInstrument <> 0 then
+      Cell^.Instrument := SelectedInstrument;
 
-  Inc(Cursor.Y, Step);
-  ClampCursors;
+    Inc(Cursor.Y, Step);
+    ClampCursors;
 
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.InputNote(Key: Word);
@@ -1212,15 +1329,21 @@ procedure TTrackerGrid.InputInstrument(Key: Word);
 var
   Temp: Nibble;
 begin
-  BeginUndoAction;
-  with Patterns[Cursor.X]^[Cursor.Y] do begin
-    if Key = VK_DELETE then Instrument := 0
-    else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
-      Instrument := ((Instrument mod 10) * 10) + Temp;
-  end;
+  Temp := 0;
+  if (Key <> VK_DELETE)
+  and (not KeycodeToHexNumber(Key, Temp) or not InRange(Temp, 0, 9)) then Exit;
 
-  Invalidate;
-  EndUndoAction;
+  BeginUndoAction;
+  try
+    with Patterns[Cursor.X]^[Cursor.Y] do begin
+      if Key = VK_DELETE then Instrument := 0
+      else Instrument := ((Instrument mod 10) * 10) + Temp;
+    end;
+
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.InputVolume(Key: Word);
@@ -1229,40 +1352,54 @@ begin
 end;
 
 procedure TTrackerGrid.InputEffectCode(Key: Word);
+var
+  Temp: Nibble;
 begin
-  BeginUndoAction;
-  with Patterns[Cursor.X]^[Cursor.Y] do
-    if Key = VK_DELETE then begin
-      EffectCode := 0;
-      EffectParams.Value := 0;
-    end
-    else begin
-      KeycodeToHexNumber(Key, EffectCode);
-      if EffectParams.Value = 0 then
-        EffectParams.Value := LastFxParam[EffectCode];
-    end;
+  Temp := 0;
+  if (Key <> VK_DELETE) and not KeycodeToHexNumber(Key, Temp) then Exit;
 
-  Invalidate;
-  EndUndoAction;
+  BeginUndoAction;
+  try
+    with Patterns[Cursor.X]^[Cursor.Y] do
+      if Key = VK_DELETE then begin
+        EffectCode := 0;
+        EffectParams.Value := 0;
+      end
+      else begin
+        EffectCode := Temp;
+        if EffectParams.Value = 0 then
+          EffectParams.Value := LastFxParam[EffectCode];
+      end;
+
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.InputEffectParams(Key: Word);
 var
   Temp: Nibble;
 begin
-  BeginUndoAction;
-  with Patterns[Cursor.X]^[Cursor.Y] do
-    if Key = VK_DELETE then begin
-      EffectCode := 0;
-      EffectParams.Value := 0;
-    end
-    else if KeycodeToHexNumber(Key, Temp) then begin
-      EffectParams.Value := ((EffectParams.Value mod $10) * $10) + Temp;
-      LastFxParam[EffectCode] := EffectParams.Value;
-    end;
+  Temp := 0;
+  if (Key <> VK_DELETE) and not KeycodeToHexNumber(Key, Temp) then Exit;
 
-  Invalidate;
-  EndUndoAction;
+  BeginUndoAction;
+  try
+    with Patterns[Cursor.X]^[Cursor.Y] do
+      if Key = VK_DELETE then begin
+        EffectCode := 0;
+        EffectParams.Value := 0;
+      end
+      else begin
+        EffectParams.Value := ((EffectParams.Value mod $10) * $10) + Temp;
+        LastFxParam[EffectCode] := EffectParams.Value;
+      end;
+
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.RenderRow(Row: Integer);
@@ -1623,15 +1760,18 @@ var
   I: Integer;
 begin
   BeginUndoAction;
-  NormalizeCursors;
+  try
+    NormalizeCursors;
 
-  for I := NumRows-1 downto Cursor.Y do
-    Patterns[Pattern]^[I] := Patterns[Pattern]^[I-1];
+    for I := NumRows-1 downto Cursor.Y + 1 do
+      Patterns[Pattern]^[I] := Patterns[Pattern]^[I-1];
 
-  BlankCell(Patterns[Pattern]^[Cursor.Y]);
+    BlankCell(Patterns[Pattern]^[Cursor.Y]);
 
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.InsertRowInAllAtCursor;
@@ -1639,12 +1779,14 @@ var
   I: Integer;
 begin
   BeginUndoAction;
+  try
+    for I := Low(Patterns) to High(Patterns) do
+      InsertRowInPatternAtCursor(I);
 
-  for I := Low(Patterns) to High(Patterns) do
-    InsertRowInPatternAtCursor(I);
-
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.DeleteRowInPatternAtCursor(Pattern: Integer);
@@ -1652,15 +1794,18 @@ var
   I: Integer;
 begin
   BeginUndoAction;
-  NormalizeCursors;
+  try
+    NormalizeCursors;
 
-  for I := Cursor.Y to NumRows-2 do
-    Patterns[Pattern]^[I] := Patterns[Pattern]^[I+1];
+    for I := Cursor.Y to NumRows-2 do
+      Patterns[Pattern]^[I] := Patterns[Pattern]^[I+1];
 
-  BlankCell(Patterns[Pattern]^[NumRows-1]);
+    BlankCell(Patterns[Pattern]^[NumRows-1]);
 
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.DeleteRowInAllAtCursor;
@@ -1668,12 +1813,14 @@ var
   I: Integer;
 begin
   BeginUndoAction;
+  try
+    for I := Low(Patterns) to High(Patterns) do
+      DeleteRowInPatternAtCursor(I);
 
-  for I := Low(Patterns) to High(Patterns) do
-    DeleteRowInPatternAtCursor(I);
-
-  Invalidate;
-  EndUndoAction;
+    Invalidate;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 procedure TTrackerGrid.SelectAll;
@@ -1700,8 +1847,20 @@ end;
 
 procedure TTrackerGrid.LoadPattern(Idx: Integer; PatternNumber: Integer);
 begin
+  if FResetUndoOnPatternChange and Assigned(Patterns[Idx])
+  and (PatternNumbers[Idx] <> PatternNumber) then
+    ResetUndo;
   Patterns[Idx] := PatternMap.GetOrCreateNew(PatternNumber);
   PatternNumbers[Idx] := PatternNumber; // Ugh
+  Invalidate;
+end;
+
+procedure TTrackerGrid.RestoreSelection(ACursor, AOther: TSelectionPos);
+begin
+  Cursor := ACursor;
+  Other := AOther;
+  ClampCursors;
+  EnsureCursorVisible;
   Invalidate;
 end;
 
