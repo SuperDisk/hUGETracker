@@ -2099,7 +2099,7 @@ begin
     Playing := True;
 
     PokeSymbol(SYM_CURRENT_ORDER, 2*OrderEditStringGrid.Row);
-    PokeSymbol(SYM_ROW, 0);
+    PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
     PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
 
     UnlockPlayback;
@@ -2340,7 +2340,7 @@ begin
     Playing := True;
 
     PokeSymbol(SYM_CURRENT_ORDER, 2*OrderEditStringGrid.Row);
-    PokeSymbol(SYM_ROW, 0);
+    PokeSymbol(SYM_ROW, TrackerGrid.Cursor.Y);
     PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
     PokeSymbol(SYM_SINGLE_STEPPING, 1);
     PokeSymbol(SYM_SINGLE_STEP_STOPPED, 0);

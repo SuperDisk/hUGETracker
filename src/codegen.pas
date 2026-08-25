@@ -116,9 +116,10 @@ const
   // Calls use these compact internal tokens while the compressor is working.
   // They are rendered as PATTERN_CALL plus a two-byte absolute address.
   INTERNAL_CALL_BASE = 201;
-  // hUGEDriver sizes each channel's return stack from this upper bound.
-  // Keep MAX_PATTERN_ROUTINES in hUGEDriver.asm in sync with this value.
   MAX_PATTERN_ROUTINES = 54;
+  // hUGEDriver sizes each channel's return stack from this upper bound.
+  // Keep MAX_PATTERN_DEPTH in hUGEDriver.asm in sync with this value.
+  MAX_PATTERN_DEPTH = 4;
   MAX_ROUTINE_LENGTH = 64;
 
 var
@@ -520,6 +521,9 @@ var
   ReferenceCounts, RoutineMap: array of Integer;
   Active: array of Boolean;
   BestRoutine, Saving, BestSaving, NewRoutineIndex: Integer;
+  RoutineDepth, MaxPrefixDepth: array of Integer;
+  DepthVisitState: array of Byte;
+  DepthCandidate, DepthCandidateCost, InlineCost: Integer;
   Channel: TChannel;
   CompactedRoutines: TRoutineDictionary;
   Group: ^TGroupEncoding;
@@ -667,6 +671,63 @@ var
     end;
   end;
 
+  function MeasureRoutineDepth(ARoutineIndex: Integer): Integer;
+  var
+    Token, CalledRoutine, ChildDepth: Integer;
+  begin
+    if DepthVisitState[ARoutineIndex] = 2 then
+      Exit(RoutineDepth[ARoutineIndex]);
+    if DepthVisitState[ARoutineIndex] = 1 then
+      raise Exception.Create('Recursive pattern phrase cycle');
+
+    DepthVisitState[ARoutineIndex] := 1;
+    Result := 1;
+    for Token in Group^.Routines[ARoutineIndex] do begin
+      if not InRange(Token, INTERNAL_CALL_BASE,
+        INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1) then Continue;
+      CalledRoutine := Token - INTERNAL_CALL_BASE;
+      if not InRange(CalledRoutine, 0, Length(Active) - 1) or
+        not Active[CalledRoutine] then
+        raise Exception.CreateFmt('Invalid pattern phrase call %d',
+          [CalledRoutine]);
+      ChildDepth := 1 + MeasureRoutineDepth(CalledRoutine);
+      if ChildDepth > Result then Result := ChildDepth;
+    end;
+    RoutineDepth[ARoutineIndex] := Result;
+    DepthVisitState[ARoutineIndex] := 2;
+  end;
+
+  procedure PropagateRoutinePrefix(ARoutineIndex, PrefixDepth: Integer);
+  var
+    Token, CalledRoutine, ChildPrefix: Integer;
+  begin
+    if PrefixDepth <= MaxPrefixDepth[ARoutineIndex] then Exit;
+    MaxPrefixDepth[ARoutineIndex] := PrefixDepth;
+    ChildPrefix := PrefixDepth + 1;
+    for Token in Group^.Routines[ARoutineIndex] do begin
+      if not InRange(Token, INTERNAL_CALL_BASE,
+        INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1) then Continue;
+      CalledRoutine := Token - INTERNAL_CALL_BASE;
+      if InRange(CalledRoutine, 0, Length(Active) - 1) and
+        Active[CalledRoutine] then
+        PropagateRoutinePrefix(CalledRoutine, ChildPrefix);
+    end;
+  end;
+
+  procedure PropagatePatternPrefixes(const Stream: TEncodedPattern);
+  var
+    Token, CalledRoutine: Integer;
+  begin
+    for Token in Stream do begin
+      if not InRange(Token, INTERNAL_CALL_BASE,
+        INTERNAL_CALL_BASE + MAX_PATTERN_ROUTINES - 1) then Continue;
+      CalledRoutine := Token - INTERNAL_CALL_BASE;
+      if InRange(CalledRoutine, 0, Length(Active) - 1) and
+        Active[CalledRoutine] then
+        PropagateRoutinePrefix(CalledRoutine, 1);
+    end;
+  end;
+
 begin
   Group := @Result;
   Result.Patterns := nil;
@@ -798,6 +859,60 @@ begin
     end;
   until BestRoutine < 0;
 
+  // Phrase count and phrase nesting are independent. Keep all profitable
+  // phrases, but inline the cheapest routines involved in an over-deep call
+  // chain until the driver-side return stack has a small, fixed bound.
+  repeat
+    SetLength(RoutineDepth, Length(Result.Routines));
+    SetLength(MaxPrefixDepth, Length(Result.Routines));
+    SetLength(DepthVisitState, Length(Result.Routines));
+    for I := 0 to Length(Result.Routines) - 1 do begin
+      RoutineDepth[I] := 0;
+      MaxPrefixDepth[I] := 0;
+      DepthVisitState[I] := 0;
+    end;
+    for RoutineIndex := 0 to Length(Result.Routines) - 1 do
+      if Active[RoutineIndex] then MeasureRoutineDepth(RoutineIndex);
+    for EntryIndex := 0 to Length(Result.Patterns) - 1 do
+      PropagatePatternPrefixes(Result.Patterns[EntryIndex].Pattern);
+
+    SetLength(ReferenceCounts, Length(Result.Routines));
+    for I := 0 to Length(ReferenceCounts) - 1 do ReferenceCounts[I] := 0;
+    for EntryIndex := 0 to Length(Result.Patterns) - 1 do
+      CountRoutineReferences(Result.Patterns[EntryIndex].Pattern);
+    for RoutineIndex := 0 to Length(Result.Routines) - 1 do
+      if Active[RoutineIndex] then
+        CountRoutineReferences(Result.Routines[RoutineIndex]);
+
+    DepthCandidate := -1;
+    DepthCandidateCost := MaxInt;
+    for RoutineIndex := 0 to Length(Result.Routines) - 1 do begin
+      if not Active[RoutineIndex] or
+        (MaxPrefixDepth[RoutineIndex] = 0) or
+        (MaxPrefixDepth[RoutineIndex] + RoutineDepth[RoutineIndex] - 1 <=
+          MAX_PATTERN_DEPTH) then Continue;
+      RoutineBytes := EncodedStreamSize(Result.Routines[RoutineIndex]);
+      InlineCost := ReferenceCounts[RoutineIndex] *
+        (RoutineBytes - PATTERN_CALL_SIZE) -
+        (RoutineBytes + PATTERN_RETURN_SIZE);
+      if InlineCost < DepthCandidateCost then begin
+        DepthCandidate := RoutineIndex;
+        DepthCandidateCost := InlineCost;
+      end;
+    end;
+
+    if DepthCandidate >= 0 then begin
+      for EntryIndex := 0 to Length(Result.Patterns) - 1 do
+        InlineRoutine(Result.Patterns[EntryIndex].Pattern, DepthCandidate,
+          Result.Routines[DepthCandidate]);
+      for RoutineIndex := 0 to Length(Result.Routines) - 1 do
+        if Active[RoutineIndex] and (RoutineIndex <> DepthCandidate) then
+          InlineRoutine(Result.Routines[RoutineIndex], DepthCandidate,
+            Result.Routines[DepthCandidate]);
+      Active[DepthCandidate] := False;
+    end;
+  until DepthCandidate < 0;
+
   SetLength(RoutineMap, Length(Result.Routines));
   NewRoutineIndex := 0;
   for RoutineIndex := 0 to Length(Result.Routines) - 1 do begin
@@ -875,7 +990,7 @@ var
     Inc(Row);
   end;
 
-  procedure DecodeStream(const Stream: TEncodedPattern);
+  procedure DecodeStream(const Stream: TEncodedPattern; Depth: Integer);
   var
     Token, RoutineIndex, NoteRecord: Integer;
   begin
@@ -902,8 +1017,13 @@ var
           raise Exception.CreateFmt(
             'Recursive routine cycle in channel %d pattern %d',
             [Ord(Channel) + 1, Encoding.Patterns[EntryIndex].PatternKey]);
+        if Depth >= MAX_PATTERN_DEPTH then
+          raise Exception.CreateFmt(
+            'Pattern routine depth exceeds %d in channel %d pattern %d',
+            [MAX_PATTERN_DEPTH, Ord(Channel) + 1,
+             Encoding.Patterns[EntryIndex].PatternKey]);
         OnStack[RoutineIndex] := True;
-        DecodeStream(Dictionary.Routines[RoutineIndex]);
+        DecodeStream(Dictionary.Routines[RoutineIndex], Depth + 1);
         OnStack[RoutineIndex] := False;
       end
       else
@@ -924,7 +1044,7 @@ begin
         [Encoding.Patterns[EntryIndex].PatternKey]);
     OriginalPattern := Song.Patterns.Data[PatternIndex];
     Row := Low(TPattern);
-    DecodeStream(Encoding.Patterns[EntryIndex].Pattern);
+    DecodeStream(Encoding.Patterns[EntryIndex].Pattern, 0);
     if Row <> Length(TPattern) then
       raise Exception.CreateFmt(
         'Pattern routine encoding ended early in channel %d pattern %d',
