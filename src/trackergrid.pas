@@ -63,6 +63,9 @@ type
     procedure DoPaste(var Msg: TLMessage); message LM_PASTE;
     procedure DoCopy(var Msg: TLMessage); message LM_COPY;
     procedure DoCut(var Msg: TLMessage); message LM_CUT;
+    procedure WMMouseWheel(var Msg: TLMMouseEvent); message LM_MOUSEWHEEL;
+    procedure WMMouseHWheel(var Msg: TLMMouseEvent); message LM_MOUSEHWHEEL;
+    function ForwardMouseWheelToParent(var Msg: TLMMouseEvent): Boolean;
     procedure BeginUndoAction;
     procedure EndUndoAction;
     procedure RevertUndoAction;
@@ -767,6 +770,70 @@ procedure TTrackerGrid.DoCut(var Msg: TLMessage);
 begin
   DoCopy(Msg);
   EraseSelection;
+end;
+
+function TTrackerGrid.ForwardMouseWheelToParent(var Msg: TLMMouseEvent): Boolean;
+var
+  ParentMsg: TLMMouseEvent;
+  ParentMessage: TLMessage absolute ParentMsg;
+  ScrollMsg: TLMScroll;
+  ScrollMessage: TLMessage absolute ScrollMsg;
+  MousePos: TPoint;
+begin
+  Result := Parent <> nil;
+  if not Result then Exit;
+
+  // LCL's Win32 interface does this automatically, but GTK and Qt do not.
+  // Give the parent its normal wheel event first so its handlers (notably the
+  // Ctrl+wheel editor commands) still get the original delta and modifiers.
+  ParentMsg := Msg;
+  MousePos := Parent.ScreenToClient(ClientToScreen(Point(Msg.X, Msg.Y)));
+  ParentMsg.X := MousePos.X;
+  ParentMsg.Y := MousePos.Y;
+  ParentMsg.Result := 0;
+  Parent.WindowProc(ParentMessage);
+
+  if ParentMsg.Result <> 0 then begin
+    Msg.Result := ParentMsg.Result;
+    Exit;
+  end;
+
+  // TScrollBox has no widget-independent LM_MOUSEWHEEL implementation. Route
+  // an unhandled wheel event through its standard scrollbar message instead.
+  if Parent is TScrollingWinControl then begin
+    ScrollMsg := Default(TLMScroll);
+    if Msg.Msg = LM_MOUSEHWHEEL then begin
+      ScrollMsg.Msg := LM_HSCROLL;
+      if Msg.WheelDelta < 0 then
+        ScrollMsg.ScrollCode := SB_LINELEFT
+      else
+        ScrollMsg.ScrollCode := SB_LINERIGHT;
+    end
+    else begin
+      ScrollMsg.Msg := LM_VSCROLL;
+      if Msg.WheelDelta < 0 then
+        ScrollMsg.ScrollCode := SB_LINEDOWN
+      else
+        ScrollMsg.ScrollCode := SB_LINEUP;
+    end;
+
+    Parent.WindowProc(ScrollMessage);
+    Msg.Result := ScrollMsg.Result;
+  end
+  else
+    Msg.Result := 0;
+end;
+
+procedure TTrackerGrid.WMMouseWheel(var Msg: TLMMouseEvent);
+begin
+  if not ForwardMouseWheelToParent(Msg) then
+    inherited;
+end;
+
+procedure TTrackerGrid.WMMouseHWheel(var Msg: TLMMouseEvent);
+begin
+  if not ForwardMouseWheelToParent(Msg) then
+    inherited;
 end;
 
 procedure TTrackerGrid.BeginUndoAction;
