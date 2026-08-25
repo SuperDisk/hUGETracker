@@ -225,7 +225,7 @@ object frmTracker: TfrmTracker
             Left = 8
             Height = 17
             Top = 182
-            Width = 82
+            Width = 79
             Caption = 'Pattern length'
             ParentColor = False
             ParentFont = False
@@ -2115,6 +2115,11 @@ object frmTracker: TfrmTracker
         ImageIndex = 78
         OnClick = MenuItem34Click
       end
+      object MenuItem61: TMenuItem
+        Caption = 'Import standard MOD ...'
+        ImageIndex = 78
+        OnClick = MenuItem61Click
+      end
       object MenuItem41: TMenuItem
         Caption = 'Import DefleMask DMF ...'
         ImageIndex = 79
@@ -3108,7 +3113,7 @@ object frmTracker: TfrmTracker
   end
   object MODOpenDialog: TOpenDialog
     DefaultExt = '.mod'
-    Filter = 'GBT Player MOD files|*.mod'
+    Filter = 'MOD files|*.mod'
     Left = 472
     Top = 24
   end

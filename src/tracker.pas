@@ -48,6 +48,7 @@ type
     MenuItem58: TMenuItem;
     MenuItem59: TMenuItem;
     MenuItem60: TMenuItem;
+    MenuItem61: TMenuItem;
     SingleStepAction: TAction;
     FileSave1: TAction;
     MenuItem26: TMenuItem;
@@ -317,6 +318,7 @@ type
     procedure MenuItem26Click(Sender: TObject);
     procedure MenuItem55Click(Sender: TObject);
     procedure MenuItem60Click(Sender: TObject);
+    procedure MenuItem61Click(Sender: TObject);
     procedure MenuItem56Click(Sender: TObject);
     procedure MenuItem57Click(Sender: TObject);
     procedure MenuItem58Click(Sender: TObject);
@@ -553,6 +555,7 @@ type
     procedure UpdateHexWaveTextbox;
     procedure UpdateBPMLabel;
     procedure UpdateSongSizeStatus;
+    procedure ImportMOD(ImportMode: TMODImportMode);
 
     function CheckUnsavedChanges: Boolean;
 
@@ -2739,20 +2742,43 @@ begin
 end;
 
 procedure TfrmTracker.MenuItem34Click(Sender: TObject);
+begin
+  ImportMOD(mimGBTPlayer);
+end;
+
+procedure TfrmTracker.MenuItem61Click(Sender: TObject);
+begin
+  ImportMOD(mimStandard);
+end;
+
+procedure TfrmTracker.ImportMOD(ImportMode: TMODImportMode);
 var
   Stream: TStream;
+  NewSong: TSong;
 begin
   if not CheckUnsavedChanges then Exit;
 
+  if ImportMode = mimGBTPlayer then begin
+    MODOpenDialog.Title := 'Import GBT Player MOD';
+    MODOpenDialog.Filter := 'GBT Player MOD files|*.mod|All files|*.*';
+  end
+  else begin
+    MODOpenDialog.Title := 'Import standard MOD';
+    MODOpenDialog.Filter := 'ProTracker MOD files|*.mod|All files|*.*';
+  end;
+
   if MODOpenDialog.Execute then begin
-    DestroySong(Song);
-
     // TODO: Add error checking
-    Stream := TFileStream.Create(MODOpenDialog.FileName, fmOpenRead);
-    Song := LoadSongFromModStream(Stream);
+    Stream := nil;
+    try
+      Stream := TFileStream.Create(MODOpenDialog.FileName, fmOpenRead);
+      NewSong := LoadSongFromModStream(Stream, ImportMode);
+    finally
+      Stream.Free;
+    end;
 
-    Stream.Free;
-
+    DestroySong(Song);
+    Song := NewSong;
     UpdateUIAfterLoad(MODOpenDialog.FileName);
   end;
 end;

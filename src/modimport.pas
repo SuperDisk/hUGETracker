@@ -8,7 +8,11 @@ uses
   Classes, SysUtils, Song, hugedatatypes, fgl, math, constants,
   instruments, LazLoggerBase;
 
-function LoadSongFromModStream(Stream: TStream): TSong;
+type
+  TMODImportMode = (mimGBTPlayer, mimStandard);
+
+function LoadSongFromModStream(Stream: TStream;
+  ImportMode: TMODImportMode = mimGBTPlayer): TSong;
 
 implementation
 
@@ -152,11 +156,18 @@ begin
     end
 end;
 
-function ConvertCell(MC: TMODRow): TCell;
+function ConvertCell(MC: TMODRow; RemapEffects: Boolean): TCell;
 begin
+  Result := Default(TCell);
   Result.Note := ConvertNote(MC.Note);
   Result.Instrument := ConvertInstrument(MC.Instrument);
-  ConvertEffect(MC.Effect.Code, MC.Effect.Params, Result.EffectCode, Result.EffectParams);
+  if RemapEffects then
+    ConvertEffect(MC.Effect.Code, MC.Effect.Params,
+      Result.EffectCode, Result.EffectParams)
+  else begin
+    Result.EffectCode := MC.Effect.Code;
+    Result.EffectParams.Value := MC.Effect.Params;
+  end;
 end;
 
 function ConvertCellCh4(MR: TMODRow): TCell;
@@ -171,6 +182,8 @@ var
 
   NoteIndex: Integer;
 begin
+  Result := Default(TCell);
+
   // https://github.com/RichardULZ/gb-studio/blob/bf6d60ee2530791cae009e3a8cb6b28f900f08d7/buildTools/win32-ia32/mod2gbt/mod2gbt.c#L827
 
   // This makes a smooth Ramp of every noise type, inspired by Pigu-A's Cherry Blossom Dive
@@ -217,7 +230,8 @@ begin
   ConvertEffect(MR.Effect.Code, MR.Effect.Params, Result.EffectCode, Result.EffectParams);
 end;
 
-procedure TranscribeColumn(MP: TMODPattern; Pat: PPattern; Column: Integer);
+procedure TranscribeColumn(MP: TMODPattern; Pat: PPattern; Column: Integer;
+  ImportMode: TMODImportMode);
 var
   I: Integer;
   LastPlayedNote: Integer;
@@ -227,12 +241,12 @@ begin
   LastPlayedInstrument := 0;
 
   for I := Low(MP) to High(MP) do begin
-    if Column = 4 then
+    if (ImportMode = mimGBTPlayer) and (Column = 4) then
       Pat^[I] := ConvertCellCh4(MP[I, Column])
     else
-      Pat^[I] := ConvertCell(MP[I, Column]);
+      Pat^[I] := ConvertCell(MP[I, Column], ImportMode = mimGBTPlayer);
 
-    if (Pat^[I].EffectCode = $C) then begin
+    if (ImportMode = mimGBTPlayer) and (Pat^[I].EffectCode = $C) then begin
       if (Pat^[I].Instrument = 0) then
         Pat^[I].Instrument := LastPlayedInstrument;
 
@@ -245,7 +259,8 @@ begin
   end;
 end;
 
-function LoadSongFromModStream(Stream: TStream): TSong;
+function LoadSongFromModStream(Stream: TStream;
+  ImportMode: TMODImportMode): TSong;
 var
   ModFile: TMODFile;
   I, J, K: Integer;
@@ -276,38 +291,40 @@ begin
 
   InitializeSong(Result);
 
-  // Create the instruments.
+  if ImportMode = mimGBTPlayer then begin
+    // Create the instruments expected by GBT Player modules. The first four
+    // are the default instrument with GBT Player's duty-cycle mapping.
+    Result.Instruments.Duty[1].Duty := 1;
+    Result.Instruments.Duty[2].Duty := 2;
+    Result.Instruments.Duty[3].Duty := 3;
+    Result.Instruments.Duty[4].Duty := 0;
 
-  // First four are just the default instrument with a different duty cycle.
-  Result.Instruments.Duty[1].Duty := 1;
-  Result.Instruments.Duty[2].Duty := 2;
-  Result.Instruments.Duty[3].Duty := 3;
-  Result.Instruments.Duty[4].Duty := 0;
+    for I := 8 to 15 do
+      with Result.Instruments.Wave[I] do begin
+        Waveform := I - 8;
+        Type_ := itWave;
+      end;
 
-  for I := 8 to 15 do
-    with Result.Instruments.Wave[I] do begin
-      Waveform := I - 8;
-      Type_ := itWave;
-    end;
-
-  // Waveforms.
-  for I := Low(GBT_WAVEFORMS) to High(GBT_WAVEFORMS) do
-    for J := Low(GBT_WAVEFORMS[I]) to High(GBT_WAVEFORMS[I]) do begin
-      Result.Waves[I, J*2] := hi(GBT_WAVEFORMS[I, J]);
-      Result.Waves[I, (J*2) + 1] := lo(GBT_WAVEFORMS[I, J]);
-    end;
+    for I := Low(GBT_WAVEFORMS) to High(GBT_WAVEFORMS) do
+      for J := Low(GBT_WAVEFORMS[I]) to High(GBT_WAVEFORMS[I]) do begin
+        Result.Waves[I, J*2] := hi(GBT_WAVEFORMS[I, J]);
+        Result.Waves[I, (J*2) + 1] := lo(GBT_WAVEFORMS[I, J]);
+      end;
+  end
+  else
+    LoadDefaultInstruments(Result);
 
   // Convert all patterns
   for I := Low(ModFile.Patterns) to High(ModFile.Patterns) do begin
     PatternSet := EnsurePatternSet(Result, I);
     TranscribeColumn(ModFile.Patterns[I],
-      Result.Patterns.KeyData[PatternSet.PatternKeys[chDuty1]], 1);
+      Result.Patterns.KeyData[PatternSet.PatternKeys[chDuty1]], 1, ImportMode);
     TranscribeColumn(ModFile.Patterns[I],
-      Result.Patterns.KeyData[PatternSet.PatternKeys[chDuty2]], 2);
+      Result.Patterns.KeyData[PatternSet.PatternKeys[chDuty2]], 2, ImportMode);
     TranscribeColumn(ModFile.Patterns[I],
-      Result.Patterns.KeyData[PatternSet.PatternKeys[chWave]], 3);
+      Result.Patterns.KeyData[PatternSet.PatternKeys[chWave]], 3, ImportMode);
     TranscribeColumn(ModFile.Patterns[I],
-      Result.Patterns.KeyData[PatternSet.PatternKeys[chNoise]], 4);
+      Result.Patterns.KeyData[PatternSet.PatternKeys[chNoise]], 4, ImportMode);
   end;
 
   SetLength(Result.Order, ModFile.SongLen);
