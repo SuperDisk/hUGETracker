@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=hUGETracker
+Comment=The music composition suite for the Nintendo Game Boy
+GenericName=hUGETracker
+Exec=hugetracker %U
+Icon=hugetracker
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Utility;
