@@ -60,6 +60,8 @@ type
     TicksPerRowSpinEdit1: TSpinEdit;
     TicksPerRowSpinEdit2: TSpinEdit;
     TicksPerRowSpinEdit3: TSpinEdit;
+    PatternLengthLabel: TLabel;
+    PatternLengthSpinEdit: TSpinEdit;
     ToolButton11: TToolButton;
     LoopSongToolButton: TToolButton;
     ToolButton12: TToolButton;
@@ -324,6 +326,7 @@ type
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure RevertMenuItemClick(Sender: TObject);
     procedure SingleStepActionExecute(Sender: TObject);
+    procedure PatternLengthSpinEditChange(Sender: TObject);
     procedure TicksPerRowSpinEdit1Change(Sender: TObject);
     procedure TicksPerRowSpinEdit2Change(Sender: TObject);
     procedure TicksPerRowSpinEdit3Change(Sender: TObject);
@@ -628,6 +631,7 @@ begin
   TicksPerRowSpinEdit1.Value := Song.TicksPerRow[1];
   TicksPerRowSpinEdit2.Value := Song.TicksPerRow[2];
   TicksPerRowSpinEdit3.Value := Song.TicksPerRow[3];
+  PatternLengthSpinEdit.Value := Song.PatternLength;
 
   TimerDividerSpinEdit.Value := Song.TimerDivider;
   TimerEnabledCheckBox.Checked := Song.TimerEnabled;
@@ -643,6 +647,7 @@ begin
   LoadedFilename := FileName;
   UpdateWindowTitle;
 
+  RecreateRowNumbers;
   RecreateTrackerGrid;
   CopyOrderToOrderGrid;
 
@@ -1023,7 +1028,7 @@ end;
 
 procedure TfrmTracker.OnTrackerGridCursorOutOfBounds;
 begin
-  if  (TrackerGrid.Cursor.Y > High(TPattern))
+  if  (TrackerGrid.Cursor.Y >= Song.PatternLength)
   and (OrderEditStringGrid.Row < OrderEditStringGrid.RowCount-1) then begin
     OrderEditStringGrid.Row := OrderEditStringGrid.Row+1;
     TrackerGrid.Cursor.Y := Low(TPattern);
@@ -1032,7 +1037,7 @@ begin
   if  (TrackerGrid.Cursor.Y < Low(TPattern))
   and (OrderEditStringGrid.Row > OrderEditStringGrid.FixedRows) then begin
     OrderEditStringGrid.Row := OrderEditStringGrid.Row-1;
-    TrackerGrid.Cursor.Y := High(TPattern);
+    TrackerGrid.Cursor.Y := Song.PatternLength - 1;
   end;
 end;
 
@@ -1310,7 +1315,8 @@ var
 begin
   // Recreate TrackerGrid
   if Assigned(TrackerGrid) then TrackerGrid.Free;
-  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
+  TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4,
+    Song.PatternLength);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.OnDoubleClickedInstrument:=@OnTrackerGridDoubleClickedInstrument;
@@ -1341,6 +1347,7 @@ procedure TfrmTracker.RecreateRowNumbers;
 var
   I: Integer;
 begin
+  RowNumberStringGrid.RowCount := Song.PatternLength;
   RowNumberStringGrid.Clean;
   RowNumberStringGrid1.Clean;
   // Add the row numbers to the string grid
@@ -2368,6 +2375,39 @@ begin
 
     UnlockPlayback;
   end
+end;
+
+procedure TfrmTracker.PatternLengthSpinEditChange(Sender: TObject);
+var
+  NewLength, OldSelectedInstrument, OldOctave, OldStep: Integer;
+  OldCursor, OldOther: TSelectionPos;
+begin
+  NewLength := EnsureRange(PatternLengthSpinEdit.Value, 1,
+    Length(TPattern));
+  if Song.PatternLength = NewLength then Exit;
+
+  Song.PatternLength := NewLength;
+  if LoadingFile then Exit;
+
+  if Playing then HaltPlayback;
+  OldCursor := TrackerGrid.Cursor;
+  OldOther := TrackerGrid.Other;
+  OldSelectedInstrument := TrackerGrid.SelectedInstrument;
+  OldOctave := TrackerGrid.SelectedOctave;
+  OldStep := TrackerGrid.Step;
+  RecreateRowNumbers;
+  RecreateTrackerGrid;
+
+  OldCursor.Y := EnsureRange(OldCursor.Y, 0, NewLength - 1);
+  OldOther.Y := EnsureRange(OldOther.Y, 0, NewLength - 1);
+  TrackerGrid.Cursor := OldCursor;
+  TrackerGrid.Other := OldOther;
+  TrackerGrid.SelectedInstrument := OldSelectedInstrument;
+  TrackerGrid.SelectedOctave := OldOctave;
+  TrackerGrid.Step := OldStep;
+  TableGrid.SelectedOctave := OldOctave;
+  TableGrid.Step := OldStep;
+  ReloadPatterns;
 end;
 
 procedure TfrmTracker.FileSave1Execute(Sender: TObject);

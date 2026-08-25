@@ -74,12 +74,12 @@ object frmTracker: TfrmTracker
         ParentFont = False
         object SongInformationGroupbox: TGroupBox
           Left = 8
-          Height = 192
+          Height = 224
           Top = 8
-          Width = 297
+          Width = 360
           Caption = 'Song information'
-          ClientHeight = 188
-          ClientWidth = 293
+          ClientHeight = 220
+          ClientWidth = 356
           ParentFont = False
           TabOrder = 0
           object Label15: TLabel
@@ -220,6 +220,28 @@ object frmTracker: TfrmTracker
             ParentFont = False
             TabOrder = 7
             Value = 7
+          end
+          object PatternLengthLabel: TLabel
+            Left = 8
+            Height = 17
+            Top = 182
+            Width = 82
+            Caption = 'Pattern length'
+            ParentColor = False
+            ParentFont = False
+          end
+          object PatternLengthSpinEdit: TSpinEdit
+            Left = 133
+            Height = 27
+            Hint = 'Number of rows played and exported for each pattern.'
+            Top = 176
+            Width = 50
+            MaxValue = 64
+            MinValue = 1
+            OnChange = PatternLengthSpinEditChange
+            ParentFont = False
+            TabOrder = 8
+            Value = 64
           end
         end
       end

@@ -5,7 +5,7 @@ unit FurImport;
 
 // Ported from fur2uge (C#, MIT): https://github.com/potatoTeto/fur2uge
 // Loads a Furnace Tracker .fur file directly into a hUGETracker TSong.
-// Preserves fur2uge's known limitations: GB module only, 64-row patterns,
+// Preserves fur2uge's known limitations: GB module only, up to 64-row patterns,
 // 15 instruments/channel type, hardware envelopes only, one effect column.
 
 interface
@@ -1322,10 +1322,12 @@ begin
   try
     Reader.Parse;
 
-    if Reader.PatternLen <> 64 then
+    if (Reader.PatternLen < 1) or
+      (Reader.PatternLen > Length(TPattern)) then
       raise EFurException.CreateFmt(
-        'Pattern length must be 64 (got %d). Adjust in Furnace and re-export.',
-        [Reader.PatternLen]);
+        'Pattern length must be between 1 and %d (got %d).',
+        [Length(TPattern), Reader.PatternLen]);
+    Result.PatternLength := Reader.PatternLen;
     if Reader.TotalChanCount <> 4 then
       raise EFurException.CreateFmt(
         'Expected 4 Game Boy channels, got %d.', [Reader.TotalChanCount]);

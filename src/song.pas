@@ -117,6 +117,7 @@ type
     Waves: TWaveBank;
 
     TicksPerRow: packed array[0..3] of Integer;
+    PatternLength: Integer;
 
     TimerEnabled: Boolean;
     TimerDivider: Integer;
@@ -417,6 +418,8 @@ begin
      - SizeOf(TRoutineBank);
 
   S.Read(ASong, N);
+  ASong.PatternLength := EnsureRange(ASong.PatternLength, 1,
+    Length(TPattern));
 
   ASong.Patterns := TPatternMap.Create;
   S.Read(N, SizeOf(Integer));
@@ -598,6 +601,7 @@ begin
   S.TicksPerRow[1] := 7;
   S.TicksPerRow[2] := 7;
   S.TicksPerRow[3] := 7;
+  S.PatternLength := Length(TPattern);
   S.TimerDivider := 0;
   S.TimerEnabled := False;
   S.Patterns := TPatternMap.Create;
@@ -915,6 +919,7 @@ begin
   SV7.TicksPerRow[1] := S.TicksPerRow;
   SV7.TicksPerRow[2] := S.TicksPerRow;
   SV7.TicksPerRow[3] := S.TicksPerRow;
+  SV7.PatternLength := Length(TPattern);
 
   SV7.TimerEnabled := S.TimerEnabled;
   SV7.TimerDivider := S.TimerDivider;
